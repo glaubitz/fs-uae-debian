@@ -1,0 +1,26 @@
+Description: 0002-dont-copy-upstream-copying-file.patch
+ fs-uae copies its license files into the /usr/share/doc
+ directories of the respective Debian packages. This is
+ redundant and lintian complains about it. This patch
+ changes the install target in the appropriate Makefiles
+ to avoid the copying.
+
+--- fs-uae-2.2.3.orig/Makefile
++++ fs-uae-2.2.3/Makefile
+@@ -652,7 +652,7 @@ install:
+ 	cp -R share/* $(DESTDIR)$(prefix)/share
+ 
+ 	install -d $(DESTDIR)$(docdir)
+-	cp README COPYING example.conf $(DESTDIR)$(docdir)
++	cp README example.conf $(DESTDIR)$(docdir)
+ 
+ clean:
+ 	rm -f gensrc/build68k gensrc/genblitter gensrc/gencpu gensrc/genlinetoscr
+--- fs-uae-2.2.3.orig/launcher/Makefile.mk
++++ fs-uae-2.2.3/launcher/Makefile.mk
+@@ -26,4 +26,4 @@ install:
+ 	cp -a share/* $(DESTDIR)$(prefix)/share
+ 
+ 	mkdir -p $(DESTDIR)$(prefix)/share/doc/fs-uae-launcher
+-	cp -a README COPYING $(DESTDIR)$(prefix)/share/doc/fs-uae-launcher
++	cp -a README $(DESTDIR)$(prefix)/share/doc/fs-uae-launcher

@@ -1,13 +1,19 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
+
+override_dh_auto_build:
+	dh_auto_build
+	dh_auto_build --sourcedirectory=launcher
+	make -C launcher -f Makefile.mk
+
+override_dh_auto_install:
+	make install prefix=$$(pwd)/debian/fs-uae/usr
+	make -C launcher -f Makefile.mk install prefix=$$(pwd)/debian/fs-uae-launcher/usr
+	cd launcher && python setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-launcher --install-lib=/usr/share/fs-uae-launcher --install-scripts=/usr/share/fs-uae-launcher
+	cd server && python setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-netplay-server --install-lib=/usr/share/fs-uae-netplay-server --install-scripts=/usr/share/fs-uae-netplay-server
 
 %:
 	dh $@ 

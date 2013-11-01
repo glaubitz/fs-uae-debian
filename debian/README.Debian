@@ -1,0 +1,21 @@
+fs-uae for Debian
+-----------------
+
+fs-uae is split into three packages:
+
+  * fs-uae - the main package, you need to install this if you want
+             to run fs-uae; fs-uae comes with a full-screen menu
+	     which allows simple configuration and loading of
+	     disk images; since the emulator ships with a
+	     free built-in Kickstart ROM, there is no need to
+	     resort to external, proprietary ROMs from Commodore
+
+  * fs-uae-launcher - a comfortable graphical user interface which
+                      allows for a more detailed configuration of
+		      fs-uae
+
+  * fs-uae-netplay-server - a server daemon which allows multiplayer
+                            games over a network across different
+			    platforms running the emulator
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Thu, 31 Jan 2013 14:38:00 +0100

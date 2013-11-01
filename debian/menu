@@ -1,0 +1,6 @@
+?package(fs-uae):\
+  title="FS-UAE"\
+  section="Applications/Emulators"\
+  icon="/usr/share/pixmaps/fs-uae.xpm"\
+  needs="X11"\
+  command="/usr/bin/fs-uae"

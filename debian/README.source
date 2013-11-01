@@ -1,0 +1,24 @@
+fs-uae for Debian
+-----------------
+
+The original source tarball comes with three debian directories, one in
+the main directory for the fs-uae package, one in the directory "launcher"
+for the fs-uae-launcher package and one for the package fs-uae-netplay-server
+in the directory "server".
+
+These directories are ignored by debhelper which honors a new, custom
+debian directory specific to this packaging.
+
+There are some lintian-related warnings unaddressed which will be fixed
+in future uploads in collaboration with the upstream author.
+
+Furthermore, the source was re-packaged to re-add the directory
+src/contrib which is currently missing in the fs-uae upstream
+tarball. It contains a Python script to generate src/sinctable.cpp
+and was originally part of the uae source. It was retrieved from
+http://fossies.org/linux/privat/uade-2.13.tar.gz. Additionally,
+src/catweasel.cpp and src/core.cw4.cpp since the latter is a binary
+blob driver with no available source code. It's used on Windows
+only anyway.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 01 Nov 2013 14:34:30 +0100

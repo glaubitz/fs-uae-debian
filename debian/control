@@ -1,12 +1,12 @@
 Source: fs-uae
 Section: otherosfs
-Priority: extra
-Maintainer: Frode Solheim <fs-uae@fengestad.no>
-Build-Depends: debhelper (>= 7.0.50~), libsdl1.2-dev, libglib2.0-dev, libopenal-dev, gettext, libfreetype6-dev
-Standards-Version: 3.8.4
-Homepage: http://www.fengestad.no/fs-uae
-#Vcs-Git: git://git.debian.org/collab-maint/fs-uae.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/fs-uae.git;a=summary
+Priority: optional
+Maintainer: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Build-Depends: debhelper (>= 9), libsdl1.2-dev, libglib2.0-dev, libopenal-dev, gettext, python (>= 2.6), python-setuptools, glee-dev
+Standards-Version: 3.9.4
+Homepage: http://fs-uae.net
+Vcs-Git: git://github.com/glaubitz/fs-uae-debian.git
+Vcs-Browser: https://github.com/glaubitz/fs-uae-debian
 
 Package: fs-uae
 Architecture: any
@@ -15,3 +15,25 @@ Description: Cross-platform Amiga emulator based on UAE/WinUAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
  for graphics.
+
+Package: fs-uae-launcher
+Architecture: all
+Depends: python (>= 2.6), ${misc:Depends}, fs-uae, python-pygame, python-wxgtk2.8, python-setuptools
+Description: Launcher and configuration program for FS-UAE
+ FS-UAE is a cross-platform Amiga emulator based on updated emulation code
+ from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
+ for graphics.
+ .
+ This package contains the launcher, a graphical user interface for
+ setting up FS-UAE.
+
+Package: fs-uae-netplay-server
+Architecture: all
+Depends: python (>= 2.6), ${misc:Depends}, adduser (>= 3.11)
+Description: Netplay server for FS-UAE online play
+ FS-UAE is a cross-platform Amiga emulator based on updated emulation code
+ from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
+ for graphics.
+ .
+ This package contains the FS-UAE netplay game server, and a service
+ to start game servers on demand.
