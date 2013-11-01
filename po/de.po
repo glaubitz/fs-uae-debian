@@ -1,0 +1,250 @@
+# German translations for fs-uae package.
+# Copyright (C) 2012 Frode Solheim
+# This file is distributed under the same license as the fs-uae package.
+# Frode Solheim <fs-uae@fengestad.no>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fs-uae\n"
+"Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
+"POT-Creation-Date: 2013-02-24 22:16+0100\n"
+"PO-Revision-Date: 2013-02-25 19:38+0100\n"
+"Last-Translator: Jens Weichert <nexusle@me.com>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.5\n"
+
+msgid "Activated debugger"
+msgstr "Debugger aktiviert"
+
+msgid "Amiga Control"
+msgstr "Amiga Kontrollen"
+
+#. / TRANSLATORS: In context "Zoom: Auto"
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Auto-Fire is Off"
+msgstr "Dauerfeuer ist ausgeschaltet"
+
+msgid "Auto-Fire is On"
+msgstr "Dauerfeuer ist eingeschaltet"
+
+#, c-format
+msgid "Auto-fire disabled for port %d"
+msgstr "Dauerfeuer ausgeschaltet für Port %d"
+
+#, c-format
+msgid "Auto-fire enabled for port %d"
+msgstr "Dauerfeuer eingeschaltet für Port %d"
+
+#. / TRANSLATORS: Empty or nothing
+#, c-format
+msgid "CD%d: Empty"
+msgstr "CD%d: Leer"
+
+msgid "CD32 Pad Mode"
+msgstr "CD32-Gamepad-Modus"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+msgid "Custom Joystick Port"
+msgstr "Benutzerdef. Joystickport"
+
+msgid "Custom Mode"
+msgstr "Benutzerdef. Modus"
+
+#. / TRANSLATORS: Empty or nothing
+#, c-format
+msgid "DF%d: Empty"
+msgstr "DF%d: Leer"
+
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+msgid "Eject"
+msgstr "Auswerfen"
+
+msgid "Empty"
+msgstr "Leer"
+
+msgid "Emulator Control"
+msgstr "Emulator Kontrollen"
+
+#. / TRANSLATORS: In context "Zoom: Full Frame"
+msgid "Full Frame"
+msgstr "Volles Frame"
+
+#, c-format
+msgid "HD not found: %s"
+msgstr "HDD nicht gefunden: %s"
+
+#. / TRANSLATORS: Hard reset is a computer reboot with an emulated power
+#. / cycle
+msgid "Hard Reset"
+msgstr "Kaltstart"
+
+msgid "Input Options"
+msgstr "Eingabeoptionen"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+#, c-format
+msgid "Insert Into CD%d"
+msgstr "In CD%d: einlegen"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+#, c-format
+msgid "Insert Into DF%d"
+msgstr "In DF%d: einlegen"
+
+msgid "Invalid number of CD-ROM drives specified"
+msgstr "Ungültige Anzahl von CDROM-Laufwerken spezifiziert"
+
+msgid "Joystick Mode"
+msgstr "Joystick-Modus"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+#, c-format
+msgid "Joystick Port %d"
+msgstr "Joystickport %d"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+#, c-format
+msgid "Joystick Port %d Device"
+msgstr "Gerät Joystickport %d"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+#, c-format
+msgid "Joystick Port %d Mode"
+msgstr "Modus Joystickport %d"
+
+msgid "Joystick Port 0"
+msgstr "Joystickport 0"
+
+msgid "Joystick Port 1"
+msgstr "Joystickport 1"
+
+msgid "Joystick Port 2"
+msgstr "Joystickport 2"
+
+msgid "Joystick Port 3"
+msgstr "Joystickport 3"
+
+msgid "Joystick Port 4"
+msgstr "Joystickport 4"
+
+msgid "Joystick Ports"
+msgstr "Joystickports"
+
+msgid "Keyboard"
+msgstr "Tastatur"
+
+msgid "Load"
+msgstr "Laden"
+
+msgid "More..."
+msgstr "Mehr..."
+
+msgid "Mouse"
+msgstr "Maus"
+
+msgid "Mouse Mode"
+msgstr "Maus-Modus"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long: If you struggle
+#. / to get in short enough, just translate "No Device" instead.
+msgid "No Amiga Device"
+msgstr "Kein Amigagerät"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long: If you struggle
+#. / to get in short enough, just translate "No Device" instead.
+msgid "No Host Device"
+msgstr "Kein Hostgerät"
+
+msgid "No configuration file was found"
+msgstr "Konfigurationsdatei nicht gefunden"
+
+#, c-format
+msgid "Option \"%s\" is not enabled"
+msgstr "Option \"%s\" ist nicht aktiviert"
+
+msgid "Option chip_memory must be a multiple of 512"
+msgstr "Für die Option chip_memory muss 512 der Multiplikator sein"
+
+msgid "Option fast_memory must be a multiple of 1024"
+msgstr "Für die Option fast_memory muss 1024 der Multiplikator sein"
+
+msgid "Option slow_memory must be a multiple of 256"
+msgstr "Für die Option slow_memory muss 256 der Multiplikator sein"
+
+msgid "Option uaegfx.card needs a CPU with 32-bit addressing"
+msgstr "Option uaegfx_card benötigt eine CPU mit 32bit-Adressierung"
+
+msgid "Option zorro_iii_memory must be a multiple of 1024"
+msgstr "Für die Option zorro_iii_memory muss 1024 der Multiplikator sein"
+
+msgid "Options zorro_iii_memory needs a CPU with 32-bit addressing"
+msgstr "Die Option zorro_iii_memory benötigt eine CPU mit 32bit-Adressierung"
+
+#. / TRANSLATORS: This is a menu entry and must not be too long
+msgid "Parallel Joystick Ports"
+msgstr "Par. Joystick Anschl."
+
+msgid "Pause"
+msgstr "Pause"
+
+#, c-format
+msgid "Port 0: %s"
+msgstr "Anschluß 0: %s"
+
+msgid "Port Settings"
+msgstr "Anschluß-Einstellungen"
+
+msgid "Removable Media"
+msgstr "Wechseldatenträger"
+
+#. / TRANSLATORS: Reset Amiga as in reboot the computer
+msgid "Reset Amiga"
+msgstr "Amiga neustarten"
+
+msgid "Resume"
+msgstr "Widerrufen"
+
+msgid "Save"
+msgstr "Sichern"
+
+msgid "Save States"
+msgstr "Speicherstände"
+
+#. / TRANSLATORS: Soft reset reboots the computer without a power cycle
+msgid "Soft Reset"
+msgstr "Warmstart"
+
+msgid "Warp mode disabled"
+msgstr "Warp-Modus deaktiviert"
+
+msgid "Warp mode enabled"
+msgstr "Warp-Modus aktiviert"
+
+msgid "Zoom is disabled in RTG mode"
+msgstr "Zoom ist abgeschaltet im RTG Modus"
+
+#, c-format
+msgid "Zoom: %s"
+msgstr "Zoom: %s"
+
+#, c-format
+msgid "Zoom: %s + Border"
+msgstr "Zoom: %s + Rand"
+
+#~ msgid "CD32 Gamepad"
+#~ msgstr "CD32 Gamepad"
+
+#~ msgid "Host Device"
+#~ msgstr "Hostgerät"
+
+#~ msgid "Joystick"
+#~ msgstr "Joystick"
