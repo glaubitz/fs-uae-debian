@@ -40,6 +40,7 @@ Comment: Full source here: http://aminet.net/package/dev/debug/HRTmon
 Files: src/cdrom-handler.cpp
 Copyright: 1993-1994 Frank Munkert <ln_fmu@pki-nbg.philips.de>
 License: Public Domain
+Comment: Full source here: http://aminet.net/package/disk/cdrom/AmiCDROM-1.15
 
 Files: src/aros.rom.cpp
 Copyright: 1995-2013 The AROS Development Team <digulla@aros.org>
