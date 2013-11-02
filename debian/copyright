@@ -40,10 +40,6 @@ Files: src/cdrom-handler.cpp
 Copyright: 1993-1994 Frank Munkert <ln_fmu at pki-nbg.philips.de>
 License: Public Domain
 
-Files: src/core.cw4.cpp
-Copyright: 2002-2009 Individual Computers <jens@icomp.de>
-License: Public Domain
-
 Files: src/aros.rom.cpp
 Copyright: 1995-2013 The AROS Development Team <digulla@aros.org>
 License: APL
