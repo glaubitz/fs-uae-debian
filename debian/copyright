@@ -35,6 +35,7 @@ License: BSD-3-clause
 Files: src/hrtmon.rom.cpp
 Copyright: 1991-1998 Alain Malek <alain.malek@cryogen.com>
 License: GPL-2+
+Comment: Full source here: http://aminet.net/package/dev/debug/HRTmon
 
 Files: src/cdrom-handler.cpp
 Copyright: 1993-1994 Frank Munkert <ln_fmu@pki-nbg.philips.de>
