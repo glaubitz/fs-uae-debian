@@ -1,3 +1,18 @@
+fs-uae (2.2.3+dfsg-2) unstable; urgency=low
+
+  * Remove entry for src/core.cw4.cpp in debian/copyright.
+  * Fix formatting for email address for src/cdrom-handler.cpp entry
+    in debian/copyright.
+  * Add comment with source code reference for src/hrtmon.rom.cpp
+    in debian/copyright.
+  * Add comment with source code reference for src/cdrom-handler.cpp
+    in debian/copyright.
+  * Add Debian patch to disable the JIT compiler on anything but i386.
+  * Add Debian patch to provide generic access functions to the virtual
+    Amiga's memory to support architectures other than x86, PPC and ARMEL.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Tue, 05 Nov 2013 00:19:26 +0100
+
 fs-uae (2.2.3+dfsg-1) unstable; urgency=low
 
   * Initial release (Closes: #680899)
