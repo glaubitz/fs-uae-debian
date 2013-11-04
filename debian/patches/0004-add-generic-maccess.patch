@@ -1,0 +1,79 @@
+Description: Add generic maccess.h defines
+ The inline assembly functions defined in src/od-fs/machdep
+ do not support any architectures beside ARMEL, ppc
+ and x86. This patch adds generic C code which will
+ be used on architectures other than the ones mentioned
+ above.
+
+--- /dev/null
++++ fs-uae-2.2.3+dfsg/src/od-fs/machdep/generic/maccess.h
+@@ -0,0 +1,57 @@
++ /*
++  * UAE - The Un*x Amiga Emulator
++  *
++  * Memory access functions
++  *
++  * Copyright 1996 Bernd Schmidt
++  */
++
++static __inline__ uint32_t do_get_mem_long(uint32_t *a)
++{
++    uint8_t *b = (uint8_t *)a;
++
++    return (*b << 24) | (*(b+1) << 16) | (*(b+2) << 8) | (*(b+3));
++}
++
++static __inline__ uint16_t do_get_mem_word(uint16_t *a)
++{
++    uint8_t *b = (uint8_t *)a;
++
++    return (*b << 8) | (*(b+1));
++}
++
++static __inline__ uint8_t do_get_mem_byte(uint8_t *a)
++{
++    return *a;
++}
++
++static __inline__ void do_put_mem_long(uint32_t *a, uint32_t v)
++{
++    uint8_t *b = (uint8_t *)a;
++
++    *b = v >> 24;
++    *(b+1) = v >> 16;
++    *(b+2) = v >> 8;
++    *(b+3) = v;
++}
++
++static __inline__ void do_put_mem_word(uint16_t *a, uint16_t v)
++{
++    uint8_t *b = (uint8_t *)a;
++
++    *b = v >> 8;
++    *(b+1) = v;
++}
++
++static __inline__ void do_put_mem_byte(uint8_t *a, uint8_t v)
++{
++    *a = v;
++}
++
++#define ALIGN_POINTER_TO32(p) ((~(unsigned long)(p)) & 3)
++
++#define call_mem_get_func(func, addr) ((*func)(addr))
++#define call_mem_put_func(func, addr, v) ((*func)(addr, v))
++
++#undef NO_INLINE_MEMORY_ACCESS
++#undef MD_HAVE_MEM_1_FUNCS
+--- fs-uae-2.2.3+dfsg.orig/src/od-fs/machdep/maccess.h
++++ fs-uae-2.2.3+dfsg/src/od-fs/machdep/maccess.h
+@@ -2,6 +2,8 @@
+ #include "machdep/arm/maccess.h"
+ #elif __ppc__
+ #include "machdep/ppc/maccess.h"
+-#else
++#elif defined(__i386__) || defined(__x86_64__)
+ #include "machdep/x86/maccess.h"
++#else
++#include "machdep/generic/maccess.h"
+ #endif
