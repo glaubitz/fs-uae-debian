@@ -1,0 +1,37 @@
+Description: Add build support for kFreeBSD
+ Currently, the build system of fs-uae does not support GNU/kFreeBSD
+ at all. It will detect these systems as pure FreeBSD systems and
+ tries to build fs-uae with the gmake command and link against
+ libcompat which results in an FTBFS. Replacing the call to 'gmake'
+ with 'make' and linking against 'dl' instead of 'compat' fixes
+ the FTFBS.
+
+--- fs-uae-2.2.3+dfsg.orig/Makefile
++++ fs-uae-2.2.3+dfsg/Makefile
+@@ -149,6 +149,9 @@ else ifeq ($(os), macosx)
+   ldflags += -arch $(arch) -headerpad_max_install_names
+   cppflags += -DMACOSX
+   libs += -framework OpenGL -framework Carbon -framework OpenAL
++else ifeq ($(os), kfreebsd)
++  cppflags += -DFREEBSD
++  libs += -lGL -lGLU -lopenal -ldl -lX11
+ else ifeq ($(os), freebsd)
+   cppflags += -DFREEBSD
+   libs += -lGL -lGLU -lopenal -lX11 -lcompat
+--- fs-uae-2.2.3+dfsg.orig/common.mk
++++ fs-uae-2.2.3+dfsg/common.mk
+@@ -27,6 +27,14 @@ cxx = g++
+ ar = ar
+ make = make
+ 
++else ifneq ($(findstring kFreeBSD,$(uname)),)
++
++os = kfreebsd
++cc = $(CC)
++cxx = $(CXX)
++ar = $(AR)
++make = make
++
+ else ifneq ($(findstring FreeBSD,$(uname)),)
+ 
+ os = freebsd
