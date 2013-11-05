@@ -2,7 +2,8 @@ Description: Disable the JIT compiler on non-i386 architectures
  Upstream disables the JIT compiler on x86_64, PPC and ARMEL
  by default only which breaks any other architecture. This
  patch negates the #ifdef logic such that JIT is enabled
- on i386 only.
+ on i386 only. Also, disable on FREEBSD as well as the
+ JIT code results in an FTBFS there as well.
 
 --- fs-uae-2.2.3+dfsg.orig/src/od-fs/defines.h
 +++ fs-uae-2.2.3+dfsg/src/od-fs/defines.h
@@ -15,8 +16,8 @@ Description: Disable the JIT compiler on non-i386 architectures
 -#elif defined(OPENBSD)
 -// no sys/ucontext.h header
 -#else
-+//enable JIT on i386 only except OpenBSD
-+#if defined(__i386__) && !defined(OPENBSD)
++//enable JIT on i386 only except OpenBSD and FREEBSD
++#if defined(__i386__) && !defined(OPENBSD) && !defined(FREEBSD)
  #define JIT
  #define JIT_DEBUG
  #endif
