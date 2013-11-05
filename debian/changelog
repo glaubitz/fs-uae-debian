@@ -1,3 +1,10 @@
+fs-uae (2.2.3+dfsg-4) unstable; urgency=low
+
+  * Update Debian JIT compiler disable patch to include
+    kFreeBSD/i386 since the JIT doesn't build here either.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Tue, 05 Nov 2013 23:43:28 +0100
+
 fs-uae (2.2.3+dfsg-3) unstable; urgency=low
 
   * Enable version mangling for debian/watch file.
