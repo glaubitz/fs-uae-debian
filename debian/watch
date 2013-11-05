@@ -1,2 +1,3 @@
 version=3
+opts=dversionmangle=s/\.dfsg// \
 http://fengestad.no/fs-uae/download .*/fs-uae-(\d[^x]*)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz))
