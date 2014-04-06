@@ -5,22 +5,36 @@ Description: 0002-dont-copy-upstream-copying-file.patch
  changes the install target in the appropriate Makefiles
  to avoid the copying.
 
---- fs-uae-2.2.3.orig/Makefile
-+++ fs-uae-2.2.3/Makefile
-@@ -652,7 +652,7 @@ install:
+--- fs-uae-2.4.1+ds.orig/Makefile
++++ fs-uae-2.4.1+ds/Makefile
+@@ -640,7 +640,7 @@ install:
  	cp -R share/* $(DESTDIR)$(prefix)/share
  
  	install -d $(DESTDIR)$(docdir)
 -	cp README COPYING example.conf $(DESTDIR)$(docdir)
 +	cp README example.conf $(DESTDIR)$(docdir)
  
- clean:
- 	rm -f gensrc/build68k gensrc/genblitter gensrc/gencpu gensrc/genlinetoscr
---- fs-uae-2.2.3.orig/launcher/Makefile.mk
-+++ fs-uae-2.2.3/launcher/Makefile.mk
-@@ -26,4 +26,4 @@ install:
+ debsrc: dist
+ 	# test -f $(build_dir)/fs-uae_$(version).orig.tar.gz || cp $(build_dir)/fs-uae-$(version).tar.gz $(build_dir)/fs-uae_$(version).orig.tar.gz
+--- fs-uae-2.4.1+ds.orig/arcade/Makefile
++++ fs-uae-2.4.1+ds/arcade/Makefile
+@@ -57,7 +57,7 @@ install: mo
+ 	cp -a share/* $(DESTDIR)$(prefix)/share
+ 
+ 	mkdir -p $(DESTDIR)$(prefix)/share/doc/fs-uae-arcade
+-	cp -a README COPYING $(DESTDIR)$(prefix)/share/doc/fs-uae-arcade
++	cp -a README $(DESTDIR)$(prefix)/share/doc/fs-uae-arcade
+ 
+ dist_dir := fs-uae-arcade-$(version)
+ 
+--- fs-uae-2.4.1+ds.orig/launcher/Makefile
++++ fs-uae-2.4.1+ds/launcher/Makefile
+@@ -84,7 +84,7 @@ install: mo
  	cp -a share/* $(DESTDIR)$(prefix)/share
  
  	mkdir -p $(DESTDIR)$(prefix)/share/doc/fs-uae-launcher
 -	cp -a README COPYING $(DESTDIR)$(prefix)/share/doc/fs-uae-launcher
 +	cp -a README $(DESTDIR)$(prefix)/share/doc/fs-uae-launcher
+ 
+ dist_dir := fs-uae-launcher-$(version)
+ 
