@@ -1,7 +1,7 @@
 fs-uae for Debian
 -----------------
 
-fs-uae is split into three packages:
+fs-uae is split into four packages:
 
   * fs-uae - the main package, you need to install this if you want
              to run fs-uae; fs-uae comes with a full-screen menu
@@ -14,8 +14,11 @@ fs-uae is split into three packages:
                       allows for a more detailed configuration of
 		      fs-uae
 
+  * fs-uae-arcade -   a fullscreen user interface for browsing and
+                      running games for couch potatoes.
+
   * fs-uae-netplay-server - a server daemon which allows multiplayer
                             games over a network across different
 			    platforms running the emulator
 
- -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Thu, 31 Jan 2013 14:38:00 +0100
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 06 Apr 2014 18:13:00 +0200
