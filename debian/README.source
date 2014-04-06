@@ -1,24 +1,20 @@
 fs-uae for Debian
 -----------------
 
-The original source tarball comes with three debian directories, one in
-the main directory for the fs-uae package, one in the directory "launcher"
-for the fs-uae-launcher package and one for the package fs-uae-netplay-server
-in the directory "server".
+fs-uae version 2.4.0 and later has split up the upstream tarball into
+separate tarballs called "fs-uae", "fs-uae-arcade" and "fs-uae-launcher"
+while dropping the fs-uae-netplay-server package altogether which still
+works, however.
 
-These directories are ignored by debhelper which honors a new, custom
-debian directory specific to this packaging.
+To simplify the packaging process, the upstream tarballs have been merged
+back into a single tarball which is indicated by the +ds suffix in the
+upstream version number.
 
-There are some lintian-related warnings unaddressed which will be fixed
-in future uploads in collaboration with the upstream author.
+Previously, the upstream tarball was re-packaged to drop files which
+were not compliant with the Debian Free Software Guidelines. Furthermore,
+the Python script src/contrib/sinc-integral.py was included which was
+used to generate src/sinctable.cpp. This Python script has been included
+as well and the upstream tarball can now be considered DFSG-compliant,
+hence the +dfsg suffix was dropped from the version number.
 
-Furthermore, the source was re-packaged to re-add the directory
-src/contrib which is currently missing in the fs-uae upstream
-tarball. It contains a Python script to generate src/sinctable.cpp
-and was originally part of the uae source. It was retrieved from
-http://fossies.org/linux/privat/uade-2.13.tar.gz. Additionally,
-src/catweasel.cpp and src/core.cw4.cpp since the latter is a binary
-blob driver with no available source code. It's used on Windows
-only anyway.
-
- -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 01 Nov 2013 14:34:30 +0100
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 06 Apr 2014 18:27:30 +0200
