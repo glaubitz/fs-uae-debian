@@ -23,7 +23,7 @@ from fs_uae_launcher.netplay.oyoyo.ircevents import *
 # Python < 3 compatibility
 if sys.version_info < (3,):
     class bytes(object):
-        def __new__(self, b='', encoding='utf8'):
+        def __new__(cls, b='', encoding='utf8'):
             return str(b)
 
 
@@ -72,7 +72,7 @@ def parse_raw_irc_command(element):
                 args = args[:idx] + [bytes(" ", 'ascii').join(args[idx:])[1:]]
                 break
 
-    return (prefix, command, args)
+    return prefix, command, args
 
 
 def parse_nick(name):
@@ -84,7 +84,7 @@ def parse_nick(name):
     try:
         nick, rest = name.split('!')
     except ValueError:
-        return (name, None, None, None)
+        return name, None, None, None
     try:
         mode, rest = rest.split('=')
     except ValueError:
@@ -92,7 +92,7 @@ def parse_nick(name):
     try:
         user, host = rest.split('@')
     except ValueError:
-        return (name, mode, rest, None)
+        return name, mode, rest, None
 
-    return (name, mode, user, host)
+    return name, mode, user, host
 

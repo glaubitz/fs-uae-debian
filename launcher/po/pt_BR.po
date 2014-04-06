@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae-launcher\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
+"POT-Creation-Date: 2012-12-02 12:47+0100\n"
 "PO-Revision-Date: 2012-12-02 19:20-0000\n"
 "Last-Translator: Mário Mateus <fs-uae-pt@fengestad.no>\n"
 "Language-Team: Portuguese\n"
@@ -36,20 +36,8 @@ msgstr "640x480 + Margem"
 msgid "640x512 + Border"
 msgstr "640x512 + Margem"
 
-msgid "ADF & HDF Creator"
-msgstr ""
-
-msgid "ADF - Extended Floppy Disk Image (MFM)"
-msgstr ""
-
-msgid "ADF - Standard Floppy Disk Image"
-msgstr ""
-
 msgid "Abort"
 msgstr "Cancelar"
-
-msgid "About {name}"
-msgstr ""
 
 msgid "Accurate"
 msgstr "Preciso"
@@ -69,9 +57,6 @@ msgstr "Adicionar Várias Disquetes de Uma  Vez"
 msgid "Additional Options"
 msgstr "Opções Adicionais"
 
-msgid "Amiga Forever Import"
-msgstr ""
-
 msgid "Amiga Forever import task started"
 msgstr "A Acção de  Importar Amiga Forever Começou "
 
@@ -87,12 +72,6 @@ msgstr "Auto"
 msgid "Auto + Border"
 msgstr "Auto + Margem"
 
-msgid "Auto-Fire is Off"
-msgstr ""
-
-msgid "Auto-Fire is On"
-msgstr ""
-
 msgid "Available Kickstart Versions"
 msgstr "Versões do Kickstart Disponiveis"
 
@@ -104,9 +83,6 @@ msgstr "Procurar por um Ficheiro"
 
 msgid "Browse for Folder"
 msgstr "Procurar por uma Pasta"
-
-msgid "Buffer swap only"
-msgstr ""
 
 msgid "Built-in TCP/IP Stack"
 msgstr "Pilha TCP/IP Integrada"
@@ -162,9 +138,6 @@ msgstr "Clica no butão 'Procurar' para começar"
 msgid "Click here to download"
 msgstr "Clica aqui para baixar"
 
-msgid "Click here to import kickstarts"
-msgstr ""
-
 msgid "Close"
 msgstr "Fechar"
 
@@ -180,17 +153,11 @@ msgstr "Configuração"
 msgid "Configuration Browser"
 msgstr "Opções de Configuração"
 
-msgid "Configuration Warning"
-msgstr ""
-
 msgid "Configurations"
 msgstr "Configurações"
 
 msgid "Configure Joystick Buttons"
 msgstr "Configurar os Botões do Joystick"
-
-msgid "Connect"
-msgstr ""
 
 msgid ""
 "Copy {0}\n"
@@ -199,26 +166,14 @@ msgstr ""
 "Copiar {0}\n"
 "para {1}"
 
-msgid "Could not open file for writing"
-msgstr ""
-
-msgid "Create"
-msgstr ""
-
 msgid "Cursor Keys and Right Ctrl/Alt"
 msgstr "Teclas dos Cursores e Ctlr/Alt Direitos"
 
 msgid "Custom"
 msgstr "Personalizado"
 
-msgid "Custom Configuration"
-msgstr ""
-
 msgid "Custom IRC server address"
 msgstr "Servidor de IRC Personalizado"
-
-msgid "Custom Joystick Port"
-msgstr ""
 
 msgid "Custom Options"
 msgstr "Opções Personalizadas"
@@ -231,21 +186,6 @@ msgstr "Por Defeito"
 
 msgid "Default ({0})"
 msgstr "Por Defeito ({0})"
-
-msgid "Destination Directory:"
-msgstr ""
-
-msgid "Disconnect"
-msgstr ""
-
-msgid "Disk Image Name:"
-msgstr ""
-
-msgid "Disk image created"
-msgstr ""
-
-msgid "Download failed (attempt {0}) - retrying in {0} seconds"
-msgstr ""
 
 msgid "Downloading {0}..."
 msgstr "A baixar {0}..."
@@ -263,12 +203,6 @@ msgstr ""
 msgid "Enable online database support (requires restart)"
 msgstr ""
 "Ligar o suporte da base de dados online(requere o reiniciar da aplicação)"
-
-msgid "Error moving file into place"
-msgstr ""
-
-msgid "Error writing disk image"
-msgstr ""
 
 msgid "Expansions"
 msgstr "Expansões"
@@ -291,12 +225,6 @@ msgstr "A puxar ({0}) entrada(s) da base de dados"
 msgid "Fetching game ratings ({0})"
 msgstr "Adquirindo avaliações de jogos ({0})"
 
-msgid "Fetching user game ratings ({0})"
-msgstr ""
-
-msgid "File already exists"
-msgstr ""
-
 msgid "Filters"
 msgstr "Filtros"
 
@@ -314,6 +242,9 @@ msgstr "Drive de disquetes"
 
 msgid "Floppy drive volume"
 msgstr "Nome da Disquete"
+
+msgid "Force Full Vsync"
+msgstr "Vsync Completa Forçada"
 
 msgid "Full Frame"
 msgstr "Ecrã Completo (sem margens)"
@@ -336,9 +267,6 @@ msgstr "Palavra chave da base de dados de jogos"
 msgid "Game database user name"
 msgstr "Nome de utilizador da base de dados de jogos"
 
-msgid "Gamepad/Joystick Setup"
-msgstr ""
-
 msgid "Games and Configurations"
 msgstr "Jogos e Configurações"
 
@@ -347,12 +275,6 @@ msgstr "Capturar as entradas de rato e teclado no arranque do FS-UAE"
 
 msgid "Grab mouse and keyboard input when clicking on FS-UAE window"
 msgstr "Capturar o rato e o teclado quado clicar na janela do FS-UAE"
-
-msgid "HDF - Partitionable Hard Drive Image (RDB)"
-msgstr ""
-
-msgid "HDF - Single Partition Hard Disk File"
-msgstr ""
 
 msgid "Hard Drives"
 msgstr "Discos Rígidos"
@@ -375,9 +297,6 @@ msgstr "Importar"
 msgid "Import From Amiga Forever CD/DVD"
 msgstr "Importar do CD/DVD Amiga Forever"
 
-msgid "Import Kickstarts"
-msgstr ""
-
 msgid "Import Kickstarts and ROMs"
 msgstr "Importar Kickstarts e ROMs"
 
@@ -398,9 +317,6 @@ msgstr "Ajustes da Entrada"
 
 msgid "Internal"
 msgstr "Interno"
-
-msgid "Invalid size specified"
-msgstr ""
 
 msgid "Joystick"
 msgstr "Joystick"
@@ -423,8 +339,8 @@ msgstr "Ajustes do teclado"
 msgid "Kickstart ROM"
 msgstr "Kickstart ROM"
 
-msgid "Kickstart ROMs are missing"
-msgstr ""
+msgid "Kickstart Setup"
+msgstr "Configuração do Kickstart"
 
 msgid "Kickstart import task started"
 msgstr "A Tarefa da importação do Kickstart começou"
@@ -444,14 +360,8 @@ msgstr "Lista de Pastas a Indexar"
 msgid "Low latency vsync (when using full vsync)"
 msgstr "Vsync de baixa latência (quando se usa vsync completa)"
 
-msgid "MB"
-msgstr ""
-
 msgid "Main Configuration Options"
 msgstr "Opções de Configuração Principais"
-
-msgid "Main Menu"
-msgstr ""
 
 msgid "Media Swap List"
 msgstr "Lista dos Media para Trocar"
@@ -461,9 +371,6 @@ msgstr "Memória"
 
 msgid "Mouse"
 msgstr "Rato"
-
-msgid "Mouse & Joystick Ports"
-msgstr ""
 
 msgid "Mouse Settings"
 msgstr "Ajustes do Rato"
@@ -482,12 +389,6 @@ msgstr "Tag para Jogar em Rede (max 3 Caracteres)"
 
 msgid "New Configuration"
 msgstr "Nova Configuração"
-
-msgid "New Disk Image"
-msgstr ""
-
-msgid "Nick:"
-msgstr ""
 
 msgid "No Device"
 msgstr "Sem Dispositivo"
@@ -524,32 +425,14 @@ msgstr "Desligado"
 msgid "On"
 msgstr "Ligado"
 
-msgid "Open Game Database Entry"
-msgstr ""
-
-msgid "Open Hall of Light Entry"
-msgstr ""
-
-msgid "Open LemonAmiga Entry"
-msgstr ""
-
-msgid "Open MobyGames Entry"
-msgstr ""
-
 msgid "Open Scan Dialog"
 msgstr "Abre a Janela de Procura"
 
 msgid "Open Tool to Configure Button Mapping"
 msgstr "Abre a Ferramenta para Configurar os Butões"
 
-msgid "Open Wikipedia Entry"
-msgstr ""
-
 msgid "OpenGL Settings"
 msgstr "Ajustar OpenGL"
-
-msgid "Override Installed Memory"
-msgstr ""
 
 msgid "Parallel Port Joysticks"
 msgstr "Joysticks pela Porta Paralela"
@@ -562,9 +445,6 @@ msgstr "Suporte para Picasso96 (uaegfx.card)"
 
 msgid "Please wait..."
 msgstr "Espere se faz favor..."
-
-msgid "Preferences"
-msgstr ""
 
 msgid "Preferred Joystick"
 msgstr "Joystick Preferido"
@@ -587,14 +467,8 @@ msgstr "A Preparar..."
 msgid "Purging old entries..."
 msgstr "A purgar as entradas antigas..."
 
-msgid "Refresh Game Database"
-msgstr ""
-
 msgid "Refresh game configurations from database"
 msgstr "Actualizar a configuração dos jogos pela base de dados"
-
-msgid "Refresh list of connected joystick devices"
-msgstr ""
 
 msgid "Remove Directory from Search Path"
 msgstr "Remove Pasta do caminho da pesquisa"
@@ -614,9 +488,6 @@ msgstr "Reiniciando a base de dados"
 msgid "Restoring changes..."
 msgstr "A restaurar as mudanças..."
 
-msgid "Retrying last operation (attempt {0})"
-msgstr ""
-
 msgid "Save Configuration"
 msgstr "Guardar a Configuracão"
 
@@ -632,17 +503,11 @@ msgstr "Procurar"
 msgid "Scan & Indexing"
 msgstr "Procurar & Indexar"
 
-msgid "Scan Files and Configurations"
-msgstr ""
-
 msgid "Scan complete"
 msgstr "Procura completa"
 
 msgid "Scan error"
 msgstr "Erro de procura"
-
-msgid "Scan for Files"
-msgstr ""
 
 msgid "Scan for Kickstarts, Files and Configurations"
 msgstr "Procurar Kickstarts, Ficheiros e Configurações"
@@ -671,8 +536,8 @@ msgstr "Procurando Ficheiros, ({count} encontrado(s))"
 msgid "Scanning game database entries..."
 msgstr "Lendo as entradas de jogos na base de dados..."
 
-msgid "Select Destination Directory"
-msgstr ""
+msgid "Select Directory to Import From"
+msgstr "Seleccionar a Pasta para Importar de"
 
 msgid "Select Multiple CD-ROMs"
 msgstr "Seleccionar Vários CD-ROMs"
@@ -682,9 +547,6 @@ msgstr "Seleccionar Vários Ficheiros..."
 
 msgid "Select Multiple Floppies"
 msgstr "Seleccionar Várias Disquetes"
-
-msgid "Select Source Directory"
-msgstr ""
 
 msgid "Select a folder containing Amiga kickstart files and click \"{0}\""
 msgstr ""
@@ -698,14 +560,8 @@ msgid "Show kickstart setup page on startup when all ROMs are missing"
 msgstr ""
 "Mostra a página de configuração dos Kickstart se as ROMs não forem encotradas"
 
-msgid "Size:"
-msgstr ""
-
 msgid "Slow RAM"
 msgstr "Slow RAM"
-
-msgid "Specified directory does not exist"
-msgstr ""
 
 msgid "Start"
 msgstr "Correr"
@@ -722,35 +578,26 @@ msgstr "A começar a procura"
 msgid "Swap left and right CTRL keys"
 msgstr "Trocar as teclas CTRL esquerda pela direita"
 
+msgid "Sync to Vblank"
+msgstr "Sincronizar a VBlank"
+
 msgid "Synchronizing database..."
 msgstr "Sincronizando a base de dados..."
-
-msgid "Synchronizing personal ratings..."
-msgstr ""
 
 msgid "Texture filter"
 msgstr "Filtro de Texturas"
 
-msgid "Toggle Between Windowed and Full-Screen Mode"
-msgstr ""
-
-msgid "Tools"
-msgstr ""
-
 msgid "Ungrab mouse and keyboard on middle mouse click"
 msgstr "Dar o control do teclado e do rato ao clicar o butão do meio do rato"
 
-msgid "Update available ({version})"
-msgstr ""
+msgid "Update ({version}) is available"
+msgstr "Actualização para a  versão ({version}) está disponivel"
 
 msgid "Updating database"
 msgstr "Actualizando a base de dados"
 
 msgid "Updating game entries:"
 msgstr "Actualizando as entradas de jogos"
-
-msgid "Use RDB disk images for size >= {0}"
-msgstr ""
 
 msgid "Video Settings"
 msgstr "Ajustes de Video"
@@ -779,21 +626,3 @@ msgstr "Zoom da Imagem do Amiga (recortado)"
 
 msgid "Zorro III RAM"
 msgstr "Zorro III RAM"
-
-msgid "{amiga_model} with < 2 MB chip memory"
-msgstr ""
-
-#~ msgid "Force Full Vsync"
-#~ msgstr "Vsync Completa Forçada"
-
-#~ msgid "Kickstart Setup"
-#~ msgstr "Configuração do Kickstart"
-
-#~ msgid "Select Directory to Import From"
-#~ msgstr "Seleccionar a Pasta para Importar de"
-
-#~ msgid "Sync to Vblank"
-#~ msgstr "Sincronizar a VBlank"
-
-#~ msgid "Update ({version}) is available"
-#~ msgstr "Actualização para a  versão ({version}) está disponivel"

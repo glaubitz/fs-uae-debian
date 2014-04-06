@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import subprocess
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...Config import Config
 from ...DeviceManager import DeviceManager
 from ...I18N import _, ngettext
@@ -26,11 +26,10 @@ class InputGroup(fsui.Group):
         elif custom_ports:
             heading = _("Custom Joystick Port")
         else:
-            heading = _("Mouse & Joystick Ports")
+            heading = _("Joystick & Mouse Port")
             if False:
                 # Keeping the old string here to keep the translations alive
                 _("Joystick Ports")
-
 
         hori_layout = fsui.HorizontalLayout()
         self.layout.add(hori_layout, fill=True)
@@ -42,7 +41,7 @@ class InputGroup(fsui.Group):
         if with_more_options:
             self.refresh_button = IconButton(self, "refresh_button.png")
             self.refresh_button.set_tooltip(
-                    _("Refresh list of connected joystick devices"))
+                    _("Refresh List of Connected Joystick Devices"))
             self.refresh_button.on_activate = self.on_refresh_button
             hori_layout.add(self.refresh_button, margin_right=10)
 
@@ -56,10 +55,12 @@ class InputGroup(fsui.Group):
         elif custom_ports:
             offset = 4
             count = 1
-        for i in range(count):
+
+        input_ports = [1, 0, 2, 3, 4]
+        for i in input_ports[offset:offset + count]:
             #self.layout.add_spacer(10)
-            selector = InputSelector(self, i + offset)
+            selector = InputSelector(self, i)
             self.layout.add(selector, fill=True, margin=10)
 
-    def on_refresh_button(selfself):
+    def on_refresh_button(self):
         DeviceManager.refresh()

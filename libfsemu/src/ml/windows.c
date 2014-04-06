@@ -46,10 +46,17 @@ void fs_ml_configure_window() {
 }
 
 void fs_ml_prevent_power_saving(void) {
+    // on Windows we only need to call a function once to change the thread
+    // state
+    static int initialized = 0;
+    if (initialized) {
+        return;
+    }
     fs_log("SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED)\n");
     if (!SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED)) {
         fs_log("SetThreadExecutionState failed\n");
     }
+    initialized = 1;
 }
 
 // not used
@@ -92,8 +99,8 @@ void fs_ml_usleep(int usec) {
     SDL_Delay(usec / 1000);
 }
 
-void fs_ml_set_fullscreen_extra() {
-}
+//void fs_ml_set_fullscreen_extra() {
+//}
 
 int fs_ml_video_mode_get_current(fs_ml_video_mode *mode) {
     DEVMODE devmode;

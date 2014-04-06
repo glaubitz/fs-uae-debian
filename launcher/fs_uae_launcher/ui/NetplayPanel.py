@@ -3,13 +3,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ..Settings import Settings
 from ..I18N import _, ngettext
 from ..netplay.IRC import IRC
 from ..netplay.Netplay import Netplay
 from ..netplay.IRCBroadcaster import IRCBroadcaster
 from .Skin import Skin
+
 
 class NetplayPanel(fsui.Panel):
 
@@ -27,29 +28,35 @@ class NetplayPanel(fsui.Panel):
 
         hori_layout.add_spacer(0, expand=True)
 
+        #label = fsui.Label(self, "Netplay is currently disabled in the "
+        #                         "development versions.")
+        #self.layout.add(label, margin=10)
+        #label = fsui.Label(self, "Please use the stable FS-UAE series for "
+        #                         "netplay in the meantime.")
+        #self.layout.add(label, margin=10)
+        #return
+
         # TODO
         _("Nick:")
         _("Connect")
         _("Disconnect")
 
-        """
-        self.nick_label = fsui.Label(self, _("Nick:"))
-        hori_layout.add(self.nick_label,
-                margin=10, margin_top=0, margin_bottom=0)
-
-        self.nick_field = fsui.TextField(self, Settings.get("irc_nick"))
-        self.nick_field.set_min_width(130)
-        hori_layout.add(self.nick_field, margin_right=10)
-        #self.nick_field.on_change = self.on_nick_change
-
-        self.connect_button = fsui.Button(self, _("Connect"))
-        hori_layout.add(self.connect_button, margin_right=10)
-        #self.connect_button.on_activate = self.on_connect_button
-
-        self.disconnect_button = fsui.Button(self, _("Disconnect"))
-        hori_layout.add(self.disconnect_button, margin_right=10)
-        #self.disconnect_button.on_activate = self.on_disconnect_button
-        """
+        # self.nick_label = fsui.Label(self, _("Nick:"))
+        # hori_layout.add(self.nick_label,
+        #         margin=10, margin_top=0, margin_bottom=0)
+        #
+        # self.nick_field = fsui.TextField(self, Settings.get("irc_nick"))
+        # self.nick_field.set_min_width(130)
+        # hori_layout.add(self.nick_field, margin_right=10)
+        # #self.nick_field.on_change = self.on_nick_change
+        #
+        # self.connect_button = fsui.Button(self, _("Connect"))
+        # hori_layout.add(self.connect_button, margin_right=10)
+        # #self.connect_button.on_activate = self.on_connect_button
+        #
+        # self.disconnect_button = fsui.Button(self, _("Disconnect"))
+        # hori_layout.add(self.disconnect_button, margin_right=10)
+        # #self.disconnect_button.on_activate = self.on_disconnect_button
 
         hori_layout = fsui.HorizontalLayout()
         self.layout.add(hori_layout, fill=True, expand=True)
@@ -74,7 +81,7 @@ class NetplayPanel(fsui.Panel):
         #self.layout.add_spacer(6)
 
         self.input_field = fsui.TextField(self)
-        self.input_field.on_activate = self.on_input
+        self.input_field.activated.connect(self.on_input)
         self.layout.add(self.input_field, fill=True, margin=10, margin_top=0)
         #self.layout.add_spacer(20)
 
@@ -84,6 +91,8 @@ class NetplayPanel(fsui.Panel):
         IRCBroadcaster.add_listener(self)
 
     def on_show(self):
+        # FIXME: currently disabled
+        # return
         if not Netplay.is_connected():
             Netplay.connect()
         self.input_field.focus()
@@ -93,6 +102,9 @@ class NetplayPanel(fsui.Panel):
         #if index == 0:
         #    channel = ""
         #else:
+        #assert index is not None
+        if index is None:
+            return
         channel = self.channel_list.get_item(index)
         IRC.set_active_channel(channel)
         self.input_field.focus()
@@ -123,7 +135,7 @@ class NetplayPanel(fsui.Panel):
 
     def update_channel_list(self):
         items = sorted(IRC.channels.keys())
-        #items[0] = u"IRC ({0})".format(Settings.get_irc_server())
+        #items[0] = "IRC ({0})".format(Settings.get_irc_server())
         #items[0] = Settings.get_irc_server()
         self.channel_list.set_items(items)
 

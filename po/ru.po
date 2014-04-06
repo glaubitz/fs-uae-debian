@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
+"POT-Creation-Date: 2012-11-01 19:42+0100\n"
 "PO-Revision-Date: 2012-08-14 11:13+0200\n"
 "Last-Translator: Frode Solheim <fs-uae@fengestad.no>\n"
 "Language-Team: Russian <fs-uae-ru@fengestad.no>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-
-msgid "Activated debugger"
-msgstr ""
 
 msgid "Amiga Control"
 msgstr ""
@@ -50,13 +47,6 @@ msgstr ""
 msgid "CD32 Pad Mode"
 msgstr ""
 
-#. / TRANSLATORS: This is a menu entry and must not be too long
-msgid "Custom Joystick Port"
-msgstr ""
-
-msgid "Custom Mode"
-msgstr ""
-
 #. / TRANSLATORS: Empty or nothing
 #, c-format
 msgid "DF%d: Empty"
@@ -78,10 +68,6 @@ msgstr ""
 msgid "Full Frame"
 msgstr ""
 
-#, c-format
-msgid "HD not found: %s"
-msgstr ""
-
 #. / TRANSLATORS: Hard reset is a computer reboot with an emulated power
 #. / cycle
 msgid "Hard Reset"
@@ -98,9 +84,6 @@ msgstr ""
 #. / TRANSLATORS: This is a menu entry and must not be too long
 #, c-format
 msgid "Insert Into DF%d"
-msgstr ""
-
-msgid "Invalid number of CD-ROM drives specified"
 msgstr ""
 
 msgid "Joystick Mode"
@@ -131,9 +114,6 @@ msgid "Joystick Port 2"
 msgstr ""
 
 msgid "Joystick Port 3"
-msgstr ""
-
-msgid "Joystick Port 4"
 msgstr ""
 
 msgid "Joystick Ports"
@@ -167,37 +147,11 @@ msgstr ""
 msgid "No configuration file was found"
 msgstr ""
 
-#, c-format
-msgid "Option \"%s\" is not enabled"
-msgstr ""
-
-msgid "Option chip_memory must be a multiple of 512"
-msgstr ""
-
-msgid "Option fast_memory must be a multiple of 1024"
-msgstr ""
-
-msgid "Option slow_memory must be a multiple of 256"
-msgstr ""
-
-msgid "Option uaegfx.card needs a CPU with 32-bit addressing"
-msgstr ""
-
-msgid "Option zorro_iii_memory must be a multiple of 1024"
-msgstr ""
-
-msgid "Options zorro_iii_memory needs a CPU with 32-bit addressing"
-msgstr ""
-
 #. / TRANSLATORS: This is a menu entry and must not be too long
 msgid "Parallel Joystick Ports"
 msgstr ""
 
 msgid "Pause"
-msgstr ""
-
-#, c-format
-msgid "Port 0: %s"
 msgstr ""
 
 msgid "Port Settings"
@@ -221,12 +175,6 @@ msgstr ""
 
 #. / TRANSLATORS: Soft reset reboots the computer without a power cycle
 msgid "Soft Reset"
-msgstr ""
-
-msgid "Warp mode disabled"
-msgstr ""
-
-msgid "Warp mode enabled"
 msgstr ""
 
 msgid "Zoom is disabled in RTG mode"

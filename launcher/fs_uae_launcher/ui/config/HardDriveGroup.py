@@ -5,14 +5,15 @@ from __future__ import unicode_literals
 
 import os
 import traceback
-import fs_uae_launcher.fsui as fsui
-from ...Archive import Archive
+from fsgs.ChecksumTool import ChecksumTool
+import fsui as fsui
+from fsgs.Archive import Archive
 from ...Config import Config
-from ...ChecksumTool import ChecksumTool
-from ...I18N import _, ngettext
-from ...Settings import Settings
+from fsgs.FSGSDirectories import FSGSDirectories
+from ...I18N import _
 from ..IconButton import IconButton
-from ..LauncherFileDialog import LauncherFileDialog
+from ..LauncherFilePicker import LauncherFilePicker
+
 
 class HardDriveGroup(fsui.Group):
 
@@ -75,9 +76,8 @@ class HardDriveGroup(fsui.Group):
         self.text_field.set_text(path)
 
     def on_eject_button(self):
-        Config.set_multiple([
-                (self.config_key, ""),
-                (self.config_key_sha1, "")])
+        Config.set_multiple([(self.config_key, ""),
+                             (self.config_key_sha1, "")])
 
     def on_browse_folder_button(self):
         self.browse(dir_mode=True)
@@ -86,14 +86,10 @@ class HardDriveGroup(fsui.Group):
         self.browse(dir_mode=False)
 
     def browse(self, dir_mode):
-        default_dir = Settings.get_hard_drives_dir()
-        #if dir_mode:
-        #    dialog = fsui.DirDialog(self.get_window(), _("Choose Hard Drive"),
-        #            directory=default_dir)
-        #else:
-        dialog = LauncherFileDialog(self.get_window(),
-                _("Choose Hard Drive"), "hd", Config.get(self.config_key),
-                dir_mode=dir_mode)
+        default_dir = FSGSDirectories.get_hard_drives_dir()
+        dialog = LauncherFilePicker(
+            self.get_window(), _("Choose Hard Drive"), "hd",
+            Config.get(self.config_key), dir_mode=dir_mode)
         if not dialog.show_modal():
             dialog.destroy()
             return
@@ -106,7 +102,7 @@ class HardDriveGroup(fsui.Group):
             print("not calculating HD checksums for directories")
         else:
             size = os.path.getsize(path)
-            if size < 64*1024*1024:
+            if size < 64 * 1024 * 1024:
                 sha1 = checksum_tool.checksum(path)
             else:
                 print("not calculating HD checksums HD files > 64MB")
@@ -121,11 +117,11 @@ class HardDriveGroup(fsui.Group):
 
         self.text_field.set_text(path)
         values = [(self.config_key, path),
-                (self.config_key_sha1, sha1)]
+                  (self.config_key_sha1, sha1)]
         if self.index == 0:
             whdload_args = ""
             dummy, ext = os.path.splitext(path)
-            if not dir_mode and ext.lower() in [".zip", ".lha"]:
+            if not dir_mode and ext.lower() in Archive.extensions:
                 try:
                     whdload_args = self.calculate_whdload_args(full_path)
                 except Exception:
@@ -142,10 +138,10 @@ class HardDriveGroup(fsui.Group):
             if lname.endswith(".slave"):
                 if slave:
                     print("already found one slave, don't know which "
-                            "one to choose")
+                          "one to choose")
                     return ""
                 slave = name
             elif lname == "startup-sequence":
                 print("found startup-sequence, assuming non-whdload "
-                        "archive")
+                      "archive")
         return slave

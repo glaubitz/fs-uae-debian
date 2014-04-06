@@ -3,10 +3,11 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import hashlib
-import fs_uae_launcher.fsui as fsui
+import fsui
+from fsgs import fsgs
 from ...Config import Config
 from ...I18N import _, ngettext
+
 
 class CustomOptionsPage(fsui.Panel):
 
@@ -38,10 +39,9 @@ class CustomOptionsPage(fsui.Panel):
 
     def update_config(self):
         text = self.text_area.get_text()
-        keys = Config.config.keys()
-        for key in keys:
+        for key in list(fsgs.config.values.keys()):
             if key not in Config.default_config:
-                del Config.config[key]
+                del fsgs.config.values[key]
 
         for line in text.split("\n"):
             line = line.strip()
@@ -57,20 +57,21 @@ class CustomOptionsPage(fsui.Panel):
 
     def get_initial_text(self):
         text = DEFAULT_TEXT
-        keys = Config.config.keys()
+        keys = fsgs.config.values.keys()
         for key in sorted(keys):
             if key in Config.no_custom_config:
                 continue
-            value = Config.config[key]
+            value = fsgs.config.values[key]
             text += "{0} = {1}\n".format(key, value)
         return text
 
-DEFAULT_TEXT = """# Custom Configuration Options
-#
+DEFAULT_TEXT = """\
 # You can write key = value pairs here to set FS-UAE options for which there
 # are no user interface yet. This is only a temporary feature until the GUI
 # supports all options directly.
 #
 # The options specified here will apply to this configuration only.
+#
+# NOTE: Custom (global) settings are moved to Preferences -> Advanced Settings
 
 """

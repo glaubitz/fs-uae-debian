@@ -26,7 +26,7 @@ from fs_uae_launcher.netplay.oyoyo.parse import parse_nick
 # Python < 3 compatibility
 if sys.version_info < (3,):
     class bytes(object):
-        def __new__(self, b='', encoding='utf8'):
+        def __new__(cls, b='', encoding='utf8'):
             return str(b)
 
 
@@ -105,7 +105,7 @@ class CommandHandler(object):
 
         try:
             f(*args)
-        except Exception, e:
+        except Exception as e:
             logging.error('command raised %s' % e)
             logging.error(traceback.format_exc())
             raise CommandError(command)
@@ -133,7 +133,7 @@ class DefaultBotCommandHandler(CommandHandler):
 
     @protected
     def getVisibleCommands(self, obj=None):
-        test = (lambda x: isinstance(x, CommandHandler) or \
+        test = (lambda x: isinstance(x, CommandHandler) or
                 inspect.ismethod(x) or inspect.isfunction(x))
         members = inspect.getmembers(obj or self, test)
         return [m for m, _ in members
@@ -151,7 +151,7 @@ class DefaultBotCommandHandler(CommandHandler):
         else:
             try:
                 f = self.get(arg)
-            except CommandError, e:
+            except CommandError as e:
                 helpers.msg(self.client, dest, str(e))
                 return
 
@@ -198,7 +198,7 @@ class BotCommandHandler(DefaultCommandHandler):
 
         try:
             self.command_handler.run(command, prefix, dest, *arg)
-        except CommandError, e:
+        except CommandError as e:
             helpers.msg(self.client, dest, str(e))
         return True
 

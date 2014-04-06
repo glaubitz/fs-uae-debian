@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import subprocess
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...Config import Config
 from ...DeviceManager import DeviceManager
 from ...I18N import _, ngettext
@@ -17,40 +17,42 @@ joystick_mode_titles = [_("Nothing"), _("Mouse"), _("Joystick")]
 
 joystick_values = ["none", "mouse", "keyboard"]
 
+
 class PreferredJoysticksGroup(fsui.Group):
 
     def __init__(self, parent):
         fsui.Group.__init__(self, parent)
         self.layout = fsui.HorizontalLayout()
-        self.layout.padding_left = 20
-        self.layout.padding_right = 20
+        # self.layout.padding_left = 10
+        # self.layout.padding_right = 10
 
-        image = fsui.Image("fs_uae_launcher:res/joystick.png")
-        self.image_view = fsui.ImageView(self, image)
-        self.layout.add(self.image_view, valign=0.0)
+        # image = fsui.Image("fs_uae_launcher:res/joystick.png")
+        # self.image_view = fsui.ImageView(self, image)
+        # self.layout.add(self.image_view, valign=0.0)
 
-        self.layout.add_spacer(20)
+        # self.layout.add_spacer(20)
 
         self.layout2 = fsui.VerticalLayout()
         self.layout.add(self.layout2, fill=True, expand=True)
 
-        heading = _("Preferred Joystick")
+        heading = _("Preferred Joysticks")
         label = fsui.HeadingLabel(self, heading)
         self.layout2.add(label)
 
-        #self.layout2.add_spacer(10)
-        #label = fsui.Label(self, _("Preferred device for primary joystick:"))
-        #self.layout2.add(label)
+        self.layout2.add_spacer(20)
+        label = fsui.Label(self, _("The following joystick will be "
+                                   "preferred, if present:"))
+        self.layout2.add(label)
 
-        self.layout2.add_spacer(10)
+        self.layout2.add_spacer(6)
         selector = PreferredJoystickSelector(self, 0)
         self.layout2.add(selector, fill=True)
 
-        self.layout2.add_spacer(10)
+        self.layout2.add_spacer(20)
         label = fsui.Label(self, _("Preferred device for secondary joystick:"))
         self.layout2.add(label)
 
-        self.layout2.add_spacer(10)
+        self.layout2.add_spacer(6)
         selector = PreferredJoystickSelector(self, 1)
         self.layout2.add(selector, fill=True)
 
@@ -69,8 +71,12 @@ class PreferredJoystickSelector(fsui.Group):
 
         devices = []
         devices.append(get_keyboard_title())
-        for i, name in enumerate(DeviceManager.get_joystick_names()):
-            devices.append(name)
+        # for i, name in enumerate(DeviceManager.get_joystick_names()):
+        #     devices.append(name)
+        for device_name in DeviceManager.get_joystick_names():
+            if DeviceManager.is_joystick(device_name):
+                devices.append(device_name)
+
         self.device_choice = fsui.ComboBox(self, devices)
 
         self.layout.add(self.device_choice, expand=True)
@@ -102,6 +108,7 @@ class PreferredJoystickSelector(fsui.Group):
             if value == "keyboard":
                 value = get_keyboard_title()
             self.device_choice.set_text(value)
+
 
 def get_keyboard_title():
     return _("Cursor Keys and Right Ctrl/Alt")

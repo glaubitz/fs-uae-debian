@@ -3,18 +3,23 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
+from fsbc.util import memoize
 from .Constants import Constants
 from ..Settings import Settings
-from ..Util import memoize
 
 #LEVEL = 0xce
 LEVEL = 0xeb
 #LEVEL = 0xe4
 
-class Skin:
+
+class Skin(object):
 
     EXTRA_GROUP_MARGIN = 0
+
+    @classmethod
+    def use_unified_toolbar(cls):
+        return False
 
     @classmethod
     def get_background_color(cls):

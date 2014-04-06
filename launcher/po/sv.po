@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae-launcher\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
+"POT-Creation-Date: 2013-03-07 19:47+0100\n"
 "PO-Revision-Date: 2013-03-07 22:11+0100\n"
 "Last-Translator: Frode Solheim <fs-uae@fengestad.no>\n"
 "Language-Team: Swedish\n"
@@ -104,9 +104,6 @@ msgstr ""
 msgid "Browse for Folder"
 msgstr ""
 
-msgid "Buffer swap only"
-msgstr ""
-
 msgid "Built-in TCP/IP Stack"
 msgstr ""
 
@@ -177,9 +174,6 @@ msgid "Configuration"
 msgstr ""
 
 msgid "Configuration Browser"
-msgstr ""
-
-msgid "Configuration Warning"
 msgstr ""
 
 msgid "Configurations"
@@ -308,6 +302,9 @@ msgid "Floppy Drives"
 msgstr ""
 
 msgid "Floppy drive volume"
+msgstr ""
+
+msgid "Force Full Vsync"
 msgstr ""
 
 msgid "Full Frame"
@@ -712,6 +709,9 @@ msgstr ""
 msgid "Swap left and right CTRL keys"
 msgstr ""
 
+msgid "Sync to Vblank"
+msgstr ""
+
 msgid "Synchronizing database..."
 msgstr ""
 
@@ -767,7 +767,4 @@ msgid "Zoom Amiga display (crop)"
 msgstr ""
 
 msgid "Zorro III RAM"
-msgstr ""
-
-msgid "{amiga_model} with < 2 MB chip memory"
 msgstr ""

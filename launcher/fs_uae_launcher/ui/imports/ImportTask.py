@@ -7,12 +7,14 @@ import os
 import shutil
 import threading
 import traceback
-import fs_uae_launcher.fsui as fsui
-from ...Database import Database
-from ...I18N import _, ngettext
-from ...ROMManager import ROMManager
-from ...Settings import Settings
+from fsbc.path import is_same_file
+import fsui as fsui
+from ...I18N import _
+from fsgs.amiga.ROMManager import ROMManager
+from fsgs.FSGSDirectories import FSGSDirectories
 from ...Signal import Signal
+from fsgs.FileDatabase import FileDatabase
+
 
 class ImportTask(threading.Thread):
 
@@ -35,7 +37,7 @@ class ImportTask(threading.Thread):
         print("ImportTask.run")
         try:
             self.run_task()
-        except Exception, e:
+        except Exception as e:
             self.log("")
             self.log(repr(e))
             traceback.print_exc()
@@ -43,8 +45,10 @@ class ImportTask(threading.Thread):
         print("ImportTask.run is done")
         self.log("")
         self.log(_("Import task is done"))
+
         def run_in_main():
             Signal.broadcast("scan_done")
+
         fsui.call_after(run_in_main)
 
     def get_new_log_lines(self, count):
@@ -62,19 +66,22 @@ class ImportTask(threading.Thread):
             self.import_roms()
         elif self.type == 1:
             self.import_amiga_forever()
-        database = Database()
-        ROMManager.patch_standard_roms(database)
 
     def import_roms(self):
-        self.copy_roms(self.path, Settings.get_kickstarts_dir())
+        self.copy_roms(self.path, FSGSDirectories.get_kickstarts_dir())
 
     def import_amiga_forever(self):
-        self.copy_roms(os.path.join(self.path, "Amiga Files", "Shared",
-                "rom"), Settings.get_kickstarts_dir())
+        self.copy_roms(os.path.join(
+            self.path, "Amiga Files", "Shared", "rom"),
+            FSGSDirectories.get_kickstarts_dir())
 
     def copy_file(self, src, dst):
         with self.log_lock:
             self.log_lines.append(_("Copy {0}\nto {1}").format(src, dst))
+        if is_same_file(src, dst):
+            self.log_lines.append(
+                "- source and destination are the same, skipping...")
+            return
         if not os.path.exists(os.path.dirname(dst)):
             os.makedirs(os.path.dirname(dst))
         if os.path.exists(dst):
@@ -101,6 +108,7 @@ class ImportTask(threading.Thread):
             src_file = os.path.join(src, file_name)
             dst_file = os.path.join(dst, file_name)
             self.copy_file(src_file, dst_file)
-            database = Database()
+
+            database = FileDatabase.get_instance()
             ROMManager.add_rom_to_database(dst_file, database, self.log)
             database.commit()

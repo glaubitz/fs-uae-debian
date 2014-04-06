@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
+"POT-Creation-Date: 2012-11-10 13:31+0100\n"
 "PO-Revision-Date: 2012-11-23 23:56-0000\n"
 "Last-Translator: Mário Mateus <fs-uae-pt@fengestad.no>\n"
 "Language-Team: Portuguese\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.5.4\n"
-
-msgid "Activated debugger"
-msgstr ""
 
 msgid "Amiga Control"
 msgstr "Controlo do Amiga"
@@ -50,13 +47,6 @@ msgstr "CD%d: Vazio"
 msgid "CD32 Pad Mode"
 msgstr "Modo Gamepad CD32"
 
-#. / TRANSLATORS: This is a menu entry and must not be too long
-msgid "Custom Joystick Port"
-msgstr ""
-
-msgid "Custom Mode"
-msgstr ""
-
 #. / TRANSLATORS: Empty or nothing
 #, c-format
 msgid "DF%d: Empty"
@@ -78,10 +68,6 @@ msgstr "Controlo do Emulador"
 msgid "Full Frame"
 msgstr "Ecrã Completo"
 
-#, c-format
-msgid "HD not found: %s"
-msgstr ""
-
 #. / TRANSLATORS: Hard reset is a computer reboot with an emulated power
 #. / cycle
 msgid "Hard Reset"
@@ -99,9 +85,6 @@ msgstr "Inserir em CD%d"
 #, c-format
 msgid "Insert Into DF%d"
 msgstr "Inserir em DF%d"
-
-msgid "Invalid number of CD-ROM drives specified"
-msgstr ""
 
 msgid "Joystick Mode"
 msgstr "Modo joystick"
@@ -132,9 +115,6 @@ msgstr "Joystick porta 2"
 
 msgid "Joystick Port 3"
 msgstr "Joystick porta 3"
-
-msgid "Joystick Port 4"
-msgstr ""
 
 msgid "Joystick Ports"
 msgstr "Portas Joystick"
@@ -167,38 +147,12 @@ msgstr "Nenhum dispositivo Host"
 msgid "No configuration file was found"
 msgstr "Nenhum ficheiro de configuração encontrado"
 
-#, c-format
-msgid "Option \"%s\" is not enabled"
-msgstr ""
-
-msgid "Option chip_memory must be a multiple of 512"
-msgstr ""
-
-msgid "Option fast_memory must be a multiple of 1024"
-msgstr ""
-
-msgid "Option slow_memory must be a multiple of 256"
-msgstr ""
-
-msgid "Option uaegfx.card needs a CPU with 32-bit addressing"
-msgstr ""
-
-msgid "Option zorro_iii_memory must be a multiple of 1024"
-msgstr ""
-
-msgid "Options zorro_iii_memory needs a CPU with 32-bit addressing"
-msgstr ""
-
 #. / TRANSLATORS: This is a menu entry and must not be too long
 msgid "Parallel Joystick Ports"
 msgstr "Joystick da porta paralela"
 
 msgid "Pause"
 msgstr "Pausar"
-
-#, c-format
-msgid "Port 0: %s"
-msgstr ""
 
 msgid "Port Settings"
 msgstr "Opções da porta"
@@ -222,12 +176,6 @@ msgstr "Guardar Estado"
 #. / TRANSLATORS: Soft reset reboots the computer without a power cycle
 msgid "Soft Reset"
 msgstr "Reiniciar por Software"
-
-msgid "Warp mode disabled"
-msgstr ""
-
-msgid "Warp mode enabled"
-msgstr ""
 
 msgid "Zoom is disabled in RTG mode"
 msgstr "Zoom está desactivado no modo RTG"

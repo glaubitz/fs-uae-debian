@@ -13,6 +13,34 @@ N_ = lambda x: x
 
 options = {
 
+"audio_buffer_target_bytes": {
+    "default": "8192",
+    "description": N_("Audio buffer target size (bytes)"),
+    "type": "integer",
+    "min": 1024,
+    "max": 32768,
+},
+
+"audio_buffer_target_size": {
+    "default": "40",
+    "description": N_("Audio buffer target size (ms)"),
+    "type": "integer",
+    "min": 1,
+    "max": 100,
+},
+
+"audio_frequency": {
+    "default": "48000",
+    "description": N_("Audio output freqency"),
+    "type": "choice",
+    "values": [
+        ("48000", "48000 Hz"),
+        ("44100", "44100 Hz"),
+        ("22050", "22050 Hz"),
+        ("11025", "11025 Hz"),
+    ]
+},
+
 "automatic_input_grab": {
     "default": "1",
     "description": N_("Grab mouse and keyboard input when clicking on FS-UAE window"),
@@ -23,6 +51,18 @@ options = {
     "default": "1",
     "description": N_("Include built-in configurations"),
     "type": "boolean",
+},
+
+"database_auth": {
+    "default": "",
+    "description": N_("Game database authentication"),
+    "type": "string",
+},
+
+"database_email": {
+    "default": "",
+    "description": N_("Game database email"),
+    "type": "string",
 },
 
 "database_feature": {
@@ -37,9 +77,32 @@ options = {
     "type": "string",
 },
 
+"database_server": {
+    "default": "oagd.net",
+    "description": N_("Custom game database server address"),
+    "type": "string",
+},
+
+"database_show_games": {
+    "default": "1",
+    "description": N_("Show games from database"),
+    "type": "choice",
+    "values": [
+        ("1", N_("Games you have and all downloadable games")),
+        ("2", N_("Games you have and automatically downloadable")),
+        ("3", N_("Only games you have")),
+    ]
+},
+
 "database_username": {
     "default": "",
     "description": N_("Game database user name"),
+    "type": "string",
+},
+
+"device_id": {
+    "default": "",
+    "description": N_("Device ID used with OAGD.net authentication"),
     "type": "string",
 },
 
@@ -99,9 +162,17 @@ options = {
     "type": "boolean",
 },
 
+"load_state": {
+    "default": "",
+    "description": N_("Load state by number"),
+    "type": "integer",
+    "min": 1,
+    "max": 9,
+},
+
 "low_latency_vsync": {
     "default": "0",
-    "description": N_("Low latency vsync (when using full vsync)"),
+    "description": N_("Low latency video sync"),
     "type": "boolean",
 },
 
@@ -109,6 +180,18 @@ options = {
     "default": "1",
     "description": N_("Ungrab mouse and keyboard on middle mouse click"),
     "type": "boolean",
+},
+
+"min_first_line_ntsc": {
+    "default": "21",
+    "description": N_("First rendered line (NTSC)"),
+    "type": "",
+},
+
+"min_first_line_pal": {
+    "default": "26",
+    "description": N_("First rendered line (PAL)"),
+    "type": "",
 },
 
 "mouse_speed": {
@@ -143,6 +226,25 @@ options = {
     "type": "boolean",
 },
 
+"stereo_separation": {
+    "default": "100",
+    "description": N_("Stereo separation"),
+    "type": "choice",
+    "values": [
+        ("100", "100%"),
+        ("90", "90%"),
+        ("80", "80%"),
+        ("70", "70%"),
+        ("60", "60%"),
+        ("50", "50%"),
+        ("40", "40%"),
+        ("30", "30%"),
+        ("20", "20%"),
+        ("10", "10%"),
+        ("0", "0%"),
+    ]
+},
+
 "swap_ctrl_keys": {
     "default": "0",
     "description": N_("Swap left and right CTRL keys"),
@@ -170,6 +272,17 @@ options = {
         ("rgba8", "GL_RGBA8"),
         ("rgb5", "GL_RGB5"),
         ("rgb5_1", "GL_RGB5_1"),
+    ]
+},
+
+"uae_sound_output": {
+    "default": "",
+    "description": N_("Sound emulation"),
+    "type": "",
+    "values": [
+        ("none", "Disabled"),
+        ("interrupts", "Emulated, No Output"),
+        ("exact", "Enabled"),
     ]
 },
 
@@ -208,6 +321,14 @@ options = {
         ("swap-fence", "Swap-Fence"),
         ("swap-sleep-fence", "Swap-Sleep-Fence"),
     ]
+},
+
+"volume": {
+    "default": "100",
+    "description": N_("Main volume control"),
+    "type": "integer",
+    "min": 0,
+    "max": 100,
 },
 
 "zoom": {

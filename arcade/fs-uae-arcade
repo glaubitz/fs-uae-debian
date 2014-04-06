@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+from fsgs.FSGSDirectories import FSGSDirectories
+FSGSDirectories.initialize()
+
+import socket
+socket.setdefaulttimeout(30.0)
+
+from fsbc.init import initialize_application
+initialize_application("fs-uae-arcade", version="2.4.1", series="devel")
+
+try:
+    import game_center.main
+    game_center.main.main()
+    print("main returned")
+
+finally:
+    from fsbc.Application import Application
+    application = Application.instance()
+    if application:
+        print("calling Application stop")
+        Application.get().stop()
+
+    from fsbc.signal import Signal
+    print("sending quit signal")
+    Signal("quit").notify()

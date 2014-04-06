@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae-launcher\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
+"POT-Creation-Date: 2012-11-10 13:31+0100\n"
 "PO-Revision-Date: 2012-11-10 16:11+0100\n"
 "Last-Translator: Frode Solheim <fs-uae@fengestad.no>\n"
 "Language-Team: Hungarian\n"
@@ -35,19 +35,7 @@ msgstr ""
 msgid "640x512 + Border"
 msgstr ""
 
-msgid "ADF & HDF Creator"
-msgstr ""
-
-msgid "ADF - Extended Floppy Disk Image (MFM)"
-msgstr ""
-
-msgid "ADF - Standard Floppy Disk Image"
-msgstr ""
-
 msgid "Abort"
-msgstr ""
-
-msgid "About {name}"
 msgstr ""
 
 msgid "Accurate"
@@ -68,9 +56,6 @@ msgstr ""
 msgid "Additional Options"
 msgstr ""
 
-msgid "Amiga Forever Import"
-msgstr ""
-
 msgid "Amiga Forever import task started"
 msgstr ""
 
@@ -86,12 +71,6 @@ msgstr ""
 msgid "Auto + Border"
 msgstr ""
 
-msgid "Auto-Fire is Off"
-msgstr ""
-
-msgid "Auto-Fire is On"
-msgstr ""
-
 msgid "Available Kickstart Versions"
 msgstr ""
 
@@ -102,9 +81,6 @@ msgid "Browse for File"
 msgstr ""
 
 msgid "Browse for Folder"
-msgstr ""
-
-msgid "Buffer swap only"
 msgstr ""
 
 msgid "Built-in TCP/IP Stack"
@@ -161,9 +137,6 @@ msgstr ""
 msgid "Click here to download"
 msgstr ""
 
-msgid "Click here to import kickstarts"
-msgstr ""
-
 msgid "Close"
 msgstr ""
 
@@ -179,27 +152,15 @@ msgstr ""
 msgid "Configuration Browser"
 msgstr ""
 
-msgid "Configuration Warning"
-msgstr ""
-
 msgid "Configurations"
 msgstr ""
 
 msgid "Configure Joystick Buttons"
 msgstr ""
 
-msgid "Connect"
-msgstr ""
-
 msgid ""
 "Copy {0}\n"
 "to {1}"
-msgstr ""
-
-msgid "Could not open file for writing"
-msgstr ""
-
-msgid "Create"
 msgstr ""
 
 msgid "Cursor Keys and Right Ctrl/Alt"
@@ -208,13 +169,7 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-msgid "Custom Configuration"
-msgstr ""
-
 msgid "Custom IRC server address"
-msgstr ""
-
-msgid "Custom Joystick Port"
 msgstr ""
 
 msgid "Custom Options"
@@ -229,21 +184,6 @@ msgstr ""
 msgid "Default ({0})"
 msgstr ""
 
-msgid "Destination Directory:"
-msgstr ""
-
-msgid "Disconnect"
-msgstr ""
-
-msgid "Disk Image Name:"
-msgstr ""
-
-msgid "Disk image created"
-msgstr ""
-
-msgid "Download failed (attempt {0}) - retrying in {0} seconds"
-msgstr ""
-
 msgid "Downloading {0}..."
 msgstr ""
 
@@ -254,15 +194,6 @@ msgid "Eject"
 msgstr ""
 
 msgid "Enable experimental net play GUI (requires restart)"
-msgstr ""
-
-msgid "Enable online database support (requires restart)"
-msgstr ""
-
-msgid "Error moving file into place"
-msgstr ""
-
-msgid "Error writing disk image"
 msgstr ""
 
 msgid "Expansions"
@@ -278,18 +209,6 @@ msgid "FS-UAE Launcher Settings"
 msgstr ""
 
 msgid "Fast RAM"
-msgstr ""
-
-msgid "Fetching database entries ({0})"
-msgstr ""
-
-msgid "Fetching game ratings ({0})"
-msgstr ""
-
-msgid "Fetching user game ratings ({0})"
-msgstr ""
-
-msgid "File already exists"
 msgstr ""
 
 msgid "Filters"
@@ -310,6 +229,9 @@ msgstr ""
 msgid "Floppy drive volume"
 msgstr ""
 
+msgid "Force Full Vsync"
+msgstr ""
+
 msgid "Full Frame"
 msgstr ""
 
@@ -319,21 +241,6 @@ msgstr ""
 msgid "Fullscreen"
 msgstr ""
 
-msgid "Game Database"
-msgstr ""
-
-msgid "Game Database Settings"
-msgstr ""
-
-msgid "Game database password"
-msgstr ""
-
-msgid "Game database user name"
-msgstr ""
-
-msgid "Gamepad/Joystick Setup"
-msgstr ""
-
 msgid "Games and Configurations"
 msgstr ""
 
@@ -341,12 +248,6 @@ msgid "Grab mouse and keyboard input when FS-UAE starts"
 msgstr ""
 
 msgid "Grab mouse and keyboard input when clicking on FS-UAE window"
-msgstr ""
-
-msgid "HDF - Partitionable Hard Drive Image (RDB)"
-msgstr ""
-
-msgid "HDF - Single Partition Hard Disk File"
 msgstr ""
 
 msgid "Hard Drives"
@@ -370,9 +271,6 @@ msgstr ""
 msgid "Import From Amiga Forever CD/DVD"
 msgstr ""
 
-msgid "Import Kickstarts"
-msgstr ""
-
 msgid "Import Kickstarts and ROMs"
 msgstr ""
 
@@ -394,9 +292,6 @@ msgstr ""
 msgid "Internal"
 msgstr ""
 
-msgid "Invalid size specified"
-msgstr ""
-
 msgid "Joystick"
 msgstr ""
 
@@ -412,13 +307,10 @@ msgstr ""
 msgid "Keep aspect ratio when scaling (do not stretch)"
 msgstr ""
 
-msgid "Keyboard Settings"
-msgstr ""
-
 msgid "Kickstart ROM"
 msgstr ""
 
-msgid "Kickstart ROMs are missing"
+msgid "Kickstart Setup"
 msgstr ""
 
 msgid "Kickstart import task started"
@@ -439,13 +331,7 @@ msgstr ""
 msgid "Low latency vsync (when using full vsync)"
 msgstr ""
 
-msgid "MB"
-msgstr ""
-
 msgid "Main Configuration Options"
-msgstr ""
-
-msgid "Main Menu"
 msgstr ""
 
 msgid "Media Swap List"
@@ -455,9 +341,6 @@ msgid "Memory"
 msgstr ""
 
 msgid "Mouse"
-msgstr ""
-
-msgid "Mouse & Joystick Ports"
 msgstr ""
 
 msgid "Mouse Settings"
@@ -476,12 +359,6 @@ msgid "Net play tag (max 3 characters)"
 msgstr ""
 
 msgid "New Configuration"
-msgstr ""
-
-msgid "New Disk Image"
-msgstr ""
-
-msgid "Nick:"
 msgstr ""
 
 msgid "No Device"
@@ -517,31 +394,13 @@ msgstr ""
 msgid "On"
 msgstr ""
 
-msgid "Open Game Database Entry"
-msgstr ""
-
-msgid "Open Hall of Light Entry"
-msgstr ""
-
-msgid "Open LemonAmiga Entry"
-msgstr ""
-
-msgid "Open MobyGames Entry"
-msgstr ""
-
 msgid "Open Scan Dialog"
 msgstr ""
 
 msgid "Open Tool to Configure Button Mapping"
 msgstr ""
 
-msgid "Open Wikipedia Entry"
-msgstr ""
-
 msgid "OpenGL Settings"
-msgstr ""
-
-msgid "Override Installed Memory"
 msgstr ""
 
 msgid "Parallel Port Joysticks"
@@ -554,9 +413,6 @@ msgid "Picasso96 Support (uaegfx.card)"
 msgstr ""
 
 msgid "Please wait..."
-msgstr ""
-
-msgid "Preferences"
 msgstr ""
 
 msgid "Preferred Joystick"
@@ -580,15 +436,6 @@ msgstr ""
 msgid "Purging old entries..."
 msgstr ""
 
-msgid "Refresh Game Database"
-msgstr ""
-
-msgid "Refresh game configurations from database"
-msgstr ""
-
-msgid "Refresh list of connected joystick devices"
-msgstr ""
-
 msgid "Remove Directory from Search Path"
 msgstr ""
 
@@ -601,13 +448,7 @@ msgstr ""
 msgid "Render scan lines in RTG graphics mode"
 msgstr ""
 
-msgid "Resetting database..."
-msgstr ""
-
 msgid "Restoring changes..."
-msgstr ""
-
-msgid "Retrying last operation (attempt {0})"
 msgstr ""
 
 msgid "Save Configuration"
@@ -625,16 +466,7 @@ msgstr ""
 msgid "Scan & Indexing"
 msgstr ""
 
-msgid "Scan Files and Configurations"
-msgstr ""
-
 msgid "Scan complete"
-msgstr ""
-
-msgid "Scan error"
-msgstr ""
-
-msgid "Scan for Files"
 msgstr ""
 
 msgid "Scan for Kickstarts, Files and Configurations"
@@ -661,10 +493,7 @@ msgstr ""
 msgid "Scanning files ({count} scanned)"
 msgstr ""
 
-msgid "Scanning game database entries..."
-msgstr ""
-
-msgid "Select Destination Directory"
+msgid "Select Directory to Import From"
 msgstr ""
 
 msgid "Select Multiple CD-ROMs"
@@ -676,9 +505,6 @@ msgstr ""
 msgid "Select Multiple Floppies"
 msgstr ""
 
-msgid "Select Source Directory"
-msgstr ""
-
 msgid "Select a folder containing Amiga kickstart files and click \"{0}\""
 msgstr ""
 
@@ -688,13 +514,7 @@ msgstr ""
 msgid "Show kickstart setup page on startup when all ROMs are missing"
 msgstr ""
 
-msgid "Size:"
-msgstr ""
-
 msgid "Slow RAM"
-msgstr ""
-
-msgid "Specified directory does not exist"
 msgstr ""
 
 msgid "Start"
@@ -709,37 +529,16 @@ msgstr ""
 msgid "Starting scan"
 msgstr ""
 
-msgid "Swap left and right CTRL keys"
-msgstr ""
-
-msgid "Synchronizing database..."
-msgstr ""
-
-msgid "Synchronizing personal ratings..."
+msgid "Sync to Vblank"
 msgstr ""
 
 msgid "Texture filter"
 msgstr ""
 
-msgid "Toggle Between Windowed and Full-Screen Mode"
-msgstr ""
-
-msgid "Tools"
-msgstr ""
-
 msgid "Ungrab mouse and keyboard on middle mouse click"
 msgstr ""
 
-msgid "Update available ({version})"
-msgstr ""
-
-msgid "Updating database"
-msgstr ""
-
-msgid "Updating game entries:"
-msgstr ""
-
-msgid "Use RDB disk images for size >= {0}"
+msgid "Update ({version}) is available"
 msgstr ""
 
 msgid "Video Settings"
@@ -767,7 +566,4 @@ msgid "Zoom Amiga display (crop)"
 msgstr ""
 
 msgid "Zorro III RAM"
-msgstr ""
-
-msgid "{amiga_model} with < 2 MB chip memory"
 msgstr ""

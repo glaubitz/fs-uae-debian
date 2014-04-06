@@ -3,28 +3,32 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import io
 import os
 import hashlib
 import traceback
-import ConfigParser
-from .Amiga import Amiga
-from .Database import Database
+import six
+from fsbc.configparser import ConfigParser, NoSectionError
+from fsgs import fsgs
+from fsgs.ChecksumTool import ChecksumTool
+from fsgs.amiga.Amiga import Amiga
+from fsgs.amiga.ValueConfigLoader import ValueConfigLoader
+from fsgs.FSGSDirectories import FSGSDirectories
 from .Settings import Settings
-from .Signal import Signal
+from fsbc.signal import Signal
 from .Util import expand_path
-from .ValueConfigLoader import ValueConfigLoader
-from .Version import Version
-from .Warnings import Warnings
-from .XMLConfigLoader import XMLConfigLoader
+from fsbc.Application import Application
+
 
 # the order of the following keys is significant (for some keys).
 # multiple options should be set in this order since some options will
 # implicitly change other options. examples:
 # - amiga model can change kickstart and joystick modes
 # - file options should be set before corresponding sha1 options
+from fsgs.platform import PlatformHandler
 
 cfg = [
-    ("amiga_model",           "A500",     "checksum", "sync"),
+    ("amiga_model",           "",     "checksum", "sync"),
     ("ntsc_mode",             "",         "checksum", "sync"),
     ("accuracy",              "",         "checksum", "sync"),
     ("chip_memory",           "",         "checksum", "sync"),
@@ -57,7 +61,7 @@ cfg = [
     ("x_kickstart_ext_file_sha1", "",     "checksum", "sync", "nosave"),
 
     ("x_whdload_args",        "",         "checksum", "sync"),
-    ("x_whdload_version",     "17.1",     "checksum", "sync"),
+    ("x_whdload_version",     "",     "checksum", "sync"),
     ("floppy_drive_count",    "",         "checksum", "sync", "custom"),
     ("floppy_drive_speed",    "",         "checksum", "sync", "custom"),
     ("cdrom_drive_count",     "",         "checksum", "sync", "custom"),
@@ -69,9 +73,10 @@ cfg = [
     ("__netplay_port",        "",                     "sync"),
     ("__netplay_addresses",   "",         "checksum", "sync"),
     ("__netplay_host",        ""),
-    ("__netplay_ready",       "0"),
+    ("__netplay_ready",       ""),
     ("__netplay_state_dir_name",  "",     "checksum", "sync"),
-    ("__version",             Version.VERSION),
+    ("__version",             "FIXME"),
+    ("__error",               ""),
     ("x_game_uuid",           ""),
     ("x_game_xml_path",       ""),
     ("title",                 "",                             "custom"),
@@ -82,12 +87,32 @@ cfg = [
     ("developer",             ""),
     ("publisher",             ""),
     ("languages",             ""),
+    ("players",               ""),
+    ("protection",            ""),
     ("hol_url",               ""),
     ("wikipedia_url",         ""),
     ("database_url",          ""),
     ("lemon_url",             ""),
     ("mobygames_url",         ""),
+    ("amigamemo_url",         ""),
+    ("whdload_url",           ""),
+    ("mobygames_url",         ""),
+    ("longplay_url",          ""),
     ("__variant_rating",      ""),
+    ("variant_rating",        ""),
+    ("variant_uuid",          ""),
+    
+    ("download_file",         ""),
+    ("download_page",         ""),
+    ("download_terms",        ""),
+    ("download_notice",       ""),
+
+    ("x_missing_files",       ""),
+    ("x_game_notice",         ""),
+    ("x_variant_notice",      ""),
+    ("x_variant_warning",      ""),
+    ("x_variant_error",      ""),
+    ("x_joy_emu_conflict",    ""),
 
     ("screen1_sha1",          ""),
     ("screen2_sha1",          ""),
@@ -96,7 +121,6 @@ cfg = [
     ("screen5_sha1",          ""),
     ("front_sha1",            ""),
     ("title_sha1",            ""),
-
 ]
 
 for i in range(Amiga.MAX_FLOPPY_DRIVES):
@@ -117,7 +141,8 @@ for i in range(Amiga.MAX_HARD_DRIVES):
     cfg.append(("hard_drive_{0}_priority".format(i), "", "checksum", "sync"))
     cfg.append(("x_hard_drive_{0}_sha1".format(i), "", "checksum", "sync", "nosave"))
 
-class Config:
+
+class Config(object):
 
     config_keys = [x[0] for x in cfg]
 
@@ -135,114 +160,110 @@ class Config:
     reset_values = {}
     for i in range(Amiga.MAX_FLOPPY_DRIVES):
         reset_values["floppy_drive_{0}".format(i)] = \
-                ("x_floppy_drive_{0}_sha1".format(i), "")
+            ("x_floppy_drive_{0}_sha1".format(i), "")
     for i in range(Amiga.MAX_FLOPPY_IMAGES):
         reset_values["floppy_image_{0}".format(i)] = \
-                ("x_floppy_image_{0}_sha1".format(i), "")
+            ("x_floppy_image_{0}_sha1".format(i), "")
     for i in range(Amiga.MAX_CDROM_DRIVES):
         reset_values["cdrom_drive_{0}".format(i)] = \
-                ("x_cdrom_drive_{0}_sha1".format(i), "")
+            ("x_cdrom_drive_{0}_sha1".format(i), "")
     for i in range(Amiga.MAX_CDROM_IMAGES):
         reset_values["cdrom_image_{0}".format(i)] = \
-                ("x_cdrom_image_{0}_sha1".format(i), "")
+            ("x_cdrom_image_{0}_sha1".format(i), "")
     for i in range(Amiga.MAX_HARD_DRIVES):
         reset_values["hard_drive_{0}".format(i)] = \
-                ("x_hard_drive_{0}_sha1".format(i), "")
+            ("x_hard_drive_{0}_sha1".format(i), "")
     reset_values["x_kickstart_file"] = ("x_kickstart_file_sha1", "")
     reset_values["x_kickstart_ext_file"] = ("x_kickstart_ext_file_sha1", "")
 
-    config = default_config.copy()
-    #config_listeners = []
+    # config = default_config.copy()
+    # config_listeners = []
 
     @classmethod
     def copy(cls):
-        return cls.config.copy()
+        return fsgs.config.copy()
 
     @classmethod
-    def get(cls, key):
-        #return cls.config.setdefault(key, "")
-        return cls.config.get(key, "")
+    def get(cls, key, default=""):
+        return fsgs.config.get(key, default)
 
     @classmethod
     def add_listener(cls, listener):
-        #cls.config_listeners.append(listener)
-        Signal.add_listener("config", listener)
+        # deprecated
+        Signal("fsgs:config").connect(getattr(listener, "on_config"))
 
     @classmethod
     def remove_listener(cls, listener):
-        #cls.config_listeners.remove(listener)
-        Signal.remove_listener("config", listener)
+        # deprecated
+        Signal("fsgs:config").disconnect(getattr(listener, "on_config"))
 
     @classmethod
     def set(cls, key, value):
-        #if cls.get(key) == value:
-        #    print(u"set {0} to {1} (no change)".format(key, value))
-        #    return
-        #print(u"set {0} to {1}".format(key, value))
-        #cls.config[key] = value
-        #for listener in cls.config_listeners:
-        #    listener.on_config(key, value)
-        #if key != "__netplay_ready":
-        #    cls.set("__netplay_ready", "0")
-        cls.set_multiple([(key, value)])
+        fsgs.config.set(key, value)
 
     @classmethod
     def set_multiple(cls, items):
+        fsgs.config.set(items)
+
         # this will allow us to set multiple keys at a time, to provide
         # "atomic" setting of several keys before notifications are sent
 
-        items = list(items)
-        item_keys = [x[0] for x in items]
-
-        changed_keys = set()
-        def add_changed_key(key):
-            try:
-                priority = cls.key_order.index(key)
-            except ValueError:
-                priority = 1000
-            changed_keys.add((priority, key))
-        def change(key, value):
-            #print("change", key, value)
-            if old_config.get(key, "") == value:
-                if value:
-                    print(u"set {0} to {1} (no change)".format(key, value))
-                return
-            print(u"set {0} to {1}".format(key, value))
-            add_changed_key(key)
-            cls.config[key] = value
-
-        old_config = cls.config.copy()
-        for key, value in items:
-            change(key, value)
-            try:
-                reset_key, reset_value = cls.reset_values[key]
-                #print("  ---", reset_key, reset_value)
-            except KeyError:
-                pass
-            else:
-                if reset_key not in item_keys:
-                    print(" -- reset --", reset_key, "to", repr(reset_value))
-                    change(reset_key, reset_value)
-
-        # and now broadcast all changed keys at once
-        if len(changed_keys) > 0:
-            for priority, key in sorted(changed_keys):
-                #for listener in cls.config_listeners:
-                #    listener.on_config(key, cls.get(key))
-                Signal.broadcast("config", key, cls.get(key))
-            changed_keys = [x[1] for x in changed_keys]
-            if "__netplay_ready" not in changed_keys:
-                cls.set("__netplay_ready", "0")
-
-        if len(changed_keys) > 0:
-            Settings.set("config_changed", "1")
+        # items = list(items)
+        # item_keys = [x[0] for x in items]
+        #
+        # changed_keys = set()
+        #
+        # def add_changed_key(key):
+        #     try:
+        #         priority = cls.key_order.index(key)
+        #     except ValueError:
+        #         priority = 1000
+        #     changed_keys.add((priority, key))
+        #
+        # def change(key, value):
+        #     #print("change", key, value)
+        #     if key == "joystick_port_1_mode":
+        #         pass
+        #     if old_config.get(key, "") == value:
+        #         if value:
+        #             print("set {0} to {1} (no change)".format(key, value))
+        #         return
+        #     print("set {0} to {1}".format(key, value))
+        #     add_changed_key(key)
+        #     cls.config[key] = value
+        #
+        # old_config = cls.config.copy()
+        # for key, value in items:
+        #     change(key, value)
+        #     try:
+        #         reset_key, reset_value = cls.reset_values[key]
+        #         #print("  ---", reset_key, reset_value)
+        #     except KeyError:
+        #         pass
+        #     else:
+        #         if reset_key not in item_keys:
+        #             print(" -- reset --", reset_key, "to", repr(reset_value))
+        #             change(reset_key, reset_value)
+        #
+        # # and now broadcast all changed keys at once
+        # if len(changed_keys) > 0:
+        #     for priority, key in sorted(changed_keys):
+        #         #for listener in cls.config_listeners:
+        #         #    listener.on_config(key, cls.get(key))
+        #         Signal.broadcast("config", key, cls.get(key))
+        #     changed_keys = [x[1] for x in changed_keys]
+        #     if "__netplay_ready" not in changed_keys:
+        #         cls.set("__netplay_ready", "0")
+        #
+        # if len(changed_keys) > 0:
+        #     Settings.set("config_changed", "1")
 
     @classmethod
     def update_from_config_dict(cls, config_dict):
         changes = []
-        for key, value in config_dict.iteritems():
-            if key in cls.config:
-                if cls.config[key] != value:
+        for key, value in six.iteritems(config_dict):
+            if key in fsgs.config.values:
+                if fsgs.config.values[key] != value:
                     changes.append((key, value))
             else:
                 changes.append((key, value))
@@ -250,27 +271,27 @@ class Config:
 
     @classmethod
     def sync_items(cls):
-        for key, value in cls.config.iteritems():
+        for key, value in six.iteritems(fsgs.config.values):
             if key in cls.sync_keys_set:
                 yield key, value
 
     @classmethod
     def checksum(cls):
-        return cls.checksum_config(cls.config)
+        return cls.checksum_config(fsgs.config.copy())
 
     @classmethod
     def checksum_config(cls, config):
         s = hashlib.sha1()
         for key in cls.checksum_keys:
             value = config[key]
-            s.update(unicode(value).encode("UTF-8"))
+            s.update(six.text_type(value).encode("UTF-8"))
         return s.hexdigest()
 
     @classmethod
     def update_kickstart_in_config_dict(cls, config_dict):
         print("update_kickstart_in_config")
-        model = config_dict.setdefault("amiga_model",
-                cls.default_config["amiga_model"])
+        model = config_dict.setdefault(
+            "amiga_model", cls.default_config["amiga_model"])
 
         kickstart_file = config_dict.setdefault("kickstart_file", "")
         if kickstart_file:
@@ -283,7 +304,7 @@ class Config:
         else:
             checksums = Amiga.get_model_config(model)["kickstarts"]
             for checksum in checksums:
-                path = Database.get_instance().find_file(sha1=checksum)
+                path = fsgs.file.find_by_sha1(checksum)
                 if path:
                     config_dict["x_kickstart_file"] = path
                     config_dict["x_kickstart_file_sha1"] = checksum
@@ -291,11 +312,11 @@ class Config:
             else:
                 print("WARNING: no suitable kickstart file found")
                 config_dict["x_kickstart_file"] = ""
-                config_dict["x_kickstart_file_sha1"], ""
+                config_dict["x_kickstart_file_sha1"] = ""
 
         if config_dict.setdefault("kickstart_ext_file", ""):
             config_dict["x_kickstart_ext_file"] = \
-                    config_dict["kickstart_ext_file"]
+                config_dict["kickstart_ext_file"]
             # FIXME: set checksum
         else:
             checksums = Amiga.get_model_config(model)["ext_roms"]
@@ -304,7 +325,7 @@ class Config:
                 config_dict["x_kickstart_ext_file_sha1"] = ""
             else:
                 for checksum in checksums:
-                    path = Database.get_instance().find_file(sha1=checksum)
+                    path = fsgs.file.find_by_sha1(checksum)
                     if path:
                         config_dict["x_kickstart_ext_file"] = path
                         config_dict["x_kickstart_ext_file_sha1"] = checksum
@@ -324,7 +345,7 @@ class Config:
     @classmethod
     def set_kickstart_from_model(cls):
         print("set_kickstart_from_model")
-        config_dict = cls.config.copy()
+        config_dict = fsgs.config.values.copy()
         cls.update_kickstart_in_config_dict(config_dict)
         cls.update_from_config_dict(config_dict)
 
@@ -332,7 +353,6 @@ class Config:
     def load_default_config(cls):
         print("load_default_config")
         cls.load({})
-        #from .Settings import Settings
         # FIXME: remove use of config_base
         Settings.set("config_base", "")
         Settings.set("config_name", "Unnamed Configuration")
@@ -341,31 +361,29 @@ class Config:
 
     @classmethod
     def load(cls, config):
-        from .Settings import Settings
         update_config = {}
-        for key, value in cls.default_config.iteritems():
+        for key, value in six.iteritems(cls.default_config):
             update_config[key] = value
-        for key in cls.config.keys():
+        for key in list(fsgs.config.values.keys()):
             if key not in cls.default_config:
                 # this is not a recognized key, so we remove it
-                del cls.config[key]
+                del fsgs.config.values[key]
 
-        for key, value in config.iteritems():
+        for key, value in six.iteritems(config):
             # if this is a settings key, change settings instead
             if key in Settings.initialize_from_config:
                 Settings.set(key, value)
             else:
                 update_config[key] = value
 
-        #for key, value in update_config.iteritems():
-        #    #cls.config[key] = value
-        #    cls.set(key, value)
         cls.update_kickstart_in_config_dict(update_config)
         cls.fix_loaded_config(update_config)
-        cls.set_multiple(update_config.iteritems())
-        Settings.set("config_changed", "0")
+        # print("about to set", update_config)
+        cls.set_multiple(six.iteritems(update_config))
+        # Settings.set("config_changed", "0")
+        cls.set("__changed", "0")
 
-        #cls.update_kickstart()
+        # cls.update_kickstart()
 
     @classmethod
     def fix_joystick_ports(cls, config):
@@ -450,12 +468,13 @@ class Config:
     def fix_loaded_config(cls, config):
         #cls.fix_joystick_ports(config)
 
-        from .ChecksumTool import ChecksumTool
         # FIXME: parent
         checksum_tool = ChecksumTool(None)
+
         def fix_file_checksum(sha1_key, key, base_dir, is_rom=False):
             path = config.get(key, "")
             # hack to synchronize URLs
+            #print(repr(path))
             if path.startswith("http://") or path.startswith("https://"):
                 sha1 = path
                 config[sha1_key] = sha1
@@ -478,10 +497,12 @@ class Config:
                 # that it isn't supposed to be set..
                 return
             print("checksumming", repr(path))
-            if os.path.getsize(path) > 64 * 1024 * 1024:
+            size = os.path.getsize(path)
+            if size > 64 * 1024 * 1024:
                 # not checksumming large files righ now
                 print("not checksumming large file")
                 return
+
             if is_rom:
                 sha1 = checksum_tool.checksum_rom(path)
             else:
@@ -489,38 +510,44 @@ class Config:
             config[sha1_key] = sha1
 
         for i in range(Amiga.MAX_FLOPPY_DRIVES):
-            fix_file_checksum("x_floppy_drive_{0}_sha1".format(i),
-                    "floppy_drive_{0}".format(i),
-                    Settings.get_floppies_dir())
+            fix_file_checksum(
+                "x_floppy_drive_{0}_sha1".format(i),
+                "floppy_drive_{0}".format(i),
+                FSGSDirectories.get_floppies_dir())
         for i in range(Amiga.MAX_FLOPPY_IMAGES):
-            fix_file_checksum("x_floppy_image_{0}_sha1".format(i),
-                    "floppy_image_{0}".format(i),
-                    Settings.get_floppies_dir())
+            fix_file_checksum(
+                "x_floppy_image_{0}_sha1".format(i),
+                "floppy_image_{0}".format(i),
+                FSGSDirectories.get_floppies_dir())
         for i in range(Amiga.MAX_CDROM_DRIVES):
-            fix_file_checksum("x_cdrom_drive_{0}_sha1".format(i),
-                    "cdrom_drive_{0}".format(i),
-                    Settings.get_cdroms_dir())
+            fix_file_checksum(
+                "x_cdrom_drive_{0}_sha1".format(i),
+                "cdrom_drive_{0}".format(i),
+                FSGSDirectories.get_cdroms_dir())
         for i in range(Amiga.MAX_CDROM_IMAGES):
-            fix_file_checksum("x_cdrom_image_{0}_sha1".format(i),
-                    "cdrom_image_{0}".format(i),
-                    Settings.get_cdroms_dir())
+            fix_file_checksum(
+                "x_cdrom_image_{0}_sha1".format(i),
+                "cdrom_image_{0}".format(i),
+                FSGSDirectories.get_cdroms_dir())
         for i in range(Amiga.MAX_HARD_DRIVES):
-            fix_file_checksum("x_hard_drive_{0}_sha1".format(i),
-                    "hard_drive_{0}".format(i),
-                    Settings.get_hard_drives_dir())
+            fix_file_checksum(
+                "x_hard_drive_{0}_sha1".format(i),
+                "hard_drive_{0}".format(i),
+                FSGSDirectories.get_hard_drives_dir())
 
         # FIXME: need to handle checksums for Cloanto here
-        fix_file_checksum("x_kickstart_file_sha1", "x_kickstart_file",
-                Settings.get_kickstarts_dir(), is_rom=True)
-        fix_file_checksum("x_kickstart_ext_file_sha1", "x_kickstart_ext_file",
-                Settings.get_kickstarts_dir(), is_rom=True)
-
+        fix_file_checksum(
+            "x_kickstart_file_sha1", "x_kickstart_file",
+            FSGSDirectories.get_kickstarts_dir(), is_rom=True)
+        fix_file_checksum(
+            "x_kickstart_ext_file_sha1", "x_kickstart_ext_file",
+            FSGSDirectories.get_kickstarts_dir(), is_rom=True)
 
     @classmethod
     def load_file(cls, path):
         try:
             cls._load_file(path, "")
-        except Exception, e:
+        except Exception:
             # FIXME: errors should be logged / displayed
             cls.load_default_config()
             traceback.print_exc()
@@ -530,7 +557,7 @@ class Config:
         print("Config.load_data")
         try:
             cls._load_file("", data)
-        except Exception, e:
+        except Exception:
             # FIXME: errors should be logged / displayed
             cls.load_default_config()
             traceback.print_exc()
@@ -559,38 +586,40 @@ class Config:
             if not os.path.exists(path):
                 print("config file does not exist")
         if data:
-            config_xml_path = ""
-            loader = XMLConfigLoader()
-            loader.load_data(data)
-            config = loader.get_config()
-        elif path.endswith(".xml"):
-            config_xml_path = path
-            loader = XMLConfigLoader()
-            loader.load_file(path)
-            config = loader.get_config()
+            # config_xml_path = ""
+            #loader = XMLConfigLoader()
+            #loader.load_data(data)
+            #config = loader.get_config()
+        #elif path.endswith(".xml"):
+        #    config_xml_path = path
+        #    loader = XMLConfigLoader()
+        #    loader.load_file(path)
+        #    config = loader.get_config()
+            raise Exception("_load_file (data) not implemented")
         else:
             config_xml_path = ""
-            cp = ConfigParser.ConfigParser()
+            cp = ConfigParser()
             try:
-                cp.read([path])
-            except Exception, e:
+                with io.open(path, "r", encoding="UTF-8") as f:
+                    cp.readfp(f)
+                #cp.read([path])
+            except Exception as e:
                 print(repr(e))
                 return
             config = {}
             try:
                 keys = cp.options("config")
-            except ConfigParser.NoSectionError:
+            except NoSectionError:
                 keys = []
             for key in keys:
                 config[key] = cp.get("config", key)
             try:
                 keys = cp.options("fs-uae")
-            except ConfigParser.NoSectionError:
+            except NoSectionError:
                 keys = []
             for key in keys:
                 config[key] = cp.get("fs-uae", key)
 
-        from .Settings import Settings
         Settings.set("config_path", path)
 
         cls.load(config)
@@ -601,8 +630,8 @@ class Config:
         else:
             config_name, ext = os.path.splitext(os.path.basename(path))
 
-        if u"(" in config_name:
-            config_base = config_name.split(u"(")[0].strip()
+        if "(" in config_name:
+            config_base = config_name.split("(")[0].strip()
         else:
             config_base = config_name
         #game = name
@@ -613,30 +642,41 @@ class Config:
         Settings.set("config_base", config_base)
         Settings.set("config_name", config_name)
         Settings.set("config_xml_path", config_xml_path)
-        Settings.set("config_changed", "0")
+        # Settings.set("config_changed", "0")
+        cls.set("__changed", "0")
 
     @classmethod
     def load_values(cls, values, uuid=""):
         print("loading config values", values)
+        platform_id = values.get("platform", "").lower()
 
-        value_config_loader = ValueConfigLoader(uuid=uuid)
-        value_config_loader.load_values(values)
-        config = value_config_loader.get_config()
-        #config["x_config_uuid"] = uuid
+        if platform_id in ["amiga", "cdtv", "cd32"]:
+            value_config_loader = ValueConfigLoader(uuid=uuid)
+            value_config_loader.load_values(values)
+            config = value_config_loader.get_config()
+            cls.load(config)
+            config_name = config.get("__config_name", "")
 
-        from .Settings import Settings
+        else:
+            print("Warning: Non-Amiga game loaded")
+            platform_handler = PlatformHandler.create(platform_id)
+            loader = platform_handler.get_loader(fsgs)
+            fsgs.config.load(loader.load_values(values))
+            config_name = "{0} ({1})".format(
+                values.get("game_name"), values.get("platform_name"))
+
         Settings.set("config_path", "")
 
-        cls.load(config)
+        # print("config is", config)
+        # config["x_config_uuid"] = uuid
 
-        config_name = config.get("__config_name", "")
         if config_name:
             config_name = cls.create_fs_name(config_name)
         #else:
         #    config_name, ext = os.path.splitext(os.path.basename(path))
 
-        if u"(" in config_name:
-            config_base = config_name.split(u"(")[0].strip()
+        if "(" in config_name:
+            config_base = config_name.split("(")[0].strip()
         else:
             config_base = config_name
         #game = name
@@ -647,4 +687,5 @@ class Config:
         Settings.set("config_base", config_base)
         Settings.set("config_name", config_name)
         Settings.set("config_xml_path", "")
-        Settings.set("config_changed", "0")
+        # Settings.set("config_changed", "0")
+        cls.set("__changed", "0")

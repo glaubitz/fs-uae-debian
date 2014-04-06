@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...Config import Config
 from ...I18N import _, ngettext
 from ...Settings import Settings
@@ -25,7 +25,7 @@ class WHDLoadGroup(fsui.Group):
         hori_layout.add(self.text_field, expand=True)
 
         self.help_button = HelpButton(self,
-                "http://fengestad.no/fs-uae/whdload-support")
+                "http://fs-uae.net/whdload-support")
         hori_layout.add(self.help_button, margin_left=10)
 
         self.initialize_from_config()
