@@ -20,7 +20,7 @@ Description: Cross-platform Amiga emulator based on UAE/WinUAE
 
 Package: fs-uae-launcher
 Architecture: all
-Depends: python (>= 2.6), ${misc:Depends}, fs-uae, python-pygame, python-wxgtk2.8, python-setuptools
+Depends: python (>= 2.6), ${misc:Depends}, ${python:Depends}, python-pyside, python-setuptools, fs-uae
 Description: Launcher and configuration program for FS-UAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
