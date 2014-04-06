@@ -1,3 +1,24 @@
+fs-uae (2.4.1+ds-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #739796)
+  * Add binary package entry for fs-uae-arcade in debian/control.
+  * Update copyright years in debian/copyright.
+  * Add build and install directives for fs-uae-arcade and update build
+    and install directives fs-uae-launcher in debian/rules.
+  * Add links file for fs-uae-arcade.
+  * Drop debian/patches/0003-disable-JIT-on-non-i386.patch, no longer needed.
+  * Drop debian/patches/0004-add-generic-maccess.patch, merged upstream.
+  * Drop debian/patches/0005-add-kfreebsd-build-support.patch, merged upstream.
+  * Refresh debian/patches/0001-use-external-libglee.patch.
+  * Refresh debian/patches/0002-dont-copy-upstream-copying-file.patch.
+  * Add build dependency for libxi-dev in debian/control.
+  * Update debian/README.Debian to include fs-uae-arcade.
+  * Update debian/README.source to reflect the changes to the source package.
+  * Update dependencies for fs-uae-launcher in debian/control.
+  * Update standards version to 3.9.5 in debian/control.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 06 Apr 2014 21:32:52 +0200
+
 fs-uae (2.2.3+dfsg-4) unstable; urgency=low
 
   * Update Debian JIT compiler disable patch to include
@@ -29,6 +50,6 @@ fs-uae (2.2.3+dfsg-2) unstable; urgency=low
 
 fs-uae (2.2.3+dfsg-1) unstable; urgency=low
 
-  * Initial release (Closes: #680899)
+  * Initial release. (Closes: #680899)
 
  -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 01 Nov 2013 14:33:54 +0100
