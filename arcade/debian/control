@@ -1,0 +1,14 @@
+Source: fs-uae-arcade
+Section: games
+Priority: extra
+X-Python-Version: >= 2.6
+Maintainer: Frode Solheim <frode@fs-uae.net>
+Build-Depends: debhelper (>= 7.0.50~), python-all (>= 2.6.6-3~), python-setuptools
+Standards-Version: 3.8.4
+Homepage: http://fs-uae.net/
+
+Package: fs-uae-arcade
+Architecture: all
+Depends: python (>= 2.6), ${misc:Depends}, ${python:Depends}, python-pygame, python-numpy, python-opengl, python-setuptools, fs-uae
+Recommends: python-lhafile, fs-uae-launcher
+Description: Full-screen game browser for FS-UAE.

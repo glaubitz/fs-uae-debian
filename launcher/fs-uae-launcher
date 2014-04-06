@@ -1,0 +1,114 @@
+#!/usr/bin/env python
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+import sys
+
+if "--server" in sys.argv:
+    app = "fs-uae-netplay-server"
+elif "--fs-uae-arcade" in sys.argv:
+    app = "fs-uae-arcade"
+else:
+    app = "fs-uae-launcher"
+
+version = "2.4.1"
+series = "stable"
+
+for arg in sys.argv:
+    #if not isinstance(arg, unicode):
+    if isinstance(arg, bytes):
+        arg = arg.decode(sys.getfilesystemencoding())
+    if arg.startswith("--") and "=" in arg:
+        key, value = arg[2:].split("=", 1)
+        key = key.replace("-", "_")
+        if key == "fake_version":
+            version = value
+        elif key == "fake_series":
+            series = value
+
+from fsgs.FSGSDirectories import FSGSDirectories
+FSGSDirectories.initialize()
+
+import socket
+socket.setdefaulttimeout(30.0)
+
+from fsbc.init import initialize_application
+initialize_application(app, version=version, series=series)
+
+if app == "fs-uae-netplay-server":
+    from fs_uae_launcher.server.game import run_server
+    run_server()
+
+elif app == "fs-uae-arcade":
+    try:
+        import game_center.main
+        game_center.main.main()
+        print("main returned")
+
+    finally:
+        from fsbc.Application import Application
+        application = Application.instance()
+        if application:
+            print("calling Application stop")
+            Application.get().stop()
+
+        from fsbc.signal import Signal
+        print("sending quit signal")
+        Signal("quit").notify()
+
+else:
+    print("FS-UAE Launcher {0}".format(version))
+
+    # if "--workspace" in sys.argv:
+    #     if "--qt" not in sys.argv:
+    #         sys.argv.insert(1, "--qt")
+
+    from fs_uae_launcher.ConfigChecker import ConfigChecker
+    ConfigChecker()
+
+    from fs_uae_launcher.FSUAELauncher import FSUAELauncher
+    application = FSUAELauncher()
+    application.start()
+
+    if "--workspace" in sys.argv:
+        if ":" in sys.argv[-1]:
+            from fs_uae_workspace.shell import shell_open
+            shell_open(sys.argv[-1])
+
+    application.run()
+    application.save_settings()
+
+    from fs_uae_launcher.netplay.IRC import IRC
+    IRC.stop()
+
+    from fsbc.signal import Signal
+    Signal("quit").notify()
+
+if False:
+    # this is a quick hack tp fix problems with some modules not being imported
+    # by py2exe / py2app otherwise
+
+    import fs_uae_workspace.apps.adf_creator_app
+    import fs_uae_workspace.apps.clock_app
+    import fs_uae_workspace.apps.hdf_creator_app
+    import fs_uae_workspace.apps.joystick_config_app
+    import fs_uae_workspace.apps.launcher_app
+    import fs_uae_workspace.apps.locker_uploader
+    import fs_uae_workspace.apps.login
+    import fs_uae_workspace.apps.logout
+    import fs_uae_workspace.apps.refresh
+
+    import fs_uae_workspace.prefs.audio
+    import fs_uae_workspace.prefs.experimental_features
+    import fs_uae_workspace.prefs.filter
+    import fs_uae_workspace.prefs.game_database
+    import fs_uae_workspace.prefs.joystick
+    import fs_uae_workspace.prefs.keyboard
+    import fs_uae_workspace.prefs.language
+    import fs_uae_workspace.prefs.mouse
+    import fs_uae_workspace.prefs.netplay
+    # import fs_uae_workspace.prefs.opengl
+    import fs_uae_workspace.prefs.scan
+    import fs_uae_workspace.prefs.video

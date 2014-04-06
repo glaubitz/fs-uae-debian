@@ -3,14 +3,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import os
-import traceback
-import fs_uae_launcher.fsui as fsui
-from ..Amiga import Amiga
-from ..Database import Database
-from ..Config import Config
+from fsgs import fsgs
+import fsui as fsui
+from fsgs.amiga.Amiga import Amiga
 from ..Signal import Signal
-from ..I18N import _, ngettext
+from ..I18N import _
+
 
 class KickstartStatusGroup(fsui.Group):
 
@@ -38,10 +36,9 @@ class KickstartStatusGroup(fsui.Group):
         self.update()
 
     def update(self):
-        database = Database.get_instance()
         amiga = Amiga.get_model_config(self.model)
         for sha1 in amiga["kickstarts"]:
-            if database.find_file(sha1=sha1):
+            if fsgs.file.find_by_sha1(sha1):
                 self.icon.set_image(self.ok_image)
                 return
         self.icon.set_image(self.na_image)

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...I18N import _, ngettext
 from .MemoryWidget import MemoryWidget
 
@@ -26,7 +26,7 @@ class MemoryGroup(fsui.Group):
         hori_layout.add(vert_layout, fill=True, expand=-1)
 
         widget = MemoryWidget(self, _("Chip RAM"), "chip_memory",
-                [((x + 1) * 512) for x in range(16)])
+                [256] + [((x + 1) * 512) for x in range(16)])
         vert_layout.add(widget, fill=True, margin=10)
 
         widget = MemoryWidget(self, _("Slow RAM"), "slow_memory",

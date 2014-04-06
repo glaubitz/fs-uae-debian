@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...I18N import _, ngettext
 from .ConfigCheckBox import ConfigCheckBox
 from ..HelpButton import HelpButton
@@ -31,7 +31,7 @@ class ExpansionsGroup(fsui.Group):
         widget.set_tooltip(_("Picasso96 Support (uaegfx.card)"))
         hor2_layout.add(widget, expand=True)
         widget = HelpButton(self,
-                "http://fengestad.no/fs-uae/options#uaegfx-card")
+                "http://fs-uae.net/options#uaegfx-card")
         hor2_layout.add(widget, margin_left=10)
         vert_layout.add(hor2_layout, fill=True, margin=10)
 
@@ -44,6 +44,6 @@ class ExpansionsGroup(fsui.Group):
         widget.set_tooltip(_("Built-in TCP/IP Stack (bsdsocket.library)"))
         hor2_layout.add(widget, expand=True)
         widget = HelpButton(self,
-                "http://fengestad.no/fs-uae/options#bsdsocket-library")
+                "http://fs-uae.net/options#bsdsocket-library")
         hor2_layout.add(widget, margin_left=10)
         vert_layout.add(hor2_layout, fill=True, margin=10)

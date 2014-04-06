@@ -1,21 +1,16 @@
-# Finnish translations for fs-uae package.
-# Copyright (C) 2013 Frode Solheim
-# This file is distributed under the same license as the fs-uae package.
-# Frode Solheim <fs-uae@fengestad.no>, 2013.
-#
 msgid ""
-msgstr ""
-"Project-Id-Version: fs-uae\n"
-"Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-03-08 23:38+0100\n"
-"PO-Revision-Date: 2013-03-09 13:20+0200\n"
-"Last-Translator: Mika Vaisanen <mjvaisane@gmail.com>\n"
+msgstr "Project-Id-Version: fs-uae\n"
+"Report-Msgid-Bugs-To: frode@fs-uae.net\n"
+"POT-Creation-Date: 2014-03-14 19:32+0100\n"
+"PO-Revision-Date: 2014-03-22 07:32-0400\n"
+"Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
 "Language-Team: Finnish\n"
-"Language: fi\n"
+"Language: fi_FI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.net\n"
 
 msgid "Activated debugger"
 msgstr "Debuggeri aktivoitu"
@@ -81,7 +76,6 @@ msgstr "Täysi kehys"
 msgid "HD not found: %s"
 msgstr "Kovalevyä %s ei löydy"
 
-# olisiko "Täysi resetointi" parempi?
 #. / TRANSLATORS: Hard reset is a computer reboot with an emulated power
 #. / cycle
 msgid "Hard Reset"
@@ -106,44 +100,40 @@ msgstr "Virheellinen määrä CD-ROM asemia määritelty"
 msgid "Joystick Mode"
 msgstr "Peliohjaintila"
 
-#. / TRANSLATORS: This is a menu entry and must not be too long
+msgid "Joystick Port"
+msgstr "Peliohjainportti"
+
 #, c-format
 msgid "Joystick Port %d"
-msgstr "Peliohjain portti %d"
+msgstr "Peliohjainportti %d"
 
 #. / TRANSLATORS: This is a menu entry and must not be too long
 #, c-format
 msgid "Joystick Port %d Device"
-msgstr "Peliohjain portti %d laite"
+msgstr "Peliohjainportti %d laite"
 
 #. / TRANSLATORS: This is a menu entry and must not be too long
 #, c-format
 msgid "Joystick Port %d Mode"
-msgstr "Peliohjain portti %d tila"
-
-msgid "Joystick Port 0"
-msgstr "Peliohjain portti 0"
-
-msgid "Joystick Port 1"
-msgstr "Peliohjain portti 1"
+msgstr "Peliohjainportti %d tila"
 
 msgid "Joystick Port 2"
-msgstr "Peliohjain portti 2"
+msgstr "Peliohjainportti 2"
 
 msgid "Joystick Port 3"
-msgstr "Peliohjain portti 3"
+msgstr "Peliohjainportti 3"
 
 msgid "Joystick Port 4"
-msgstr "Peliohjain portti 4"
-
-msgid "Joystick Ports"
-msgstr "Peliohjainportit"
+msgstr "Peliohjainportti 4"
 
 msgid "Keyboard"
 msgstr "Näppäimistö"
 
 msgid "Load"
 msgstr "Lataa"
+
+msgid "Load State"
+msgstr "Lataa tila"
 
 msgid "More..."
 msgstr "Lisää..."
@@ -153,6 +143,9 @@ msgstr "Hiiri"
 
 msgid "Mouse Mode"
 msgstr "Hiiritila"
+
+msgid "Mouse Port"
+msgstr "Hiiriportti"
 
 #. / TRANSLATORS: This is a menu entry and must not be too long: If you struggle
 #. / to get in short enough, just translate "No Device" instead.
@@ -175,26 +168,19 @@ msgid "Option chip_memory must be a multiple of 512"
 msgstr "Asetuksen \"Chip muisti\" (chip_memory) täytyy olla 512:n kerrannainen"
 
 msgid "Option fast_memory must be a multiple of 1024"
-msgstr ""
-"Asetuksen \"Fast muisti\" (fast_memory) täytyy olla 1024:n kerrannainen"
+msgstr "Asetuksen \"Fast muisti\" (fast_memory) täytyy olla 1024:n kerrannainen"
 
 msgid "Option slow_memory must be a multiple of 256"
 msgstr "Asetuksen \"Slow muisti\" (slow_memory) täytyy olla 256:n kerrannainen"
 
 msgid "Option uaegfx.card needs a CPU with 32-bit addressing"
-msgstr ""
-"Asetus \"Picasso96-tuki\" (uaegfx.card) vaatii suorittimen 32-bittisellä "
-"muistiosoituksella"
+msgstr "Asetus \"Picasso96-tuki\" (uaegfx.card) vaatii suorittimen 32-bittisellä muistiosoituksella"
 
 msgid "Option zorro_iii_memory must be a multiple of 1024"
-msgstr ""
-"Asetuksen \"Zorro III muisti\" (zorro_iii_memory) täytyy olla 1024:n "
-"kerrannainen"
+msgstr "Asetuksen \"Zorro III muisti\" (zorro_iii_memory) täytyy olla 1024:n kerrannainen"
 
 msgid "Options zorro_iii_memory needs a CPU with 32-bit addressing"
-msgstr ""
-"Asetus \"Zorro III muisti\" (zorro_iii_memory) vaatii suorittimen 32-"
-"bittisellä muistiosoituksella"
+msgstr "Asetus \"Zorro III muisti\" (zorro_iii_memory) vaatii suorittimen 32-bittisellä muistiosoituksella"
 
 #. / TRANSLATORS: This is a menu entry and must not be too long
 msgid "Parallel Joystick Ports"
@@ -223,10 +209,9 @@ msgstr "Jatka"
 msgid "Save"
 msgstr "Tallenna"
 
-msgid "Save States"
-msgstr "Tallennetut tilat"
+msgid "Save State"
+msgstr "Tallenna tila"
 
-# olisiko "Nopea resetointi" parempi?
 #. / TRANSLATORS: Soft reset reboots the computer without a power cycle
 msgid "Soft Reset"
 msgstr "Pehmeä resetointi"
@@ -247,3 +232,4 @@ msgstr "Zoomaus: %s"
 #, c-format
 msgid "Zoom: %s + Border"
 msgstr "Zoomaus: %s + Kehys"
+

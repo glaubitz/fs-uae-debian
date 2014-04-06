@@ -31,7 +31,7 @@ args = ["xgettext",
         "--keyword=_",
         "--keyword=N_",
         "--package-name=fs-uae",
-        "--msgid-bugs-address=fs-uae@fengestad.no",
+        "--msgid-bugs-address=frode@fs-uae.net",
         "--copyright-holder=Frode Solheim",
         "--add-comments=/",
         "--no-location",
@@ -42,22 +42,22 @@ p = subprocess.Popen(args)
 p.wait()
 shutil.move("po/messages.po", "po/messages.pot")
 
-for file in os.listdir("po"):
-    if file.endswith(".po"):
-        path = os.path.join("po", file)
-        print(path)
-        p = subprocess.Popen(["msgmerge",
-                              "--no-fuzzy-matching",
-                              "--sort-output",
-                              "--update",
-                              path,
-                              "po/messages.pot"])
-        p.wait()
+#for file in os.listdir("po"):
+#    if file.endswith(".po"):
+#        path = os.path.join("po", file)
+#        print(path)
+#        p = subprocess.Popen(["msgmerge",
+#                              "--no-fuzzy-matching",
+#                              "--sort-output",
+#                              "--update",
+#                              path,
+#                              "po/messages.pot"])
+#        p.wait()
 
 os.system("find share -name fs-uae.mo -delete")
 
-print("\n\nlauncher:")
-os.system("cd launcher && python po/update.py")
+#print("\n\nlauncher:")
+#os.system("cd launcher && python po/update.py")
 #os.chdir("launcher")
 #os.system("python po/update.py")
 

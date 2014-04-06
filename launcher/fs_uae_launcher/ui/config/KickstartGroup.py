@@ -4,14 +4,14 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import traceback
-import fs_uae_launcher.fsui as fsui
+from fsgs.ChecksumTool import ChecksumTool
+import fsui as fsui
 from ...Config import Config
-from ...ChecksumTool import ChecksumTool
-from ...I18N import _, ngettext
-from ...Settings import Settings
+from ...I18N import _
+from fsgs.FSGSDirectories import FSGSDirectories
 from ..IconButton import IconButton
-from ..LauncherFileDialog import LauncherFileDialog
+from ..LauncherFilePicker import LauncherFilePicker
+
 
 class KickstartGroup(fsui.Group):
 
@@ -102,16 +102,16 @@ class KickstartGroup(fsui.Group):
         Config.update_kickstart()
 
     def on_browse_button(self, extended=False):
-        default_dir = Settings.get_kickstarts_dir()
+        default_dir = FSGSDirectories.get_kickstarts_dir()
         if extended:
             title = _("Choose Extended ROM")
             key = "kickstart_ext_file"
         else:
             title = _("Choose Kickstart ROM")
             key = "kickstart_file"
-        dialog = LauncherFileDialog(self.get_window(), title,
+        dialog = LauncherFilePicker(self.get_window(), title,
                 "rom", Config.get(key))
-        if not dialog.show():
+        if not dialog.show_modal():
             return
         path = dialog.get_path()
 

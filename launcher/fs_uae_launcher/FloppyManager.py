@@ -4,16 +4,18 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import fs_uae_launcher.fsui as fsui
-from .ui.LauncherFileDialog import LauncherFileDialog
-from .Amiga import Amiga
-from .Archive import Archive
+from fsgs import fsgs
+from fsgs.ChecksumTool import ChecksumTool
+from .ui.LauncherFilePicker import LauncherFilePicker
+from fsgs.amiga.Amiga import Amiga
+from fsgs.Archive import Archive
 from .Config import Config
-from .I18N import _, ngettext
-from .Paths import Paths
-from .Settings import Settings
+from .I18N import _
+from fsbc.Paths import Paths
+from fsgs.FSGSDirectories import FSGSDirectories
 
-class FloppyManager:
+
+class FloppyManager(object):
 
     @classmethod
     def clear_all(cls):
@@ -23,10 +25,11 @@ class FloppyManager:
 
     @classmethod
     def eject(cls, drive):
-        values = []
-        values.append(("floppy_drive_{0}".format(drive), ""))
-        values.append(("x_floppy_drive_{0}_sha1".format(drive), ""))
-        Config.set_multiple(values)
+        #values = []
+        #values.append(("floppy_drive_{0}".format(drive), ""))
+        #values.append(("x_floppy_drive_{0}_sha1".format(drive), ""))
+        #Config.set_multiple(values)
+        fsgs.amiga.eject_floppy(drive)
 
     @classmethod
     def clear_floppy_list(cls):
@@ -38,15 +41,16 @@ class FloppyManager:
 
     @classmethod
     def multiselect(cls, parent=None):
-        default_dir = Settings.get_floppies_dir()
-        dialog = LauncherFileDialog(parent, _("Select Multiple Floppies"),
+        default_dir = FSGSDirectories.get_floppies_dir()
+        dialog = LauncherFilePicker(parent,_("Select Multiple Floppies"),
                 "floppy", multiple=True)
-        if not dialog.show():
+        if not dialog.show_modal():
             return
         original_paths = dialog.get_paths()
         original_paths.sort()
         paths = []
         for path in original_paths:
+            path = Paths.get_real_case(path)
             embedded_files = []
             if path.endswith(".zip"):
                 archive = Archive(path)
@@ -66,11 +70,11 @@ class FloppyManager:
             else:
                 paths.append(path)
 
-        from .ChecksumTool import ChecksumTool
         checksum_tool = ChecksumTool(parent)
         for i, path in enumerate(paths):
             sha1 = checksum_tool.checksum(path)
-            path = Paths.contract_path(path, default_dir)
+            path = Paths.contract_path(
+                path, default_dir, force_real_case=False)
 
             if i < 4:
                 Config.set_multiple([

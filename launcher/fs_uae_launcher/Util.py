@@ -3,14 +3,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import os
-import sys
-from .fs import memoize, get_home_dir
+from fsbc.user import get_home_dir
+from fsbc.util import memoize
+from fsbc.Paths import Paths
+
 
 def expand_path(path):
-    from .Paths import Paths
     return Paths.expand_path(path)
 
+
 def get_real_case(path):
-    from .Paths import Paths
     return Paths.get_real_case(path)

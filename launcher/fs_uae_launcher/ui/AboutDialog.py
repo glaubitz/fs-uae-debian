@@ -5,45 +5,44 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
-from ..I18N import _, ngettext
+import fsui as fsui
+from ..I18N import _
+
 
 class AboutDialog(fsui.Dialog):
 
     def __init__(self, parent):
-        fsui.Dialog.__init__(self, parent, _("About {name}").format(
-                name="FS-UAE Launcher"))
+        fsui.Dialog.__init__(
+            self, parent, _("About {name}").format(name="FS-UAE Launcher"))
         self.layout = fsui.VerticalLayout()
-        self.layout.padding_top = 10
-        self.layout.padding_bottom = 10
-        self.layout.padding_left = 10
-        self.layout.padding_right = 10
 
-        self.text_area = fsui.TextArea(self, about_message,
-                read_only=True, font_family="monospace")
+        self.text_area = fsui.TextArea(
+            self, about_message, read_only=True, font_family="monospace",
+            border=False)
+        self.text_area.scroll_to_start()
         self.text_area.set_min_width(700)
         self.text_area.set_min_height(400)
-        self.layout.add(self.text_area, fill=True, margin=10)
+        self.layout.add(self.text_area, fill=True, expand=True)
 
-        self.layout.add_spacer(10)
-        hori_layout = fsui.HorizontalLayout()
-        hori_layout.add_spacer(10, expand=True)
-        self.layout.add(hori_layout, fill=True)
-
-        self.close_button = fsui.Button(self, _("Close"))
-        self.close_button.on_activate = self.on_close_button
-        hori_layout.add(self.close_button, margin_left=10)
-        hori_layout.add_spacer(10)
-        self.layout.add_spacer(10)
+        #self.layout.add_spacer(10)
+        #hori_layout = fsui.HorizontalLayout()
+        #hori_layout.add_spacer(10, expand=True)
+        #self.layout.add(hori_layout, fill=True)
+        #
+        #self.close_button = fsui.Button(self, _("Close"))
+        #self.close_button.on_activate = self.on_close_button
+        #hori_layout.add(self.close_button, margin_left=10)
+        #hori_layout.add_spacer(10)
+        #self.layout.add_spacer(10)
 
         self.set_size(self.layout.get_min_size())
         self.center_on_parent()
 
-    def on_close_button(self):
-        self.end_modal(False)
+    #def on_close_button(self):
+    #    self.end_modal(False)
 
 
-about_message = u"""FS-UAE Launcher is Copyright (C) 2012-2013 Frode Solheim.
+about_message = """FS-UAE Launcher is Copyright (C) 2012-2013 Frode Solheim.
 
 This package is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

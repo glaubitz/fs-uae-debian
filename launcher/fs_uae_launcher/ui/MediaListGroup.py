@@ -4,17 +4,19 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import fs_uae_launcher.fsui as fsui
-from ..Amiga import Amiga
+from fsgs import fsgs
+from fsgs.ChecksumTool import ChecksumTool
+import fsui as fsui
+from fsgs.amiga.Amiga import Amiga
 from ..CDManager import CDManager
-from ..ChecksumTool import ChecksumTool
 from ..Config import Config
 from ..FloppyManager import FloppyManager
-from ..I18N import _, ngettext
-from ..Paths import Paths
-from ..Settings import Settings
+from ..I18N import _ as gettext
+from fsbc.Paths import Paths
+from fsgs.FSGSDirectories import FSGSDirectories
 from .IconButton import IconButton
-from .LauncherFileDialog import LauncherFileDialog
+from .LauncherFilePicker import LauncherFilePicker
+
 
 class MediaListGroup(fsui.Group):
 
@@ -32,7 +34,8 @@ class MediaListGroup(fsui.Group):
             self.file_key = "floppy_image_{0}"
             self.sha1_key = "x_floppy_image_{0}_sha1"
 
-        self.heading_label = fsui.HeadingLabel(self, _("Media Swap List"))
+        self.heading_label = fsui.HeadingLabel(
+            self, gettext("Media Swap List"))
         self.layout.add(self.heading_label, margin=10)
         self.layout.add_spacer(0)
 
@@ -40,30 +43,33 @@ class MediaListGroup(fsui.Group):
         self.layout.add(hori_layout, expand=True, fill=True)
 
         self.list_view = fsui.ListView(self)
+        self.list_view.on_activate_item = self.on_activate_item
         if self.cd_mode:
-            self.list_view.set_default_icon(fsui.Image(
-                    "fs_uae_launcher:res/cdrom_16.png"))
+            # self.list_view.set_default_icon(
+            #     fsui.Image("fs_uae_launcher:res/cdrom_16.png"))
+            self.default_icon = fsui.Image("fs_uae_launcher:res/cdrom_16.png")
         else:
-            self.list_view.set_default_icon(fsui.Image(
-                    "fs_uae_launcher:res/floppy_16.png"))
+            # self.list_view.set_default_icon(
+            #     fsui.Image("fs_uae_launcher:res/floppy_16.png"))
+            self.default_icon = fsui.Image("fs_uae_launcher:res/floppy_16.png")
         hori_layout.add(self.list_view, expand=True, fill=True, margin=10,
-                margin_right=0)
+                        margin_right=0)
 
         vert_layout = fsui.VerticalLayout()
         hori_layout.add(vert_layout, fill=True)
 
         add_button = IconButton(self, "add_button.png")
-        add_button.set_tooltip(_("Add Files to List"))
+        add_button.set_tooltip(gettext("Add Files to List"))
         add_button.on_activate = self.on_add_button
         vert_layout.add(add_button, margin=10)
 
         remove_button = IconButton(self, "remove_button.png")
-        remove_button.set_tooltip(_("Remove Selected Files"))
+        remove_button.set_tooltip(gettext("Remove Selected Files"))
         remove_button.on_activate = self.on_remove_button
         vert_layout.add(remove_button, margin=10)
 
         clear_button = IconButton(self, "clear_button.png")
-        clear_button.set_tooltip(_("Clear List"))
+        clear_button.set_tooltip(gettext("Clear List"))
         clear_button.on_activate = self.on_clear_list
         vert_layout.add(clear_button, margin=10)
 
@@ -73,9 +79,17 @@ class MediaListGroup(fsui.Group):
     def on_destroy(self):
         Config.remove_listener(self)
 
-    def on_config(self, key, value):
+    def on_config(self, key, _):
         if key.startswith(self.file_key_prefix):
             self.update_list()
+
+    def on_activate_item(self, item):
+        path = Config.get(self.file_key.format(item))
+        sha1 = Config.get(self.sha1_key.format(item))
+        if self.cd_mode:
+            pass
+        else:
+            fsgs.amiga.insert_floppy_in_free_drive(path, sha1=sha1)
 
     def create_list(self):
         items = []
@@ -92,14 +106,16 @@ class MediaListGroup(fsui.Group):
         return items
 
     def update_list(self):
-        items = []
+        # items = []
+        self.list_view.clear()
         for path, sha1 in self.create_list():
             dir, name = os.path.split(path)
             if dir:
-                items.append("{0}\n{1}".format(name, dir))
+                label = "{0} ({1})".format(name, dir)
             else:
-                items.append(path)
-        self.list_view.set_items(items)
+                label = path
+            self.list_view.add_item(label, self.default_icon)
+        # self.list_view.set_items(items)
 
     def on_clear_list(self):
         if self.cd_mode:
@@ -110,24 +126,29 @@ class MediaListGroup(fsui.Group):
     def on_remove_button(self):
         index = self.list_view.get_index()
         existing_items = self.create_list()
-        if index >= 0 and index < len(existing_items):
+        if 0 <= index < len(existing_items):
             del existing_items[index]
             self.set_new_config(existing_items)
 
     def on_add_button(self):
         existing_items = self.create_list()
 
-        default_dir = Settings.get_floppies_dir()
+        default_dir = FSGSDirectories.get_floppies_dir()
         if self.cd_mode:
-            dialog = LauncherFileDialog(self.get_window(),
-                    _("Select Multiple CD-ROMs"), "cd", multiple=True)
+            dialog = LauncherFilePicker(
+                self.get_window(), gettext("Select Multiple CD-ROMs"),
+                "cd", multiple=True)
         else:
-            dialog = LauncherFileDialog(self.get_window(),
-                    _("Select Multiple Floppies"), "floppy", multiple=True)
-        if not dialog.show():
+            dialog = LauncherFilePicker(
+                self.get_window(), gettext("Select Multiple Floppies"),
+                "floppy", multiple=True)
+        if not dialog.show_modal():
+            print("dialog.show returned false")
             return
+        print("dialog.show returned true")
         paths = dialog.get_paths()
         paths.sort()
+        print(paths)
 
         checksum_tool = ChecksumTool(self.get_window())
         for i, path in enumerate(paths):

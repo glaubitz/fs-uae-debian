@@ -2,46 +2,60 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from fsgs.Database import Database
+from fsgs.platform import PlatformHandler
+from fsgs.util.GameNameUtil import GameNameUtil
 
-import os
-import traceback
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ..Config import Config
 from ..Settings import Settings
-from ..Database import Database
-from ..I18N import _, ngettext
-from ..fsgs.GameDatabase import GameDatabase
-from ..fsgs.GameDatabaseClient import GameDatabaseClient
+
 
 class ConfigurationsBrowser(fsui.VerticalItemView):
 
     def __init__(self, parent):
         fsui.VerticalItemView.__init__(self, parent)
         self.items = []
-        self.game_icon = fsui.Image("fs_uae_launcher:res/game_16.png")
+        self.game_icon = fsui.Image("fs_uae_launcher:res/16/controller.png")
         self.config_icon = fsui.Image(
-                "fs_uae_launcher:res/fsuae_config_16.png")
+            "fs_uae_launcher:res/fsuae_config_16.png")
         Settings.add_listener(self)
         self.update_search()
+
+        self.manual_download_icon = fsui.Image(
+            "fs_uae_launcher:res/16/arrow_down_yellow.png")
+        self.auto_download_icon = fsui.Image(
+            "fs_uae_launcher:res/16/arrow_down_green.png")
+        self.blank_icon = fsui.Image(
+            "fs_uae_launcher:res/16/blank.png")
+        self.missing_color = fsui.Color(0xa8, 0xa8, 0xa8)
+
+        self.platform_icons = {}
 
     def on_destroy(self):
         Settings.remove_listener(self)
 
     def on_select_item(self, index):
-        self.load_configuration(self.items[index][0])
+        if index is None:
+            return
+        #self.load_configuration(self.items[index][str("uuid")])
+        self.load_configuration(self.items[index])
 
     def on_activate_item(self, index):
-        from ..LaunchHandler import LaunchHandler
-        LaunchHandler.start_game()
+        from ..FSUAELauncher import FSUAELauncher
+        FSUAELauncher.start_game()
 
-    def on_setting(self, key, value):
-        if key == "config_search":
+    def on_setting(self, key, _):
+        if key in ["config_search", "game_list_uuid"]:
+            # if key == "game_list_uuid":
             self.update_search()
             if len(self.items) > 0:
+                self.select_item(None)
                 self.select_item(0)
             else:
+                # self.select_item(None)
                 Settings.set("parent_uuid", "")
-        if key == "config_refresh":
+        elif key == "config_refresh":
             self.update_search()
             self.select_item(None)
             old_parent_uuid = Settings.get("parent_uuid")
@@ -51,53 +65,121 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
 
     def set_items(self, items):
         self.items = items
-        #self.set_item_count(len(self.items))
         self.update()
 
     def get_item_count(self):
         return len(self.items)
 
     def get_item_text(self, index):
-        return self.items[index][1]
+        item = self.items[index]
+        name = item[str("name")]
+        platform = item[str("platform")] or ""
+        if "[" in name:
+            name, extra = name.split("[", 1)
+            name = name.strip()
+            extra = " \u00b7 " + extra.strip(" ]")
+        else:
+            extra = ""
+        if fsui.toolkit == 'wx':
+            sep = "\n"
+        else:
+            sep = " \u00b7 "
+            name = name.replace("\n", " \u00b7 ")
+        if platform == "Amiga":
+            platform = ""
+        elif platform:
+            platform = sep + PlatformHandler.get_platform_name(platform)
+            # if not extra:
+            #     sep = ""
+            # return "{0}{1}{2}{3}".format(name, sep, extra, "")
+        # else:
+        text = "{0}{1}{2}".format(name, extra, platform) or "Missing Name"
+        return text
+
+        # else:
+        #     return "{0} \u00b7 {1}{2}".format(name, extra, platform)
 
     def get_item_search_text(self, index):
-        return self.items[index][3]
+        #return self.items[index][3]
+        # FIXME: lower-case search string?
+        return self.items[index][str("sort_key")]
+
+    def get_item_text_color(self, index):
+        have = self.items[index][str("have")]
+        if not have:
+            return self.missing_color
 
     def get_item_icon(self, index):
-        if self.items[index][2]:
-            return self.game_icon
+        item = self.items[index]
+        platform_id = (item[str("platform")] or "").lower()
+        if item[str("have")] == 1:
+            return self.manual_download_icon
+        elif item[str("have")] == 0:
+            return self.blank_icon
+        elif item[str("have")] == 2:
+            return self.auto_download_icon
+        elif item[str("have")] == 4:
+            if platform_id not in self.platform_icons:
+                try:
+                    icon = fsui.Image("fs_uae_launcher:res/16/{0}.png".format(
+                        platform_id))
+                except Exception:
+                    icon = self.game_icon
+                self.platform_icons[platform_id] = icon
+            return self.platform_icons[platform_id]
         else:
             return self.config_icon
 
     #def on_get_item_tooltip(self, row, column):
     #    return self.items[row][1]
-    #    #text = text.replace(u"\nAmiga \u00b7 ", "\n")
+    #    #text = text.replace("\nAmiga \u00b7 ", "\n")
 
     def update_search(self):
-        self.search = Settings.get("config_search").strip().lower()
-        print("search for", self.search)
+        search = Settings.get("config_search").strip().lower()
+        print("search for", search)
+        words = []
+        special = []
+        for word in search.split(" "):
+            word = word.strip()
+            if not word:
+                continue
+            if ":" in word[1:-1]:
+                special.append(word)
+            else:
+                words.append(word)
+        terms = GameNameUtil.extract_search_terms(" ".join(words))
+        terms.update(special)
 
         database = Database.get_instance()
-        items = database.search_configurations(self.search)
-        #print(items)
+
+        try:
+            have = int(Settings.get("database_show_games"))
+        except ValueError:
+            # default is show all downloadable and locally available games
+            have = 1
+        items = database.find_games_new(
+            " ".join(terms), have=have,
+            list_uuid=Settings.get("game_list_uuid"))
+
         self.set_items(items)
-        #self.set_items([list(x) for x in items])
 
-    def load_configuration(self, configuration_id):
-        database = Database.get_instance()
-        config_info = database.get_config(configuration_id)
-        if config_info["data"]:
-            Config.load_data(config_info["data"])
-            Settings.set("parent_uuid", "")
-        elif config_info["path"]:
-            Config.load_file(config_info["path"])
-            Settings.set("parent_uuid", "")
+    def load_configuration(self, item):
+        if item[str("uuid")]:
+            Settings.set("parent_uuid", item[str("uuid")])
         else:
-            Settings.set("parent_uuid", config_info["uuid"])
-            #game_uuid = config_info["uuid"]
-            #game_database = GameDatabase.get_instance()
-            #game_database_client = GameDatabaseClient(game_database)
-            #game_id = game_database_client.get_game_id(game_uuid)
-            #values = game_database_client.get_final_game_values(game_id)
-            #Config.load_values(values, uuid=game_uuid)
-            pass
+            config_path = Database.get_instance().decode_path(
+                item[str("path")])
+            print("load config from", config_path)
+            Config.load_file(config_path)
+            Settings.set("parent_uuid", "")
+
+        # database = Database.get_instance()
+        # config_info = database.get_config(configuration_id)
+        # if config_info["data"]:
+        #     Config.load_data(config_info["data"])
+        #     Settings.set("parent_uuid", "")
+        # elif config_info["path"]:
+        #     Config.load_file(config_info["path"])
+        #     Settings.set("parent_uuid", "")
+        # else:
+        #     Settings.set("parent_uuid", config_info["uuid"])

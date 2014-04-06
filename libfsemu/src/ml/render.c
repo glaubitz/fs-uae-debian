@@ -1,7 +1,15 @@
+// FIXME: make libfsml independent of libfsmeu
+#include "../emu/util.h"
+#include "../emu/video.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
+
+#ifdef USE_SDL2
+#define USE_SDL
+#endif
 
 #ifdef USE_SDL
 #include <SDL.h>
@@ -20,9 +28,6 @@
 #include "ml_internal.h"
 
 #include <fs/thread.h>
-// FIXME: make libfsml independent of libfsmeu
-#include "../emu/util.h"
-#include "../emu/video.h"
 
 static int g_vblank_count = 0;
 static int64_t g_measured_vblank_time = 0;
@@ -215,9 +220,15 @@ static void render_frame() {
     }
 }
 
+#ifdef USE_SDL2
+extern SDL_Window* g_fs_ml_window;
+#endif
+
 static void swap_opengl_buffers() {
     //int64_t t1 = fs_get_monotonic_time();
-#ifdef USE_SDL
+#if defined(USE_SDL2)
+    SDL_GL_SwapWindow(g_fs_ml_window);
+#elif defined(USE_SDL)
     SDL_GL_SwapBuffers();
 #else
     printf("ERROR: no swap\n");

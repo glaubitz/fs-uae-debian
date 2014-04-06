@@ -4,6 +4,7 @@
 #include <string.h>
 #include <mach/mach_time.h>
 #include <ApplicationServices/ApplicationServices.h>
+#include <CoreServices/CoreServices.h>
 #include <Carbon/Carbon.h>
 //#include <MacApplication.h>
 
@@ -37,10 +38,19 @@ void fs_ml_usleep(int usec) {
     usleep(usec);
 }
 
-void fs_ml_set_fullscreen_extra() {
-    // Using LSUIPresentationMode instead
-    //SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
+void fs_ml_prevent_power_saving(void) {
+    static int counter = 0;
+    if (++counter == 50 * 30) {
+        // prevent screen saver about every 30 seconds
+        UpdateSystemActivity(OverallAct);
+        counter = 0;
+    }
 }
+
+//void fs_ml_set_fullscreen_extra() {
+//    // Using LSUIPresentationMode instead
+//    //SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
+//}
 
 int fs_ml_video_mode_get_current(fs_ml_video_mode *mode) {
     mode->width = 0;

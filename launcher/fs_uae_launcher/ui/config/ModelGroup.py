@@ -3,14 +3,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...Config import Config
-from ...Warnings import Warnings
-from ...Database import Database
-from ...Amiga import Amiga
+from fsgs.amiga.Amiga import Amiga
 from ...FloppyManager import FloppyManager
 from ...CDManager import CDManager
-from ...I18N import _, ngettext
+from ...I18N import _
 from .ConfigDialog import ConfigDialog
 from .ConfigCheckBox import ConfigCheckBox
 
@@ -71,10 +69,14 @@ class ModelGroup(fsui.Group):
     def on_model_change(self):
         print("\non_model_change\n\n")
         index = self.model_choice.get_index()
-        model = Amiga.models_config[index]
+        if index == 0:
+            # The default model (A500) can be specified with the empty string
+            model = ""
+        else:
+            model = Amiga.models_config[index]
         Config.set("amiga_model", model)
         Config.update_kickstart()
-        if Amiga.is_cd_based():
+        if Amiga.is_cd_based(Config):
             FloppyManager.clear_all()
         else:
             CDManager.clear_all()
@@ -94,12 +96,15 @@ class ModelGroup(fsui.Group):
 
     def on_config(self, key, value):
         if key == "amiga_model":
+            model_index = 0
             for i, config in enumerate(Amiga.models_config):
                 if config == value:
-                    self.model_choice.set_index(i)
+                    # self.model_choice.set_index(i)
+                    model_index = i
                     break
-            else:
-                print("FIXME: could not set model")
+            # else:
+            #    print("FIXME: could not set model")
+            self.model_choice.set_index(model_index)
         elif key == "accuracy":
             if not value:
                 index = 0

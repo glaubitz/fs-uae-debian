@@ -1,22 +1,16 @@
-# Turkish translations for fs-uae-launcher package.
-# Copyright (C) 2013 Frode Solheim
-# This file is distributed under the same license as the fs-uae-launcher package.
-# Frode Solheim <fs-uae@fengestad.no>, 2013.
-#
 msgid ""
-msgstr ""
-"Project-Id-Version: fs-uae-launcher\n"
+msgstr "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
-"PO-Revision-Date: 2013-04-07 19:25+0200\n"
-"Last-Translator: Eser Güven <thedecypher@hotmail.com>\n"
+"POT-Creation-Date: 2014-03-14 19:32+0100\n"
+"PO-Revision-Date: 2014-03-22 07:32-0400\n"
+"Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
 "Language-Team: Turkish\n"
-"Language: tr\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.5\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.net\n"
 
 msgid "16-bit"
 msgstr "16-bit"
@@ -36,20 +30,32 @@ msgstr "640x480 + Kenar"
 msgid "640x512 + Border"
 msgstr "640x512 + Kenar"
 
-msgid "ADF & HDF Creator"
-msgstr "ADF & HDF Yaratıcı"
+msgid "A change of language will only affect applications which are restarted after the change."
+msgstr "Dil değişimi yalnızca değişimden sonra yeniden başlatılan uygulamaları etkileyecektir."
 
-msgid "ADF - Extended Floppy Disk Image (MFM)"
-msgstr "ADF - Genişletilmiş Disket İmajı (MFM)"
+msgid "ADF - Extended Floppy Disk Image (MFM Encoded)"
+msgstr "ADF - Genişletilmiş Disket İmajı (MFM Şifreli)"
 
 msgid "ADF - Standard Floppy Disk Image"
 msgstr "ADF - Standart Disket İmajı"
 
+msgid "ADF Creator"
+msgstr "ADF Yaratıcı"
+
+msgid "ADF Disk Image Creator"
+msgstr "ADF Disk İmajı Yaratıcı"
+
 msgid "Abort"
 msgstr "İptal Et"
 
+msgid "About OAGD.net"
+msgstr "OAGD.net Hakkında"
+
 msgid "About {name}"
 msgstr "{name} hakkında"
+
+msgid "Accept"
+msgstr "Accept"
 
 msgid "Accurate"
 msgstr "İsabetli"
@@ -66,8 +72,20 @@ msgstr "Tek Seferde Birden Çok CD-ROM Ekle"
 msgid "Add Multiple Floppies at Once"
 msgstr "Tek Seferde Birden Çok Disket Ekle"
 
-msgid "Additional Options"
-msgstr "Ek Seçenekler"
+msgid "Advanced Audio Options"
+msgstr "Advanced Audio Options"
+
+msgid "Advanced Settings"
+msgstr "Gelişmiş Ayarlar"
+
+msgid "Advanced Video Settings"
+msgstr "Advanced Video Settings"
+
+msgid "All games and configurations"
+msgstr "Tüm oyunlar ve konfigürasyonlar"
+
+msgid "Also synchronize emulation with display when possible (smooth scrolling)"
+msgstr "Also synchronize emulation with display when possible (smooth scrolling)"
 
 msgid "Amiga Forever Import"
 msgstr "Amiga Forever'dan Aktar"
@@ -78,8 +96,23 @@ msgstr "Amiga Forever'dan aktarma işlemi başladı"
 msgid "Amiga Model"
 msgstr "Amiga Modeli"
 
+msgid "An Error Occurred"
+msgstr "Bir Hata Meydana Geldi"
+
+msgid "Audio"
+msgstr "Ses"
+
 msgid "Audio Settings"
 msgstr "Ses Ayarları"
+
+msgid "Audio buffer target size (bytes)"
+msgstr "Audio buffer target size (bytes)"
+
+msgid "Audio buffer target size (ms)"
+msgstr "Audio buffer target size (ms)"
+
+msgid "Audio output freqency"
+msgstr "Audio output freqency"
 
 msgid "Auto"
 msgstr "Otomatik"
@@ -106,7 +139,7 @@ msgid "Browse for Folder"
 msgstr "Klasör için Gözat"
 
 msgid "Buffer swap only"
-msgstr ""
+msgstr "Yalnızca tampon değişimi"
 
 msgid "Built-in TCP/IP Stack"
 msgstr "Dahili TCP/IP Yığını"
@@ -129,6 +162,12 @@ msgstr "CD32 Pad"
 msgid "Cancel"
 msgstr "Vazgeç"
 
+msgid "Checksumming"
+msgstr "Sağlama Toplamı"
+
+msgid "Checksumming file..."
+msgstr "Dosyanın sağlaması yapılıyor..."
+
 msgid "Chip RAM"
 msgstr "Çip RAM"
 
@@ -146,6 +185,9 @@ msgstr "Hard Diski Seçin"
 
 msgid "Choose Kickstart ROM"
 msgstr "Kickstart ROM'unu Seçin"
+
+msgid "Choose what folders you want to scan for Amiga files"
+msgstr "Amiga dosyaları için taramak istediğiniz klasörleri seçin"
 
 msgid "Cleaning up..."
 msgstr "Temizleniyor..."
@@ -168,6 +210,9 @@ msgstr "Kickstart yüklemek için buraya tıklayın"
 msgid "Close"
 msgstr "Kapat"
 
+msgid "Commiting locker data..."
+msgstr "Dolap verisi gönderiliyor..."
+
 msgid "Committing data..."
 msgstr "Veri işleniyor..."
 
@@ -186,24 +231,32 @@ msgstr "Konfigürasyon Uyarısı"
 msgid "Configurations"
 msgstr "Konfigürasyonlar"
 
-msgid "Configure Joystick Buttons"
-msgstr "Joystick Düğmelerini Ayarla"
+msgid "Configure joysticks and set preferred joystick devices"
+msgstr "Joystickleri ayarla ve tercih edilen joystick ayarlarını belirle"
 
 msgid "Connect"
 msgstr "Bağlan"
 
-msgid ""
-"Copy {0}\n"
-"to {1}"
-msgstr ""
-"{0}'ı\n"
-"{1}'e kopyala"
+msgid "Copy {0}\nto {1}"
+msgstr "{0}'ı\n{1}'e kopyala"
 
 msgid "Could not open file for writing"
 msgstr "Dosyayı yazmak için açamıyorum"
 
 msgid "Create"
 msgstr "Yarat"
+
+msgid "Create a blank or formatted ADF floppy disk image"
+msgstr "Boş veya formatlanmış ADF disket imajı yarat"
+
+msgid "Create a single-partition or partitionable hard drive image"
+msgstr "Tek parçalı veya parçalanabilir hard disk imajı yarat"
+
+msgid "Create an account now"
+msgstr "Bir hesap yaratın"
+
+msgid "Create disk image of type:"
+msgstr "Şu türde bir disk imajı yarat:"
 
 msgid "Cursor Keys and Right Ctrl/Alt"
 msgstr "İmleç Tuşları ve Sağ Ctrl/Alt"
@@ -220,11 +273,8 @@ msgstr "Özel IRC sunucu adresi"
 msgid "Custom Joystick Port"
 msgstr "Özel Joystick Portu"
 
-msgid "Custom Options"
-msgstr "Özel Seçenekler"
-
-msgid "Custom Settings"
-msgstr "Özel Ayarlar"
+msgid "Custom game database server address"
+msgstr "Özel oyun veritabanı sunucu adresi"
 
 msgid "Default"
 msgstr "Varsayılan"
@@ -232,23 +282,50 @@ msgstr "Varsayılan"
 msgid "Default ({0})"
 msgstr "Varsayılan ({0})"
 
-msgid "Destination Directory:"
-msgstr "Hedef Klasör:"
+msgid "Defragment Databases"
+msgstr "Defragment Databases"
+
+msgid "Defragmenting the databases will improve performance by ensuring that tables and indices are stored contiguously on disk. It will also reclaim some storage space."
+msgstr "Defragmenting the databases will improve performance by ensuring that tables and indices are stored contiguously on disk. It will also reclaim some storage space."
+
+msgid "Defragmenting {name}"
+msgstr "Defragmenting {name}"
+
+msgid "Depending on your OS and OpenGL drivers, synchronizing can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
+msgstr "Depending on your OS and OpenGL drivers, synchronizing can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
+
+msgid "Device ID used with OAGD.net authentication"
+msgstr "Device ID used with OAGD.net authentication"
 
 msgid "Disconnect"
 msgstr "Bağlantıyı Kes"
 
-msgid "Disk Image Name:"
-msgstr "Disk İmaj İsmi:"
-
 msgid "Disk image created"
 msgstr "Disk imajı yaratıldı"
+
+msgid "Dislike This Game Variant"
+msgstr "Bu Oyun Varyantını Beğenme"
+
+msgid "Don't have an account already?"
+msgstr "Henüz bir hesabınız yok mu?"
+
+msgid "Double-click a device entry to configure it (map joystick buttons)."
+msgstr "Ayarlamak için cihaz ismine çift tıklayın (joystick düğmelerini atamak için)."
+
+msgid "Download Game Manually"
+msgstr "Download Game Manually"
 
 msgid "Download failed (attempt {0}) - retrying in {0} seconds"
 msgstr "İndirme başarısız (deneme {0}) - {0} saniye içinde tekrar denenecek"
 
+msgid "Download to the following directory, and then click '{0}':"
+msgstr "Download to the following directory, and then click '{0}':"
+
 msgid "Downloading {0}..."
 msgstr "İndiriliyor {0}..."
+
+msgid "E-mail:"
+msgstr "E-posta:"
 
 msgid "Edit Custom Options"
 msgstr "Özel Seçenekleri Düzenle"
@@ -261,6 +338,9 @@ msgstr "Deneysel net oyunu arayüzünü aktifleştir (yeniden başlatmanız gere
 
 msgid "Enable online database support (requires restart)"
 msgstr "Online veritabanı desteğini aktifleştir (yeniden başlatmanız gerekir)"
+
+msgid "Enabling the following option will prevent tearing from occurring, but will also use more CPU. Input latency may become slightly higher."
+msgstr "Enabling the following option will prevent tearing from occurring, but will also use more CPU. Input latency may become slightly higher."
 
 msgid "Error moving file into place"
 msgstr "Dosyayı taşırken hata oluştu"
@@ -287,7 +367,13 @@ msgid "Fetching database entries ({0})"
 msgstr "Veritabanı girdileri alınıyor ({0})"
 
 msgid "Fetching game ratings ({0})"
-msgstr "Oyunun puanları alınıyor ({0})"
+msgstr "Oyunların puanları alınıyor ({0})"
+
+msgid "Fetching locker data..."
+msgstr "Dolap verisi alınıyor..."
+
+msgid "Fetching synchronization information..."
+msgstr "Senkronizasyon bilgisi alınıyor..."
 
 msgid "Fetching user game ratings ({0})"
 msgstr "Oyunun kullanıcı puanları alınıyor ({0})"
@@ -295,23 +381,44 @@ msgstr "Oyunun kullanıcı puanları alınıyor ({0})"
 msgid "File already exists"
 msgstr "Dosya zaten mevcut"
 
+msgid "Filename for the new disk image:"
+msgstr "Yeni disk imajı için dosya ismi:"
+
+msgid "Files for this game are still missing. Did you download the game and put the file(s) in the Downloads directory?"
+msgstr "Files for this game are still missing. Did you download the game and put the file(s) in the Downloads directory?"
+
+msgid "Filter Settings"
+msgstr "Filtre Ayarları"
+
 msgid "Filters"
 msgstr "Filtreler"
-
-msgid "Filters & Scaling"
-msgstr "Filtreler ve Büyütme"
 
 msgid "Filters:"
 msgstr "Filtreler:"
 
+msgid "Finding files eligible for OAGD.net Locker"
+msgstr "OAGD.net Dolabına uygun dosyalar bulunuyor"
+
+msgid "First rendered line (NTSC)"
+msgstr "First rendered line (NTSC)"
+
+msgid "First rendered line (PAL)"
+msgstr "First rendered line (PAL)"
+
 msgid "Floppies"
 msgstr "Disketler"
+
+msgid "Floppy Drive Sound Emulation"
+msgstr "Floppy Drive Sound Emulation"
 
 msgid "Floppy Drives"
 msgstr "Disket Sürücüler"
 
 msgid "Floppy drive volume"
 msgstr "Disket sürücü sesi"
+
+msgid "Forgot your password?"
+msgstr "Şifrenizi mi unuttunuz?"
 
 msgid "Full Frame"
 msgstr "Tam Pencere"
@@ -328,17 +435,23 @@ msgstr "Oyun Veritabanı"
 msgid "Game Database Settings"
 msgstr "Oyun Veritabanı Ayarları"
 
+msgid "Game database authentication"
+msgstr "Game database authentication"
+
+msgid "Game database email"
+msgstr "Game database email"
+
 msgid "Game database password"
 msgstr "Oyun veritabanı şifresi"
 
 msgid "Game database user name"
 msgstr "Oyun veritabanı kullanıcı ismi"
 
-msgid "Gamepad/Joystick Setup"
-msgstr "Gamepad/Joystick Ayarı"
+msgid "Games you have and all downloadable games"
+msgstr "Sahip olduğunuz ve indirilebilir tüm oyunlar"
 
-msgid "Games and Configurations"
-msgstr "Oyunlar ve Konfigürasyonlar"
+msgid "Games you have and automatically downloadable"
+msgstr "Sahip olduğunuz ve otomatik indirilebilir oyunlar"
 
 msgid "Grab mouse and keyboard input when FS-UAE starts"
 msgstr "FS-UAE başladığında fare ve klavye girişini kap"
@@ -352,6 +465,12 @@ msgstr "HDF - Bölünebilir Hard Disk İmajı (RDB)"
 msgid "HDF - Single Partition Hard Disk File"
 msgstr "HDF - Tek Parça Hard Disk Dosyası"
 
+msgid "HDF Creator"
+msgstr "HDF Yaratıcı"
+
+msgid "HDF Disk Image Creator"
+msgstr "HDF Disk İmajı Yaratıcı"
+
 msgid "Hard Drives"
 msgstr "Hard Diskler"
 
@@ -361,12 +480,14 @@ msgstr "Donanım"
 msgid "Hardware Options"
 msgstr "Donanım Ayarları"
 
+msgid "How to achieve perfectly smooth scrolling"
+msgstr "How to achieve perfectly smooth scrolling"
+
 msgid "IRC nickname"
 msgstr "IRC takma ismi"
 
 msgid "If you own Amiga Forever, select the drive/folder and click \"{0}\""
-msgstr ""
-"Eğer Amiga Forever sahibiyseniz, sürücü/klasör seçin ve  \"{0}\"ye tıklayın"
+msgstr "Eğer Amiga Forever sahibiyseniz, sürücü/klasör seçin ve  \"{0}\"ye tıklayın"
 
 msgid "Import"
 msgstr "Yükle"
@@ -383,6 +504,9 @@ msgstr "Kickstart ve ROM Yükle"
 msgid "Import task is done"
 msgstr "Yükleme işlemi tamamlandı"
 
+msgid "In order to get really smooth Amiga graphics, you need to enable the following option, and also make sure your display is running at 50Hz (for PAL) or 60Hz (for NTSC)."
+msgstr "In order to get really smooth Amiga graphics, you need to enable the following option, and also make sure your display is running at 50Hz (for PAL) or 60Hz (for NTSC)."
+
 msgid "Include built-in configurations"
 msgstr "Dahili konfigürasyonları ekle"
 
@@ -391,9 +515,6 @@ msgstr "Giriş"
 
 msgid "Input Options"
 msgstr "Giriş Seçenekleri"
-
-msgid "Input Settings"
-msgstr "Giriş Ayarları"
 
 msgid "Internal"
 msgstr "Dahili"
@@ -404,8 +525,8 @@ msgstr "Geçersiz boyut seçildi"
 msgid "Joystick"
 msgstr "Joystick"
 
-msgid "Joystick Configuration"
-msgstr "Joystick Konfigürasyonu"
+msgid "Joystick & Mouse Port"
+msgstr "Joystick & Fare Portu"
 
 msgid "Joystick Ports"
 msgstr "Joystick Portları"
@@ -415,6 +536,12 @@ msgstr "Joystick Ayarları"
 
 msgid "Keep aspect ratio when scaling (do not stretch)"
 msgstr "Büyütme sırasında en boy oranını koru (kenarı uzatma)"
+
+msgid "Keyboard"
+msgstr "Klavye"
+
+msgid "Keyboard Setting"
+msgstr "Klavye Ayarı"
 
 msgid "Keyboard Settings"
 msgstr "Klavye Ayarları"
@@ -428,8 +555,17 @@ msgstr "Kickstart ROM'ları eksik"
 msgid "Kickstart import task started"
 msgstr "Kickstart yükleme işlemi başladı"
 
+msgid "Language"
+msgstr "Dil"
+
+msgid "Language Preference"
+msgstr "Dil Tercihi"
+
 msgid "Launching FS-UAE"
 msgstr "FS-UAE Başlatılıyor"
+
+msgid "Launching Game"
+msgstr "Launching Game"
 
 msgid "Least Accurate"
 msgstr "En Az İsabetli"
@@ -437,11 +573,41 @@ msgstr "En Az İsabetli"
 msgid "Less Accurate"
 msgstr "Az İsabetli"
 
-msgid "List of Folders to Index"
-msgstr "İndekslenecek Klasörler Listesi"
+msgid "Like This Game Variant"
+msgstr "Bu Oyun Varyantını Beğen"
 
-msgid "Low latency vsync (when using full vsync)"
-msgstr "Düşük gecikmeli vsync (tam vsync kullanırken)"
+msgid "Load state by number"
+msgstr "Load state by number"
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Log In"
+msgstr "Giriş Yap"
+
+msgid "Log In / Register"
+msgstr "Giriş Yap / Kayıt Ol"
+
+msgid "Log In to Your OAGD.net Account"
+msgstr "OAGD.net Hesabınıza Giriş Yapın"
+
+msgid "Log Out"
+msgstr "Çıkış Yap"
+
+msgid "Log Out from Your OAGD.net Account"
+msgstr "OAGD.net Hesabınızdan Çıkış Yapın"
+
+msgid "Log in to enable online game DB"
+msgstr "Çevrimiçi oyun veritabanını aktifleştirmek için giriş yapın"
+
+msgid "Logged In"
+msgstr "Giriş Yapıldı"
+
+msgid "Logging in will enable the online game database and more"
+msgstr "Giriş yaptığınızda çevrimiçi oyun veritabanı ve fazlası aktifleşecektir"
+
+msgid "Low latency video sync"
+msgstr "Low latency video sync"
 
 msgid "MB"
 msgstr "MB"
@@ -452,23 +618,41 @@ msgstr "Ana Konfigürasyon Ayarları"
 msgid "Main Menu"
 msgstr "Ana Menü"
 
+msgid "Main volume control"
+msgstr "Ana ses kontrolü"
+
+msgid "Maintenance"
+msgstr "Maintenance"
+
+msgid "Mark This Game Variant as Personal Favorite"
+msgstr "Bu Oyun Varyantını Kişisel Favori Olarak İşaretle"
+
 msgid "Media Swap List"
 msgstr "Medya Değişim Listesi"
 
 msgid "Memory"
 msgstr "Hafıza"
 
+msgid "Miscellaneous functions to optimize {name}"
+msgstr "Miscellaneous functions to optimize {name}"
+
+msgid "Missing Files"
+msgstr "Missing Files"
+
 msgid "Mouse"
 msgstr "Fare"
 
-msgid "Mouse & Joystick Ports"
-msgstr "Fare & Joystick Portları"
+msgid "Mouse Setting"
+msgstr "Fare Ayarı"
 
 msgid "Mouse Settings"
 msgstr "Fare Ayarları"
 
 msgid "Mouse speed (%)"
 msgstr "Fare hızı (%)"
+
+msgid "N/A"
+msgstr "Yok"
 
 msgid "Net Play"
 msgstr "Net Oyunu"
@@ -479,11 +663,11 @@ msgstr "Net Oyunu Ayarları"
 msgid "Net play tag (max 3 characters)"
 msgstr "Net oyunu etiketi (max 3 karakter)"
 
+msgid "Netplay Settings"
+msgstr "Netplay Ayarları"
+
 msgid "New Configuration"
 msgstr "Yeni Konfigürasyon"
-
-msgid "New Disk Image"
-msgstr "Yeni Disk İmajı"
 
 msgid "Nick:"
 msgstr "Takma isim:"
@@ -494,24 +678,32 @@ msgstr "Cihaz Yok"
 msgid "No Host Device"
 msgstr "Sunucu Cihaz Yok"
 
-msgid "No Joysticks"
-msgstr "Joystick Yok"
+msgid "No Protection"
+msgstr "Koruma Yok"
 
 msgid "No extended kickstart found for this model. Try 'scan' function."
-msgstr ""
-"Bu model için genişletilmiş kickstart bulunamadı. 'Tara' işlevini deneyin."
+msgstr "Bu model için genişletilmiş kickstart bulunamadı. 'Tara' işlevini deneyin."
 
-msgid "No joysticks are currently connected"
-msgstr "Şu an bir Joystick takılı değil"
-
-msgid "No kickstart found for this model. "
-msgstr "Bu model için hiçbir kickstart bulunamadı"
+msgid "No kickstart found for this model. Use the 'Import Kickstarts' function from the menu."
+msgstr "Bu model için kickstart bulunamadı. Menüden 'Kickstart Yükle' seçeneğini kullanın."
 
 msgid "No scan in progress"
 msgstr "Devam eden tarama yok"
 
+msgid "Not logged in"
+msgstr "Giriş yapılmadı"
+
 msgid "Nothing"
 msgstr "Hiçbir şey"
+
+msgid "OAGD.net Locker Uploader"
+msgstr "OAGD.net Dolap Yükleyicisi"
+
+msgid "OAGD.net Locker is not enabled for your user. It may be available only to a few select beta users."
+msgstr "OAGD.net Dolabı bu kullanıcı için aktif değildir. Yalnızca bazı seçilmiş beta kullanıcıları için aktiftir."
+
+msgid "OAGD.net upload task completed successfully"
+msgstr "OAGD.net yükleme işlemi başarıyla tamamlandı"
 
 msgid "OK"
 msgstr "Tamam"
@@ -522,26 +714,11 @@ msgstr "Kapalı"
 msgid "On"
 msgstr "Açık"
 
-msgid "Open Game Database Entry"
-msgstr "Oyun Veritabanı Girdisini Aç"
-
-msgid "Open Hall of Light Entry"
-msgstr "Hall of Light Girdisini Aç"
-
-msgid "Open LemonAmiga Entry"
-msgstr "LemonAmiga Girdisini Aç"
-
-msgid "Open MobyGames Entry"
-msgstr "MobyGames Girdisini Aç"
+msgid "Only games you have"
+msgstr "Yalnızca sahip olduğunuz oyunlar"
 
 msgid "Open Scan Dialog"
 msgstr "Tarama Diyaloğunu Aç"
-
-msgid "Open Tool to Configure Button Mapping"
-msgstr "Düğme Atamalarını Ayarlama Aracını Aç"
-
-msgid "Open Wikipedia Entry"
-msgstr "Wikipedia Girdisini Aç"
 
 msgid "OpenGL Settings"
 msgstr "OpenGL Ayarları"
@@ -552,20 +729,23 @@ msgstr "Kurulu Hafızanın Üzerine Yaz"
 msgid "Parallel Port Joysticks"
 msgstr "Paralel Port Joystickleri"
 
+msgid "Password:"
+msgstr "Şifre:"
+
 msgid "Picasso96 Support"
 msgstr "Picasso96 Desteği"
 
 msgid "Picasso96 Support (uaegfx.card)"
 msgstr "Picasso96 Desteği (uaegfx.card)"
 
+msgid "Please open the following web page and download the game from there:"
+msgstr "Please open the following web page and download the game from there:"
+
 msgid "Please wait..."
 msgstr "Lütfen bekleyin..."
 
-msgid "Preferences"
-msgstr "Tercihler"
-
-msgid "Preferred Joystick"
-msgstr "Tercih edilen Joystick"
+msgid "Preferred Joysticks"
+msgstr "Tercih Edilen Joystickler"
 
 msgid "Preferred device for secondary joystick:"
 msgstr "İkinci joystick için tercih edilen cihaz:"
@@ -579,20 +759,32 @@ msgstr "Disket imajları hazırlanıyor..."
 msgid "Preparing hard drives..."
 msgstr "Hard diskler hazırlanıyor..."
 
+msgid "Preparing kickstart ROMs..."
+msgstr "Preparing kickstart ROMs..."
+
 msgid "Preparing..."
 msgstr "Hazırlanıyor..."
 
 msgid "Purging old entries..."
 msgstr "Eski girdiler temizleniyor..."
 
+msgid "Re-trying in {0} seconds..."
+msgstr "{0} saniye içinde tekrar deniyorum..."
+
+msgid "Read more"
+msgstr "Read more"
+
+msgid "Refresh Game Configurations from Online Database"
+msgstr "Çevrimiçi Veritabanından Oyun Konfigürasyonlarını Yenile"
+
 msgid "Refresh Game Database"
 msgstr "Oyun Veritabanını Yenile"
 
-msgid "Refresh game configurations from database"
-msgstr "Veritabanından oyun konfigürasyonlarını yenile"
+msgid "Refresh List of Connected Joystick Devices"
+msgstr "Bağlı Joystick Cihazlarının Listesini Yenile"
 
-msgid "Refresh list of connected joystick devices"
-msgstr "Takılı joystick cihazlarının listesini yenile"
+msgid "Reject"
+msgstr "Reject"
 
 msgid "Remove Directory from Search Path"
 msgstr "Arama Adresinden Klasörü Sil"
@@ -600,14 +792,20 @@ msgstr "Arama Adresinden Klasörü Sil"
 msgid "Remove Selected Files"
 msgstr "Seçili Dosyaları Kaldır"
 
+msgid "Removing list {0}"
+msgstr "Liste {0} çıkarılıyor"
+
 msgid "Render scan lines"
 msgstr "Tarama çizgilerini göster"
 
 msgid "Render scan lines in RTG graphics mode"
 msgstr "RTG grafik modunda tarama çizgilerini göster"
 
-msgid "Resetting database..."
-msgstr "Veritabanı sıfırlanıyor..."
+msgid "Reset password via e-mail"
+msgstr "Şifreyi e-posta yoluyla sıfırla"
+
+msgid "Resetting game database..."
+msgstr "Oyun veritabanı sıfırlanıyor..."
 
 msgid "Restoring changes..."
 msgstr "Değişiklikler geri alınıyor..."
@@ -618,8 +816,14 @@ msgstr "Son işlem tekrar deneniyor (deneme {0})"
 msgid "Save Configuration"
 msgstr "Konfigürasyonu Kaydet"
 
+msgid "Save to directory:"
+msgstr "Şu klasöre kaydet:"
+
 msgid "Saving changes..."
 msgstr "Değişiklikler kaydediliyor..."
+
+msgid "Scaling"
+msgstr "Scaling"
 
 msgid "Scaling Options"
 msgstr "Büyütme Seçenekleri"
@@ -630,8 +834,14 @@ msgstr "Tara"
 msgid "Scan & Indexing"
 msgstr "Tarama & İndeksleme"
 
+msgid "Scan Downloads"
+msgstr "Scan Downloads"
+
 msgid "Scan Files and Configurations"
 msgstr "Dosya ve Konfigürasyonları Tara"
+
+msgid "Scan Settings"
+msgstr "Tarama Ayarları"
 
 msgid "Scan complete"
 msgstr "Tarama tamamlandı"
@@ -648,17 +858,8 @@ msgstr "Kickstart, Dosya ve Konfigürasyonlar İçin Tara"
 msgid "Scanning .fs-uae files..."
 msgstr ".fs-uae dosyaları taranıyor..."
 
-msgid "Scanning built-in entries..."
-msgstr "Dahili girdiler taranıyor..."
-
 msgid "Scanning configurations"
 msgstr "Konfigürasyonlar taranıyor"
-
-msgid "Scanning configurations ({count} scanned)"
-msgstr "Konfigürasyonlar taranıyor ({count} tarandı)"
-
-msgid "Scanning database entries..."
-msgstr "Veritabanı girdileri taranıyor..."
 
 msgid "Scanning files"
 msgstr "Dosyalar taranıyor"
@@ -668,6 +869,15 @@ msgstr "Dosyalar taranıyor ({count} tarandı)"
 
 msgid "Scanning game database entries..."
 msgstr "Oyun veritabanı girdileri taranıyor..."
+
+msgid "Scanning game variants ({count} scanned)"
+msgstr "Oyun varyantları taranıyor ({count} tarandı)"
+
+msgid "Scanning games"
+msgstr "Oyunlar taranıyor"
+
+msgid "Scanning games ({count} scanned)"
+msgstr "Oyunlar taranıyor ({count} tarandı)"
 
 msgid "Select Destination Directory"
 msgstr "Hedef Klasörü Seçin"
@@ -685,12 +895,16 @@ msgid "Select Source Directory"
 msgstr "Kaynak Klasörü Seçin"
 
 msgid "Select a folder containing Amiga kickstart files and click \"{0}\""
-msgstr ""
-"İçinde Amiga kickstart dosyalarının bulunduğu klasörü seçin ve \"{0}\"'e "
-"tıklayın"
+msgstr "İçinde Amiga kickstart dosyalarının bulunduğu klasörü seçin ve \"{0}\"'e tıklayın"
+
+msgid "Set preferred language for FS-UAE applications"
+msgstr "FS-UAE uygulamaları için tercih edilen dili ayarla"
 
 msgid "Settings"
 msgstr "Ayarlar"
+
+msgid "Show games from database"
+msgstr "Veritabanından oyun gösterimi"
 
 msgid "Show kickstart setup page on startup when all ROMs are missing"
 msgstr "Tüm ROM'lar eksikse başlangıçta kickstart ayar sayfasını göster"
@@ -701,8 +915,17 @@ msgstr "Boyut:"
 msgid "Slow RAM"
 msgstr "Yavaş RAM"
 
+msgid "Some required files are missing"
+msgstr "Gerekli bazı dosyalar eksik"
+
+msgid "Sound emulation"
+msgstr "Sound emulation"
+
 msgid "Specified directory does not exist"
 msgstr "Belirtilen klasör mevcut değil"
+
+msgid "Specify global options and settings which does not have UI controls"
+msgstr "Genel ayarları ve UI kontrolleri olmayan ayarları belirleyin"
 
 msgid "Start"
 msgstr "Başlat"
@@ -710,29 +933,62 @@ msgstr "Başlat"
 msgid "Start FS-UAE in fullscreen mode"
 msgstr "FS-UAE'yi tam ekran modunda başlat"
 
-msgid "Starting FS-UAE..."
-msgstr "FS-UAE başlatılıyor..."
-
 msgid "Starting scan"
 msgstr "Tarama başlatılıyor"
+
+msgid "Stereo separation"
+msgstr "Stereo separation"
+
+msgid "Stop"
+msgstr "Durdur"
+
+msgid "Stopped by user"
+msgstr "Kullanıcı tarafından durduruldu"
 
 msgid "Swap left and right CTRL keys"
 msgstr "Sol ve sağ CTRL tuşlarının yerini değiştir"
 
-msgid "Synchronizing database..."
-msgstr "Veritabanı senkronlanıyor..."
+msgid "Synchronize FS-UAE with your display for smooth video"
+msgstr "Synchronize FS-UAE with your display for smooth video"
+
+msgid "Synchronize buffer swaps with display (prevents tearing)"
+msgstr "Synchronize buffer swaps with display (prevents tearing)"
+
+msgid "Synchronizing game database..."
+msgstr "Oyun veritabanı senkronize ediliyor..."
 
 msgid "Synchronizing personal ratings..."
 msgstr "Kişisel puanlar senkronlanıyor..."
 
+msgid "Synchronizing with the display can in some cases cause increased stuttering and low frame rates (esp. in some Linux desktop environments with compositing enabled)."
+msgstr "Synchronizing with the display can in some cases cause increased stuttering and low frame rates (esp. in some Linux desktop environments with compositing enabled)."
+
+msgid "Terms of Download"
+msgstr "Terms of Download"
+
 msgid "Texture filter"
 msgstr "Doku filtresi"
 
+msgid "The following joystick will be preferred, if present:"
+msgstr "Mevcut olduğu taktirde aşağıdaki joystick tercih edilecektir:"
+
+msgid "The game may not start properly"
+msgstr "Oyun düzgün başlamayabilir"
+
+msgid "This game can can be automatically downloaded if you accept the terms"
+msgstr "This game can can be automatically downloaded if you accept the terms"
+
+msgid "This game must be downloaded"
+msgstr "Bu oyun indirilmelidir"
+
+msgid "This game must be downloaded before you can play it"
+msgstr "This game must be downloaded before you can play it"
+
+msgid "This game variant cannot be started because you don't have all required files."
+msgstr "Gerekli tüm dosyalara sahip olmadığınızdan bu oyun varyantını çalıştıramazsınız."
+
 msgid "Toggle Between Windowed and Full-Screen Mode"
 msgstr "Pencere ve Tam-Ekran Modu Arasında Geçiş Yap"
-
-msgid "Tools"
-msgstr "Araçlar"
 
 msgid "Ungrab mouse and keyboard on middle mouse click"
 msgstr "Orta fare düğmesine tıklandığında fare ve klavyeyi serbest bırak"
@@ -740,17 +996,53 @@ msgstr "Orta fare düğmesine tıklandığında fare ve klavyeyi serbest bırak"
 msgid "Update available ({version})"
 msgstr "Güncelleme mevcut ({version})"
 
+msgid "Updating Database"
+msgstr "Veritabanı Güncelleniyor"
+
 msgid "Updating database"
 msgstr "Veritabanı güncelleniyor"
 
-msgid "Updating game entries:"
-msgstr "Oyun girdileri güncelleniyor:"
+msgid "Updating game lists..."
+msgstr "Oyun listeleri güncelleniyor"
+
+msgid "Updating list '{0}'..."
+msgstr "Liste  '{0}' güncelleniyor..."
+
+msgid "Updating locker data..."
+msgstr "Dolap verisi güncelleniyor..."
+
+msgid "Upload"
+msgstr "Yükle"
+
+msgid "Upload Files to OAGD.net Locker"
+msgstr "OAGD.net Dolabına Dosya Yükle"
+
+msgid "Upload recognized Amiga files to your OAGD.net locker"
+msgstr "Tanınmış Amiga dosyalarını OAGD.net Dolabına Yükle"
+
+msgid "Uploading {name}"
+msgstr "Uploading {name}"
 
 msgid "Use RDB disk images for size >= {0}"
 msgstr ">= {0} boyutu için RDB disk imajları kullan"
 
+msgid "User Menu"
+msgstr "Kullanıcı Menüsü"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Video (Advanced)"
+msgstr "Video (Advanced)"
+
 msgid "Video Settings"
 msgstr "Video Ayarları"
+
+msgid "Video Synchronization"
+msgstr "Video Synchronization"
+
+msgid "Video Synchronization Settings"
+msgstr "Video Synchronization Settings"
 
 msgid "Video buffer format and color depth"
 msgstr "Video arabellek formatı ve renk derinliği"
@@ -767,10 +1059,17 @@ msgstr "Video doku formatı (GPU üzerinde)"
 msgid "WHDLoad Arguments"
 msgstr "WHDLoad Argümanları"
 
+msgid "Web Links"
+msgstr "Web Bağlantıları"
+
+msgid "When Automatic is specified, your preferred language is set based on information from the operating system (or English, if a supported language is not detected)."
+msgstr "Otomatik seçili olduğunda, dil seçimi işletim sisteminize bağlı olarak yapılacaktır (eğer desteklenen dil tespit edilmezse İngilizce kullanılacaktır)"
+
+msgid "While logged out you will not get database updates"
+msgstr "Giriş yapmadığınız taktirde veritabanı güncellemelerini alamazsınız"
+
 msgid "You should have kickstart files for each Amiga model you want to use:"
-msgstr ""
-"Kullanmak istediğiniz her Amiga modeli için kickstart dosyasına sahip "
-"olmalısınız:"
+msgstr "Kullanmak istediğiniz her Amiga modeli için kickstart dosyasına sahip olmalısınız:"
 
 msgid "Zoom Amiga display (crop)"
 msgstr "Amiga görüntüsüne zum yap (kenarlardan kes)"
@@ -781,8 +1080,3 @@ msgstr "Zorro III RAM"
 msgid "{amiga_model} with < 2 MB chip memory"
 msgstr "< 2 MB çip belleğe sahip {amiga_model} "
 
-#~ msgid "Force Full Vsync"
-#~ msgstr "Tam VSync Kullan"
-
-#~ msgid "Sync to Vblank"
-#~ msgstr "VBlank'a senkronla"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae-launcher\n"
 "Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2013-06-25 21:21+0200\n"
+"POT-Creation-Date: 2013-03-15 21:48+0100\n"
 "PO-Revision-Date: 2013-03-17 08:47+0100\n"
 "Last-Translator: \n"
 "Language-Team: Serbian\n"
@@ -15,8 +15,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 msgid "16-bit"
 msgstr "16-bit"
@@ -105,9 +104,6 @@ msgstr "Pronaći fajl"
 msgid "Browse for Folder"
 msgstr "Pronaći folder"
 
-msgid "Buffer swap only"
-msgstr ""
-
 msgid "Built-in TCP/IP Stack"
 msgstr "Ugrađen TCP/IP stek"
 
@@ -179,9 +175,6 @@ msgstr "Konfiguracija"
 
 msgid "Configuration Browser"
 msgstr "Pretraživač konfiguracije"
-
-msgid "Configuration Warning"
-msgstr ""
 
 msgid "Configurations"
 msgstr "Konfiguracije"
@@ -312,6 +305,9 @@ msgstr "Disketni uređaji"
 
 msgid "Floppy drive volume"
 msgstr "Oznaka disketnog uređaja"
+
+msgid "Force Full Vsync"
+msgstr "Forsirati pun Vsync"
 
 msgid "Full Frame"
 msgstr "Pun okvir"
@@ -497,9 +493,7 @@ msgid "No Joysticks"
 msgstr "Nema džojstika"
 
 msgid "No extended kickstart found for this model. Try 'scan' function."
-msgstr ""
-"Nije pronađen prošireni kikstart za ovaj model. Probajte funkciju "
-"'Skeniranje'."
+msgstr "Nije pronađen prošireni kikstart za ovaj model. Probajte funkciju 'Skeniranje'."
 
 msgid "No joysticks are currently connected"
 msgstr "Trenutno nema spojenog džojstika"
@@ -717,6 +711,9 @@ msgstr "Skeniranje započeto"
 msgid "Swap left and right CTRL keys"
 msgstr "Zameniti levi i desni CTRL taster"
 
+msgid "Sync to Vblank"
+msgstr "Sinhronizacija sa Vblank"
+
 msgid "Synchronizing database..."
 msgstr "Sinhronizovanje baze..."
 
@@ -766,18 +763,13 @@ msgid "WHDLoad Arguments"
 msgstr "WHDLoad argumenti"
 
 msgid "You should have kickstart files for each Amiga model you want to use:"
-msgstr ""
-"Trebalo bi da posedujete kikstart fajlove za svaki Amiga model koji "
-"koristite:"
+msgstr "Trebalo bi da posedujete kikstart fajlove za svaki Amiga model koji koristite:"
 
 msgid "Zoom Amiga display (crop)"
 msgstr "Zumiranje Amiga prikaza (crop opcija)"
 
 msgid "Zorro III RAM"
 msgstr "Zorro III RAM"
-
-msgid "{amiga_model} with < 2 MB chip memory"
-msgstr ""
 
 #~ msgid "Add Multiple CD Images at Once"
 #~ msgstr "Dodati više CD slika odjednom"
@@ -814,9 +806,6 @@ msgstr ""
 
 #~ msgid "Floppies..."
 #~ msgstr "Diskete..."
-
-#~ msgid "Force Full Vsync"
-#~ msgstr "Forsirati pun Vsync"
 
 #~ msgid "Game Files"
 #~ msgstr "Fajlovi igre"
@@ -871,9 +860,6 @@ msgstr ""
 
 #~ msgid "Select Files..."
 #~ msgstr "Izabrati fajlove..."
-
-#~ msgid "Sync to Vblank"
-#~ msgstr "Sinhronizacija sa Vblank"
 
 #~ msgid "Update ({version}) is available"
 #~ msgstr "Ažuriranje ({version}) je dostupna"

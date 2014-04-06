@@ -184,7 +184,7 @@ class Client:
 
     def send_error_message(self, error_num):
         print(self, "error", error_num)
-        message = 0x80000000 | (MESSAGE_ERROR) << 24 | error_num
+        message = 0x80000000 | MESSAGE_ERROR << 24 | error_num
         self.send_message(message)
 
     def send_message(self, message):
@@ -357,7 +357,7 @@ class Client:
         if message & 0x80000000:
             # ext message
             command = (message & 0x7f000000) >> 24
-            data = message & 0x00ffffff;
+            data = message & 0x00ffffff
             if command == MESSAGE_MEM_CHECK:
                 self.memcheck[self.frame % 100] = (data, self.frame)
             elif command == MESSAGE_RND_CHECK:
@@ -373,7 +373,7 @@ class Client:
                     part = self.socket.recv(remaining)
                     count = len(part)
                     text += part
-                    remaining = remaining - count
+                    remaining -= count
                     if remaining == 0:
                         game.add_text_message(self, text)
                         break
@@ -538,7 +538,7 @@ class Game:
             # clients have not drifted too far
             return
         first = True
-        count = 0;
+        count = 0
         while diff > 0 and not self.stop:
             if first:
                 first = False

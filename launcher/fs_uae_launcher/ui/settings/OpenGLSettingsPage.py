@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ...I18N import _, ngettext
 from .OptionUI import OptionUI
 
@@ -22,7 +22,7 @@ class OpenGLSettingsPage(fsui.Panel):
 
         def add_option(name):
             self.layout.add(OptionUI.create_group(self, name), fill=True,
-                    margin=10)
+                            margin_top=10, margin_bottom=10)
 
         add_option("fsaa")
         add_option("texture_filter")

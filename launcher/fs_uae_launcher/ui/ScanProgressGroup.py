@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import os
 import traceback
-import fs_uae_launcher.fsui as fsui
+import fsui as fsui
 from ..Settings import Settings
 from ..I18N import _, ngettext
 
@@ -19,18 +19,18 @@ class ScanProgressGroup(fsui.Group):
         self.layout.padding_right = 10
         self.layout.padding_bottom = 10
 
-        #image = fsui.Image("fs_uae_launcher:res/search_group.png")
-        #self.image_view = fsui.ImageView(self, image)
-        self.layout.add_spacer(20)
-        #self.layout.add(self.image_view, valign=0.0)
-        self.layout.add_spacer(48)
-        self.layout.add_spacer(20)
+        ##image = fsui.Image("fs_uae_launcher:res/search_group.png")
+        ##self.image_view = fsui.ImageView(self, image)
+        #self.layout.add_spacer(20)
+        ##self.layout.add(self.image_view, valign=0.0)
+        #self.layout.add_spacer(48)
+        #self.layout.add_spacer(20)
 
         self.layout2 = fsui.VerticalLayout()
         self.layout.add(self.layout2, fill=True, expand=True)
 
         self.title_label = fsui.HeadingLabel(self, "")
-        self.layout2.add(self.title_label)
+        self.layout2.add(self.title_label, fill=True)
 
         #self.layout2.add_spacer(10)
         #hor_layout = fsui.HorizontalLayout()
@@ -63,7 +63,7 @@ class ScanProgressGroup(fsui.Group):
 
         self.layout2.add_spacer(10)
         self.status_label = fsui.Label(self, "")
-        self.layout2.add(self.status_label)
+        self.layout2.add(self.status_label, fill=True)
 
     #def on_change(self):
     #    value = "1" if self.scan_roms.is_checked() else "0"

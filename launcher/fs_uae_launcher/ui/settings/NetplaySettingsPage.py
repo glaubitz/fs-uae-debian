@@ -3,26 +3,28 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import fs_uae_launcher.fsui as fsui
-from ...I18N import _, ngettext
+import fsui as fsui
+from fsui.extra.iconheader import IconHeader
+from ...I18N import gettext
 from .OptionUI import OptionUI
+
 
 class NetplaySettingsPage(fsui.Panel):
 
     def __init__(self, parent):
         fsui.Panel.__init__(self, parent)
         self.layout = fsui.VerticalLayout()
-        self.layout.padding_left = 10
-        self.layout.padding_right = 10
-        self.layout.padding_top = 10
-        self.layout.padding_bottom = 20
+        self.layout.set_padding(20, 20, 20, 20)
 
-        label = fsui.HeadingLabel(self, _("Net Play Settings"))
-        self.layout.add(label, margin=10, margin_bottom=20)
+        self.icon_header = IconHeader(
+            self, fsui.Icon("netplay-settings", "pkg:fs_uae_workspace"),
+            gettext("Net Play Settings"),
+            "")
+        self.layout.add(self.icon_header, fill=True, margin_bottom=20)
 
         def add_option(name):
             self.layout.add(OptionUI.create_group(self, name), fill=True,
-                    margin=10)
+                            margin_top=10, margin_bottom=10)
 
         add_option("irc_nick")
         add_option("netplay_tag")
