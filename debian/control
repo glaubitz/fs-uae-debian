@@ -42,7 +42,7 @@ Description: Netplay server for FS-UAE online play
 
 Package: fs-uae-arcade
 Architecture: all
-Depends: python (>= 2.6), ${misc:Depends}, ${python:Depends}, python-pygame, python-numpy, python-opengl, python-setuptools, fs-uae
+Depends: python (>= 2.6), ${misc:Depends}, ${python:Depends}, python-pygame, python-numpy, python-opengl, python-pil, python-setuptools, fs-uae
 Recommends: python-lhafile, fs-uae-launcher
 Description: Fullscreen game browser for FS-UAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
