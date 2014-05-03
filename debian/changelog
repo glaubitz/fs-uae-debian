@@ -1,3 +1,10 @@
+fs-uae (2.4.1+ds-2) unstable; urgency=medium
+
+  * Add missing dependency on python-pil for fs-uae-arcade in debian/control.
+  * Add missing copyright entry in debian/copyright for arcade/* files.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sat, 03 May 2014 19:21:51 +0200
+
 fs-uae (2.4.1+ds-1) unstable; urgency=medium
 
   * New upstream release. (Closes: #739796)
