@@ -46,6 +46,10 @@ Files: src/aros.rom.cpp
 Copyright: 1995-2013 The AROS Development Team <digulla@aros.org>
 License: APL
 
+Files: arcade/*
+Copyright: 2013-2014 Frode Solheim <fs-uae@fengestad.no>
+License: GPL-2+
+
 Files: server/*
 Copyright: 2011-2012 Frode Solheim <fs-uae@fengestad.no>
 License: GPL-2+
