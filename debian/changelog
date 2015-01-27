@@ -1,3 +1,11 @@
+fs-uae (2.4.1+ds-3) unstable; urgency=medium
+
+  * Add debian/patches/0003-remove-custom-mprotect-function.patch
+    to fix a segmentation fault when running fs-uae with recent
+    versions of the proprietary nVidia driver (Closes: #757164).
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Tue, 27 Jan 2015 22:38:53 +0100
+
 fs-uae (2.4.1+ds-2) unstable; urgency=medium
 
   * Add missing dependency on python-pil for fs-uae-arcade in debian/control.
