@@ -2,7 +2,23 @@ Source: fs-uae
 Section: otherosfs
 Priority: optional
 Maintainer: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Build-Depends: debhelper (>= 9), libsdl2-dev, libglib2.0-dev, libopenal-dev, gettext, libfreetype6-dev, dh-python, python (>= 2.6), python-setuptools, python3-all (>= 3.2), python3-setuptools, glee-dev, libxi-dev, dh-autoreconf, libglew-dev, zip, libmpeg2-4-dev
+Build-Depends: debhelper (>= 9),
+               dh-autoreconf,
+               dh-python,
+               gettext,
+               glee-dev,
+               libfreetype6-dev,
+               libglew-dev,
+               libglib2.0-dev,
+               libmpeg2-4-dev,
+               libopenal-dev,
+               libsdl2-dev,
+               libxi-dev,
+               python (>= 2.6),
+               python-setuptools,
+               python3-all (>= 3.2),
+               python3-setuptools,
+               zip
 Standards-Version: 3.9.6
 Homepage: http://fs-uae.net
 Vcs-Git: git://github.com/glaubitz/fs-uae-debian.git
@@ -11,7 +27,7 @@ Vcs-Browser: https://github.com/glaubitz/fs-uae-debian
 Package: fs-uae
 Architecture: any
 Multi-Arch: foreign
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Cross-platform Amiga emulator based on UAE/WinUAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
@@ -19,7 +35,12 @@ Description: Cross-platform Amiga emulator based on UAE/WinUAE
 
 Package: fs-uae-launcher
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-pyqt5, python3-pyqt5.qtopengl, python3-setuptools, fs-uae
+Depends: fs-uae,
+         python3-pyqt5,
+         python3-pyqt5.qtopengl,
+         python3-setuptools,
+         ${misc:Depends},
+         ${python3:Depends}
 Description: Launcher and configuration program for FS-UAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
@@ -30,7 +51,7 @@ Description: Launcher and configuration program for FS-UAE
 
 Package: fs-uae-netplay-server
 Architecture: all
-Depends: python (>= 2.6), ${misc:Depends}, adduser (>= 3.11)
+Depends: adduser (>= 3.11), python (>= 2.6), ${misc:Depends}
 Description: Netplay server for FS-UAE online play
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
@@ -41,8 +62,13 @@ Description: Netplay server for FS-UAE online play
 
 Package: fs-uae-arcade
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-pyqt5, python3-pyqt5.qtopengl, python3-setuptools, fs-uae
-Recommends: python-lhafile, fs-uae-launcher
+Depends: fs-uae,
+         python3-pyqt5,
+         python3-pyqt5.qtopengl,
+         python3-setuptools,
+         ${misc:Depends},
+         ${python3:Depends}
+Recommends: fs-uae-launcher, python-lhafile
 Description: Fullscreen game browser for FS-UAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
