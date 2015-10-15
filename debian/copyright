@@ -21,7 +21,7 @@ License: zlib
 
 Files: src/archivers/dms/*
 Copyright: Andre Rodrigues de la Rocha <adlroc@usa.net>
-License: Public Domain
+License: public-domain
 
 Files: src/hrtmon.rom.cpp
 Copyright: 1991-1998 Alain Malek <alain.malek@cryogen.com>
@@ -123,7 +123,7 @@ License: LGPL-2.1+
  The complete text of the GNU Lesser General Public License 2.1
  can be found in "/usr/share/common-licenses/LGPL-2.1".
 
-License: Public Domain
+License: public-domain
  xDMS is released as public domain software.  You can spread it, modify it
  and  use  it in any way you like.  You can do anything with it without even
  asking  me  first.   But I would like to know if you do something cool with
