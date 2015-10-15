@@ -1,3 +1,37 @@
+fs-uae (2.6.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Add libfreetype6-dev to Build-Depends in debian/control. (Closes: #748636)
+  * Add dh-autoreconf to Build-Depends in debian/control and run debhelper with
+    "--with autoreconf" to update config.{sub,guess} and {libtool,aclocal}.m4.
+  * Drop debian/patches/0003-remove-custom-mprotect-function.patch which was
+    previously cherry-picked from the upstream development branch.
+  * Drop debian/patches/0002-dont-copy-upstream-copying-file.patch. Any
+    redundant files will be removed through maintainer scripts instead.
+  * Drop debian/patches/0001-use-external-libglee.patch which is no longer
+    necessary to disable the in-tree copy of glee. External versions of glee
+    are now detected by the configure script and used automatically.
+  * Add libglew-dev to Build-Depends in debian/control.
+  * Switch from libsdl1.2-dev to libsdl2-dev in Build-Depends in debian/control.
+  * Add zip to Build-Depends in debian/control.
+  * Add libmpeg2-4-dev to Build-Depends in debian/control.
+  * Add python3-all and python3-setuptools to Build-Depends in debian/control
+    as fs-uae-arcade and -launcher are now Python3.
+  * Add dh-python to Build-Depends in debian/control.
+  * Update Depends for fs-uae-arcade and fs-uae-launcher for Python3
+    and Qt5 in debian/control.
+  * Run dh sequencer explicitly with "--with python2,python3" and use
+    the python3 interpreter to run the setup.py scripts to enable Python3
+    support for fs-uae-arcade and fs-uae-launcher.
+  * Update Standards-Version to 3.9.6 in debian/control.
+  * Clean up debian/control using wrap-and-sort.
+  * Update copyright years and wildcards, remove unused license
+    paragraphs and fix license name for "public-domain" paragraph
+    in debian/copyright.
+  * Remove unused debian/fs-uae-launcher.lintian-overrides.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Thu, 15 Oct 2015 19:07:53 +0200
+
 fs-uae (2.4.1+ds-3) unstable; urgency=medium
 
   * Add debian/patches/0003-remove-custom-mprotect-function.patch
