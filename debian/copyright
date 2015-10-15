@@ -4,21 +4,16 @@ Source: http://fs-uae.net
 
 Files: *
 Copyright: 1995-2002 Bernd Schmidt <bernds@btinternet.com>
-           1999-2012 Toni Wilen <twilen@winuae.net>
+           1999-2015 Toni Wilen <twilen@winuae.net>
            2003-2007 Richard Drummond <uae@rcdrummond.net>
            2006-2011 Mustafa 'GnoStiC' Tufan <mustafa.tufan@gmail.com>
-           2011-2014 Frode Solheim <fs-uae@fengestad.no>
+           2011-2015 Frode Solheim <fs-uae@fengestad.no>
 	   and contributors
 License: GPL-2+
 
 Files: libfsemu/*
-Copyright: 2011-2013 Frode Solheim <fs-uae@fengestad.no>
+Copyright: 2011-2015 Frode Solheim <fs-uae@fengestad.no>
 License: LGPL-2.1+
-
-Files: libfsemu/include/fs/glee.h
-       libfsemu/src/glee.c
-Copyright: 2009 Ben Woodhouse <bw@elf-stone.com>
-License: Expat
 
 Files: src/archivers/zip/*
 Copyright: 1998 Gilles Vollant <info@winimage.com>
@@ -28,26 +23,18 @@ Files: src/archivers/dms/*
 Copyright: Andre Rodrigues de la Rocha <adlroc@usa.net>
 License: Public Domain
 
-Files: src/od-fs/FLAC/*
-Copyright: 2000-2007 Josh Coalson <xflac@yahoo.com>
-License: BSD-3-clause
-
 Files: src/hrtmon.rom.cpp
 Copyright: 1991-1998 Alain Malek <alain.malek@cryogen.com>
 License: GPL-2+
 Comment: Full source here: http://aminet.net/package/dev/debug/HRTmon
 
-Files: src/cdrom-handler.cpp
-Copyright: 1993-1994 Frank Munkert <ln_fmu@pki-nbg.philips.de>
-License: Public Domain
-Comment: Full source here: http://aminet.net/package/disk/cdrom/AmiCDROM-1.15
-
-Files: src/aros.rom.cpp
-Copyright: 1995-2013 The AROS Development Team <digulla@aros.org>
+Files: share/fs-uae/aros-amiga-m68k-ext.bin
+       share/fs-uae/aros-amiga-m68k-rom.bin
+Copyright: 1995-2015 The AROS Development Team <digulla@aros.org>
 License: APL
 
 Files: arcade/*
-Copyright: 2013-2014 Frode Solheim <fs-uae@fengestad.no>
+Copyright: 2013-2015 Frode Solheim <fs-uae@fengestad.no>
 License: GPL-2+
 
 Files: server/*
@@ -55,7 +42,7 @@ Copyright: 2011-2012 Frode Solheim <fs-uae@fengestad.no>
 License: GPL-2+
 
 Files: launcher/*
-Copyright: 2011-2012 Frode Solheim <fs-uae@fengestad.no>
+Copyright: 2011-2015 Frode Solheim <fs-uae@fengestad.no>
 License: GPL-2+
 
 Files: launcher/fs_uae_launcher/res/*
@@ -81,62 +68,10 @@ Copyright: Ulisse Perusin <uli.peru@gmail.com>
            Riccardo Iaconelli <riccardo@oxygen-icons.org> 
 License: GPL-2+ or GPL-3+ or CC-BY-SA-3.0
 
-Files: launcher/fs_uae_launcher/netplay/oyoyo/*
-Copyright: 2008 Duncan Fordyce <dunkfordyce@gmail.com>
-License: MIT
-
 Files: debian/*
-Copyright: 2011-2014 Frode Solheim <fs-uae@fengestad.no>
-           2013-2014 John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Copyright: 2011-2015 Frode Solheim <fs-uae@fengestad.no>
+           2013-2015 John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 License: GPL-2+
-
-License: BSD-3-clause
- Permission to use, copy, modify, and distribute this software in source
- or binary form for any purpose with or without fee is hereby granted,
- provided that the following conditions are met:
- .
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
- .
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
- .
-    3. Neither the name of the EPFL nor the names of its contributors
-       may be used to endorse or promote products derived from this
-       software without specific prior written permission.
- .
- THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- SUCH DAMAGE.
-
-License: Expat
- Permission is hereby granted, free of charge, to any person obtaining
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
- .
- The above copyright notice and this permission notice shall be included
- in all copies or substantial portions of the Software.
- .
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 License: GPL-2+
  This program is free software; you can redistribute it
@@ -588,28 +523,6 @@ License: CC-BY-SA-3.0
  does not form part of the License.
  ․
  Creative Commons may be contacted at http://creativecommons.org/.
-
-License: MIT
- Permission is hereby granted, free of charge, to any person
- obtaining a copy of this software and associated documentation
- files (the "Software"), to deal in the Software without
- restriction, including without limitation the rights to use,
- copy, modify, merge, publish, distribute, sublicense, and/or
- sell copies of the Software, and to permit persons to whom
- the Software is furnished to do so, subject to the following
- conditions:
- .
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
- .
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- OTHER DEALINGS IN THE SOFTWARE.
 
 License: APL
  1. Definitions.
