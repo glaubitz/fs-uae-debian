@@ -1,3 +1,0 @@
-# ignore false positives for certain binary files
-executable-not-elf-or-script usr/share/fs-uae-launcher/fs-uae-launcher.ico
-executable-not-elf-or-script usr/share/fs-uae-launcher/fs_uae_launcher/res/adf_save_disk.dat
