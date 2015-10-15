@@ -14,10 +14,10 @@ override_dh_auto_build:
 override_dh_auto_install:
 	make install prefix=$$(pwd)/debian/fs-uae/usr
 	make -C arcade install prefix=$$(pwd)/debian/fs-uae-arcade/usr
-	cd arcade && python setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-arcade --install-lib=/usr/share/fs-uae-arcade --install-scripts=/usr/share/fs-uae-arcade
+	cd arcade && python3 setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-arcade --install-lib=/usr/share/fs-uae-arcade --install-scripts=/usr/share/fs-uae-arcade
 	make -C launcher install prefix=$$(pwd)/debian/fs-uae-launcher/usr
-	cd launcher && python setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-launcher --install-lib=/usr/share/fs-uae-launcher --install-scripts=/usr/share/fs-uae-launcher
+	cd launcher && python3 setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-launcher --install-lib=/usr/share/fs-uae-launcher --install-scripts=/usr/share/fs-uae-launcher
 	cd server && python setup.py install --no-compile --install-layout=deb --root=../debian/fs-uae-netplay-server --install-lib=/usr/share/fs-uae-netplay-server --install-scripts=/usr/share/fs-uae-netplay-server
 
 %:
-	dh $@ --with autoreconf
+	dh $@ --with autoreconf,python2,python3
