@@ -25,8 +25,23 @@
 #include "blkdev.h"
 #include "uae.h"
 #include "sana2.h"
+#if defined(_WIN32) && defined(WITH_UAENET_PCAP)
 #include "win32_uaenet.h"
+#else
+#include "ethernet.h"
+#endif
 #include "execio.h"
+
+// these variables are referenced by custom.cpp and newcpu.cpp also when
+// SANA2 is not defined
+
+volatile int uaenet_int_requested = 0;
+volatile int uaenet_vsync_requested = 0;
+
+#ifdef SANA2
+
+static void uaenet_gotdata (void *dev, const uae_u8 *data, int len);
+static int uaenet_getdata (void *dev, uae_u8 *d, int *len);
 
 #define SANA2NAME _T("uaenet.device")
 
@@ -139,8 +154,6 @@ struct s2packet {
 	int len;
 };
 
-volatile int uaenet_int_requested;
-volatile int uaenet_vsync_requested;
 static int uaenet_int_late;
 
 static uaecptr timerdevname;
@@ -149,7 +162,7 @@ static uaecptr ROM_netdev_resname = 0,
 	ROM_netdev_resid = 0,
 	ROM_netdev_init = 0;
 
-static TCHAR *getdevname (void)
+static const TCHAR *getdevname (void)
 {
 	return _T("uaenet.device");
 }
@@ -223,7 +236,7 @@ struct priv_s2devstruct {
 	int tmp;
 };
 
-static struct netdriverdata *td;
+static struct netdriverdata *td[MAX_TOTAL_NET_DEVICES + 1];
 static struct s2devstruct devst[MAX_TOTAL_NET_DEVICES];
 static struct priv_s2devstruct pdevst[MAX_OPEN_DEVICES];
 static uae_u32 nscmd_cmd;
@@ -286,7 +299,7 @@ static uae_u32 REGPARAM2 dev_close_2 (TrapContext *context)
 			CallLib (context, get_long (4), -0xD2); /* FreeMem */
 			pdev->tempbuf = 0;
 		}
-		uaenet_close (dev->sysdata);
+		ethernet_close (pdev->td, dev->sysdata);
 		xfree (dev->sysdata);
 		dev->sysdata = NULL;
 		write_comm_pipe_u32 (&dev->requests, 0, 1);
@@ -335,7 +348,7 @@ static int initint (TrapContext *ctx)
 	put_long (p + 10, ROM_netdev_resid);
 	put_long (p + 18, tmp1);
 	m68k_areg (regs, 1) = p;
-	m68k_dreg (regs, 0) = 13; /* EXTER */
+	m68k_dreg (regs, 0) = 3; /* PORTS */
 	dw (0x4a80); /* TST.L D0 */
 	dw (0x4e75); /* RTS */
 	CallLib (ctx, get_long (4), -168); /* AddIntServer */
@@ -377,7 +390,7 @@ static uae_u32 REGPARAM2 dev_open_2 (TrapContext *context)
 	pdev->unit = unit;
 	pdev->flags = flags;
 	pdev->inuse = 1;
-	pdev->td = td ? &td[unit] : NULL;
+	pdev->td = td ? td[unit] : NULL;
 	pdev->promiscuous = (flags & SANA2OPF_PROM) ? 1 : 0;
 
 	if (pdev->td == NULL || pdev->td->active == 0)
@@ -385,8 +398,8 @@ static uae_u32 REGPARAM2 dev_open_2 (TrapContext *context)
 
 	if (dev->opencnt == 0) {
 		dev->unit = unit;
-		dev->sysdata = xcalloc (uae_u8, uaenet_getdatalenght ());
-		if (!uaenet_open (dev->sysdata, pdev->td, dev, uaenet_gotdata, uaenet_getdata, pdev->promiscuous)) {
+		dev->sysdata = xcalloc (uae_u8, ethernet_getdatalenght (pdev->td));
+		if (!ethernet_open (pdev->td, dev->sysdata, dev, uaenet_gotdata, uaenet_getdata, pdev->promiscuous)) {
 			xfree (dev->sysdata);
 			dev->sysdata = NULL;
 			return openfail (ioreq, IOERR_OPENFAIL);
@@ -450,7 +463,7 @@ static uae_u32 REGPARAM2 dev_open_2 (TrapContext *context)
 		pdev->tempbuf = CallLib (context, get_long (4), -0xC6); /* AllocMem */
 		if (!pdev->tempbuf) {
 			if (dev->opencnt == 0) {
-				uaenet_close (dev->sysdata);
+				ethernet_close (pdev->td, dev->sysdata);
 				xfree (dev->sysdata);
 				dev->sysdata = NULL;
 			}
@@ -794,11 +807,12 @@ static int handleread (TrapContext *ctx, struct priv_s2devstruct *pdev, uaecptr 
 	return 1;
 }
 
-void uaenet_gotdata (struct s2devstruct *dev, const uae_u8 *d, int len)
+static void uaenet_gotdata (void *devv, const uae_u8 *d, int len)
 {
 	uae_u16 type;
 	struct mcast *mc;
 	struct s2packet *s2p;
+	struct s2devstruct *dev = (struct s2devstruct*)devv;
 
 	if (!dev->online)
 		return;
@@ -881,10 +895,11 @@ static struct s2packet *createwritepacket (TrapContext *ctx, uaecptr request)
 	return s2p;
 }
 
-static int uaenet_getdata (struct s2devstruct *dev, uae_u8 *d, int *len)
+static int uaenet_getdata (void *devv, uae_u8 *d, int *len)
 {
 	int gotit;
 	struct asyncreq *ar;
+	struct s2devstruct *dev = (struct s2devstruct*)devv;
 
 	uae_sem_wait (&async_sem);
 	ar = dev->ar;
@@ -921,7 +936,7 @@ static int uaenet_getdata (struct s2devstruct *dev, uae_u8 *d, int *len)
 	return gotit;
 }
 
-void checkevents (struct s2devstruct *dev, int mask, int sem)
+static void checkevents (struct s2devstruct *dev, int mask, int sem)
 {
 	struct asyncreq *ar;
 
@@ -1356,8 +1371,9 @@ static void *dev_thread (void *devs)
 			uae_ReplyMsg (request);
 			rem_async_packet (dev, request);
 		} else {
+			struct priv_s2devstruct *pdev = getps2devstruct (request);
 			add_async_request (dev, request);
-			uaenet_trigger (dev->sysdata);
+			ethernet_trigger (pdev->td, dev->sysdata);
 		}
 		uae_sem_post (&change_sem);
 	}
@@ -1435,6 +1451,7 @@ static uae_u32 REGPARAM2 uaenet_int_handler (TrapContext *ctx)
 								if (handleread (ctx, pdev, request, p->data, p->len, command)) {
 									if (log_net)
 										write_log (_T("-> %p Accepted, CMD_READ, REQ=%08X LEN=%d\n"), p, request, p->len);
+									ar->ready = 1;
 									write_comm_pipe_u32 (&dev->requests, request, 1);
 									dev->packetsreceived++;
 									gotit = 1;
@@ -1460,6 +1477,7 @@ static uae_u32 REGPARAM2 uaenet_int_handler (TrapContext *ctx)
 								if (log_net)
 									write_log (_T("-> %p Accepted, S2_READORPHAN, REQ=%08X LEN=%d\n"), p, request, p->len);
 								handleread (ctx, pdev, request, p->data, p->len, command);
+								ar->ready = 1;
 								write_comm_pipe_u32 (&dev->requests, request, 1);
 								dev->packetsreceived++;
 								dev->unknowntypesreceived++;
@@ -1515,6 +1533,7 @@ static uae_u32 REGPARAM2 uaenet_int_handler (TrapContext *ctx)
 					dev->online_micro = get_long (pdev->tempbuf + 4);
 					checkevents (dev, S2EVENT_ONLINE, 0);
 					dev->online = 1;
+					ar->ready = 1;
 					write_comm_pipe_u32 (&dev->requests, request, 1);
 					uaenet_vsync_requested--;
 				} else if (command == CMD_FLUSH) {
@@ -1522,6 +1541,7 @@ static uae_u32 REGPARAM2 uaenet_int_handler (TrapContext *ctx)
 					if (dev->ar->next == NULL) {
 						if (log_net)
 							write_log (_T("CMD_FLUSH replied %08x\n"), request);
+						ar->ready = 1;
 						write_comm_pipe_u32 (&dev->requests, request, 1);
 						uaenet_vsync_requested--;
 					} else {
@@ -1588,10 +1608,13 @@ uaecptr netdev_startup (uaecptr resaddr)
 {
 	if (!currprefs.sana2)
 		return resaddr;
+#ifdef FSUAE
+#else
 	if (log_net)
+#endif
 		write_log (_T("netdev_startup(0x%x)\n"), resaddr);
 	/* Build a struct Resident. This will set up and initialize
-	* the uaescsi.device */
+	* the uaenet.device */
 	put_word (resaddr + 0x0, 0x4AFC);
 	put_long (resaddr + 0x2, resaddr);
 	put_long (resaddr + 0x6, resaddr + 0x1A); /* Continue scan here */
@@ -1599,7 +1622,7 @@ uaecptr netdev_startup (uaecptr resaddr)
 	put_word (resaddr + 0xC, 0x0305); /* NT_DEVICE; pri 05 */
 	put_long (resaddr + 0xE, ROM_netdev_resname);
 	put_long (resaddr + 0x12, ROM_netdev_resid);
-	put_long (resaddr + 0x16, ROM_netdev_init); /* calls scsidev_init */
+	put_long (resaddr + 0x16, ROM_netdev_init); /* calls netdev_init */
 	resaddr += 0x1A;
 	return resaddr;
 }
@@ -1612,11 +1635,14 @@ void netdev_install (void)
 
 	if (!currprefs.sana2)
 		return;
+#ifdef FSUAE
+#else
 	if (log_net)
+#endif
 		write_log (_T("netdev_install(): 0x%x\n"), here ());
 
-	uaenet_enumerate_free (td);
-	uaenet_enumerate (&td, NULL);
+	ethernet_enumerate_free ();
+	ethernet_enumerate (td, NULL);
 
 	ROM_netdev_resname = ds (getdevname());
 	ROM_netdev_resid = ds (_T("UAE net.device 0.2"));
@@ -1727,3 +1753,5 @@ void netdev_reset (void)
 		return;
 	dev_reset ();
 }
+
+#endif // SANA2

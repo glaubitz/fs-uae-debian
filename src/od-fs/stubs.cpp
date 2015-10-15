@@ -1,8 +1,25 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
+#include "autoconf.h"
+#include "clipboard.h"
+#include "debug.h"
+#include "filesys.h"
+#include "fsdb.h"
+#include "gui.h"
+#include "newcpu.h"
 #include "options.h"
+#include "rommgr.h"
+#include "sampler.h"
+#include "savestate.h"
 #include "scsidev.h"
+#include "uae.h"
+#include "xwin.h"
+
+void graphics_reset(bool force)
+{
+    LOG_STUB("force=%d", force);
+}
 
 void clipboard_vsync (void) {
 
@@ -71,10 +88,6 @@ void target_addtorecent (const TCHAR *name, int t) {
     STUB("name=\"%s\" t=%d", name, t);
 }
 
-void notify_user (int msg) {
-    STUB("msg=%d", msg);
-}
-
 uae_u8 sampler_getsample (int) {
     return 0;
 }
@@ -90,8 +103,8 @@ void sampler_vsync (void) {
 }
 
 #include "include/zfile.h"
+
 // --- win32gui.cpp ---
-static int qs_override;
 
 int target_cfgfile_load (struct uae_prefs *p, const TCHAR *filename, int type, int isdefault)
 {
@@ -108,14 +121,6 @@ int target_parse_option (struct uae_prefs *p, const TCHAR *option, const TCHAR *
     return 0;
 }
 
-void target_startup_sequence (struct uae_prefs *p) {
-    STUB("p=%p\n", p);
-}
-
-void notify_user_parms (int msg, const TCHAR *parms, ...) {
-    STUB("msg=%d parms=\"%s\"", msg, parms);
-}
-
 uae_u8 *target_load_keyfile (struct uae_prefs *p, const TCHAR *path, int *sizep, TCHAR *name) {
     STUB("");
     return NULL;
@@ -126,14 +131,22 @@ bool vsync_switchmode (int hz) {
     return 0;
 }
 
-void ahi_hsync (void) {
+#ifndef AHI
+
+#include "uae/ahi.h"
+
+void ahi_hsync (void)
+{
     VERBOSE_STUB("");
 }
 
-int enforcer_disable(void) {
+int enforcer_disable(void)
+{
     STUB("");
     return 1;
 }
+
+#endif
 
 void refreshtitle (void) {
     STUB("");
@@ -143,7 +156,7 @@ void updatedisplayarea (void) {
     LOG_STUB("");
 }
 
-void filesys_addexternals() {
+void filesys_addexternals(void) {
     LOG_STUB("");
 }
 
@@ -163,9 +176,10 @@ void target_restart (void) {
     STUB("");
 }
 
-void target_quit (void) {
-    write_log("UAE emulation core is quitting\n");
-    printf("UAE emulation core is quitting\n");
+void target_quit (void)
+{
+    write_log("UAE: Stopping\n");
+    printf("UAE: Stopping\n");
 }
 
 void target_fixup_options (struct uae_prefs *p) {
@@ -184,11 +198,7 @@ void flush_log(void) {
     STUB("");
 }
 
-int translate_message (int msg, TCHAR *out) {
-    STUB("");
-    return 0;
-}
-
+#if 0
 void machdep_save_options (FILE *f, const struct uae_prefs *p) {
     LOG_STUB("");
 }
@@ -201,6 +211,7 @@ int machdep_parse_option (struct uae_prefs *p, const char *option, const char *v
 void machdep_default_options (struct uae_prefs *p) {
     STUB("");
 }
+#endif
 
 //void fpux_save (int *v) {
 //    STUB("");
@@ -208,4 +219,10 @@ void machdep_default_options (struct uae_prefs *p) {
 
 void fpux_restore (int *v) {
     LOG_STUB("");
+}
+
+bool my_issamepath(const TCHAR *path1, const TCHAR *path2)
+{
+        LOG_STUB_MAX(3, "");
+        return false;
 }

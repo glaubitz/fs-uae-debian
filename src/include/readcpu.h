@@ -1,3 +1,11 @@
+#ifndef UAE_READCPU_H
+#define UAE_READCPU_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#include "uae/enum.h"
+#endif
+
 ENUMDECL {
   Dreg, Areg, Aind, Aipi, Apdi, Ad16, Ad8r,
   absw, absl, PC16, PC8r, imm, imm0, imm1, imm2, immi, am_unknown, am_illg
@@ -30,7 +38,8 @@ ENUMDECL {
     i_CINVL, i_CINVP, i_CINVA, i_CPUSHL, i_CPUSHP, i_CPUSHA, i_MOVE16,
     i_MMUOP030, i_PFLUSHN, i_PFLUSH, i_PFLUSHAN, i_PFLUSHA,
     i_PLPAR, i_PLPAW, i_PTESTR, i_PTESTW,
-    i_LPSTOP
+    i_LPSTOP,
+	MAX_OPCODE_FAMILY
 } ENUMNAME (instrmnem);
 
 struct mnemolookup {
@@ -42,7 +51,7 @@ struct mnemolookup {
 extern struct mnemolookup lookuptab[];
 
 ENUMDECL {
-    sz_byte, sz_word, sz_long
+    sz_byte, sz_word, sz_long, sz_single, sz_double, sz_extended, sz_packed
 } ENUMNAME (wordsizes);
 
 ENUMDECL {
@@ -73,6 +82,8 @@ struct instr_def {
     } flaginfo[5];
     uae_u8 sduse;
     const TCHAR *opcstr;
+	// 68020/030 timing
+	int head, tail, clocks, fetchmode;
 };
 
 extern struct instr_def defs68k[];
@@ -90,6 +101,7 @@ extern struct instr {
     unsigned int cc:4;
     unsigned int plev:2;
     unsigned int size:2;
+	unsigned int unsized:1;
     unsigned int smode:5;
     unsigned int stype:3;
     unsigned int dmode:5;
@@ -99,6 +111,7 @@ extern struct instr {
     unsigned int clev:3, unimpclev:3;
     unsigned int isjmp:1;
     unsigned int unused2:1;
+	char head, tail, clocks, fetchmode;
 } *table68k;
 
 extern void read_table68k (void);
@@ -106,3 +119,4 @@ extern void do_merges (void);
 extern int get_no_mismatches (void);
 extern int nr_cpuop_funcs;
 
+#endif // UAE_READCPU_H

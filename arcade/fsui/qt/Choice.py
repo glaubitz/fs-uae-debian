@@ -1,19 +1,18 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-from fsui.qt import QSize, QComboBox, QStandardItem, Signal
+from fsui.qt import QComboBox, Signal
 from .Widget import Widget
 
 
 class Choice(QComboBox, Widget):
 
+    changed = Signal()
     item_selected = Signal(int)
+    ITEM_SEPARATOR = "---"
 
-    def __init__(self, parent, items=[]):
+    def __init__(self, parent, items=None):
+        if items is None:
+            items = []
         QComboBox.__init__(self, parent.get_container())
-        #Widget.__init__(self, parent)
+        # Widget.__init__(self, parent)
         self.init_widget(parent)
         self.inhibit_change_event = False
 
@@ -29,7 +28,9 @@ class Choice(QComboBox, Widget):
         # if icon:
         #     item.setIcon(icon.qicon)
         # item.setSizeHint(QSize(-1, 24))
-        if icon is not None:
+        if label == self.ITEM_SEPARATOR:
+            self.insertSeparator(self.count())
+        elif icon is not None:
             self.addItem(icon.qicon, label)
         else:
             self.addItem(label)
@@ -39,6 +40,7 @@ class Choice(QComboBox, Widget):
             # print("Choice.__current_index_changed")
             index = self.currentIndex()
             self.item_selected.emit(index)
+            self.changed.emit()
             return self.on_change()
 
     def get_index(self):
@@ -54,4 +56,38 @@ class Choice(QComboBox, Widget):
                 self.inhibit_change_event = False
 
     def on_change(self):
+        pass
+
+
+class ItemChoice(Choice):
+
+    def __init__(self, parent):
+        Choice.__init__(self, parent)
+
+    def update(self):
+        # for i, item in enumerate(self.items):
+        #     self.add_item(item["name"], icon=self.get_item_icon(i))
+        old = self.inhibit_change_event
+        old_index = self.get_index()
+        self.inhibit_change_event = True
+        self.clear()
+        for i in range(self.get_item_count()):
+            text = self.get_item_text(i)
+            icon = self.get_item_icon(i)
+            self.add_item(text, icon)
+        if old_index < self.get_item_count():
+            self.set_index(old_index)
+        self.inhibit_change_event = old
+
+    def select_item(self, index, signal=True):
+        print("select_item", index)
+        if index is None:
+            self.set_index(-1, signal=signal)
+        else:
+            self.set_index(index, signal=signal)
+
+    def on_change(self):
+        self.on_select_item(self.get_index())
+
+    def on_select_item(self, index):
         pass

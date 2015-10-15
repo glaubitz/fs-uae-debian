@@ -6,12 +6,17 @@
   * Copyright 1996 Bernd Schmidt
   */
 
+#ifndef UAE_UAE_H
+#define UAE_UAE_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#endif
+
 extern void do_start_program (void);
-extern void do_leave_program (void);
 extern void start_program (void);
 extern void leave_program (void);
 extern void real_main (int, TCHAR **);
-extern void virtualdevice_init (void);
 extern void usage (void);
 extern void sleep_millis (int ms);
 extern void sleep_millis_main (int ms);
@@ -26,7 +31,6 @@ extern int sleep_resolution;
 extern void uae_reset (int, int);
 extern void uae_quit (void);
 extern void uae_restart (int, const TCHAR*);
-extern void reset_all_systems (void);
 extern void target_reset (void);
 extern void target_addtorecent (const TCHAR*, int);
 extern void target_run (void);
@@ -39,6 +43,7 @@ extern void fullpath (TCHAR *path, int size);
 extern void getpathpart (TCHAR *outpath, int size, const TCHAR *inpath);
 extern void getfilepart (TCHAR *out, int size, const TCHAR *path);
 extern uae_u32 getlocaltime (void);
+extern bool isguiactive(void);
 
 extern int quit_program;
 extern bool console_emulation;
@@ -63,14 +68,24 @@ struct bstring {
 };
 
 extern TCHAR *colormodes[];
+extern int saveimageoriginalpath;
 extern void fetch_saveimagepath (TCHAR*, int, int);
 extern void fetch_configurationpath (TCHAR *out, int size);
+extern void fetch_luapath (TCHAR *out, int size);
 extern void fetch_screenshotpath (TCHAR *out, int size);
 extern void fetch_ripperpath (TCHAR *out, int size);
 extern void fetch_statefilepath (TCHAR *out, int size);
 extern void fetch_inputfilepath (TCHAR *out, int size);
 extern void fetch_datapath (TCHAR *out, int size);
+extern void fetch_rompath (TCHAR *out, int size);
 extern uae_u32 uaerand (void);
 extern uae_u32 uaesrand (uae_u32 seed);
 extern uae_u32 uaerandgetseed (void);
 
+/* the following prototypes should probably be moved somewhere else */
+
+int get_guid_target (uae_u8 *out);
+void filesys_addexternals (void);
+void jit_abort (const TCHAR *format,...);
+
+#endif // UAE_UAE_H

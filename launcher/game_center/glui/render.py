@@ -1,10 +1,6 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-from game_center.glui.opengl import *
+from game_center.glui.opengl import gl, fs_emu_texturing, fs_emu_blending
 from game_center.glui.text import TextRenderer
+
 
 DISPLAY_FPS = False
 DISPLAY_SYNC = False
@@ -20,6 +16,8 @@ text_cache = {}
 
 
 class Render(object):
+
+    currently_ingame = False
 
     # Render items
     display_sync = DISPLAY_SYNC
@@ -54,6 +52,7 @@ class Render(object):
     twice = False
     fade_start = 0.0
     fade_end = 0.0
+    fade_splash = True
     fade_from = (0, 0, 0, 0)
     fade_to = (0, 0, 0, 0)
     opacity = 1.0
@@ -63,8 +62,8 @@ class Render(object):
     center_item_time = 0
 
     items_brightness = 0.8
-    #items_brightness_target = 1.0
-    #items_brightness_speed = 1.0
+    # items_brightness_target = 1.0
+    # items_brightness_speed = 1.0
     navigatable = None
     current_menu = None
     current_game = None
@@ -76,7 +75,7 @@ class Render(object):
     # options
     force_portrait = False
     max_ratio = None
-    #max_ratio = 1.0
+    # max_ratio = 1.0
 
     delete_texture_list = []
     unused_texture_list = []
@@ -84,54 +83,54 @@ class Render(object):
     @classmethod
     def create_texture(cls):
         if len(cls.unused_texture_list) == 0:
-            cls.unused_texture_list.extend(glGenTextures(50))
+            cls.unused_texture_list.extend(gl.glGenTextures(50))
         return cls.unused_texture_list.pop()
 
     @classmethod
     def delete_textures(cls):
-        #for t in cls.delete_texture_list:
-        #    glDeleteTextures([t])
+        # for t in cls.delete_texture_list:
+        #     glDeleteTextures([t])
 
-        glDeleteTextures(cls.delete_texture_list)
+        gl.glDeleteTextures(cls.delete_texture_list)
         cls.delete_texture_list[:] = []
 
-        #cls.unused_texture_list.extend(cls.delete_texture_list)
-        #cls.delete_texture_list[:] = []
-        #pass
+        # cls.unused_texture_list.extend(cls.delete_texture_list)
+        # cls.delete_texture_list[:] = []
+        # pass
 
         if len(cls.delete_texture_list) > 0:
             texture = cls.delete_texture_list.pop()
-            glDeleteTextures(texture)
+            gl.glDeleteTextures(texture)
 
     @classmethod
     def standard_perspective(cls):
         if cls.perspective == PERSPECTIVE_STANDARD:
             return
-        aspect_ratio = cls.display_width / cls.display_height
+        # aspect_ratio = cls.display_width / cls.display_height
         cls.gl_height = 2.0
         cls.gl_width = 2.0 * cls.display_aspect
         cls.gl_left = -1.0 * cls.display_aspect
         cls.fov_y = 45 / cls.zoom
         cls.fov_x = cls.fov_y * cls.display_aspect / cls.zoom
 
-        #left = cls.offset_x - 1.0 * cls.display_aspect / cls.zoom
-        #right = cls.offset_x + 1.0 * cls.display_aspect / cls.zoom
-        #top = cls.offset_y + 1.0 / cls.zoom
-        #bottom = cls.offset_y - 1.0 / cls.zoom
+        # left = cls.offset_x - 1.0 * cls.display_aspect / cls.zoom
+        # right = cls.offset_x + 1.0 * cls.display_aspect / cls.zoom
+        # top = cls.offset_y + 1.0 / cls.zoom
+        # bottom = cls.offset_y - 1.0 / cls.zoom
 
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
         
-        #gluPerspective(cls.fov_y, cls.display_aspect, 0.1, 10.1)
-        #glTranslatef(-cls.offset_x, -cls.offset_y, 0.0)
+        # gluPerspective(cls.fov_y, cls.display_aspect, 0.1, 10.1)
+        # glTranslatef(-cls.offset_x, -cls.offset_y, 0.0)
         
-        gluPerspective(45.0, 16.0 / 9.0, 0.1, 100.0)
+        gl.gluPerspective(45.0, 16.0 / 9.0, 0.1, 100.0)
         
-        cls.projection = glGetFloatv(GL_PROJECTION_MATRIX)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        #glScissor(0, display_yoffset, cls.display_width, cls.display_height)
-        #glEnable(GL_SCISSOR_TEST)
+        cls.projection = gl.glGetFloatv(gl.GL_PROJECTION_MATRIX)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()
+        # glScissor(0, display_yoffset, cls.display_width, cls.display_height)
+        # glEnable(GL_SCISSOR_TEST)
         cls.perspective = PERSPECTIVE_STANDARD
 
     @classmethod
@@ -140,18 +139,18 @@ class Render(object):
             return
         cls.display_aspect = 16 / 9.0
         cls.ortho_pscalex = 1920 / cls.display_width
-        #cls.ortho_pscalex = 1920 / cls.display_width * \
-        #        (cls.display_width / cls.display_height)
+        # cls.ortho_pscalex = 1920 / cls.display_width * \
+        #         (cls.display_width / cls.display_height)
         cls.ortho_pscaley = 1080 / cls.display_height
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
         left = 0.0
         right = 1920.0
-        top =  1080.0
+        top = 1080.0
         bottom = 0.0
-        glOrtho(left, right, bottom, top, -1.0, 1.0)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        gl.glOrtho(left, right, bottom, top, -1.0, 1.0)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()
         cls.gl_left = left
         cls.gl_right = right
         cls.gl_height = 1080.0
@@ -164,41 +163,41 @@ class Render(object):
         if cls.perspective == PERSPECTIVE_ORTHO:
             return
         cls.display_aspect = 16 / 9.0
-        cls.ortho_pscalex = 2.0 / cls.display_width * \
-                (cls.display_width / cls.display_height)
+        cls.ortho_pscalex = (2.0 / cls.display_width *
+                             (cls.display_width / cls.display_height))
         cls.ortho_pscaley = 2.0 / cls.display_height
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
         left = cls.offset_x - 1.0 * cls.display_aspect / cls.zoom
         right = cls.offset_x + 1.0 * cls.display_aspect / cls.zoom
         top = cls.offset_y + 1.0 / cls.zoom
         bottom = cls.offset_y - 1.0 / cls.zoom
-        glOrtho(left, right, bottom, top, -1.0, 1.0)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        gl.glOrtho(left, right, bottom, top, -1.0, 1.0)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()
         cls.gl_left = -1.0 * cls.display_aspect
         cls.gl_right = 1.0 * cls.display_aspect
-        cls.gl_height = 2.0 #* cls.display_aspect
+        cls.gl_height = 2.0  # * cls.display_aspect
         cls.gl_width = 2.0 * cls.display_aspect
         cls.perspective = PERSPECTIVE_ORTHO
         return cls.ortho_pscalex, cls.ortho_pscaley
 
     @classmethod
     def text(cls, text, font, x, y, w=0, h=0, color=(1.0, 1.0, 1.0, 1.0),
-            shadow=False, shadow_color=(0, 0, 0), halign=-1):
+             shadow=False, shadow_color=(0, 0, 0), halign=-1):
         if not text:
             return 0, 0
-        #if len(color) == 3:
-        #    color = (color[0], color[1], color[2], 1.0
+        # if len(color) == 3:
+        #     color = (color[0], color[1], color[2], 1.0
         try:
             alpha = color[3]
         except IndexError:
             alpha = 1.0
         color = (int(round(color[0] * 255)),
-                int(round(color[1] * 255)),
-                int(round(color[2] * 255)))
+                 int(round(color[1] * 255)),
+                 int(round(color[2] * 255)))
 
-        cache_key = (text, hash(font), color, alpha)
+        cache_key = (text, hash(font), font.size, color, alpha)
         try:
             text_cache_history.remove(cache_key)
         except ValueError:
@@ -208,20 +207,21 @@ class Render(object):
 
         fs_emu_blending(True)
         fs_emu_texturing(True)
-        glDisable(GL_DEPTH_TEST)
+        gl.glDisable(gl.GL_DEPTH_TEST)
 
         if texture:
-            glBindTexture(GL_TEXTURE_2D, texture)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
         else:
             txtdata, txtsize = TextRenderer(font).render_text(text, color)
             texture = Render.create_texture()
-            glBindTexture(GL_TEXTURE_2D, texture)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, txtsize[0],
-                    txtsize[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, txtdata)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                    GL_LINEAR)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
+            gl.glTexImage2D(
+                gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, txtsize[0], txtsize[1],
+                0, gl.GL_BGRA, gl.GL_UNSIGNED_BYTE, txtdata)
+            gl.glTexParameteri(
+                gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(
+                gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
         tw, th = txtsize[0] * cls.ortho_pscalex, txtsize[1] * cls.ortho_pscaley
 
         tx = x
@@ -234,33 +234,31 @@ class Render(object):
                     tx += (w - tw) / 2
         if h > 0:
             ty += (h - th) / 2
-        ts = 4 / cls.display_height # Step
+        # ts = 4 / cls.display_height  # Step
 
-
-        #glDisable(GL_TEXTURE_RECTANGLE_ARB)
+        # glDisable(GL_TEXTURE_RECTANGLE_ARB)
         
-        #glTexEnv(GL_TEXTURE_2D, GL_MODULATE)
-        #glDisable(GL_TEXTURE_RECTANGLE)
-        #fs_emu_blending(True)
-        glBegin(GL_QUADS)
-        glColor4f(alpha, alpha, alpha, alpha)
+        # glTexEnv(GL_TEXTURE_2D, GL_MODULATE)
+        # glDisable(GL_TEXTURE_RECTANGLE)
+        # fs_emu_blending(True)
+        gl.glBegin(gl.GL_QUADS)
+        gl.glColor4f(alpha, alpha, alpha, alpha)
 
-        glTexCoord2f(0.0, 0.0)
-        glVertex2f(tx, ty)
-        glTexCoord2f(1.0, 0.0)
-        glVertex2f(tx + tw, ty)
-        glTexCoord2f(1.0, 1.0)
-        glVertex2f(tx + tw, ty + th)
-        glTexCoord2f(0.0, 1.0)
-        glVertex2f(tx, ty + th)
+        gl.glTexCoord2f(0.0, 0.0)
+        gl.glVertex2f(tx, ty + th)
+        gl.glTexCoord2f(1.0, 0.0)
+        gl.glVertex2f(tx + tw, ty + th)
+        gl.glTexCoord2f(1.0, 1.0)
+        gl.glVertex2f(tx + tw, ty)
+        gl.glTexCoord2f(0.0, 1.0)
+        gl.glVertex2f(tx, ty)
 
-
-        #glRasterPos2f(tx, ty)
-        #glDrawPixels(txtsize[0], txtsize[1], GL_RGBA, GL_UNSIGNED_BYTE, txtdata)
-        glEnd()
+        # glRasterPos2f(tx, ty)
+        # glDrawPixels(txtsize[0], txtsize[1], GL_RGBA, GL_UNSIGNED_BYTE, txtdata)
+        gl.glEnd()
         
-        #fs_emu_blending(False)
-        glEnable(GL_DEPTH_TEST)
+        # fs_emu_blending(False)
+        gl.glEnable(gl.GL_DEPTH_TEST)
 
         text_cache_history.append(cache_key)
         text_cache[cache_key] = texture, txtsize
@@ -320,4 +318,3 @@ class Render(object):
 
 
 State = Render
-

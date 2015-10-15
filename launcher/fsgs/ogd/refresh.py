@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import time
 from fsbc.Application import app
 from fsbc.signal import Signal
@@ -32,7 +27,8 @@ class DatabaseRefreshTask(Task):
         # FIXME, dependency on fs_uae_launcher
         # from fs_uae_launcher.Scanner import Scanner
         # Scanner.start([], scan_for_files=False, update_game_database=True)
-        from fs_uae_launcher.GameRatingSynchronizer import GameRatingSynchronizer
+        from fs_uae_launcher.GameRatingSynchronizer \
+            import GameRatingSynchronizer
         from fs_uae_launcher.GameScanner import GameScanner
 
         context = SynchronizerContext()
@@ -55,7 +51,7 @@ class DatabaseRefreshTask(Task):
         scanner = GameScanner(
             context, None, on_status=self.on_status,
             stop_check=self.stop_check)
-        scanner.update_game_database(database)
+        scanner.update_game_database()
         scanner.scan(database)
 
         # FIXME: review what signals should be sent when a scan is performed

@@ -6,11 +6,13 @@ import shutil
 import tempfile
 import subprocess
 
-dirs = ["../python/fs_uae_launcher",
-        "../python/fs_uae_workspace",
-        "../python/fsui",
-        "../python/fsbc",
-        "../python/fsgs",
+dirs = [
+    "fs_uae_launcher",
+    "fs_uae_workspace",
+    "fsui",
+    "fsbc",
+    "fsgs",
+    "game_center",
 ]
 files = []
 extensions = [".py"]
@@ -36,7 +38,7 @@ args = ["xgettext",
         "--keyword=_",
         "--keyword=N_",
         "--package-name=fs-uae-launcher",
-        "--msgid-bugs-address=fs-uae@fengestad.no",
+        "--msgid-bugs-address=frode@fs-uae.net",
         "--copyright-holder=Frode Solheim",
         "--add-comments=#",
         "--no-location",
@@ -44,6 +46,7 @@ args = ["xgettext",
         "--from-code=ISO-8859-1",
         ]
 
+print(args)
 p = subprocess.Popen(args)
 p.wait()
 shutil.move("po/messages.po", "po/messages.pot")

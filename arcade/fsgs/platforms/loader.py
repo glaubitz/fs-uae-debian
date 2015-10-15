@@ -1,15 +1,10 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import json
-import six
 from collections import defaultdict
 from fsgs.ogd.client import OGDClient
 
 
-class SimpleLoader(object):
+class SimpleLoader:
+
     def __init__(self, fsgs):
         self.fsgs = fsgs
         self.config = {}
@@ -31,30 +26,33 @@ class SimpleLoader(object):
             if key in values:
                 self.config[key] = values[key]
 
-        for key in ["download_file", "download_page", "download_terms",
-                    "download_notice"]:
-            if key in values:
-                self.config[key] = values[key]
-
-        self.config["languages"] = values["languages"]
         self.config["platform"] = values["platform"]
+        self.config["model"] = values["model"]
+
+        self.config["viewport"] = values["viewport"]
+        self.config["video_standard"] = values["video_standard"]
+
+    def load_info(self, values):
+        self.config["languages"] = values["languages"]
         self.config["players"] = values["players"]
         self.config["year"] = values["year"]
         self.config["publisher"] = values["publisher"]
         self.config["developer"] = values["developer"]
-        self.config["viewport"] = values["viewport"]
-        self.config["video_standard"] = values["video_standard"]
-
-        self.config["database_url"] = "http://{0}/game/{1}".format(
-            OGDClient.get_server(), values["parent_uuid"])
-
-        for key in ["mobygames_url"]:
-            self.config[key] = values[key]
 
         self.config["x_game_notice"] = values["game_notice"]
         self.config["x_variant_notice"] = values["variant_notice"]
         self.config["x_variant_warning"] = values["variant_warning"]
         self.config["x_variant_error"] = values["variant_error"]
+
+        self.config["database_url"] = "http://{0}/game/{1}".format(
+            OGDClient.get_server(), values["parent_uuid"])
+        for key in ["mobygames_url"]:
+            self.config[key] = values[key]
+
+        for key in ["download_file", "download_page", "download_terms",
+                    "download_notice"]:
+            if key in values:
+                self.config[key] = values[key]
 
     def load_images(self, values):
         for key in ["front_sha1", "screen1_sha1", "screen2_sha1",
@@ -64,12 +62,13 @@ class SimpleLoader(object):
 
     def load_values(self, key_values):
         # print(key_values)
-        values = defaultdict(six.text_type)
+        values = defaultdict(str)
         values.update(key_values)
 
         self.load_basic(values)
         self.load_files(values)
         self.load_extra(values)
+        self.load_info(values)
         self.load_images(values)
 
         return self.get_config()

@@ -1,17 +1,12 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import six
 import json
 import sqlite3
 from binascii import unhexlify
 import zlib
 from .BaseDatabase import BaseDatabase
 
-VERSION = 17
-RESET_VERSION = 17
+
+VERSION = 18
+RESET_VERSION = 18
 DUMMY_UUID = b"'\\x8b\\xbb\\x00Y\\x8bqM\\x15\\x972\\xa8-t_\\xb2\\xfd'"
 
 
@@ -20,8 +15,8 @@ class GameDatabase(BaseDatabase):
     def __init__(self, path):
         BaseDatabase.__init__(self, BaseDatabase.SENTINEL)
         self._path = path
-        #self._connection = None
-        #self._cursor = None
+        # self._connection = None
+        # self._cursor = None
 
     def get_path(self):
         return self._path
@@ -54,47 +49,59 @@ class GameDatabase(BaseDatabase):
             return 0, 0
 
     def get_license_code_for_url(self, url):
-        cursor = self.internal_cursor()
-        cursor.execute(
-            "SELECT license_code FROM file "
-            "WHERE external = ? LIMIT 1", (url,))
-        row = cursor.fetchone()
-        if not row:
-            return None
-        return row[0]
+        # cursor = self.internal_cursor()
+        # cursor.execute(
+        #     "SELECT license_code FROM file "
+        #     "WHERE external = ? LIMIT 1", (url,))
+        # row = cursor.fetchone()
+        # if not row:
+        #     return None
+        # return row[0]
+        return None
 
     def add_game(self, game_id, game_uuid, game_data):
         # print("add game", repr(game_id), repr(game_uuid), repr(game_data))
         cursor = self.internal_cursor()
-        cursor.execute("DELETE FROM game WHERE uuid = ?",
-                       (sqlite3.Binary(game_uuid),))
-        cursor.execute("INSERT INTO game (id, uuid, data) VALUES (?, ?, ?)",
-                       (game_id, sqlite3.Binary(game_uuid),
-                        sqlite3.Binary(game_data)))
+        cursor.execute(
+            "DELETE FROM game WHERE uuid = ?",
+            (sqlite3.Binary(game_uuid),))
+        cursor.execute(
+            "INSERT INTO game (id, uuid, data) VALUES (?, ?, ?)",
+            (game_id, sqlite3.Binary(game_uuid), sqlite3.Binary(game_data)))
 
     def delete_game(self, game_id, game_uuid):
         cursor = self.internal_cursor()
-        cursor.execute("DELETE FROM game WHERE uuid = ?",
-                       (sqlite3.Binary(game_uuid),))
-        cursor.execute("DELETE FROM game WHERE uuid = ?",
-                       (sqlite3.Binary(DUMMY_UUID),))
-        cursor.execute("INSERT INTO game (id, uuid, data) VALUES (?, ?, ?)",
-                       (game_id, sqlite3.Binary(DUMMY_UUID), ""))
+        cursor.execute(
+            "DELETE FROM game WHERE uuid = ?",
+            (sqlite3.Binary(game_uuid),))
+        cursor.execute(
+            "DELETE FROM game WHERE uuid = ?",
+            (sqlite3.Binary(DUMMY_UUID),))
+        cursor.execute(
+            "INSERT INTO game (id, uuid, data) VALUES (?, ?, ?)",
+            (game_id, sqlite3.Binary(DUMMY_UUID), ""))
 
     def get_game_values_for_uuid(self, game_uuid, recursive=True):
         print("get_game_values_for_uuid", game_uuid)
         assert game_uuid
-        assert isinstance(game_uuid, six.string_types)
-        cursor = self.internal_cursor()
-        cursor.execute(
-            "SELECT id FROM game WHERE uuid = ?",
-            (sqlite3.Binary(unhexlify(game_uuid.replace("-", ""))),))
-        game_id = cursor.fetchone()[0]
-        return self.get_game_values(game_id, recursive)
+        assert isinstance(game_uuid, str)
+        # cursor = self.internal_cursor()
+        # query = "SELECT id FROM game WHERE uuid = ?"
+        # args = (sqlite3.Binary(unhexlify(game_uuid.replace("-", ""))),)
+        # cursor.execute(query, args)
+        # game_id = cursor.fetchone()[0]
+        # return self.get_game_values(game_id, recursive)
+        return self.get_game_values(game_uuid=game_uuid, recursive=recursive)
 
-    def get_game_values(self, game_id, recursive=True):
+    def get_game_values(self, game_id=None, *, game_uuid=None, recursive=True):
         cursor = self.internal_cursor()
-        cursor.execute("SELECT data FROM game WHERE id = ?", (game_id,))
+        if game_uuid is not None:
+            cursor.execute(
+                "SELECT data FROM game WHERE uuid = ?",
+                (sqlite3.Binary(unhexlify(game_uuid.replace("-", ""))),))
+        else:
+            cursor.execute(
+                "SELECT data FROM game WHERE id = ?", (game_id,))
         data = zlib.decompress(cursor.fetchone()[0])
         data = data.decode("UTF-8")
         doc = json.loads(data)
@@ -134,7 +141,7 @@ class GameDatabase(BaseDatabase):
         cursor.execute("DELETE FROM rating")
         cursor.execute("DELETE FROM game")
 
-    def update_database_to_version_17(self):
+    def update_database_to_version_18(self):
         cursor = self.internal_cursor()
         cursor.execute("""
             ALTER TABLE metadata ADD COLUMN games_version

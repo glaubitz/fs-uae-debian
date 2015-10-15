@@ -1,8 +1,16 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
-#include "include/options.h"
+#include "autoconf.h"
+#include "clipboard.h"
+#include "fsdb.h"
+#include "options.h"
+#include "serial.h"
 #include "sleep.h"
+#include "uae.h"
+#include "xwin.h"
+#include "uae/fs.h"
+#include "../od-win32/debug_win32.h"
 
 #ifndef PICASSO96
 // just to make ncr_scsi compile. it will not work, of course,
@@ -22,23 +30,21 @@ int pause_emulation = 0;
 int uaelib_debug = 0;
 
 int sleep_resolution = 1000 / 1;
-int pissoff_value = 25000;
+int pissoff_value = 15000 * CYCLE_UNIT;
 
-extern int uaeser_getdatalength (void);
-int uaeser_getdatalenght (void) {
-    return uaeser_getdatalength();
-}
+//int uaeser_getdatalenght (void) {
+//    return uaeser_getdatalength();
+//}
 
 void target_default_options (struct uae_prefs *p, int type) {
     //write_log("STUB: target_default_options p=%p type=%d\n", p, type);
     write_log("target_default_options p=%p type=%d\n", p, type);
     // FIXME: move out of here - into a (lib)amiga_ function
     write_log("target_default_options: enabling floppy sounds\n");
-    p->floppyslots[0].dfxclick = 1;
-    p->floppyslots[1].dfxclick = 1;
-    p->floppyslots[2].dfxclick = 1;
-    p->floppyslots[3].dfxclick = 1;
-    p->dfxclickvolume = 80;
+
+    for (int i = 0; i < 4; i++) {
+        p->floppyslots[i].dfxclick = 1;
+    }
 
     if (type == 2 || type == 0) {
         // if this isn't set to -1, will caused problems for parallel
@@ -48,7 +54,7 @@ void target_default_options (struct uae_prefs *p, int type) {
 
     p->win32_rtgvblankrate = 0;
 
-#ifdef __BIG_ENDIAN__
+#ifdef WORDS_BIGENDIAN
     p->picasso96_modeflags = 0x442;
 #else
     p->picasso96_modeflags = 0x212;
@@ -76,12 +82,6 @@ void sleep_millis (int ms) {
     //uae_msleep(ms);
 }
 
-int same_aname (const char *an1, const char *an2) {
-    // FIXME: latin 1 chars?
-    // FIXME: compare with latin1 table in charset/filesys_host/fsdb_host
-    return strcasecmp (an1, an2) == 0;
-}
-
 void console_out_f(const TCHAR *fmt, ...) {
     va_list arg_ptr;
     va_start(arg_ptr, fmt);
@@ -89,7 +89,9 @@ void console_out_f(const TCHAR *fmt, ...) {
     va_end(arg_ptr);
 }
 
-void f_out(void *f, const TCHAR *format, ...) {
+/* FIXME: change void *f to FILE* f */
+void f_out(void *f, const TCHAR *format, ...)
+{
     if (f == NULL) {
         return;
     }
@@ -127,6 +129,10 @@ TCHAR console_getch (void) {
 }
 
 void close_console (void) {
+    STUB("");
+}
+
+extern void activate_console (void) {
     STUB("");
 }
 
@@ -201,125 +207,15 @@ char *setconsolemode (char *buffer, int maxlen) {
 
 // writelog
 TCHAR* buf_out (TCHAR *buffer, int *bufsize, const TCHAR *format, ...) {
-    va_list parms;
-    va_start (parms, format);
     if (buffer == NULL) {
         return 0;
     }
+    va_list parms;
+    va_start (parms, format);
     vsnprintf (buffer, (*bufsize) - 1, format, parms);
     va_end (parms);
     *bufsize -= _tcslen (buffer);
     return buffer + _tcslen (buffer);
-}
-
-void fixtrailing (TCHAR *p) {
-    if (strlen(p) == 0) {
-        return;
-    }
-    if (p[strlen(p) - 1] == '/' || p[strlen(p) - 1] == '\\') {
-        return;
-    }
-    strcat(p, FSDB_DIR_SEPARATOR_S);
-}
-
-void getpathpart(TCHAR *outpath, int size, const TCHAR *inpath) {
-    strcpy(outpath, inpath);
-    TCHAR *p = strrchr(outpath, '/');
-#ifdef WINDOWS
-    if (!p) {
-        p = strrchr(outpath, '\\');
-    }
-#endif
-    if (p) {
-        p[0] = 0;
-    }
-    fixtrailing(outpath);
-}
-
-void getfilepart(TCHAR *out, int size, const TCHAR *path) {
-    out[0] = 0;
-    const TCHAR *p = strrchr(path, '/');
-#ifdef WINDOWS
-    if (!p) {
-        p = strrchr(path, '\\');
-    }
-#endif
-    if (p) {
-        strcpy(out, p + 1);
-    }
-    else {
-        strcpy(out, path);
-    }
-}
-
-// convert path to absolute or relative
-void fullpath (TCHAR *path, int size) {
-    // FIXME: forward/backslash fix needed
-    if (path[0] == 0 || (path[0] == '\\' && path[1] == '\\') ||
-            path[0] == ':') {
-        return;
-    }
-    /* <drive letter>: is supposed to mean same as <drive letter>:\ */
-}
-
-TCHAR start_path_data[MAX_DPATH];
-
-void fetch_path (const TCHAR *name, TCHAR *out, int size) {
-        int size2 = size;
-    //printf("fetch_path %s\n", name);
-    //_tcscpy (start_path_data, "./");
-    _tcscpy (start_path_data, "");
-    _tcscpy (out, start_path_data);
-    /*
-    if (!name) {
-        return;
-    }
-    if (!_tcscmp (name, "FloppyPath")) {
-        _tcscat (out, "./");
-    }
-    else if (!_tcscmp (name, "CDPath")) {
-        _tcscat (out, "./");
-    }
-    else if (!_tcscmp (name, "hdfPath")) {
-        _tcscat (out, "./");
-    }
-    else if (!_tcscmp (name, "KickstartPath")) {
-        _tcscat (out, "./");
-    }
-    else if (!_tcscmp (name, "ConfigurationPath")) {
-        _tcscat (out, "./");
-    }
-    */
-}
-
-void fetch_saveimagepath (TCHAR *out, int size, int dir) {
-    fetch_path("SaveimagePath", out, size);
-    out[0] = '\0';
-    if (g_libamiga_save_image_path) {
-        strcpy(out, g_libamiga_save_image_path);
-    }
-}
-
-void fetch_configurationpath (TCHAR *out, int size) {
-    fetch_path("ConfigurationPath", out, size);
-}
-
-void fetch_screenshotpath (TCHAR *out, int size) {
-    fetch_path("ScreenshotPath", out, size);
-}
-void fetch_ripperpath (TCHAR *out, int size) {
-    fetch_path("RipperPath", out, size);
-}
-void fetch_statefilepath (TCHAR *out, int size) {
-    fetch_path("StatefilePath", out, size);
-}
-
-void fetch_inputfilepath (TCHAR *out, int size) {
-    fetch_path("InputPath", out, size);
-}
-
-void fetch_datapath (TCHAR *out, int size) {
-        fetch_path (NULL, out, size);
 }
 
 void to_lower (TCHAR *s, int len) {
@@ -339,10 +235,7 @@ TCHAR *target_expand_environment (const TCHAR *path) {
     return strdup(path);
 }
 
-// sana2.cpp
-volatile int uaenet_int_requested;
-volatile int uaenet_vsync_requested;
-
+#if 0
 #include <signal.h>
 #include "debug.h"
 #ifdef __cplusplus_disabled
@@ -359,7 +252,7 @@ static RETSIGTYPE sigbrkhandler (int foo)
     signal (SIGINT, sigbrkhandler);
 #endif
 }
-
+#endif
 
 void setup_brkhandler (void)
 {

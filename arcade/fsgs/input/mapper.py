@@ -1,7 +1,4 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
+from fsbc.system import macosx
 
 
 class InputMapper(object):
@@ -12,9 +9,9 @@ class InputMapper(object):
         self.mapping = mapping
 
     def items(self):
-        #input = self.input
-        #if not input.device_config:
-        #    return
+        # input = self.input
+        # if not input.device_config:
+        #     return
         if not self.device:
             return
         config = self.device.configure(self.input.mapping_name)
@@ -30,12 +27,27 @@ class InputMapper(object):
             else:
                 print("input_key", input_key)
                 input_value = self.calc_input(native_button)
-                #print("---->", input_key, input_value)
-                #f.write('{input_key} = "{input_value}"\n'.format(
-                #        input_key=input_key,
-                #        input_value=input_value))
+                # print("---->", input_key, input_value)
+                # f.write('{input_key} = "{input_value}"\n'.format(
+                #         input_key=input_key,
+                #         input_value=input_value))
                 if input_value is not None:
                     yield input_key, input_value
+
+    def axis(self, axis, positive):
+        raise NotImplementedError()
+
+    def hat(self, hat, direction):
+        raise NotImplementedError()
+
+    def button(self, button):
+        raise NotImplementedError()
+
+    def key(self, key):
+        raise NotImplementedError()
+
+    def mouse(self, button, axis, positive):
+        raise NotImplementedError()
 
     def calc_input(self, value):
         parts = value.lower().split('_')
@@ -52,7 +64,7 @@ class InputMapper(object):
             return self.button(button)
         elif parts[0] == 'key':
             key_name = value.split('_', 1)[1].lower()
-            if key_name == "rctrl" and fs.macosx:
+            if key_name == "rctrl" and macosx:
                 print("using ralt instead of rctrl on Mac")
                 key_name = "ralt"
             key = Keyboard.key(key_name)
@@ -72,7 +84,7 @@ class InputMapper(object):
                 positive = parts[2] == 'pos'
             return self.mouse(button, axis, positive)
         return None
-        #raise Exception("Invalid input value: {0}".format(value))
+        # raise Exception("Invalid input value: {0}".format(value))
 
 
 class Key(object):
@@ -346,5 +358,5 @@ key_table = {
 }
 
 sdl_key_code_to_name = {}
-for key, value in key_table.items():
-    sdl_key_code_to_name[value[0]] = key
+for __key, __value in key_table.items():
+    sdl_key_code_to_name[__value[0]] = __key

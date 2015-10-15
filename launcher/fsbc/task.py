@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import threading
 import traceback
 from .signal import Signal
@@ -29,7 +24,7 @@ class Task(object):
     Failure = TaskFailure
     Stopped = TaskStopped
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.__name = name
         self.stop_flag = False
         self.started = Signal()
@@ -51,7 +46,9 @@ class Task(object):
             raise TaskStopped()
 
     def start(self):
-        threading.Thread(target=self.__run).start()
+        threading.Thread(
+            target=self.__run, name="TaskThread({0})".format(
+                self.get_task_name())).start()
 
     def __run(self):
         local_tasks.task = self
@@ -69,8 +66,9 @@ class Task(object):
                 print(self, "failed", repr(str(e)))
                 traceback.print_exc()
                 self.failed(
-                    "{0} failed with exception {1}. See log file for "
-                    "details".format(self.get_task_name(), repr(str(e))))
+                    "{} failed with {}:\n{}\n\nSee log file for "
+                    "details.".format(
+                        self.get_task_name(), type(e).__name__, repr(str(e))))
             else:
                 print(self, "succeeded")
                 self.succeeded()

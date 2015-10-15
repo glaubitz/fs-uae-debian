@@ -1,18 +1,18 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-import base64
-
+import io
 import os
 import time
 import json
+import base64
 import platform
 from uuid import uuid4
 from functools import wraps
+from urllib.parse import urlencode
+from http.client import HTTPConnection
+from urllib.error import HTTPError
 from fsbc.Application import app
-from fsbc.http import HTTPConnection, HTTPError, urlencode
 from fsbc.task import Task
+from fsbc.util import memoize
+from fsgs.FSGSDirectories import FSGSDirectories
 
 
 class NonRetryableHTTPError(HTTPError):
@@ -94,8 +94,15 @@ class OGDClient(object):
         return result
 
     @staticmethod
+    @memoize
     def get_server():
         server = app.settings["database_server"]
+        if not server:
+            p = os.path.join(FSGSDirectories.get_data_dir(), "Settings",
+                             "database-server")
+            if os.path.exists(p):
+                with io.open(p, "r", encoding="UTF-8") as f:
+                    server = f.read().strip()
         if not server:
             server = "oagd.net"
         return server
@@ -111,7 +118,7 @@ class OGDClient(object):
         if auth:
             credentials = self.get_credentials()
             headers[str("Authorization")] = str("Basic " + base64.b64encode(
-                "{0}:{1}".format(*credentials).encode("UTF-8")))
+                "{0}:{1}".format(*credentials).encode("UTF-8")).decode("UTF-8"))
 
         # if data is None:
         #     data = "{}"
@@ -146,7 +153,7 @@ class OGDClient(object):
             raise class_(url, response.status, response.reason,
                          response.getheaders(), None)
         data = response.read()
-        if len(data) > 0 and data[0] == b"{":
+        if len(data) > 0 and data[0:1] == b"{":
             doc = json.loads(data.decode("UTF-8"))
             return doc
         return data

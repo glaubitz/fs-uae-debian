@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from fsgs.mednafen.mednafen import MednafenRunner
 
 
@@ -23,6 +18,9 @@ class MasterSystemRunner(MednafenRunner):
             "types": [CONTROLLER]
         },
     ]
+
+    def __init__(self, fsgs):
+        super().__init__(fsgs)
 
     def mednafen_system_prefix(self):
         return "sms"
@@ -51,5 +49,5 @@ class MasterSystemRunner(MednafenRunner):
 
         # FIXME: add PAUSE button to universal gamepad config
 
-    #def mednafen_video_size(self):
-    #    return 256, 192
+    # def mednafen_video_size(self):
+    #     return 256, 192

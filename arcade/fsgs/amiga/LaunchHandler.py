@@ -1,20 +1,14 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-import traceback
-
-import six
 import os
 import json
 import shutil
-import urllib
+import urllib.parse
 import hashlib
 import tempfile
 import unittest
+import traceback
 import zlib
 from fsbc.Paths import Paths
-from fsbc.task import current_task
+from fsbc.task import current_task, TaskFailure
 from fsbc.Resources import Resources
 from fsgs.Archive import Archive
 from fsgs.Downloader import Downloader
@@ -25,8 +19,11 @@ from fsgs.amiga.Amiga import Amiga
 from fsgs.amiga.ConfigWriter import ConfigWriter
 from fsgs.amiga.FSUAE import FSUAE
 from fsgs.amiga.ROMManager import ROMManager
+from fsgs.amiga.whdload import DEFAULT_WHDLOAD_VERSION, whdload_files, \
+    whdload_support_files, default_whdload_prefs
 from fsgs.amiga.workbench import WorkbenchExtractor
 from fsgs.res import gettext
+from .roms import PICASSO_IV_74_ROM, CD32_FMV_ROM
 
 
 class LaunchHandler(object):
@@ -47,14 +44,15 @@ class LaunchHandler(object):
 
         self.game_paths = game_paths
         self.hd_requirements = set()
-        for req in self.config.get("hd_requirements", "").split(","):
+        for req in self.config.get(
+                "hd_requirements", "").replace(",", ";").split(";"):
             req = req.strip()
             if req:
                 self.hd_requirements.add(req)
         self.setpatch_installed = False
-        #self.stop_flag = False
+        # self.stop_flag = False
 
-        self.temp_dir = None
+        self.temp_dir = ""
         self.change_handler = None
 
     @property
@@ -62,11 +60,11 @@ class LaunchHandler(object):
         return current_task.stop_flag
 
     def on_progress(self, progress):
-        # method can be overriden / replaced in instances
+        # method can be overridden / replaced in instances
         pass
 
     def on_complete(self):
-        # method can be overriden / replaced in instances
+        # method can be overridden / replaced in instances
         pass
 
     def prepare(self):
@@ -126,33 +124,45 @@ class LaunchHandler(object):
         amiga_model = self.config.get("amiga_model", "A500")
         model_config = Amiga.get_model_config(amiga_model)
 
-        roms = [("kickstart_file", self.config.get("kickstart_file"),
-                 model_config["kickstarts"])]
-        if self.config.get("kickstart_ext_file") or model_config["ext_roms"]:
+        roms = [("kickstart_file", model_config["kickstarts"])]
+        if self.config["kickstart_ext_file"] or model_config["ext_roms"]:
             # not all Amigas have extended ROMs
-            roms.append(
-                ("kickstart_ext_file",
-                    self.config.get("kickstart_ext_file"),
-                    model_config["ext_roms"]))
+            roms.append(("kickstart_ext_file", model_config["ext_roms"]))
         if amiga_model.lower() == "cd32/fmv":
-            # this should really be in the Amiga class but... quick fix...
-            roms.append(
-                ("fvm_rom", "", ["03ca81c7a7b259cf64bc9582863eca0f6529f435"]))
+            roms.append(("fvm_rom", [CD32_FMV_ROM]))
 
-        for config_key, src, default_roms in roms:
+        if self.config["graphics_card"].lower().startswith("picasso-iv"):
+            roms.append(("graphics_card_rom", [PICASSO_IV_74_ROM]))
+
+        if self.config["accelerator"].lower() == "cyberstorm-ppc":
+            roms.append(("accelerator_rom", ["cyberstormppc.rom"]))
+
+        for config_key, default_roms in roms:
+            print("ROM:", config_key, default_roms)
+            src = self.config[config_key]
             if not src:
                 for sha1 in default_roms:
-                    rom_src = self.fsgs.file.find_by_sha1(sha1)
-                    if rom_src:
-                        src = rom_src
-                        break
+                    if is_sha1(sha1):
+                        rom_src = self.fsgs.file.find_by_sha1(sha1)
+                        if rom_src:
+                            src = rom_src
+                            break
+                    else:
+                        # roms_dir = FSGSDirectories.get_kickstarts_dir()
+                        # src = os.path.join(roms_dir, sha1)
+                        # if os.path.exists(src):
+                        #     break
+                        # loop up file in roms dir instead
+                        src = sha1
             elif src == "internal":
                 continue
             else:
                 src = Paths.expand_path(src)
-
             if not src:
-                raise Exception("Did not find required kickstart")
+                raise TaskFailure(
+                    gettext("Did not find required Kickstart or ROM"))
+
+            use_temp_kickstarts_dir = False
 
             dest = os.path.join(self.temp_dir, os.path.basename(src))
             archive = Archive(src)
@@ -167,35 +177,44 @@ class LaunchHandler(object):
                         src = path
                         break
                 else:
-                    stream = self.fsgs.file.open(src)
-                    if stream is None:
-                        raise Exception("Cannot find kickstart " + repr(src))
+                    try:
+                        stream = self.fsgs.file.open(src)
+                        if stream is None:
+                            raise FileNotFoundError(src)
+                    except FileNotFoundError:
+                        raise TaskFailure(gettext(
+                            "Cannot find required ROM "
+                            "file: {name}".format(name=repr(src))))
 
             with open(dest, "wb") as f:
                 if stream:
                     f.write(stream.read())
                 else:
                     ROMManager.decrypt_archive_rom(archive, src, file=f)
-                self.config[config_key] = os.path.basename(src)
-            self.config["kickstarts_dir"] = self.temp_dir
+                if use_temp_kickstarts_dir:
+                    self.config[config_key] = os.path.basename(src)
+                else:
+                    self.config[config_key] = dest
+            if use_temp_kickstarts_dir:
+                self.config["kickstarts_dir"] = self.temp_dir
 
     def expand_default_path(self, src, default_dir):
         if "://" in src:
             return src, None
         src = Paths.expand_path(src, default_dir)
         archive = Archive(src)
-        #if not archive.exists(src):
-        #    dirs = [default_dir]
-        #    for dir in dirs:
-        #        path = os.path.join(dir, src)
-        #        print("checking", repr(path))
-        #        archive = Archive(path)
-        #        if archive.exists(path):
-        #        #if os.path.exists(path):
-        #            src = path
-        #            break
-        #    else:
-        #        raise Exception("Cannot find path for " + repr(src))
+        # if not archive.exists(src):
+        #     dirs = [default_dir]
+        #     for dir in dirs:
+        #         path = os.path.join(dir, src)
+        #         print("checking", repr(path))
+        #         archive = Archive(path)
+        #         if archive.exists(path):
+        #         #if os.path.exists(path):
+        #             src = path
+        #             break
+        #     else:
+        #         raise Exception("Cannot find path for " + repr(src))
         return src, archive
 
     def prepare_floppy(self, key):
@@ -223,7 +242,7 @@ class LaunchHandler(object):
     def prepare_floppies(self):
         print("LaunchHandler.copy_floppies")
         current_task.set_progress(gettext("Preparing floppy images..."))
-        #self.on_progress(gettext("Preparing floppy images..."))
+        # self.on_progress(gettext("Preparing floppy images..."))
 
         floppies = []
         for i in range(Amiga.MAX_FLOPPY_DRIVES):
@@ -231,14 +250,15 @@ class LaunchHandler(object):
             if self.config.get(key, ""):
                 floppies.append(self.config[key])
             self.prepare_floppy(key)
+
         for i in range(Amiga.MAX_FLOPPY_IMAGES):
             key = "floppy_image_{0}".format(i)
             if self.config.get(key, ""):
                 break
         else:
             print("floppy image list is empty")
-            for i, floppy in enumerate(floppies):
-                self.config["floppy_image_{0}".format(i)] = floppy
+            for j, floppy in enumerate(floppies):
+                self.config["floppy_image_{0}".format(j)] = floppy
 
         max_image = -1
         for i in range(Amiga.MAX_FLOPPY_IMAGES):
@@ -248,18 +268,38 @@ class LaunchHandler(object):
                 max_image = i
 
         save_image = max_image + 1
-        
-        #s = pkg_resources.resource_stream(str("fsgs.amiga"),
-        #        str("data/adf_save_disk.dat"))
-        s = Resources("fsgs", "res").stream("amiga/adf_save_disk.dat")
 
-        data = s.read()
-        data = zlib.decompress(data)
-        save_disk = os.path.join(self.temp_dir, "Save Disk.adf")
-        with open(save_disk, "wb") as f:
-            f.write(data)
-        key = "floppy_image_{0}".format(save_image)
-        self.config[key] = "Save Disk.adf"
+        if self.config.get("save_disk", "") != "0":
+            s = Resources("fsgs", "res").stream("amiga/adf_save_disk.dat")
+            data = s.read()
+            data = zlib.decompress(data)
+            save_disk = os.path.join(self.temp_dir, "Save Disk.adf")
+            with open(save_disk, "wb") as f:
+                f.write(data)
+            key = "floppy_image_{0}".format(save_image)
+            self.config[key] = "Save Disk.adf"
+
+    def prepare_cdrom(key):
+        src = self.config.get(key, "").strip()
+        if not src:
+            return
+
+        src, archive = self.expand_default_path(
+            src, self.fsgs.amiga.get_floppies_dir())
+        dst_name = os.path.basename(src)
+        current_task.set_progress(dst_name)
+
+        if self.config["writable_floppy_images"] == "1" and \
+                os.path.isfile(src):
+            # the config value directly refers to a local file, and the config
+            # value already refers to the file, but since we may have
+            # changed floppy_dir and the path may be relative, we set the
+            # resolved path directly
+            self.config[key] = src
+        else:
+            dst = os.path.join(self.temp_dir, dst_name)
+            self.fsgs.file.copy_game_file(src, dst)
+            self.config[key] = os.path.basename(dst)
 
     def prepare_cdroms(self):
         print("LaunchHandler.prepare_cdroms")
@@ -268,24 +308,52 @@ class LaunchHandler(object):
                     self.config.get("cdrom_image_0", ""):
                 self.config["cdrom_drive_count"] = "1"
 
+        cdrom_drive_0 = self.config.get("cdrom_drive_0", "")
+        if cdrom_drive_0.startswith("game:"):
+            scheme, dummy, game_uuid, name = cdrom_drive_0.split("/")
+            file_list = self.get_file_list_for_game_uuid(game_uuid)
+            for file_item in file_list:
+                src = self.fsgs.file.find_by_sha1(file_item["sha1"])
+
+                src, archive = self.expand_default_path(
+                    src, self.fsgs.amiga.get_cdroms_dir())
+                dst_name = file_item["name"]
+                current_task.set_progress(dst_name)
+
+                dst = os.path.join(self.temp_dir, dst_name)
+                self.fsgs.file.copy_game_file(src, dst)
+
+            for i in range(Amiga.MAX_CDROM_DRIVES):
+                key = "cdrom_drive_{0}".format(i)
+                value = self.config.get(key, "")
+                self.config[key] = os.path.join(
+                    self.temp_dir, os.path.basename(value))
+
+            for i in range(Amiga.MAX_CDROM_IMAGES):
+                key = "cdrom_image_{0}".format(i)
+                value = self.config.get(key, "")
+                self.config[key] = os.path.join(
+                    self.temp_dir, os.path.basename(value))
+
         cdroms = []
         for i in range(Amiga.MAX_CDROM_DRIVES):
             key = "cdrom_drive_{0}".format(i)
             if self.config.get(key, ""):
                 cdroms.append(self.config[key])
+
         for i in range(Amiga.MAX_CDROM_IMAGES):
             key = "cdrom_image_{0}".format(i)
             if self.config.get(key, ""):
                 break
         else:
             print("CD-ROM image list is empty")
-            for i, cdrom in enumerate(cdroms):
-                self.config["cdrom_image_{0}".format(i)] = cdrom
+            for j, cdrom in enumerate(cdroms):
+                self.config["cdrom_image_{0}".format(j)] = cdrom
 
     def prepare_hard_drives(self):
         print("LaunchHandler.prepare_hard_drives")
         current_task.set_progress(gettext("Preparing hard drives..."))
-        #self.on_progress(gettext("Preparing hard drives..."))
+        # self.on_progress(gettext("Preparing hard drives..."))
 
         for i in range(0, 10):
             key = "hard_drive_{0}".format(i)
@@ -295,7 +363,7 @@ class LaunchHandler(object):
 
             if src.startswith("http://") or src.startswith("https://"):
                 name = src.rsplit("/", 1)[-1]
-                name = urllib.unquote(name)
+                name = urllib.parse.unquote(name)
                 self.on_progress(gettext("Downloading {0}...".format(name)))
                 dest = os.path.join(self.temp_dir, name)
                 Downloader.install_file_from_url(src, dest)
@@ -336,7 +404,7 @@ class LaunchHandler(object):
         self.config["save_states"] = "0"
 
     def prepare_workbench_hard_drive(self, i, src):
-        #dir_name = "DH{0}".format(i)
+        # dir_name = "DH{0}".format(i)
         dir_name = src.rsplit("/", 1)[-1]
         dir_path = os.path.join(self.temp_dir, dir_name)
         if not os.path.exists(dir_path):
@@ -368,26 +436,25 @@ class LaunchHandler(object):
 
     def prepare_empty_hard_drive(self, i, src):
         dir_name = src.rsplit("/", 1)[-1]
-        #dir_name = "DH{0}".format(i)
+        # dir_name = "DH{0}".format(i)
         dir_path = os.path.join(self.temp_dir, dir_name)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         self.config["hard_drive_{0}".format(i)] = dir_path
 
+    def get_file_list_for_game_uuid(self, game_uuid):
+        game_database = self.fsgs.get_game_database()
+        values = game_database.get_game_values_for_uuid(game_uuid)
+        file_list = json.loads(values["file_list"])
+        return file_list
+
     def unpack_game_hard_drive(self, drive_index, src):
         print("unpack_game_hard_drive", drive_index, src)
         scheme, dummy, dummy, game_uuid, drive = src.split("/")
         drive_prefix = drive + "/"
-
-        game_database = self.fsgs.get_game_database()
-        # game_database_client = GameDatabaseClient(game_database)
-        # game_id = game_database_client.get_game_id(game_uuid)
-        # values = game_database_client.get_final_game_values(game_id)
-        values = game_database.get_game_values_for_uuid(game_uuid)
-        file_list = json.loads(values["file_list"])
-
         dir_name = "DH{0}".format(drive_index)
         dir_path = os.path.join(self.temp_dir, dir_name)
+        file_list = self.get_file_list_for_game_uuid(game_uuid)
         for file_entry in file_list:
             if self.stop_flag:
                 return
@@ -418,7 +485,7 @@ class LaunchHandler(object):
                 os.makedirs(os.path.dirname(dst_file))
             sha1 = file_entry["sha1"]
 
-            #current_task.set_progress(os.path.basename(dst_file))
+            # current_task.set_progress(os.path.basename(dst_file))
             current_task.set_progress(amiga_rel_path)
             self.fsgs.file.copy_game_file("sha1://{0}".format(sha1), dst_file)
 
@@ -444,16 +511,16 @@ class LaunchHandler(object):
 
     def encode_file_comment(self, comment):
         result = []
-        #raw = 0
+        # raw = 0
         for c in comment:
-        #    if c == '%':
-        #        result.append("%")
-        #        raw = 2
-        #    elif raw:
-        #        result.append(c)
-        #        raw = raw - 1
-        #    else:
-        #        result.append("%{0:x}".format(ord(c)))
+            # if c == '%':
+            #     result.append("%")
+            #     raw = 2
+            # elif raw:
+            #     result.append(c)
+            #     raw = raw - 1
+            # else:
+            #     result.append("%{0:x}".format(ord(c)))
             result.append("%{0:x}".format(ord(c)))
         return "".join(result)
 
@@ -466,6 +533,16 @@ class LaunchHandler(object):
 
         self.unpack_archive(src, dir_path)
         self.config["hard_drive_{0}".format(i)] = dir_path
+
+    # def create_devs_dir(self):
+    #     devs_dir = os.path.join(dest_dir, "Devs")
+    #     if not os.path.exists(devs_dir):
+    #         os.makedirs(devs_dir)
+    #
+    # def create_fonts_dir(self):
+    #     fonts_dir = os.path.join(dest_dir, "Fonts")
+    #     if not os.path.exists(fonts_dir):
+    #         os.makedirs(fonts_dir)
 
     def copy_hd_files(self):
         whdload_args = self.config.get("x_whdload_args", "").strip()
@@ -488,6 +565,7 @@ class LaunchHandler(object):
         libs_dir = os.path.join(dest_dir, "Libs")
         if not os.path.exists(libs_dir):
             os.makedirs(libs_dir)
+
         devs_dir = os.path.join(dest_dir, "Devs")
         if not os.path.exists(devs_dir):
             os.makedirs(devs_dir)
@@ -503,21 +581,33 @@ class LaunchHandler(object):
             self.hd_requirements.add("setpatch")
             self.copy_setpatch(dest_dir)
 
+        amiga_model = self.config.get("amiga_model", "A500").upper()
+        if amiga_model in ["A500+", "A600"]:
+            workbench_version = "2.04"
+        elif amiga_model.startswith("A1200"):
+            workbench_version = "3.0"
+        elif amiga_model.startswith("A4200"):
+            workbench_version = "3.0"
+        else:
+            workbench_version = None
+
         if "workbench" in self.hd_requirements:
-            amiga_model = self.config.get("amiga_model", "A500").upper()
-            if amiga_model in ["A500+", "A600"]:
-                workbench_version = "2.04"
-            elif amiga_model in ["A1200", "A1200/020", "A4000/040"]:
-                workbench_version = "3.0"
-            else:
-                raise Exception("Unsupported workbench version for "
-                                "hd_requirements")
+            if not workbench_version:
+                raise Exception(
+                    "Unsupported workbench version for hd_requirements")
             extractor = WorkbenchExtractor(self.fsgs)
             extractor.install_version(workbench_version, dest_dir)
-            #install_workbench_files(self.fsgs, dest_dir, workbench_version)
+            # install_workbench_files(self.fsgs, dest_dir, workbench_version)
+
+        for req in self.hd_requirements:
+            if "/" in req:
+                # assume a specific workbench file
+                extractor = WorkbenchExtractor(self.fsgs)
+                extractor.install_version(
+                    workbench_version, dest_dir, [req], startup_sequence=False)
 
         if whdload_args:
-            self.copy_whdload_files(dest_dir, s_dir, libs_dir, devs_dir)
+            self.copy_whdload_files(dest_dir, s_dir)
         elif hdinst_args:
             self.write_startup_sequence(s_dir, hdinst_args)
         elif hd_startup:
@@ -529,13 +619,13 @@ class LaunchHandler(object):
             with open(system_configuration_file, "wb") as f:
                 f.write(system_configuration)
 
-    def copy_whdload_files(self, dest_dir, s_dir, libs_dir, devs_dir):
+    def copy_whdload_files(self, dest_dir, s_dir):
         whdload_args = self.config.get("x_whdload_args", "").strip()
         if not whdload_args:
             return
         print("LaunchHandler.copy_whdload_files")
         current_task.set_progress(gettext("Preparing WHDLoad..."))
-        #self.on_progress(gettext("Preparing WHDLoad..."))
+        # self.on_progress(gettext("Preparing WHDLoad..."))
         print("copy_whdload_files, dest_dir = ", dest_dir)
 
         whdload_dir = ""
@@ -544,7 +634,7 @@ class LaunchHandler(object):
         found_slave = False
         for dir_path, dir_names, file_names in os.walk(dest_dir):
             for name in file_names:
-                #print(name, slave)
+                # print(name, slave)
                 if name.lower() == slave:
                     print("found", name)
                     found_slave = True
@@ -580,9 +670,9 @@ class LaunchHandler(object):
         if not whdload_version:
             whdload_version = DEFAULT_WHDLOAD_VERSION
 
-        for key, value in six.iteritems(whdload_files[whdload_version]):
+        for key, value in whdload_files[whdload_version].items():
             self.install_whdload_file(key, dest_dir, value)
-        for key, value in six.iteritems(whdload_support_files):
+        for key, value in whdload_support_files.items():
             self.install_whdload_file(key, dest_dir, value)
 
         if self.config.get("__netplay_game", ""):
@@ -628,8 +718,7 @@ class LaunchHandler(object):
                 "cd \"{0}\"\n"
                 "kgiconload {1}\n"
                 "uae-configuration SPC_QUIT 1\n".format(
-                whdload_dir,
-                os.path.basename(icon)))
+                    whdload_dir, os.path.basename(icon)))
         else:
             self.write_startup_sequence(
                 s_dir, whdload_sequence.format(whdload_dir, whdload_args))
@@ -638,6 +727,7 @@ class LaunchHandler(object):
         # FIXME: semi-colon is used in WHDLoad CONFIG options...
         command = "\n".join([x.strip() for x in command.split(";")])
         startup_sequence = os.path.join(s_dir, "Startup-Sequence")
+        # if True:
         if not os.path.exists(startup_sequence):
             with open(startup_sequence, "wb") as f:
                 if "setpatch" in self.hd_requirements:
@@ -664,31 +754,20 @@ class LaunchHandler(object):
         Downloader.install_file_by_sha1(sha1, name, abs_path)
 
     def create_whdload_prefs_file(self, path):
-        default_prefs = """
-;ButtonWait            ;wait for button pressed (slave must support this)
-;ChipNoCache            ;disable cachebility of Chip-Memory
-;CoreDumpPath=T:        ;path for coredump files
-;DebugKey=$5b            ;rawkey code to quit with coredump (debug)
-;ExecuteStartup=rx offline.rexx    ;command to execute on WHDLoad startup
-;ExecuteCleanup=rx online.rexx    ;command to execute on WHDLoad exit
-;Expert                ;selects expert mode
-;FreezeKey=$5d            ;rawkey code to enter HrtMon/TK
-;MMU                ;use MMU (for 68030)
-;NoAutoVec            ;ignore unwanted autovector interrupts
-;NoFilter            ;disable audio filter
-;NoFlushMem            ;do not flush memory
-;NoMemReverse            ;do not allocate memory reverse
-;NoWriteCache            ;disable the disk write cache
-;QuitKey=$45
-;ReadDelay=150            ;wait after reading from disk (1/50 seconds)
-;RestartKey=$5c            ;rawkey code to restart
-;ShowRegs=SYS:Utilities/MuchMore W WL=80 WT=80 WW=582 WH=700    ;command for Show Regs
-;SplashDelay=0        ;time to display splash window (1/50 seconds)
-;WriteDelay=150            ;wait after saving something to disk (1/50 seconds)
-"""
+        default_prefs = default_whdload_prefs
         # make sure the data is CRLF line terminated
         default_prefs = default_prefs.replace("\r\n", "\n")
         default_prefs = default_prefs.replace("\n", "\r\n")
+
+        if self.config.get("__netplay_game", ""):
+            print("WHDLoad defaults only in net play mode")
+        else:
+            splash_delay = self.config.get("whdload_splash_delay", "")
+            if splash_delay:
+                default_prefs = default_prefs.replace(
+                    ";SplashDelay=0", "SplashDelay={}".format(
+                        int(splash_delay)))
+
         with open(path, "wb") as f:
             f.write(default_prefs.encode("UTF-8"))
 
@@ -744,7 +823,7 @@ class LaunchHandler(object):
             os.makedirs(dest)
         dest = os.path.join(dest, name)
         for checksum in checksums:
-            #print("find kickstart with sha1", checksum)
+            # print("find kickstart with sha1", checksum)
             path = self.fsgs.file.find_by_sha1(checksum)
             if path:  # and os.path.exists(path):
                 print("found kickstart for", name, "at", path)
@@ -754,6 +833,13 @@ class LaunchHandler(object):
                         ROMManager.decrypt_archive_rom(archive, path, file=f)
                     print(repr(dest))
                     break
+                else:
+                    stream = self.fsgs.file.open(path)
+                    if stream is None:
+                        raise Exception("Cannot find kickstart " + repr(path))
+                    with open(dest, "wb") as f:
+                        f.write(stream.read())
+
         else:
             print("did not find kickstart for", name)
 
@@ -774,7 +860,7 @@ class LaunchHandler(object):
     def cleanup(self):
         print("LaunchHandler.cleanup")
         self.on_progress(gettext("Cleaning up..."))
-        #self.delete_tree(self.temp_dir)
+        # self.delete_tree(self.temp_dir)
         shutil.rmtree(self.temp_dir, ignore_errors=True)
         state_dir = self.get_state_dir()
         try:
@@ -790,22 +876,22 @@ class LaunchHandler(object):
             pass
 
     def prepare_theme(self):
-        #path = self.game_paths.get_theme_path()
-        #if path:
-        #    self.config["theme"] = path
+        # path = self.game_paths.get_theme_path()
+        # if path:
+        #     self.config["theme"] = path
         pass
 
     def prepare_extra_settings(self):
         prefix = self.config.get("screenshots_output_prefix", "")
         if prefix:
             return
-        #name = self.config.get("floppy_drive_0", "")
-        #if not name:
-        #    name = self.config.get("hard_drive_0", "")
-        #if not name:
-        #    name = self.config.get("cdrom_drive_0", "")
-        #if not name:
-        #    name = self.config.get("floppy_image_0", "")
+        # name = self.config.get("floppy_drive_0", "")
+        # if not name:
+        #     name = self.config.get("hard_drive_0", "")
+        # if not name:
+        #     name = self.config.get("cdrom_drive_0", "")
+        # if not name:
+        #     name = self.config.get("floppy_image_0", "")
         name = self.config_name
         if not name:
             name = "fs-uae"
@@ -829,8 +915,8 @@ class LaunchHandler(object):
 
     def run(self):
         print("LaunchHandler.run")
-        #self.on_progress(gettext("Starting FS-UAE..."))
-        #current_task.set_progress(gettext("Starting FS-UAE..."))
+        # self.on_progress(gettext("Starting FS-UAE..."))
+        # current_task.set_progress(gettext("Starting FS-UAE..."))
         current_task.set_progress("")
         config = self.create_config()
         process, config_file = FSUAE.start_with_config(config)
@@ -888,35 +974,33 @@ class LaunchHandler(object):
                     print("copy", repr(itempath), "to", repr(destitempath))
                     shutil.copy(itempath, destitempath)
 
-EVILCHARS = '%\\*?\"/|<>'
 
-
-def amiga_filename_to_host_filename(amiga_filename, ascii=False):
+def amiga_filename_to_host_filename(amiga_name, ascii=False):
     """
     Converted from FS-UAE C code (src/od-fs/fsdb-host.py)
     @author: TheCyberDruid
     """
-    length = len(amiga_filename)
+    length = len(amiga_name)
 
     replace_1 = -1
     replace_2 = -1
 
-    check = amiga_filename[:3].upper()
+    check = amiga_name[:3].upper()
     dot_pos = -1
     if check in ["AUX", "CON", "PRN", "NUL"]:
         dot_pos = 4
-    elif check in ["LPT", "COM"] and length >= 4 and amiga_filename[3].isdigit():        
+    elif check in ["LPT", "COM"] and length >= 4 and amiga_name[3].isdigit():
         dot_pos = 5
     if (dot_pos > -1 and (length == (dot_pos - 1) or (
-            length > dot_pos and amiga_filename[dot_pos] == "."))):
+            length > dot_pos and amiga_name[dot_pos] == "."))):
         replace_1 = 2
 
-    if amiga_filename[-1] == "." or amiga_filename[-1] == " ":
+    if amiga_name[-1] == "." or amiga_name[-1] == " ":
         replace_2 = length - 1
 
     i = 0
     filename = ""
-    for c in amiga_filename:
+    for c in amiga_name:
         x = ord(c)
         replace = False
         if i == replace_1:
@@ -929,11 +1013,11 @@ def amiga_filename_to_host_filename(amiga_filename, ascii=False):
             replace = True
 
         if not replace:
-            for evil in EVILCHARS:
+            for evil in EVIL_CHARS:
                 if evil == c:
                     replace = True
                     break
-        if (i == length - 1) and amiga_filename[-5:] == ".uaem":
+        if (i == length - 1) and amiga_name[-5:] == ".uaem":
             replace = True
 
         if replace:
@@ -945,66 +1029,7 @@ def amiga_filename_to_host_filename(amiga_filename, ascii=False):
 
     return filename
 
-DEFAULT_WHDLOAD_VERSION = "17.2"
-
-whdload_support_files = {
-    "1ad1b55e7226bd5cd66def8370a69f19244da796": "Devs/Kickstarts/kick40068.A1200.RTB",
-    "209c109855f94c935439b60950d049527d2f2484": "Devs/Kickstarts/kick34005.A500.RTB",
-    "973b42dcaf8d6cb111484b3c4d3b719b15f6792d": "Devs/Kickstarts/kick40068.A4000.RTB",
-    "09e4d8a055b4a9801c6b011e7a3de42bafaf070d": "C/uae-configuration",
-    "3b40b7277f0408ebb98526205748138f88d84330": "C/OSEmu.400",
-}
-
-whdload_files = {
-    "10.0": {
-        "3096b2f41dfebf490aac015bdf0e91a80045c2c0": "C/WHDLoad",
-    },
-    "13.0": {
-        "4bcb393e820d68b0520da9131e0d529018e303d1": "C/WHDLoad",
-    },
-    "16.0": {
-        "883b9e37bc81fc081f78a3f278b732f97bdddf5c": "C/WHDLoad",
-    },
-    "16.1": {
-        "250506c2444d9fb89b711b4fba5d70dd554e6f0e": "C/WHDLoad",
-    },
-    "16.2": {
-        "a8bc2828c7da88f6236a8e82c763c71582f66cfd": "C/WHDLoad",
-    },
-    "16.3": {
-        "5d636899fa9332b7dfccd49df3447238b5b71e49": "C/WHDLoad",
-    },
-    "16.4": {
-        "1bb42fc83ee9237a6cfffdf15a3eb730504c9f65": "C/WHDLoad",
-    },
-    "16.5": {
-        "8974e6c828ac18ff1cc29e56a31da0775ddeb0f0": "C/WHDLoad",
-    },
-    "16.6": {
-        "b268bf7a05630d5b2bbf99616b32f282bac997bf": "C/WHDLoad",
-    },
-    "16.7": {
-        "be94bc3d70d5980fac7fd04df996120e8220c1c0": "C/WHDLoad",
-    },
-    "16.8": {
-        "a3286827c821386ac6e0bb519a7df807550d6a70": "C/WHDLoad",
-    },
-    "16.9": {
-        "b4267a21918d6375e1bbdcaee0bc8b812e366802": "C/WHDLoad",
-    },
-    "17.0": {
-        "0ec213a8c62beb3eb3b3509aaa44f21405929fce": "C/WHDLoad",
-    },
-    "17.1": {
-        "1a907ca4539806b42ad5b6f7aeebacb3720e840d": "C/WHDLoad",
-    },
-    "2013-03-01": {
-        "7ee8516eceb9e799295f1b16909749d08f13d26c": "C/WHDLoad",
-    },
-    "17.2": {
-        "d8f45f7808fb1ac356d88b8848660a6b96f04349": "C/WHDLoad",
-    },
-}
+EVIL_CHARS = '%\\*?\"/|<>'
 
 system_configuration = b"\x08\x00\x00\x05\x00\x00\x00\x00\x00\x00" \
     b"\xc3P\x00\x00\x00\x00\x00\t'\xc0\x00\x00\x00\x01\x00\x00N \x00\x00\x00\x00" \
@@ -1128,7 +1153,7 @@ def write_string(f, s):
 def create_slave_icon(path, whdload_args):
     default_tool = "DH0:/C/WHDLoad"
     # FIXME: handle "" around slave name?
-    #args = whdload_args.split(" ")
+    # args = whdload_args.split(" ")
     tool_types = whdload_args.split(" ")
     tool_types[0] = "SLAVE=" + tool_types[0]
 
@@ -1139,6 +1164,15 @@ def create_slave_icon(path, whdload_args):
         for tool_type in tool_types:
             write_string(f, tool_type)
         f.close()
+
+
+def is_sha1(s):
+    if len(s) != 40:
+        return False
+    for c in s:
+        if c not in "0123456789abcdef":
+            return False
+    return True
 
 
 class TestCase(unittest.TestCase):

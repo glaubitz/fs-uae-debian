@@ -221,9 +221,9 @@ static uae_u32 emulib_GetUaeConfig (uaecptr place)
 	int i, j;
 
 	put_long (place, version);
-	put_long (place + 4, allocated_chipmem);
-	put_long (place + 8, allocated_bogomem);
-	put_long (place + 12, allocated_fastmem);
+	put_long (place + 4, chipmem_bank.allocated);
+	put_long (place + 8, bogomem_bank.allocated);
+	put_long (place + 12, fastmem_bank.allocated);
 	put_long (place + 16, currprefs.gfx_framerate);
 	put_long (place + 20, currprefs.produce_sound);
 	put_long (place + 24, currprefs.jports[0].id | (currprefs.jports[1].id << 8));
@@ -360,8 +360,6 @@ static int native_dos_op (uae_u32 mode, uae_u32 p1, uae_u32 p2, uae_u32 p3)
 	return 0;
 }
 
-extern uae_u32 picasso_demux (uae_u32 arg, TrapContext *context);
-
 static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
 {
 #define ARG0 (get_long (m68k_areg (regs, 7) + 4))
@@ -457,7 +455,7 @@ static uae_u32 REGPARAM2 uaelib_demux (TrapContext *context)
 void emulib_install (void)
 {
 	uaecptr a;
-	if (!uae_boot_rom)
+	if (!uae_boot_rom_type)
 		return;
 	a = here ();
 	currprefs.mmkeyboard = 0;

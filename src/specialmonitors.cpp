@@ -7,13 +7,40 @@
 #include "options.h"
 #include "xwin.h"
 #include "custom.h"
+#include "drawing.h"
+#include "memory.h"
+#include "specialmonitors.h"
+#include "debug.h"
 
 static bool automatic;
 static int monitor;
 
 extern unsigned int bplcon0;
+extern uae_u8 **row_map_genlock;
 
 static uae_u8 graffiti_palette[256 * 4];
+
+STATIC_INLINE uae_u8 FVR(struct vidbuffer *src, uae_u8 *dataline)
+{
+	if (src->pixbytes == 4)
+		return dataline[2];
+	else
+		return ((((uae_u16*)dataline)[0] >> 11) & 31) << 3;
+}
+STATIC_INLINE uae_u8 FVG(struct vidbuffer *src, uae_u8 *dataline)
+{
+	if (src->pixbytes == 4)
+		return dataline[1];
+	else
+		return ((((uae_u16*)dataline)[0] >> 5) & 63) << 2;
+}
+STATIC_INLINE uae_u8 FVB(struct vidbuffer *src, uae_u8 *dataline)
+{
+	if (src->pixbytes == 4)
+		return dataline[0];
+	else
+		return ((((uae_u16*)dataline)[0] >> 0) & 31) << 2;
+}
 
 STATIC_INLINE bool FR(struct vidbuffer *src, uae_u8 *dataline)
 {
@@ -44,6 +71,30 @@ STATIC_INLINE bool FI(struct vidbuffer *src, uae_u8 *dataline)
 		return ((dataline[0] >> 1) & 1) != 0;
 }
 
+STATIC_INLINE uae_u8 FIRGB(struct vidbuffer *src, uae_u8 *dataline)
+{
+	uae_u8 v = 0;
+#if 1
+	if (FI(src, dataline))
+		v |= 1;
+	if (FR(src, dataline))
+		v |= 8;
+	if (FG(src, dataline))
+		v |= 4;
+	if (FB(src, dataline))
+		v |= 2;
+#else
+	if (FI(src, dataline))
+		v |= 1 << scramble[scramble_counter * 4 + 0];
+	if (FR(src, dataline))
+		v |= 1 << scramble[scramble_counter * 4 + 1];
+	if (FG(src, dataline))
+		v |= 1 << scramble[scramble_counter * 4 + 2];
+	if (FB(src, dataline))
+		v |= 1 << scramble[scramble_counter * 4 + 3];
+#endif
+	return v;
+}
 
 STATIC_INLINE void PRGB(struct vidbuffer *dst, uae_u8 *dataline, uae_u8 r, uae_u8 g, uae_u8 b)
 {
@@ -59,6 +110,52 @@ STATIC_INLINE void PRGB(struct vidbuffer *dst, uae_u8 *dataline, uae_u8 r, uae_u
 	}
 }
 
+STATIC_INLINE void PUT_PRGB(uae_u8 *d, uae_u8 *d2, struct vidbuffer *dst, uae_u8 r, uae_u8 g, uae_u8 b, int xadd, int doublelines, bool hdouble)
+{
+	if (hdouble)
+		PRGB(dst, d - dst->pixbytes, r, g, b);
+	PRGB(dst, d, r, g, b);
+	if (xadd >= 2) {
+		PRGB(dst, d + 1 * dst->pixbytes, r, g, b);
+		if (hdouble)
+			PRGB(dst, d + 2 * dst->pixbytes, r, g, b);
+	}
+	if (doublelines) {
+		if (hdouble)
+			PRGB(dst, d2 - dst->pixbytes, r, g, b);
+		PRGB(dst, d2, r, g, b);
+		if (xadd >= 2) {
+			PRGB(dst, d2 + 1 * dst->pixbytes, r, g, b);
+			if (hdouble)
+				PRGB(dst, d2 + 2 * dst->pixbytes, r, g, b);
+		}
+	}
+}
+
+STATIC_INLINE void PUT_AMIGARGB(uae_u8 *d, uae_u8 *s, uae_u8 *d2, uae_u8 *s2, struct vidbuffer *dst, int xadd, int doublelines, bool hdouble)
+{
+	if (dst->pixbytes == 4) {
+		if (hdouble)
+			((uae_u32*)d)[-1] = ((uae_u32*)s)[-1];
+		((uae_u32*)d)[0] = ((uae_u32*)s)[0];
+	} else {
+		if (hdouble)
+			((uae_u16*)d)[-1] = ((uae_u16*)s)[-1];
+		((uae_u16*)d)[0] = ((uae_u16*)s)[0];
+	}
+	if (doublelines) {
+		if (dst->pixbytes == 4) {
+			if (hdouble)
+				((uae_u32*)d2)[-1] = ((uae_u32*)s2)[-1];
+			((uae_u32*)d2)[0] = ((uae_u32*)s2)[0];
+		} else {
+			if (hdouble)
+				((uae_u16*)d2)[-1] = ((uae_u16*)s2)[-1];
+			((uae_u16*)d2)[0] = ((uae_u16*)s2)[0];
+		}
+	}
+}
+
 static void clearmonitor(struct vidbuffer *dst)
 {
 	uae_u8 *p = dst->bufmem;
@@ -66,6 +163,1244 @@ static void clearmonitor(struct vidbuffer *dst)
 		memset(p, 0, dst->width_allocated * dst->pixbytes);
 		p += dst->rowbytes;
 	}
+}
+
+static bool dctv(struct vidbuffer *src, struct vidbuffer *dst, bool doublelines, int oddlines)
+{
+	int y, x, vdbl, hdbl;
+	int ystart, yend, isntsc;
+	int xadd;
+
+	isntsc = (beamcon0 & 0x20) ? 0 : 1;
+	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		isntsc = currprefs.ntscmode ? 1 : 0;
+
+	vdbl = gfxvidinfo.ychange;
+	hdbl = gfxvidinfo.xchange;
+
+	xadd = ((1 << 1) / hdbl) * src->pixbytes;
+
+	ystart = isntsc ? VBLANK_ENDLINE_NTSC : VBLANK_ENDLINE_PAL;
+	yend = isntsc ? MAXVPOS_NTSC : MAXVPOS_PAL;
+
+	oddlines = 1;
+
+	uae_u8 r, g, b;
+	for (y = ystart; y < yend; y += 2) {
+		int yoff = (((y * 2 + oddlines) - src->yoffset) / vdbl);
+		if (yoff < 0)
+			continue;
+		if (yoff >= src->inheight)
+			continue;
+		uae_u8 *line = src->bufmem + yoff * src->rowbytes;
+		uae_u8 *dstline = dst->bufmem + (((y * 2 + oddlines) - dst->yoffset) / vdbl) * dst->rowbytes;
+
+		if (y < 60) {
+			write_log(_T("%d:\n"), y);
+			for (x = 22; x < 300; x += 1) {
+				uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+				write_log(_T("%01x"), FIRGB(src, s));
+			}
+			write_log(_T("*\n"));
+			for (x = 21; x < 300; x += 1) {
+				uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+				write_log(_T("%01x"), FIRGB(src, s));
+			}
+			write_log(_T("\n"));
+		}
+
+		for (x = 1; x < src->inwidth; x += 4) {
+			uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+			uae_u8 *d = dstline + ((x << 1) / hdbl) * dst->pixbytes;
+			uae_u8 *s2 = s + src->rowbytes;
+			uae_u8 *d2 = d + dst->rowbytes;
+			uae_u8 newval = FIRGB(src, s);
+
+			r = newval << 4;
+			g = newval << 4;
+			b = newval << 4;
+
+			for (int xx = 0; xx < 4; xx++) {
+				PRGB(dst, d + dst->pixbytes * xx, r, g, b);
+				PRGB(dst, d + dst->rowbytes + dst->pixbytes * xx, r, g, b);
+			}
+
+
+		}
+	}
+	dst->nativepositioning = true;
+	return true;
+}
+
+static void blank_generic(struct vidbuffer *src, struct vidbuffer *dst, int oddlines)
+{
+	int y, vdbl;
+	int ystart, yend, isntsc;
+
+	isntsc = (beamcon0 & 0x20) ? 0 : 1;
+	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		isntsc = currprefs.ntscmode ? 1 : 0;
+
+	vdbl = gfxvidinfo.ychange;
+
+	ystart = isntsc ? VBLANK_ENDLINE_NTSC : VBLANK_ENDLINE_PAL;
+	yend = isntsc ? MAXVPOS_NTSC : MAXVPOS_PAL;
+
+	for (y = ystart; y < yend; y++) {
+		int yoff = (((y * 2 + oddlines) - src->yoffset) / vdbl);
+		if (yoff < 0)
+			continue;
+		if (yoff >= src->inheight)
+			continue;
+		uae_u8 *dstline = dst->bufmem + (((y * 2 + oddlines) - dst->yoffset) / vdbl) * dst->rowbytes;
+		memset(dstline, 0, dst->inwidth * dst->pixbytes);
+	}
+}
+
+static uae_u8 *sm_frame_buffer;
+#define SM_VRAM_WIDTH 1024
+#define SM_VRAM_HEIGHT 800
+#define SM_VRAM_BYTES 4
+static int sm_configured;
+static uae_u8 sm_acmemory[128];
+
+static void sm_alloc_fb(void)
+{
+	if (!sm_frame_buffer) {
+		sm_frame_buffer = xcalloc(uae_u8, SM_VRAM_WIDTH * SM_VRAM_HEIGHT * SM_VRAM_BYTES);
+	}
+}
+static void sm_free(void)
+{
+	xfree(sm_frame_buffer);
+	sm_frame_buffer = NULL;
+	sm_configured = 0;
+}
+
+#define FC24_MAXHEIGHT 482
+static uae_u8 fc24_mode, fc24_cr0, fc24_cr1;
+static uae_u16 fc24_hpos, fc24_vpos, fc24_width;
+static int fc24_offset;
+
+STATIC_INLINE uae_u8 MAKEFCOVERLAY(uae_u8 v)
+{
+	v &= 3;
+	v |= v << 2;
+	v |= v << 4;
+	v |= v << 6;
+	return v;
+}
+
+static bool firecracker24(struct vidbuffer *src, struct vidbuffer *dst, bool doublelines, int oddlines)
+{
+	int y, x, vdbl, hdbl;
+	int fc24_y, fc24_x, fc24_dx, fc24_xadd, fc24_xmult, fc24_xoffset;
+	int ystart, yend, isntsc;
+	int xadd, xaddfc;
+	int bufferoffset;
+
+	// FC disabled and Amiga enabled?
+	if (!(fc24_cr1 & 1) && !(fc24_cr0 & 1))
+		return false;
+
+	isntsc = (beamcon0 & 0x20) ? 0 : 1;
+	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		isntsc = currprefs.ntscmode ? 1 : 0;
+
+	vdbl = gfxvidinfo.ychange;
+	hdbl = gfxvidinfo.xchange; // 4=lores,2=hires,1=shres
+
+	xaddfc = (1 << 1) / hdbl; // 0=lores,1=hires,2=shres
+	xadd = xaddfc * src->pixbytes;
+	
+
+	ystart = isntsc ? VBLANK_ENDLINE_NTSC : VBLANK_ENDLINE_PAL;
+	yend = isntsc ? MAXVPOS_NTSC : MAXVPOS_PAL;
+
+	switch (fc24_width)
+	{
+		case 384:
+		fc24_xmult = 0;
+		break;
+		case 512:
+		fc24_xmult = 1;
+		break;
+		case 768:
+		fc24_xmult = 1;
+		break;
+		case 1024:
+		fc24_xmult = 2;
+		break;
+		default:
+		return false;
+	}
+	
+	if (fc24_xmult >= xaddfc) {
+		fc24_xadd = fc24_xmult - xaddfc;
+		fc24_dx = 0;
+	} else {
+		fc24_xadd = 0;
+		fc24_dx = xaddfc - fc24_xmult;
+	}
+
+	fc24_xoffset = ((src->inwidth - ((fc24_width << fc24_dx) >> fc24_xadd)) / 2);
+	fc24_xadd = 1 << fc24_xadd;
+
+	bufferoffset = (fc24_cr0 & 2) ? 512 * SM_VRAM_BYTES: 0;
+
+	fc24_y = 0;
+	for (y = ystart; y < yend; y++) {
+		int oddeven = 0;
+		uae_u8 prev = 0;
+		int yoff = (((y * 2 + oddlines) - src->yoffset) / vdbl);
+		if (yoff < 0)
+			continue;
+		if (yoff >= src->inheight)
+			continue;
+		uae_u8 *line = src->bufmem + yoff * src->rowbytes;
+		uae_u8 *line_genlock = row_map_genlock[yoff];
+		uae_u8 *dstline = dst->bufmem + (((y * 2 + oddlines) - dst->yoffset) / vdbl) * dst->rowbytes;
+		uae_u8 *vramline = sm_frame_buffer + (fc24_y + oddlines) * SM_VRAM_WIDTH * SM_VRAM_BYTES + bufferoffset;
+		fc24_x = 0;
+		for (x = 0; x < src->inwidth; x++) {
+			uae_u8 r = 0, g = 0, b = 0;
+			uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+			uae_u8 *s_genlock = line_genlock + ((x << 1) / hdbl);
+			uae_u8 *d = dstline + ((x << 1) / hdbl) * dst->pixbytes;
+			int fc24_xx = (fc24_x >> fc24_dx) - fc24_xoffset;
+			uae_u8 *vramptr = NULL;
+			if (fc24_xx >= 0 && fc24_xx < fc24_width && fc24_y >= 0 && fc24_y < FC24_MAXHEIGHT) {
+				vramptr = vramline + fc24_xx * SM_VRAM_BYTES;
+				uae_u8 ax = vramptr[0];
+				if (ax & 0x40) {
+					r = MAKEFCOVERLAY(ax >> 4);
+					g = MAKEFCOVERLAY(ax >> 2);
+					b = MAKEFCOVERLAY(ax >> 0);
+				} else {
+					r = vramptr[1];
+					g = vramptr[2];
+					b = vramptr[3];
+				}
+			}
+			if (!(fc24_cr0 & 1) && (!(fc24_cr1 & 1) || (s_genlock[0] != 0))) {
+				uae_u8 *s2 = s + src->rowbytes;
+				uae_u8 *d2 = d + dst->rowbytes;
+				PUT_AMIGARGB(d, s, d2, s2, dst, xadd, doublelines, false);
+			} else {
+				PUT_PRGB(d, NULL, dst, r, g, b, 0, false, false);
+				if (doublelines) {
+					if (vramptr) {
+						vramptr += SM_VRAM_WIDTH * SM_VRAM_BYTES;
+						uae_u8 ax = vramptr[0];
+						if (ax & 0x40) {
+							r = MAKEFCOVERLAY(ax >> 4);
+							g = MAKEFCOVERLAY(ax >> 2);
+							b = MAKEFCOVERLAY(ax >> 0);
+						} else {
+							r = vramptr[1];
+							g = vramptr[2];
+							b = vramptr[3];
+						}
+					}
+					PUT_PRGB(d + dst->rowbytes, NULL, dst, r, g, b, 0, false, false);
+				}
+			}
+			fc24_x += fc24_xadd;
+		}
+		fc24_y += 2;
+	}
+
+	dst->nativepositioning = true;
+	if (monitor != MONITOREMU_FIRECRACKER24) {
+		monitor = MONITOREMU_FIRECRACKER24;
+		write_log(_T("FireCracker mode\n"));
+	}
+
+	return true;
+}
+
+static void fc24_setoffset(void)
+{
+	fc24_vpos &= 511;
+	fc24_hpos &= 1023;
+	fc24_offset = fc24_vpos * SM_VRAM_WIDTH * SM_VRAM_BYTES + fc24_hpos * SM_VRAM_BYTES;
+	sm_alloc_fb();
+}
+
+static void fc24_inc(uaecptr addr, bool write)
+{
+	addr &= 65535;
+	if (addr >= 6) {
+		fc24_hpos++;
+		if (fc24_hpos >= 1024) {
+			fc24_hpos = 0;
+			fc24_vpos++;
+			fc24_vpos &= 511;
+		}
+		fc24_setoffset();
+	}
+}
+
+static void fc24_setmode(void)
+{
+	switch (fc24_cr0 >> 6)
+	{
+		case 0:
+		fc24_width = 384;
+		break;
+		case 1:
+		fc24_width = 512;
+		break;
+		case 2:
+		fc24_width = 768;
+		break;
+		case 3:
+		fc24_width = 1024;
+		break;
+	}
+	sm_alloc_fb();
+}
+
+static void fc24_reset(void)
+{
+	if (currprefs.monitoremu != MONITOREMU_FIRECRACKER24)
+		return;
+	fc24_cr0 = 0;
+	fc24_cr1 = 0;
+	fc24_setmode();
+	fc24_setoffset();
+}
+
+static void firecracker24_write_byte(uaecptr addr, uae_u8 v)
+{
+	addr &= 65535;
+	switch (addr)
+	{
+		default:
+		if (!sm_frame_buffer)
+			return;
+		sm_frame_buffer[fc24_offset + (addr & 3)] = v;
+		break;
+		case 10:
+		fc24_cr0 = v;
+		fc24_setmode();
+		write_log(_T("FC24_CR0 = %02x\n"), fc24_cr0);
+		break;
+		case 11:
+		fc24_cr1 = v;
+		sm_alloc_fb();
+		write_log(_T("FC24_CR1 = %02x\n"), fc24_cr1);
+		break;
+		case 12:
+		fc24_vpos &= 0x00ff;
+		fc24_vpos |= v << 8;
+		fc24_setoffset();
+		break;
+		case 13:
+		fc24_vpos &= 0xff00;
+		fc24_vpos |= v;
+		fc24_setoffset();
+		//write_log(_T("V=%d "), fc24_vpos);
+		break;
+		case 14:
+		fc24_hpos &= 0x00ff;
+		fc24_hpos |= v << 8;
+		fc24_setoffset();
+		break;
+		case 15:
+		fc24_hpos &= 0xff00;
+		fc24_hpos |= v;
+		fc24_setoffset();
+		//write_log(_T("H=%d "), fc24_hpos);
+		break;
+	}
+}
+
+static uae_u8 firecracker24_read_byte(uaecptr addr)
+{
+	uae_u8 v = 0;
+	addr &= 65535;
+	switch (addr)
+	{
+		default:
+		if (!sm_frame_buffer)
+			return v;
+		v = sm_frame_buffer[fc24_offset + (addr & 3)];
+		break;
+		case 10:
+		v = fc24_cr0;
+		break;
+		case 11:
+		v = fc24_cr1;
+		break;
+		case 12:
+		v = fc24_vpos >> 8;
+		break;
+		case 13:
+		v = fc24_vpos >> 0;
+		break;
+		case 14:
+		v = fc24_hpos >> 8;
+		break;
+		case 15:
+		v = fc24_hpos >> 0;
+		break;
+	}
+	return v;
+}
+
+static void firecracker24_write(uaecptr addr, uae_u32 v, int size)
+{
+	int offset = addr & 3;
+	uaecptr oaddr = addr;
+	int shift = 8 * (size - 1);
+	while (size > 0 && addr < 10) {
+		int off = fc24_offset + offset;
+		if ((offset & 3) == 0) {
+			if (!(fc24_cr1 & 0x80))
+				sm_frame_buffer[off] = v >> shift;
+		} else {
+			sm_frame_buffer[off] = v >> shift;
+		}
+		offset++;
+		size--;
+		shift -= 8;
+		addr++;
+	}
+	fc24_inc(oaddr, true);
+}
+
+static uae_u32 firecracker24_read(uaecptr addr, int size)
+{
+	uae_u32 v = 0;
+	uaecptr oaddr = addr;
+	int offset = addr & 3;
+	while (size > 0 && addr < 10) {
+		v <<= 8;
+		v |= sm_frame_buffer[fc24_offset + offset];
+		offset++;
+		size--;
+		addr++;
+	}
+	fc24_inc(oaddr, false);
+	return v;
+}
+
+extern addrbank specialmonitors_bank;
+
+static void REGPARAM2 sm_bput(uaecptr addr, uae_u32 b)
+{
+#ifdef JIT
+	special_mem |= S_WRITE;
+#endif
+	b &= 0xff;
+	addr &= 65535;
+	if (!sm_configured) {
+		switch (addr) {
+			case 0x48:
+			map_banks(&specialmonitors_bank, expamem_z2_pointer >> 16, 65536 >> 16, 0);
+			sm_configured = 1;
+			expamem_next(&specialmonitors_bank, NULL);
+			break;
+			case 0x4c:
+			sm_configured = -1;
+			expamem_shutup(&specialmonitors_bank);
+			break;
+		}
+		return;
+	}
+	if (sm_configured > 0) {
+		if (addr < 10) {
+			firecracker24_write(addr, b, 1);
+		} else {
+			firecracker24_write_byte(addr, b);
+		}
+	}
+}
+static void REGPARAM2 sm_wput(uaecptr addr, uae_u32 b)
+{
+#ifdef JIT
+	special_mem |= S_WRITE;
+#endif
+	addr &= 65535;
+	if (addr < 10) {
+		firecracker24_write(addr, b, 2);
+	} else {
+		firecracker24_write_byte(addr + 0, b >> 8);
+		firecracker24_write_byte(addr + 1, b >> 0);
+	}
+}
+
+static void REGPARAM2 sm_lput(uaecptr addr, uae_u32 b)
+{
+#ifdef JIT
+	special_mem |= S_WRITE;
+#endif
+	addr &= 65535;
+	if (addr < 10) {
+		firecracker24_write(addr + 0, b >> 16, 2);
+		firecracker24_write(addr + 2, b >>  0, 2);
+	} else {
+		firecracker24_write_byte(addr + 0, b >> 24);
+		firecracker24_write_byte(addr + 1, b >> 16);
+		firecracker24_write_byte(addr + 2, b >> 8);
+		firecracker24_write_byte(addr + 3, b >> 0);
+	}
+}
+static uae_u32 REGPARAM2 sm_bget(uaecptr addr)
+{
+	uae_u8 v = 0;
+#ifdef JIT
+	special_mem |= S_READ;
+#endif
+	addr &= 65535;
+	if (!sm_configured) {
+		if (addr >= sizeof sm_acmemory)
+			return 0;
+		return sm_acmemory[addr];
+	}
+	if (sm_configured > 0) {
+		if (addr < 10) {
+			v = firecracker24_read(addr, 1);
+		} else {
+			v = firecracker24_read_byte(addr);
+		}
+	}
+	return v;
+}
+static uae_u32 REGPARAM2 sm_wget(uaecptr addr)
+{
+	uae_u16 v;
+#ifdef JIT
+	special_mem |= S_READ;
+#endif
+	addr &= 65535;
+	if (addr < 10) {
+		v = firecracker24_read(addr, 2);
+	} else {
+		v = firecracker24_read_byte(addr) << 8;
+		v |= firecracker24_read_byte(addr + 1) << 0;
+	}
+	return v;
+}
+static uae_u32 REGPARAM2 sm_lget(uaecptr addr)
+{
+	uae_u32 v;
+#ifdef JIT
+	special_mem |= S_READ;
+#endif
+	addr &= 65535;
+	if (addr < 10) {
+		v  = firecracker24_read(addr + 0, 2) << 16;
+		v |= firecracker24_read(addr + 2, 2) <<  0;
+	} else {
+		v = firecracker24_read_byte(addr) << 24;
+		v |= firecracker24_read_byte(addr + 1) << 16;
+		v |= firecracker24_read_byte(addr + 2) << 8;
+		v |= firecracker24_read_byte(addr + 3) << 0;
+	}
+	return v;
+}
+
+addrbank specialmonitors_bank = {
+	sm_lget, sm_wget, sm_bget,
+	sm_lput, sm_wput, sm_bput,
+	default_xlate, default_check, NULL, NULL, _T("DisplayAdapter"),
+	dummy_lgeti, dummy_wgeti, ABFLAG_IO
+};
+
+static void ew(int addr, uae_u32 value)
+{
+	addr &= 0xffff;
+	if (addr == 00 || addr == 02 || addr == 0x40 || addr == 0x42) {
+		sm_acmemory[addr] = (value & 0xf0);
+		sm_acmemory[addr + 2] = (value & 0x0f) << 4;
+	} else {
+		sm_acmemory[addr] = ~(value & 0xf0);
+		sm_acmemory[addr + 2] = ~((value & 0x0f) << 4);
+	}
+}
+
+static const uae_u8 firecracker24_autoconfig[16] = { 0xc1, 0, 0, 0, 2104 >> 8, 2104 & 255 };
+
+addrbank *specialmonitor_autoconfig_init(int devnum)
+{
+	sm_configured = 0;
+	memset(sm_acmemory, 0xff, sizeof sm_acmemory);
+	for (int i = 0; i < 16; i++) {
+		uae_u8 b = firecracker24_autoconfig[i];
+		ew(i * 4, b);
+	}
+	return &specialmonitors_bank;
+}
+
+static bool do_firecracker24(struct vidbuffer *src, struct vidbuffer *dst)
+{
+	bool v;
+	if (interlace_seen) {
+		if (currprefs.gfx_iscanlines) {
+			v = firecracker24(src, dst, false, lof_store ? 0 : 1);
+			if (v && currprefs.gfx_iscanlines > 1)
+				blank_generic(src, dst, lof_store ? 1 : 0);
+		} else {
+			v = firecracker24(src, dst, false, 0);
+			v |= firecracker24(src, dst, false, 1);
+		}
+	} else {
+		v = firecracker24(src, dst, true, 0);
+	}
+	return v;
+}
+
+static uae_u16 avideo_previous_fmode[2];
+static int av24_offset[2];
+static int av24_doublebuffer[2];
+static int av24_writetovram[2];
+static int av24_mode[2];
+static int avideo_allowed;
+
+static bool avideo(struct vidbuffer *src, struct vidbuffer *dst, bool doublelines, int oddlines, int lof)
+{
+	int y, x, vdbl, hdbl;
+	int ystart, yend, isntsc;
+	int xadd, xaddpix;
+	int mode;
+	int offset = -1;
+	bool writetovram;
+	bool av24;
+	int doublebuffer = -1;
+	uae_u16 fmode;
+	
+	fmode = avideo_previous_fmode[lof];
+
+	if (currprefs.monitoremu == MONITOREMU_AUTO) {
+		if (!avideo_allowed)
+			return false;
+		av24 = avideo_allowed == 24;
+	} else {
+		av24 = currprefs.monitoremu == MONITOREMU_AVIDEO24;
+	}
+
+	if (currprefs.chipset_mask & CSMASK_AGA)
+		return false;
+
+	if (av24) {
+		writetovram = av24_writetovram[lof] != 0;
+		mode = av24_mode[lof];
+	} else {
+		mode = fmode & 7;
+		if (mode == 1)
+			offset = 0;
+		else if (mode == 3)
+			offset = 1;
+		else if (mode == 2)
+			offset = 2;
+		writetovram = offset >= 0;
+	}
+
+	if (!mode)
+		return false;
+
+	sm_alloc_fb();
+
+	//write_log(_T("%04x %d %d %d\n"), avideo_previous_fmode[oddlines], mode, offset, writetovram);
+
+	isntsc = (beamcon0 & 0x20) ? 0 : 1;
+	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		isntsc = currprefs.ntscmode ? 1 : 0;
+
+	vdbl = gfxvidinfo.ychange;
+	hdbl = gfxvidinfo.xchange;
+
+	xaddpix = (1 << 1) / hdbl;
+	xadd = ((1 << 1) / hdbl) * src->pixbytes;
+
+	ystart = isntsc ? VBLANK_ENDLINE_NTSC : VBLANK_ENDLINE_PAL;
+	yend = isntsc ? MAXVPOS_NTSC : MAXVPOS_PAL;
+
+	for (y = ystart; y < yend; y++) {
+		int oddeven = 0;
+		uae_u8 prev = 0;
+		int yoff = (((y * 2 + oddlines) - src->yoffset) / vdbl);
+		if (yoff < 0)
+			continue;
+		if (yoff >= src->inheight)
+			continue;
+		uae_u8 *line = src->bufmem + yoff * src->rowbytes;
+		uae_u8 *dstline = dst->bufmem + (((y * 2 + oddlines) - dst->yoffset) / vdbl) * dst->rowbytes;
+		uae_u8 *vramline = sm_frame_buffer + y * 2 * SM_VRAM_WIDTH * SM_VRAM_BYTES;
+
+		if (av24) {
+			vramline += av24_offset[lof];
+		} else {
+			if (fmode & 0x10)
+				vramline += SM_VRAM_WIDTH * SM_VRAM_BYTES;
+		}
+
+		for (x = 0; x < src->inwidth; x++) {
+			uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+			uae_u8 *d = dstline + ((x << 1) / hdbl) * dst->pixbytes;
+			uae_u8 *vramptr = vramline + ((x << 1) / hdbl) * SM_VRAM_BYTES;
+			uae_u8 *s2 = s + src->rowbytes;
+			uae_u8 *d2 = d + dst->rowbytes;
+			if (writetovram) {
+				uae_u8 val[3];
+				val[0] = FVR(src, s) >> 4;
+				val[1] = FVG(src, s) >> 4;
+				val[2] = FVB(src, s) >> 4;
+				if (av24) {
+					uae_u8 v;
+
+					/*
+					R3 = 20 08 08 08
+					R2 = 20 01 01 01
+					R1 = 10 02 02 02
+					R0 = 08 04 04 04
+
+					G3 = 20 04 04 04
+					G2 = 10 08 08 08
+					G1 = 10 01 01 01
+					G0 = 08 02 02 02
+
+					B3 = 20 02 02 02
+					B2 = 10 04 04 04
+					B1 = 08 08 08 08
+					B0 = 08 01 01 01
+					*/
+
+					uae_u8 rval = vramptr[0];
+					uae_u8 gval = vramptr[1];
+					uae_u8 bval = vramptr[2];
+
+					/* This probably should use lookup tables.. */
+
+					if (fmode & 0x01) { // Red (low)
+
+						v = (((val[0] >> 2) & 1) << 0);
+						rval &= ~(0x01);
+						rval |= v;
+
+						v = (((val[1] >> 1) & 1) << 0);
+						gval &= ~(0x01);
+						gval |= v;
+
+						v = (((val[2] >> 3) & 1) << 1) | (((val[2] >> 0) & 1) << 0);
+						bval &= ~(0x02 | 0x01);
+						bval |= v;
+					}
+
+					if (fmode & 0x02) { // Green (low)
+
+						v = (((val[0] >> 1) & 1) << 1);
+						rval &= ~(0x02);
+						rval |= v;
+
+						v = (((val[1] >> 0) & 1) << 1) | (((val[1] >> 3) & 1) << 2);
+						gval &= ~(0x02 | 0x04);
+						gval |= v;
+
+						v = (((val[2] >> 2) & 1) << 2);
+						bval &= ~(0x04);
+						bval |= v;
+					}
+
+					if (fmode & 0x04) { // Blue (low)
+
+						v = (((val[0] >> 0) & 1) << 2) | (((val[0] >> 3) & 1) << 3);
+						rval &= ~(0x04 | 0x08);
+						rval |= v;
+
+						v = (((val[1] >> 2) & 1) << 3);
+						gval &= ~(0x08);
+						gval |= v;
+
+						v = (((val[2] >> 1) & 1) << 3);
+						bval &= ~(0x08);
+						bval |= v;
+					}
+
+					if (fmode & 0x08) { // Red (high)
+						
+						v = (((val[0] >> 2) & 1) << 4);
+						rval &= ~(0x10);
+						rval |= v;
+						
+						v = (((val[1] >> 1) & 1) << 4);
+						gval &= ~(0x10);
+						gval |= v;
+
+						v = (((val[2] >> 3) & 1) << 5) | (((val[2] >> 0) & 1) << 4);
+						bval &= ~(0x20 | 0x10);
+						bval |= v;
+					}
+
+					if (fmode & 0x10) { // Green (high)
+
+						v = (((val[0] >> 1) & 1) << 5);
+						rval &= ~(0x20);
+						rval |= v;
+
+						v = (((val[1] >> 0) & 1) << 5) | (((val[1] >> 3) & 1) << 6);
+						gval &= ~(0x20 | 0x40);
+						gval |= v;
+
+						v = (((val[2] >> 2) & 1) << 6);
+						bval &= ~(0x40);
+						bval |= v;
+					}
+
+					if (fmode & 0x20) { // Blue (high)
+
+						v = (((val[0] >> 0) & 1) << 6) | (((val[0] >> 3) & 1) << 7);
+						rval &= ~(0x40 | 0x80);
+						rval |= v;
+
+						v = (((val[1] >> 2) & 1) << 7);
+						gval &= ~(0x80);
+						gval |= v;
+
+						v = (((val[2] >> 1) & 1) << 7);
+						bval &= ~(0x80);
+						bval |= v;
+					}
+
+					if (av24_doublebuffer[lof] == 0 && (fmode & (0x08 | 0x10 | 0x20))) {
+						rval = (rval & 0xf0) | (rval >> 4);
+						gval = (gval & 0xf0) | (gval >> 4);
+						bval = (bval & 0xf0) | (bval >> 4);
+					}
+
+					vramptr[0] = rval;
+					vramptr[1] = gval;
+					vramptr[2] = bval;
+
+				} else {
+
+					uae_u8 v = val[offset];
+					vramptr[offset] = (v << 4) | (v & 15);
+
+				}
+			}
+			if (writetovram || mode == 7 || (mode == 6 && FVR(src, s) == 0 && FVG(src, s) == 0 && FVB(src, s) == 0)) {
+				uae_u8 r, g, b;
+				r = vramptr[0];
+				g = vramptr[1];
+				b = vramptr[2];
+				if (av24_doublebuffer[lof] == 1) {
+					r = (r << 4) | (r & 0x0f);
+					g = (g << 4) | (g & 0x0f);
+					b = (b << 4) | (b & 0x0f);
+				} else if (av24_doublebuffer[lof] == 2) {
+					r = (r >> 4) | (r & 0xf0);
+					g = (g >> 4) | (g & 0xf0);
+					b = (b >> 4) | (b & 0xf0);
+				}
+				PUT_PRGB(d, d2, dst, r, g, b, xaddpix, doublelines, false);
+			} else {
+				PUT_AMIGARGB(d, s, d2, s2, dst, xaddpix, doublelines, false);
+			}
+		}
+	}
+
+	dst->nativepositioning = true;
+	if (monitor != MONITOREMU_AVIDEO12 && monitor != MONITOREMU_AVIDEO24) {
+		monitor = av24 ? MONITOREMU_AVIDEO24 : MONITOREMU_AVIDEO12;
+		write_log (_T("AVIDEO%d mode\n"), av24 ? 24 : 12);
+	}
+
+	return true;
+}
+
+void specialmonitor_store_fmode(int vpos, int hpos, uae_u16 fmode)
+{
+	int lof = lof_store ? 0 : 1;
+	if (vpos < 0) {
+		for (int i = 0; i < 2; i++) {
+			avideo_previous_fmode[i] = 0;
+			av24_offset[i] = 0;
+			av24_doublebuffer[i] = 0;
+			av24_mode[i] = 0;
+			av24_writetovram[i] = 0;
+		}
+		avideo_allowed = 0;
+		return;
+	}
+	if (currprefs.monitoremu == MONITOREMU_AUTO) {
+		if ((fmode & 0x0080))
+			avideo_allowed = 24;
+		if ((fmode & 0x00f0) < 0x40 && !avideo_allowed)
+			avideo_allowed = 12;
+		if (!avideo_allowed)
+			return;
+	}
+	//write_log(_T("%04x\n"), fmode);
+
+	if (fmode == 0x91) {
+		av24_offset[lof] = SM_VRAM_WIDTH * SM_VRAM_BYTES;
+	}
+	if (fmode == 0x92) {
+		av24_offset[lof] = 0;
+	}
+
+	if (fmode & 0x8000) {
+		av24_doublebuffer[lof] = (fmode & 0x4000) ? 1 : 2;
+		av24_mode[lof] = 6;
+	}
+
+	if ((fmode & 0xc0) == 0x40) {
+		av24_writetovram[lof] = (fmode & 0x3f) != 0;
+	}
+
+	if (fmode == 0x80) {
+		av24_mode[lof] = 0;
+	}
+
+	if (fmode == 0x13) {
+		av24_mode[lof] = 6;
+		av24_doublebuffer[lof] = 0;
+	}
+
+	avideo_previous_fmode[lof] = fmode;
+}
+
+static bool do_avideo(struct vidbuffer *src, struct vidbuffer *dst)
+{
+	bool v;
+	int lof = lof_store ? 0 : 1;
+	if (interlace_seen) {
+		if (currprefs.gfx_iscanlines) {
+			v = avideo(src, dst, false, lof, lof);
+			if (v && currprefs.gfx_iscanlines > 1)
+				blank_generic(src, dst, !lof);
+		} else {
+			v = avideo(src, dst, false, 0, 0);
+			v |= avideo(src, dst, false, 1, 1);
+		}
+	} else {
+		v = avideo(src, dst, true, 0, lof);
+	}
+	return v;
+}
+
+
+static bool videodac18(struct vidbuffer *src, struct vidbuffer *dst, bool doublelines, int oddlines)
+{
+	int y, x, vdbl, hdbl;
+	int ystart, yend, isntsc;
+	int xadd, xaddpix;
+	uae_u16 hsstrt, hsstop, vsstrt, vsstop;
+	int xstart, xstop;
+
+	if ((beamcon0 & (0x80 | 0x100 | 0x200 | 0x10)) != 0x300)
+		return false;
+	getsyncregisters(&hsstrt, &hsstop, &vsstrt, &vsstop);
+
+	if (hsstop >= (maxhpos & ~1))
+		hsstrt = 0;
+	xstart = ((hsstrt * 2) << RES_MAX) - src->xoffset;
+	xstop = ((hsstop * 2) << RES_MAX) - src->xoffset;
+
+	isntsc = (beamcon0 & 0x20) ? 0 : 1;
+	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		isntsc = currprefs.ntscmode ? 1 : 0;
+
+	vdbl = gfxvidinfo.ychange;
+	hdbl = gfxvidinfo.xchange;
+
+	xaddpix = (1 << 1) / hdbl;
+	xadd = ((1 << 1) / hdbl) * src->pixbytes;
+
+	ystart = isntsc ? VBLANK_ENDLINE_NTSC : VBLANK_ENDLINE_PAL;
+	yend = isntsc ? MAXVPOS_NTSC : MAXVPOS_PAL;
+
+	uae_u8 r = 0, g = 0, b = 0;
+	for (y = ystart; y < yend; y++) {
+		int oddeven = 0;
+		uae_u8 prev = 0;
+		int yoff = (((y * 2 + oddlines) - src->yoffset) / vdbl);
+		if (yoff < 0)
+			continue;
+		if (yoff >= src->inheight)
+			continue;
+		uae_u8 *line = src->bufmem + yoff * src->rowbytes;
+		uae_u8 *dstline = dst->bufmem + (((y * 2 + oddlines) - dst->yoffset) / vdbl) * dst->rowbytes;
+		r = g = b = 0;
+		for (x = 0; x < src->inwidth; x++) {
+			uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+			uae_u8 *d = dstline + ((x << 1) / hdbl) * dst->pixbytes;
+			uae_u8 *s2 = s + src->rowbytes;
+			uae_u8 *d2 = d + dst->rowbytes;
+			uae_u8 newval = FIRGB(src, s);
+			uae_u8 val = prev | (newval << 4);
+			if (oddeven) {
+				int mode = val >> 6;
+				int data = (val & 63) << 2;
+				if (mode == 0) {
+					r = data;
+					g = data;
+					b = data;
+				} else if (mode == 1) {
+					b = data;
+				} else if (mode == 2) {
+					r = data;
+				} else {
+					g = data;
+				}
+				if (y >= vsstrt && y < vsstop && x >= xstart && y < xstop) {
+					PUT_PRGB(d, d2, dst, r, g, b, xaddpix, doublelines, true);
+				} else {
+					PUT_AMIGARGB(d, s, d2, s2, dst, xaddpix, doublelines, true);
+				}
+			}
+			oddeven = oddeven ? 0 : 1;
+			prev = val >> 4;
+		}
+	}
+
+	dst->nativepositioning = true;
+	if (monitor != MONITOREMU_VIDEODAC18) {
+		monitor = MONITOREMU_VIDEODAC18;
+		write_log (_T("Video DAC 18 mode\n"));
+	}
+
+	return true;
+}
+
+static bool do_videodac18(struct vidbuffer *src, struct vidbuffer *dst)
+{
+	bool v;
+	if (interlace_seen) {
+		if (currprefs.gfx_iscanlines) {
+			v = videodac18(src, dst, false, lof_store ? 0 : 1);
+			if (v && currprefs.gfx_iscanlines > 1)
+				blank_generic(src, dst, lof_store ? 1 : 0);
+		} else {
+			v = videodac18(src, dst, false, 0);
+			v |= videodac18(src, dst, false, 1);
+		}
+	} else {
+		v = videodac18(src, dst, true, 0);
+	}
+	return v;
+}
+
+static const uae_u8 ham_e_magic_cookie[] = { 0xa2, 0xf5, 0x84, 0xdc, 0x6d, 0xb0, 0x7f  };
+static const uae_u8 ham_e_magic_cookie_reg = 0x14;
+static const uae_u8 ham_e_magic_cookie_ham = 0x18;
+
+static bool ham_e(struct vidbuffer *src, struct vidbuffer *dst, bool doublelines, int oddlines)
+{
+	int y, x, vdbl, hdbl;
+	int ystart, yend, isntsc;
+	int xadd, xaddpix;
+	bool hameplus = currprefs.monitoremu == MONITOREMU_HAM_E_PLUS;
+
+	isntsc = (beamcon0 & 0x20) ? 0 : 1;
+	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		isntsc = currprefs.ntscmode ? 1 : 0;
+
+	vdbl = gfxvidinfo.ychange;
+	hdbl = gfxvidinfo.xchange;
+
+	xaddpix = (1 << 1) / hdbl;
+	xadd = ((1 << 1) / hdbl) * src->pixbytes;
+
+	ystart = isntsc ? VBLANK_ENDLINE_NTSC : VBLANK_ENDLINE_PAL;
+	yend = isntsc ? MAXVPOS_NTSC : MAXVPOS_PAL;
+
+	uae_u8 r, g, b;
+	/* or is an alternative operator and cannot be used as an identifier */
+	uae_u8 or_, og, ob;
+	int pcnt = 0;
+	int bank = 0;
+	int mode_active = 0;
+	bool prevzeroline = false;
+	int was_active = 0;
+	bool cookie_line = false;
+	int cookiestartx = 10000;
+	for (y = ystart; y < yend; y++) {
+		int yoff = (((y * 2 + oddlines) - src->yoffset) / vdbl);
+		if (yoff < 0)
+			continue;
+		if (yoff >= src->inheight)
+			continue;
+		uae_u8 *line = src->bufmem + yoff * src->rowbytes;
+		uae_u8 *line_genlock = row_map_genlock[yoff];
+		uae_u8 *dstline = dst->bufmem + (((y * 2 + oddlines) - dst->yoffset) / vdbl) * dst->rowbytes;
+
+		bool getpalette = false;
+		uae_u8 prev = 0;
+		bool zeroline = true;
+		int oddeven = 0;
+		for (x = 0; x < src->inwidth; x++) {
+			uae_u8 *s = line + ((x << 1) / hdbl) * src->pixbytes;
+			uae_u8 *s_genlock = line_genlock + ((x << 1) / hdbl);
+			uae_u8 *d = dstline + ((x << 1) / hdbl) * dst->pixbytes;
+			uae_u8 *s2 = s + src->rowbytes;
+			uae_u8 *d2 = d + dst->rowbytes;
+			uae_u8 newval = FIRGB(src, s);
+			uae_u8 val = prev | newval;
+
+			if (s_genlock[0])
+				zeroline = false;
+
+			if (val == ham_e_magic_cookie[0] && x + sizeof ham_e_magic_cookie + 1 < src->inwidth) {
+				int i;
+				for (i = 1; i <= sizeof ham_e_magic_cookie; i++) {
+					uae_u8 val2 = (FIRGB(src, s + (i * 2 - 1) * xadd) << 4) | FIRGB(src, s + (i * 2 + 0) * xadd);
+					if (i < sizeof ham_e_magic_cookie) {
+						if (val2 != ham_e_magic_cookie[i])
+							break;
+					} else if (val2 == ham_e_magic_cookie_reg || val2 == ham_e_magic_cookie_ham) {
+						mode_active = val2;
+						getpalette = true;
+						prevzeroline = false;
+						cookiestartx = x - 1;
+						x += i * 2;
+						oddeven = 0;
+						cookie_line = true;
+					}
+				}
+				if (i == sizeof ham_e_magic_cookie + 1)
+					continue;
+			}
+
+			if (!cookie_line && x == cookiestartx)
+				oddeven = 0;
+
+			if (oddeven) {
+				if (getpalette) {
+					graffiti_palette[pcnt] = val;
+					pcnt++;
+					if ((pcnt & 3) == 3)
+						pcnt++;
+					// 64 colors/line
+					if ((pcnt & ((4 * 64) - 1)) == 0)
+						getpalette = false;
+					pcnt &= (4 * 256) - 1;
+				}
+				if (mode_active) {
+					if (cookie_line || x < cookiestartx) {
+						r = g = b = 0;
+						or_ = og = ob = 0;
+					} else {
+						if (mode_active == ham_e_magic_cookie_reg) {
+							uae_u8 *pal = &graffiti_palette[val * 4];
+							r = pal[0];
+							g = pal[1];
+							b = pal[2];
+						} else if (mode_active == ham_e_magic_cookie_ham) {
+							int mode = val >> 6;
+							int color = val & 63;
+							if (mode == 0 && color <= 59) {
+								uae_u8 *pal = &graffiti_palette[(bank + color) * 4];
+								r = pal[0];
+								g = pal[1];
+								b = pal[2];
+							} else if (mode == 0) {
+								bank = (color & 3) * 64;
+							} else if (mode == 1) {
+								b = color << 2;
+							} else if (mode == 2) {
+								r = color << 2;
+							} else if (mode == 3) {
+								g = color << 2;
+							}
+						}
+					}
+
+					if (hameplus) {
+						uae_u8 ar, ag, ab;
+
+						ar = (r + or_) / 2;
+						ag = (g + og) / 2;
+						ab = (b + ob) / 2;
+
+						if (xaddpix >= 2) {
+							PRGB(dst, d - dst->pixbytes, ar, ag, ab);
+							PRGB(dst, d, ar, ag, ab);
+							PRGB(dst, d + 1 * dst->pixbytes, r, g, b);
+							PRGB(dst, d + 2 * dst->pixbytes, r, g, b);
+							if (doublelines) {
+								PRGB(dst, d2 - dst->pixbytes, ar, ag, ab);
+								PRGB(dst, d2, ar, ag, ab);
+								PRGB(dst, d2 + 1 * dst->pixbytes, r, g, b);
+								PRGB(dst, d2 + 2 * dst->pixbytes, r, g, b);
+							}
+						} else {
+							PRGB(dst, d - dst->pixbytes, ar, ag, ab);
+							PRGB(dst, d, r, g, b);
+							if (doublelines) {
+								PRGB(dst, d2 - dst->pixbytes, ar, ag, ab);
+								PRGB(dst, d2, r, g, b);
+							}
+						}
+						or_ = r;
+						og = g;
+						ob = b;
+					} else {
+						PUT_PRGB(d, d2, dst, r, g, b, xaddpix, doublelines, true);
+					}
+				} else {
+					PUT_AMIGARGB(d, s, d2, s2, dst, xaddpix, doublelines, true);
+				}
+			}
+
+			oddeven = oddeven ? 0 : 1;
+			prev = val << 4;
+		}
+
+		if (cookie_line) {
+			// Erase magic cookie. I assume real HAM-E would erase it
+			// because not erasing it would look really ugly.
+			memset(dstline, 0, dst->outwidth * dst->pixbytes);
+			if (doublelines)
+				memset(dstline + dst->rowbytes, 0, dst->outwidth * dst->pixbytes);
+		}
+
+		cookie_line = false;
+		if (mode_active)
+			was_active = mode_active;
+		if (zeroline) {
+			if (prevzeroline) {
+				mode_active = 0;
+				pcnt = 0;
+				cookiestartx = 10000;
+			}
+			prevzeroline = true;
+		} else {
+			prevzeroline = false;
+		}
+
+	}
+
+	if (was_active) {
+		dst->nativepositioning = true;
+		if (monitor != MONITOREMU_HAM_E) {
+			monitor = MONITOREMU_HAM_E;
+			write_log (_T("HAM-E mode, %s\n"), was_active == ham_e_magic_cookie_reg ? _T("REG") : _T("HAM"));
+		}
+	}
+
+	return was_active != 0;
+}
+
+static bool do_hame(struct vidbuffer *src, struct vidbuffer *dst)
+{
+	bool v;
+	if (interlace_seen) {
+		if (currprefs.gfx_iscanlines) {
+			v = ham_e(src, dst, false, lof_store ? 0 : 1);
+			if (v && currprefs.gfx_iscanlines > 1)
+				blank_generic(src, dst, lof_store ? 1 : 0);
+		} else {
+			v = ham_e(src, dst, false, 0);
+			v |= ham_e(src, dst, false, 1);
+		}
+	} else {
+		v = ham_e(src, dst, true, 0);
+	}
+	return v;
 }
 
 static bool graffiti(struct vidbuffer *src, struct vidbuffer *dst)
@@ -101,6 +1436,10 @@ static bool graffiti(struct vidbuffer *src, struct vidbuffer *dst)
 
 	xstart = 0x1c * 2 + 1;
 	xend = 0xf0 * 2 + 1;
+	if (!(currprefs.chipset_mask & CSMASK_AGA)) {
+		xstart++;
+		xend++;
+	}
 
 	srcbuf = src->bufmem + (((ystart << VRES_MAX) - src->yoffset) / gfxvidinfo.ychange) * src->rowbytes + (((xstart << RES_MAX) - src->xoffset) / gfxvidinfo.xchange) * src->pixbytes;
 	srcend = src->bufmem + (((yend << VRES_MAX) - src->yoffset) / gfxvidinfo.ychange) * src->rowbytes;
@@ -137,11 +1476,6 @@ static bool graffiti(struct vidbuffer *src, struct vidbuffer *dst)
 						uae_u8 cmd = chunky[pix * 2 + 0];
 						uae_u8 parm = chunky[pix * 2 + 1];
 
-#if 0
-						//if (cmd != 0)
-							write_log(_T("X=%d Y=%d %02x = %02x (%d %d)\n"), x, y, cmd, parm, color, color2);
-#endif
-
 						if (automatic && cmd >= 0x40)
 							return false;
 						if (cmd != 0)
@@ -150,7 +1484,7 @@ static bool graffiti(struct vidbuffer *src, struct vidbuffer *dst)
 							command = false;
 							dbl = 1;
 							waitline = 2;
-							if (cmd & 16) {
+							if (0 && (cmd & 16)) {
 								hires = true;
 								xadd /= 2;
 								xpixadd /= 2;
@@ -425,18 +1759,34 @@ static bool a2024(struct vidbuffer *src, struct vidbuffer *dst)
 
 static bool emulate_specialmonitors2(struct vidbuffer *src, struct vidbuffer *dst)
 {
+	automatic = false;
 	if (currprefs.monitoremu == MONITOREMU_AUTO) {
 		automatic = true;
 		bool v = a2024(src, dst);
 		if (!v)
 			v = graffiti(src, dst);
+		if (!v)
+			v = do_videodac18(src, dst);
+		if (!v) {
+			if (avideo_allowed)
+				v = do_avideo(src, dst);
+		}
 		return v;
 	} else if (currprefs.monitoremu == MONITOREMU_A2024) {
-		automatic = false;
 		return a2024(src, dst);
 	} else if (currprefs.monitoremu == MONITOREMU_GRAFFITI) {
-		automatic = false;
 		return graffiti(src, dst);
+	} else if (currprefs.monitoremu == MONITOREMU_DCTV) {
+		return dctv(src, dst, false, 0);
+	} else if (currprefs.monitoremu == MONITOREMU_HAM_E || currprefs.monitoremu == MONITOREMU_HAM_E_PLUS) {
+		return do_hame(src, dst);
+	} else if (currprefs.monitoremu == MONITOREMU_VIDEODAC18) {
+		return do_videodac18(src, dst);
+	} else if (currprefs.monitoremu == MONITOREMU_AVIDEO12 || currprefs.monitoremu == MONITOREMU_AVIDEO24) {
+		avideo_allowed = -1;
+		return do_avideo(src, dst);
+	} else if (currprefs.monitoremu == MONITOREMU_FIRECRACKER24) {
+		return do_firecracker24(src, dst);
 	}
 	return false;
 }
@@ -453,4 +1803,24 @@ bool emulate_specialmonitors(struct vidbuffer *src, struct vidbuffer *dst)
 		return false;
 	}
 	return true;
+}
+
+void specialmonitor_reset(void)
+{
+	if (!currprefs.monitoremu)
+		return;
+	specialmonitor_store_fmode(-1, -1, 0);
+	fc24_reset();
+}
+
+bool specialmonitor_need_genlock(void)
+{
+	switch (currprefs.monitoremu)
+	{
+		case MONITOREMU_FIRECRACKER24:
+		case MONITOREMU_HAM_E:
+		case MONITOREMU_HAM_E_PLUS:
+		return true;
+	}
+	return false;
 }

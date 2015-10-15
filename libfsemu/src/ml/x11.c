@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define _GNU_SOURCE 1
 #ifdef USE_X11
 #include <stdio.h>
@@ -8,8 +12,8 @@
 #include <fs/ml.h>
 #include <fs/base.h>
 #include <fs/image.h>
-#include <fs/string.h>
 #include <fs/filesys.h>
+#include <fs/conf.h>
 #include "ml_internal.h"
 
 #ifdef USE_SDL2
@@ -32,16 +36,16 @@ static void set_window_icon() {
     // add space for width, height cardinals
     max_size += 2 * 5 * sizeof(unsigned long);
 
-    unsigned long *icon_data = (unsigned long *) malloc(max_size);
+    unsigned long *icon_data = (unsigned long *) g_malloc(max_size);
     unsigned long *op = icon_data;
     int card_count  = 0;
 
     int sizes[] = {128, 64, 48, 32, 16, 0};
     for(int *size = sizes; *size; size++) {
-        char *rel = fs_strdup_printf("icons/hicolor/%dx%d/apps/fs-uae.png",
+        char *rel = g_strdup_printf("icons/hicolor/%dx%d/apps/fs-uae.png",
                 *size, *size);
         char *path = fs_get_data_file(rel);
-        free(rel);
+        g_free(rel);
         if (!path) {
             fs_log("did not find icon for %dx%d\n", *size, *size);
             continue;
@@ -52,7 +56,7 @@ static void set_window_icon() {
             fs_log("could not load icon from %s\n", path);
             continue;
         }
-        free(path);
+        g_free(path);
 
         //printf("%d\n", image->width);
         int pixel_count = image->width * image->height;
@@ -61,7 +65,10 @@ static void set_window_icon() {
         *op++ = image->height;
         for (int i = 0; i < pixel_count; i++) {
             //*op = 0xffff0000;
-            *op = (p[3] << 24) | (p[0] << 16) | (p[1] << 8) | p[2];
+            *op = (((unsigned long) p[3]) << 24) |
+                    (p[0] << 16) |
+                    (p[1] << 8) |
+                    p[2];
             p += 4;
             op++;
         }
@@ -76,7 +83,41 @@ static void set_window_icon() {
     Atom _NET_WM_ICON = XInternAtom(g_display, "_NET_WM_ICON", False);
     XChangeProperty(g_display, g_window, _NET_WM_ICON, XA_CARDINAL, 32,
             PropModeReplace, (unsigned char *) icon_data, card_count);
-    free(icon_data);
+    g_free(icon_data);
+}
+
+static void set_above_state() {
+    printf("_NET_WM_STATE = _NET_WM_STATE_ABOVE\n");
+    Atom ATOM = XInternAtom(g_display, "ATOM", False);
+    Atom _NET_WM_STATE = XInternAtom(g_display, "_NET_WM_STATE", False);
+    Atom _NET_WM_STATE_ABOVE = XInternAtom(
+        g_display, "_NET_WM_STATE_ABOVE", False);
+    XChangeProperty(g_display, g_window, _NET_WM_STATE, ATOM, 32,
+            PropModeReplace, (unsigned char *) &_NET_WM_STATE_ABOVE, 1);
+
+    XEvent ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.type = ClientMessage;
+    ev.xclient.type         = ClientMessage;
+    ev.xclient.message_type = XInternAtom(g_display, "_NET_WM_STATE", 0);
+    ev.xclient.display      = g_display;
+    ev.xclient.window       = g_window;
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = 1; // set ? 1 : 0;
+
+    // *_STAYS_ON_TOP is probably KDE-specific
+    ev.xclient.data.l[1] = XInternAtom(
+        g_display, "_NET_WM_STATE_STAYS_ON_TOP", 0);
+    XLockDisplay(g_display);
+    XSendEvent(g_display, XDefaultRootWindow(g_display), 0,
+               SubstructureRedirectMask | SubstructureNotifyMask, &ev);
+
+    // to work with some non-KDE WMs we should use _NET_WM_STATE_ABOVE
+    ev.xclient.data.l[1] = XInternAtom(
+        g_display, "_NET_WM_STATE_ABOVE", 0);
+    XSendEvent(g_display, XDefaultRootWindow(g_display), 0,
+               SubstructureRedirectMask | SubstructureNotifyMask, &ev);
+    XUnlockDisplay(g_display);
 }
 
 void fs_ml_configure_window() {
@@ -112,6 +153,9 @@ void fs_ml_configure_window() {
             PropModeReplace, (const unsigned char *) "dark", 4);
 
     set_window_icon();
+    if (fs_config_get_int("always_on_top") == 1) {
+        set_above_state();
+    }
     /*
     set_window_icon(32);
     set_window_icon(48);
@@ -246,6 +290,7 @@ int fs_ml_video_mode_get_current(fs_ml_video_mode *mode) {
             state = START;
         }
     }
+    pclose(f);
 
     if (mode_count > 1 && increasing_by_one) {
         // nVIDIA xrandr hack detected
@@ -398,5 +443,9 @@ int fs_ml_scancode_to_key(int scancode) {
     }
     return g_key_map[scancode];
 }
+
+#else
+
+int libfsemu_x11_dummy;
 
 #endif // USE_X11

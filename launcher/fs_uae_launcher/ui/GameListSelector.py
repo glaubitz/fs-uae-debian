@@ -1,17 +1,9 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
+from fsbc.util import unused
 import fsui as fsui
 from fsbc.Application import app
 from fsgs.Database import Database
-from ..Config import Config
-from ..I18N import _, ngettext
-from .config.WHDLoadGroup import WHDLoadGroup
-from .config.HardDriveGroup import HardDriveGroup
 from ..Settings import Settings
-from .Skin import Skin
+from ..I18N import gettext
 
 
 class GameListSelector(fsui.Choice):
@@ -58,11 +50,21 @@ class GameListSelector(fsui.Choice):
     def populate_list(self):
         database = Database.instance()
         self.game_lists = database.get_game_lists()
-        self.game_lists.insert(0, ["", _("All games and configurations")])
+        if len(self.game_lists) > 0:
+            self.game_lists.insert(0, ["", self.ITEM_SEPARATOR])
+        self.game_lists.insert(
+            0, [Database.GAME_LIST_GAMES, gettext("All Games")])
+        self.game_lists.insert(
+            0, [Database.GAME_LIST_CONFIGS, gettext("All Configurations")])
+        self.game_lists.insert(
+            0, ["", gettext("All Games and Configurations")])
 
         self.clear()
         for item in self.game_lists:
-            self.add_item(item[1])
+            list_name = item[1]
+            if list_name == "Favorites":
+                list_name = gettext("Favorites")
+            self.add_item(list_name)
 
     def get_selected_list_uuid(self):
         index = self.get_index()
@@ -73,5 +75,6 @@ class GameListSelector(fsui.Choice):
             return ""
 
     def on_item_selected(self, index):
+        unused(index)
         list_uuid = self.get_selected_list_uuid()
         app.settings["game_list_uuid"] = list_uuid

@@ -13,6 +13,11 @@
 
 #include "options.h"
 #include "events.h"
+#include "memory.h"
+#include "newcpu.h"
+#include "uae/ppc.h"
+
+static const int pissoff_nojit_value = 256 * CYCLE_UNIT;
 
 unsigned long int event_cycles, nextevent, currcycle;
 int is_syncline, is_syncline_end;
@@ -20,9 +25,11 @@ long cycles_to_next_event;
 long max_cycles_to_next_event;
 long cycles_to_hsync_event;
 unsigned long start_cycles;
+bool event_wait;
 
 frame_time_t vsyncmintime, vsyncmaxtime, vsyncwaittime;
 int vsynctimebase;
+int event2_count;
 
 void events_schedule (void)
 {
@@ -60,15 +67,37 @@ void do_cycles_slow (unsigned long cycles_to_add)
 					if (v > vsynctimebase || v < -vsynctimebase) {
 						v = 0;
 					}
-					if (v < 0 && v2 < 0) {
-						pissoff = pissoff_value;
+					if (v < 0 && v2 < 0 && event_wait) {
+
+#ifdef WITH_PPC
+						if (ppc_state) {
+							if (is_syncline == 1) {
+								uae_ppc_execute_check();
+							} else {
+								uae_ppc_execute_quick();
+							}
+						}
+#endif
+						if (currprefs.cachesize)
+							pissoff = pissoff_value;
+						else
+							pissoff = pissoff_nojit_value;
 						return;
 					}
 				} else if (is_syncline < 0) {
 					int rpt = read_processor_time ();
 					int v = rpt - is_syncline_end;
-					if (v < 0) {
-						pissoff = pissoff_value;
+					if (v < 0 && event_wait) {
+
+#ifdef WITH_PPC
+						if (ppc_state) {
+							uae_ppc_execute_check();
+						}
+#endif
+						if (currprefs.cachesize)
+							pissoff = pissoff_value;
+						else
+							pissoff = pissoff_nojit_value;
 						return;
 					}
 				}
@@ -81,7 +110,12 @@ void do_cycles_slow (unsigned long cycles_to_add)
 
 		for (i = 0; i < ev_max; i++) {
 			if (eventtab[i].active && eventtab[i].evtime == currcycle) {
-				(*eventtab[i].handler)();
+				if (eventtab[i].handler == NULL) {
+					gui_message(_T("eventtab[%d].handler is null!\n"), i);
+					eventtab[i].active = 0;
+				} else {
+					(*eventtab[i].handler)();
+				}
 			}
 		}
 		events_schedule ();
@@ -114,6 +148,7 @@ void MISC_handler (void)
 			if (eventtab2[i].active) {
 				if (eventtab2[i].evtime == ct) {
 					eventtab2[i].active = false;
+					event2_count--;
 					eventtab2[i].handler (eventtab2[i].data);
 					if (dorecheck || eventtab2[i].active) {
 						recheck = true;
@@ -127,7 +162,7 @@ void MISC_handler (void)
 			}
 		}
 	}
-	if (mintime != ~0L) {
+	if (mintime != ~0UL) {
 		eventtab[ev_misc].active = true;
 		eventtab[ev_misc].oldcycles = ct;
 		eventtab[ev_misc].evtime = ct + mintime;
@@ -146,8 +181,10 @@ void event2_newevent_xx (int no, evt t, uae_u32 data, evfunc2 func)
 	if (no < 0) {
 		no = next;
 		for (;;) {
-			if (!eventtab2[no].active)
+			if (!eventtab2[no].active) {
+				event2_count++;
 				break;
+			}
 			if (eventtab2[no].evtime == et && eventtab2[no].handler == func && eventtab2[no].data == data)
 				break;
 			no++;
@@ -165,5 +202,15 @@ void event2_newevent_xx (int no, evt t, uae_u32 data, evfunc2 func)
 	eventtab2[no].handler = func;
 	eventtab2[no].data = data;
 	MISC_handler ();
+}
+
+int current_hpos (void)
+{
+	int hp = current_hpos_safe ();
+	if (hp < 0 || hp > 256) {
+		gui_message(_T("hpos = %d!?\n"), hp);
+		hp = 0;
+	}
+	return hp;
 }
 

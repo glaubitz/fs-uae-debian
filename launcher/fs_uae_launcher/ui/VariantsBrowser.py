@@ -1,14 +1,8 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 import traceback
 from fs_uae_launcher.ui.ConfigGroup import ConfigGroup
-
-import six
-from fsgs import fsgs
+from fsgs.context import fsgs
 from fsgs.Database import Database
-import fsui as fsui
+import fsui
 from ..Config import Config
 from ..Signal import Signal
 from ..Settings import Settings
@@ -22,30 +16,34 @@ class LastVariants(object):
 
     def on_quit_signal(self):
         database = Database.get_instance()
-        for key, value in six.iteritems(self.cache):
+        for key, value in self.cache.items():
             database.set_last_game_variant(key, value)
         database.commit()
 
 
-class VariantsBrowser(fsui.VerticalItemView):
+# class VariantsBrowser(fsui.VerticalItemView):
+class VariantsBrowser(fsui.ItemChoice):
 
     @staticmethod
     def use_horizontal_layout():
-        return fsui.get_screen_size()[0] > 1024
+        # return fsui.get_screen_size()[0] > 1024
+        return False
 
     def __init__(self, parent):
-        fsui.VerticalItemView.__init__(self, parent)
+        # fsui.VerticalItemView.__init__(self, parent)
+        fsui.ItemChoice.__init__(self, parent)
+
         self.parent_uuid = ""
         self.items = []
-        #self.last_variants = LastVariants()
+        # self.last_variants = LastVariants()
 
         self.icon = fsui.Image("fs_uae_launcher:res/fsuae_config_16.png")
         self.adf_icon = fsui.Image("fs_uae_launcher:res/adf_game_16.png")
         self.ipf_icon = fsui.Image("fs_uae_launcher:res/ipf_game_16.png")
         self.cd_icon = fsui.Image("fs_uae_launcher:res/cd_game_16.png")
         self.hd_icon = fsui.Image("fs_uae_launcher:res/hd_game_16.png")
-        #self.missing_icon = fsui.Image(
-        #    "fs_uae_launcher:res/missing_game_16.png")
+        # self.missing_icon = fsui.Image(
+        #     "fs_uae_launcher:res/missing_game_16.png")
         self.missing_icon = fsui.Image(
             "fs_uae_launcher:res/16/delete_grey.png")
         self.missing_color = fsui.Color(0xa8, 0xa8, 0xa8)
@@ -72,15 +70,15 @@ class VariantsBrowser(fsui.VerticalItemView):
 
     def on_destroy(self):
         Settings.remove_listener(self)
-        #Signal.remove_listener("quit", self)
+        # Signal.remove_listener("quit", self)
 
     def on_select_item(self, index):
         if index is None:
             return
         self.load_variant(self.items[index])
-        #self.last_variants.cache[self.parent_uuid] = variant_uuid
+        # self.last_variants.cache[self.parent_uuid] = variant_uuid
 
-    def on_activate_item(self, index):
+    def on_activate_item(self, _):
         from ..FSUAELauncher import FSUAELauncher
         FSUAELauncher.start_game()
 
@@ -91,7 +89,9 @@ class VariantsBrowser(fsui.VerticalItemView):
                 self.update_list(value)
             else:
                 Settings.set("game_uuid", "")
+                # self.set_items([gettext("Configuration")])
                 self.set_items([])
+                self.disable()
 
     def on_config(self, key, value):
         if key == "variant_rating":
@@ -104,6 +104,7 @@ class VariantsBrowser(fsui.VerticalItemView):
     def set_items(self, items):
         self.items = items
         self.update()
+        # self.enable(len(items) > 0)
 
     def get_item_count(self):
         return len(self.items)
@@ -118,14 +119,19 @@ class VariantsBrowser(fsui.VerticalItemView):
         if not have:
             return self.missing_color
 
+    NOT_AVAILABLE = 0
+    MANUAL_AVAILABLE = 1
+    AUTO_AVAILABLE = 2
+    AVAILABLE = 3
+
     def get_item_icon(self, index):
         have = self.items[index]["have"]
-        if not have:
-            #return self.missing_icon
+        if have == self.NOT_AVAILABLE:
+            # return self.missing_icon
             return self.blank_icon
-        if have == 1:
+        if have == self.MANUAL_AVAILABLE:
             return self.manual_download_icon
-        if have == 2:
+        if have == self.AUTO_AVAILABLE:
             return self.auto_download_icon
         return self.get_item_extra_icons(index)[0] or self.bullet_icon
         # name = self.items[index]["name"]
@@ -165,21 +171,22 @@ class VariantsBrowser(fsui.VerticalItemView):
 
     def update_list(self, game_uuid):
         database = Database.get_instance()
-        game_database = fsgs.get_game_database()
         items = database.find_game_variants_new(game_uuid, have=0)
-        #items = database.search_configurations(self.search)
+
+        # items = database.search_configurations(self.search)
         sortable_items = []
-        for item in items:
+        for i, item in enumerate(items):
             name = item["name"]
 
             name = name.replace("\nAmiga \u00b7 ", "\n")
-            #print(name, item[3])
-            #name = name.replace("\nCD32 \u00b7 ", "\n")
-            #name = item[1].replace("\n", " \u00b7 ")
+            # print(name, item[3])
+            # name = name.replace("\nCD32 \u00b7 ", "\n")
+            # name = item[1].replace("\n", " \u00b7 ")
 
             # only show variant name (without game name)
             name = name.split("\n", 1)[-1]
 
+            game_database = fsgs.game_database(item["database"])
             item["like_rating"], item["work_rating"] = game_database\
                 .get_ratings_for_game(item["uuid"])
             item["personal_rating"], ignored = database.get_ratings_for_game(
@@ -188,13 +195,14 @@ class VariantsBrowser(fsui.VerticalItemView):
             sort_key = (1 - bool(item["have"]), 1000000 - item["like_rating"],
                         1000000 - item["work_rating"], name)
             sortable_items.append(
-                (sort_key, item))
-        self.items = [x[1] for x in sorted(sortable_items)]
+                (sort_key, i, item))
+        # print(sortable_items)
+        self.items = [x[2] for x in sorted(sortable_items)]
         self.update()
-        #self.set_items(self.items)
-        #self.set_item_count(len(self.items))
+        # self.set_items(self.items)
+        # self.set_item_count(len(self.items))
 
-        self.select_item(None)
+        self.select_item(None, signal=False)
 
         select_index = None
         list_uuid = Settings.get("game_list_uuid")
@@ -223,6 +231,11 @@ class VariantsBrowser(fsui.VerticalItemView):
                 if len(self.items) > 0:
                     select_index = 0
 
+        # self.clear()
+        # for i, item in enumerate(self.items):
+        #     self.add_item(item["name"], icon=self.get_item_icon(i))
+
+        self.enable(len(self.items) > 0)
         if select_index is not None:
             print("selecting variant index", select_index)
             self.select_item(select_index)
@@ -244,18 +257,20 @@ class VariantsBrowser(fsui.VerticalItemView):
     def load_variant(self, item):
         try:
             self._load_variant(item)
+            # raise Exception()
         except Exception:
             traceback.print_exc()
             Config.load_default_config()
             Config.load({
-                "__error": ("Error loading configuration\n"
-                            "See log file for details.")
+                "__error": "Error Loading Configuration"
             })
             self.select_item(None)
 
     def _load_variant(self, item):
         variant_uuid = item["uuid"]
-        game_database = fsgs.get_game_database()
+        print(item)
+        game_database = fsgs.game_database(item["database"])
+
         # game_database_client = GameDatabaseClient(game_database)
         # try:
         #     variant_id = game_database_client.get_game_id(variant_uuid)
@@ -274,19 +289,27 @@ class VariantsBrowser(fsui.VerticalItemView):
             Config.load_default_config()
             return
 
-        #values["variant_uuid"] = variant_uuid
-        #values["variant_rating"] = str(item["personal_rating"])
+        # values["variant_uuid"] = variant_uuid
+        # values["variant_rating"] = str(item["personal_rating"])
 
         print(values)
         Config.load_values(values, uuid=variant_uuid)
 
-        #variant_rating = 0
-        #if item["work_rating"] is not None:
-        #    variant_rating = item["work_rating"] - 2
-        #if item["like_rating"]:
-        #    variant_rating = item["like_rating"]
-        #Config.set("__variant_rating", str(variant_rating))
+        # variant_rating = 0
+        # if item["work_rating"] is not None:
+        #     variant_rating = item["work_rating"] - 2
+        # if item["like_rating"]:
+        #     variant_rating = item["like_rating"]
+        # Config.set("__variant_rating", str(variant_rating))
 
         Config.set("variant_uuid", variant_uuid)
         Config.set("variant_rating", str(item["personal_rating"]))
         Config.set("__changed", "0")
+        Config.set("__database", item["database"])
+
+        if int(item["have"]) < self.AVAILABLE:
+            print(" -- some files are missing --")
+            Config.set("x_missing_files", "1")
+
+    def get_min_width(self):
+        return 0

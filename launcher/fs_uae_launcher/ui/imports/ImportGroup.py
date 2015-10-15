@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import fsui as fsui
 from ...I18N import gettext
 from ...Signal import Signal
@@ -16,6 +11,7 @@ class ImportGroup(fsui.Group):
     def __init__(self, parent, type=0):
         fsui.Group.__init__(self, parent)
         self.type = type
+        self.path = ""
 
         self.layout = fsui.VerticalLayout()
         if self.type == self.AMIGA_FOREVER:
@@ -23,7 +19,7 @@ class ImportGroup(fsui.Group):
         else:
             title = gettext("Import Kickstarts and ROMs")
         label = fsui.HeadingLabel(self, title)
-        self.layout.add(label, margin=10)
+        self.layout.add(label, margin_bottom=10)
 
         icon_layout = fsui.HorizontalLayout()
         self.layout.add(icon_layout, fill=True)
@@ -33,7 +29,7 @@ class ImportGroup(fsui.Group):
         else:
             image = fsui.Image("fs_uae_launcher:res/kickstart.png")
         self.image_view = fsui.ImageView(self, image)
-        icon_layout.add(self.image_view, valign=0.0, margin=10)
+        icon_layout.add(self.image_view, valign=0.0, margin_right=10)
 
         vert_layout = fsui.VerticalLayout()
         icon_layout.add(vert_layout, fill=True, expand=True)
@@ -45,17 +41,17 @@ class ImportGroup(fsui.Group):
             text = gettext("Select a folder containing Amiga kickstart files "
                            "and click \"{0}\"").format(gettext("Import"))
         label = fsui.Label(self, text)
-        vert_layout.add(label, margin=10)
+        vert_layout.add(label, margin_bottom=10)
 
         hori_layout = fsui.HorizontalLayout()
-        vert_layout.add(hori_layout, fill=True, margin=10)
+        vert_layout.add(hori_layout, fill=True, margin=0)
         self.text_field = fsui.TextField(self, "", read_only=True)
         hori_layout.add(self.text_field, expand=True)
         self.browse_button = fsui.Button(self, gettext("Browse"))
-        self.browse_button.on_activate = self.on_browse
+        self.browse_button.activated.connect(self.on_browse)
         hori_layout.add(self.browse_button, margin_left=10)
         self.import_button = fsui.Button(self, gettext("Import"))
-        self.import_button.on_activate = self.on_import
+        self.import_button.activated.connect(self.on_import)
         self.import_button.disable()
         hori_layout.add(self.import_button, margin_left=10)
 
@@ -73,5 +69,5 @@ class ImportGroup(fsui.Group):
     def on_import(self):
         dialog = ImportDialog(self.get_window(), self.path, self.type)
         dialog.show_modal()
-        dialog.destroy()
+        # dialog.destroy()
         Signal.broadcast("scan_done")

@@ -1,10 +1,5 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
+import fsgs.util.sdl2constants as sdl2
 
-import os
-from .dinputkeycodes import sdlk_to_dik, dinput_key_codes
-from .sdlkeycodes import sdl_key_codes
 
 # with open(os.expanduser('~/Desktop/keys.txt'), 'wb') as f:
 #     for key in sorted(sdl_key_codes.keys()):
@@ -48,6 +43,16 @@ class Keyboard(object):
 
     @staticmethod
     def key(name):
+        # try:
+        #     code = name.key.keysym.sym
+        # except AttributeError:
+        #     pass
+        try:
+            code = name["key"]
+        except KeyError:
+            pass
+        else:
+            name = sdl_key_code_to_name[code]
         if isinstance(name, int):
             name = sdl_key_code_to_name[name]
         name = name.upper()
@@ -59,6 +64,7 @@ class Keyboard(object):
 
 
 key_table = {
+    "SDLK_NO_KEY": (0, 'DIK_NO_KEY', 0),
     'SDLK_0': (48, 'DIK_0', 11),
     'SDLK_1': (49, 'DIK_1', 2),
     'SDLK_2': (50, 'DIK_2', 3),
@@ -76,7 +82,7 @@ key_table = {
     'SDLK_B': (98, 'DIK_B', 48),
     'SDLK_BACKQUOTE': (96, 'DIK_GRAVE', 0),
     'SDLK_BACKSLASH': (92, 'DIK_BACKSLASH', 43),
-    'SDLK_BACKSPACE': (8, 'DIK_BACK', 14),
+    'SDLK_BACKSPACE': (sdl2.SDLK_BACKSPACE, 'DIK_BACK', 14),
     'SDLK_BREAK': (318, '', 0),
     'SDLK_C': (99, 'DIK_C', 46),
     'SDLK_CAPSLOCK': (301, 'DIK_CAPITAL', 58),
@@ -88,11 +94,11 @@ key_table = {
     'SDLK_D': (100, 'DIK_D', 32),
     'SDLK_DELETE': (127, 'DIK_DELETE', 211),
     'SDLK_DOLLAR': (36, '', 0),
-    'SDLK_DOWN': (274, 'DIK_DOWN', 208),
+    'SDLK_DOWN': (sdl2.SDLK_DOWN, 'DIK_DOWN', 208),
     'SDLK_E': (101, 'DIK_E', 18),
     'SDLK_END': (279, 'DIK_END', 207),
     'SDLK_EQUALS': (61, 'DIK_EQUALS', 13),
-    'SDLK_ESCAPE': (27, 'DIK_ESCAPE', 1),
+    'SDLK_ESCAPE': (sdl2.SDLK_ESCAPE, 'DIK_ESCAPE', 1),
     'SDLK_EURO': (321, '', 0),
     'SDLK_EXCLAIM': (33, '', 0),
     'SDLK_F': (102, 'DIK_F', 33),
@@ -141,7 +147,7 @@ key_table = {
     'SDLK_L': (108, 'DIK_L', 38),
     'SDLK_LALT': (308, 'DIK_LMENU', 56),
     'SDLK_LCTRL': (306, 'DIK_LCONTROL', 29),
-    'SDLK_LEFT': (276, 'DIK_LEFT', 203),
+    'SDLK_LEFT': (sdl2.SDLK_LEFT, 'DIK_LEFT', 203),
     'SDLK_LEFTBRACKET': (91, 'DIK_LBRACKET', 26),
     'SDLK_LEFTPAREN': (40, '', 0),
     'SDLK_LESS': (60, '', 0),
@@ -156,8 +162,8 @@ key_table = {
     'SDLK_NUMLOCK': (300, 'DIK_NUMLOCK', 69),
     'SDLK_O': (111, 'DIK_O', 24),
     'SDLK_P': (112, 'DIK_P', 25),
-    'SDLK_PAGEDOWN': (281, 'DIK_NEXT', 209),
-    'SDLK_PAGEUP': (280, 'DIK_PRIOR', 201),
+    'SDLK_PAGEDOWN': (sdl2.SDLK_PAGEDOWN, 'DIK_NEXT', 209),
+    'SDLK_PAGEUP': (sdl2.SDLK_PAGEUP, 'DIK_PRIOR', 201),
     'SDLK_PAUSE': (19, '', 0),
     'SDLK_PERIOD': (46, 'DIK_PERIOD', 52),
     'SDLK_PLUS': (43, '', 0),
@@ -170,8 +176,8 @@ key_table = {
     'SDLK_R': (114, 'DIK_R', 19),
     'SDLK_RALT': (307, 'DIK_RMENU', 184),
     'SDLK_RCTRL': (305, 'DIK_RCONTROL', 157),
-    'SDLK_RETURN': (13, 'DIK_RETURN', 28),
-    'SDLK_RIGHT': (275, 'DIK_RIGHT', 205),
+    'SDLK_RETURN': (sdl2.SDLK_RETURN, 'DIK_RETURN', 28),
+    'SDLK_RIGHT': (sdl2.SDLK_RIGHT, 'DIK_RIGHT', 205),
     'SDLK_RIGHTBRACKET': (93, 'DIK_RBRACKET', 27),
     'SDLK_RIGHTPAREN': (41, '', 0),
     'SDLK_RMETA': (309, '', 0),
@@ -188,7 +194,7 @@ key_table = {
     'SDLK_U': (117, 'DIK_U', 22),
     'SDLK_UNDERSCORE': (95, '', 147),
     'SDLK_UNDO': (322, '', 0),
-    'SDLK_UP': (273, 'DIK_UP', 200),
+    'SDLK_UP': (sdl2.SDLK_UP, 'DIK_UP', 200),
     'SDLK_V': (118, 'DIK_V', 47),
     'SDLK_W': (119, 'DIK_W', 17),
     'SDLK_WORLD_0': (160, '', ),

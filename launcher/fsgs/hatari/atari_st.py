@@ -27,20 +27,14 @@ TODO:
 - multiple floppies and floppy swapping
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import io
-import shutil
 import traceback
 from fsgs.runner import GameRunner
 
 
 ATARI_WIDTH = 832
-#ATARI_HEIGHT = 576
+# ATARI_HEIGHT = 576
 ATARI_HEIGHT = 552
 
 # TOS v1.02 (1987)(Atari Corp)(Mega ST)(GB)[MEGA TOS].img
@@ -52,7 +46,7 @@ TOS_102_UK = "87900a40a890fdf03bd08be6c60cc645855cbce5"
 TOS_104_UK = "9526ef63b9cb1d2a7109e278547ae78a5c1db6c6"
 
 
-#noinspection PyAttributeOutsideInit
+# noinspection PyAttributeOutsideInit
 class AtariSTRunner(GameRunner):
 
     def prepare(self):
@@ -65,7 +59,7 @@ class AtariSTRunner(GameRunner):
         self.add_arg("--drive-led", "0")
 
     def configure(self, f):
-        #floppies_dir = os.path.join(self.context.temp.dir('uae'), 'Disks')
+        # floppies_dir = os.path.join(self.context.temp.dir('uae'), 'Disks')
         floppies_dir = os.path.join(self.temp_dir.path, "Disks")
         os.makedirs(floppies_dir)
         original_floppies = self.prepare_floppies()
@@ -73,14 +67,13 @@ class AtariSTRunner(GameRunner):
         for p in original_floppies:
             dest_path = os.path.join(floppies_dir, os.path.basename(p))
             self.fsgs.file.copy_game_file(p, dest_path)
-            #shutil.copy(p, dest_path)
             floppies.append(dest_path)
 
-        #self.changes = ChangeHandler(floppies_dir)
-        #self.changes.init(os.path.join(self.context.game.state_dir, 'Disks'))
+        # self.changes = ChangeHandler(floppies_dir)
+        # self.changes.init(os.path.join(self.context.game.state_dir, 'Disks'))
 
         num_floppy_drives = 2
-        #sorted_floppies = self.sort_floppies(floppies)
+        # sorted_floppies = self.sort_floppies(floppies)
         sorted_floppies = floppies
         inserted_floppies = sorted_floppies[:num_floppy_drives]
 
@@ -109,17 +102,17 @@ class AtariSTRunner(GameRunner):
 
     def prepare_floppies(self):
         floppies = []
-        #media_dir = os.path.dirname(self.context.game.file)
-        #base_match = self.extract_match_name(os.path.basename(
-        #        self.context.game.file))
-        #for name in os.listdir(media_dir):
-        #    dummy, ext = os.path.splitext(name)
-        #    if ext.lower() not in ['.st']:
-        #        continue
-        #    match = self.extract_match_name(name)
-        #    if base_match == match:
-        #        floppies.append(os.path.join(media_dir, name))
-        #        #floppies.append(name)
+        # media_dir = os.path.dirname(self.context.game.file)
+        # base_match = self.extract_match_name(os.path.basename(
+        #         self.context.game.file))
+        # for name in os.listdir(media_dir):
+        #     dummy, ext = os.path.splitext(name)
+        #     if ext.lower() not in ['.st']:
+        #         continue
+        #     match = self.extract_match_name(name)
+        #     if base_match == match:
+        #         floppies.append(os.path.join(media_dir, name))
+        #         #floppies.append(name)
         if self.config["floppy_drive_0"]:
             floppies.append(self.config["floppy_drive_0"])
         return floppies
@@ -156,14 +149,14 @@ class AtariSTRunner(GameRunner):
 
         hz = scale_x / orig_scale_x
         vz = scale_y / orig_scale_y
-        #hz = int(round(scale_x / orig_scale_x * 100000000))
-        #vz = int(round(scale_y / orig_scale_y * 100000000))
+        # hz = int(round(scale_x / orig_scale_x * 100000000))
+        # vz = int(round(scale_y / orig_scale_y * 100000000))
         print("horizontal zoom:", hz / 100000000.0)
         print("vertical zoom:", vz / 100000000.0)
-        #ho = int(round(offset_x * 100000000))
-        #vo = int(round(offset_y * 100000000))
-        #print("horizontal offset:", ho / 100000000.0);
-        #print("vertical offset:", vo / 100000000.0);
+        # ho = int(round(offset_x * 100000000))
+        # vo = int(round(offset_y * 100000000))
+        # print("horizontal offset:", ho / 100000000.0);
+        # print("vertical offset:", vo / 100000000.0);
         self.set_env("FILTER_VERT_OFFSET", str(offset_y))
         self.set_env("FILTER_HORIZ_OFFSET", str(offset_x))
         self.set_env("FILTER_VERT_ZOOM", str(vz))
@@ -186,7 +179,8 @@ class AtariSTRunner(GameRunner):
         return self.bios_temp.path
 
     def run(self):
-        return self.start_emulator("fs-hatari/hatari")
+        # return self.start_emulator("fs-hatari/hatari")
+        return self.start_emulator_from_plugin_resource("hatari")
 
     def finish(self):
         pass

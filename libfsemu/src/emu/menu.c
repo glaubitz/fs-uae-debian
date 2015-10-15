@@ -1,10 +1,12 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <fs/emu.h>
 #include "menu.h"
 
 #include <stdlib.h>
 #include <string.h>
-
-#include <fs/string.h>
 
 #include "dialog.h"
 #include "font.h"
@@ -23,7 +25,7 @@ static fs_emu_font *g_font_menu = NULL;
 
 static fs_emu_menu* g_menu = NULL;
 static fs_emu_menu* g_top_menu = NULL;
-static fs_list* g_menu_stack = NULL;
+static GList* g_menu_stack = NULL;
 static int g_top_menu_focus = 0;
 
 // FIXME: set to 0 later
@@ -51,7 +53,7 @@ int fs_emu_menu_is_active() {
     return g_fs_emu_menu_mode;
 }
 
-fs_emu_menu *fs_emu_menu_get_current() {
+static fs_emu_menu *fs_emu_menu_get_current() {
     return g_menu;
 }
 
@@ -92,9 +94,9 @@ static int on_aspect(fs_emu_menu_item* item, void **result_data) {
 static int go_back_in_menu_stack() {
     if (g_menu_stack != NULL) {
         fs_unref(g_menu);
-        fs_list* last = fs_list_last(g_menu_stack);
+        GList* last = g_list_last(g_menu_stack);
         g_menu = last->data;
-        g_menu_stack = fs_list_delete_link(g_menu_stack, last);
+        g_menu_stack = g_list_delete_link(g_menu_stack, last);
         if (g_menu->update) {
             g_menu->update(g_menu);
         }
@@ -179,6 +181,9 @@ void fs_emu_menu_function(int action, int state) {
     else if (action == ACTION_MENU_BACK) {
         go_back_in_menu_stack();
     }
+    else if (action == ACTION_MENU_START) {
+        fs_emu_menu_toggle();
+    }
     else if (action == ACTION_MENU_ESCAPE) {
         if (!go_back_in_menu_stack()) {
             // no more menus to back out of, go out of menu mode instead
@@ -211,7 +216,7 @@ void fs_emu_menu_function(int action, int state) {
                     //}
                 }
                 if (result & FS_EMU_MENU_RESULT_MENU) {
-                    g_menu_stack = fs_list_append(g_menu_stack, g_menu);
+                    g_menu_stack = g_list_append(g_menu_stack, g_menu);
                     g_menu = result_data;
                     if (g_menu->update) {
                         g_menu->update(g_menu);
@@ -250,7 +255,7 @@ void fs_emu_menu_set_current(fs_emu_menu *menu) {
     }
 }
 
-void fs_emu_menu_destroy(void* ptr) {
+static void fs_emu_menu_destroy(void* ptr) {
     fs_log("fs_emu_menu_destroy\n");
     fs_emu_menu* menu = ptr;
     for (int i = 0; i < menu->count; i++) {
@@ -266,7 +271,7 @@ fs_emu_menu *fs_emu_menu_new() {
     return menu;
 }
 
-void fs_emu_menu_item_destroy(void* ptr) {
+static void fs_emu_menu_item_destroy(void* ptr) {
     //fs_log("fs_emu_menu_item_destroy\n");
     fs_emu_menu_item* item = ptr;
     /*
@@ -294,12 +299,12 @@ void fs_emu_menu_append_item(fs_emu_menu *menu,
 }
 
 fs_emu_menu_item *fs_emu_menu_item_at(fs_emu_menu *menu, int index) {
-    //return (fs_emu_menu_item *) fs_list_nth_data(menu->items, index);
+    //return (fs_emu_menu_item *) g_list_nth_data(menu->items, index);
     return menu->items[index];
 }
 
-int fs_emu_menu_item_count(fs_emu_menu *menu) {
-    //return (fs_emu_menu_item *) fs_list_length(menu->items);
+static int fs_emu_menu_item_count(fs_emu_menu *menu) {
+    //return (fs_emu_menu_item *) g_list_length(menu->items);
     return menu->count;
 }
 
@@ -315,7 +320,7 @@ void fs_emu_menu_item_set_title(fs_emu_menu_item *item, const char* title) {
     if (item->title) {
         free(item->title);
     }
-    item->title = fs_strdup(title);
+    item->title = g_strdup(title);
 }
 
 int fs_emu_menu_item_get_idata(fs_emu_menu_item *item) {
@@ -352,13 +357,28 @@ static void initialize() {
     initialized = 1;
     fs_emu_log("initializing menu\n");
 
+    char *data;
+    int data_size;
+    int error;
+    error = fs_get_program_data("title_font.png", &data, &data_size);
+    if (error != 0) {
+        fs_emu_warning("Error %d loading title_font.png\n", error);
+    }
+    g_font_title = fs_emu_font_new_from_data(data, data_size);
+    error = fs_get_program_data("menu_font.png", &data, &data_size);
+    if (error != 0) {
+        fs_emu_warning("Error %d loading menu_font.png\n", error);
+    }
+    g_font_menu = fs_emu_font_new_from_data(data, data_size);
+#if 0
     char *path;
-    path = fs_emu_theme_get_resource("title_font.png");
+    path = fs_emu_theme_get_resource_path("title_font.png");
     g_font_title = fs_emu_font_new_from_file(path);
     free(path);
-    path = fs_emu_theme_get_resource("menu_font.png");
+    path = fs_emu_theme_get_resource_path("menu_font.png");
     g_font_menu = fs_emu_font_new_from_file(path);
     free(path);
+#endif
 
     g_top_menu = fs_emu_menu_new();
     fs_emu_menu_item *item;
@@ -575,7 +595,7 @@ static void render_top_item(int mode, int index) {
         if (mode == 0) {
             //fs_emu_texture *texture = NULL;
             int texture = TEXTURE_VOLUME;
-            if (fs_emu_audio_get_mute()) {
+            if (fs_emu_audio_muted(FS_EMU_AUDIO_MASTER)) {
                 //texture = g_tex_volume_mute;
                 texture = TEXTURE_VOLUME_MUTED;
             }
@@ -663,8 +683,9 @@ void fs_emu_menu_render(double transition) {
     glPopMatrix();
 }
 
-void fs_emu_menu_toggle() {
-    fs_emu_log("fs_emu_toggle_menu\n");
+void fs_emu_menu_toggle()
+{
+    fs_emu_log("fs_emu_menu_toggle\n");
     if (g_fs_emu_menu_mode) {
         // leave menu
         g_fs_emu_menu_mode = 0;

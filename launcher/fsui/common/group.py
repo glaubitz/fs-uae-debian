@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import weakref
 
 
@@ -11,10 +6,10 @@ class Group(object):
     def __init__(self, parent):
         self._parent = weakref.ref(parent)
         if hasattr(parent, "_window"):
+            # noinspection PyProtectedMember
             self._window = parent._window
         self.position = (0, 0)
-        # FIXME: should instead be closest "real" parent (panel, whatever)
-        # self.get_window().add_destroy_listener(self.__on_destroy)
+        self.__visible = True
 
     # def __on_destroy(self):
     #     self.on_destroy()
@@ -23,8 +18,11 @@ class Group(object):
     def parent(self):
         return self._parent()
 
+    # def show_or_hide(self, show):
+    #     self.__visible = show
+
     def is_visible(self):
-        return True
+        return self.__visible
 
     # def on_destroy(self):
     #     pass

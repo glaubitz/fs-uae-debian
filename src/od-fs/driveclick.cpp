@@ -1,23 +1,23 @@
 #include <fs/filesys.h>
 #include "sysconfig.h"
 #include "sysdeps.h"
-#include <fs/string.h>
-#include "include/driveclick.h"
 
-static void *g_driveclick_data[DS_END];
-static int g_driveclick_size[DS_END];
+#include "driveclick.h"
+#include "uae/fs.h"
+#include "uae/glib.h"
+
 static const char *g_driveclick_path = "";
 //static char *g_driveclick_name = NULL;
 
 extern "C" {
 
 void amiga_set_builtin_driveclick_path(const char *path) {
-    g_driveclick_path = fs_strdup(path);
+    g_driveclick_path = g_strdup(path);
 }
 
 #if 0
 void amiga_set_drive_sound_name(const char *name) {
-    g_driveclick_name = fs_strdup(name);
+    g_driveclick_name = g_strdup(name);
 }
 #endif
 
@@ -68,12 +68,12 @@ int driveclick_loadresource (struct drvsample *sp, int drivetype) {
             continue;
         }
 
-        char *path = fs_path_join(g_driveclick_path, name, NULL);
+        char *path = g_build_filename(g_driveclick_path, name, NULL);
         int64_t size = fs_path_get_size(path);
         if (size >= 0) {
             int len = (int) size;
-            void *buffer = malloc(len);
-            FILE* f = fs_fopen(path, "rb");
+            void *buffer = g_malloc(len);
+            FILE* f = g_fopen(path, "rb");
             int read = fread(buffer, 1, len, f);
             if (read == size) {
                 struct drvsample* s = sp + type;
@@ -82,8 +82,9 @@ int driveclick_loadresource (struct drvsample *sp, int drivetype) {
                 s->p = decodewav((uae_u8*) buffer, &len);
                 s->len = len;
             }
-            free(buffer);
+            g_free(buffer);
         }
+        g_free(path);
     }
     return ok;
 }

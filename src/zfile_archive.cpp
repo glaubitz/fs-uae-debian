@@ -9,9 +9,12 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
-#if defined(_WIN32) && defined(WINUAE)
+#ifdef FSUAE
+#else
+#ifdef _WIN32
 #include <windows.h>
 #include "win32.h"
+#endif
 #endif
 
 #include "options.h"
@@ -22,11 +25,15 @@
 #include "zarchive.h"
 #include "disk.h"
 
+#ifdef FSUAE // NL
+#undef _WIN32
+#endif
+
 #include <zlib.h>
 
 #define unpack_log write_log
 #undef unpack_log
-#define unpack_log
+#define unpack_log(fmt, ...)
 
 
 static time_t fromdostime (uae_u32 dd)
@@ -42,7 +49,6 @@ static time_t fromdostime (uae_u32 dd)
 	tm.tm_mon  = ((dd >> 21) & 0x0f) - 1;
 	tm.tm_mday = (dd >> 16) & 0x1f;
 	t = mktime (&tm);
-	_tzset ();
 	t -= _timezone;
 	return t;
 }
@@ -174,6 +180,10 @@ struct zfile *archive_access_select (struct znode *parent, struct zfile *zf, uns
 				int ft = 0;
 				if (mask & ZFD_CD) {
 					if (ext && !_tcsicmp (ext, _T(".iso"))) {
+						whf = 2;
+						ft = ZFILE_CDIMAGE;
+					}
+					if (ext && !_tcsicmp (ext, _T(".chd"))) {
 						whf = 2;
 						ft = ZFILE_CDIMAGE;
 					}
@@ -674,7 +684,7 @@ static int canrar (void)
 
 	if (israr == 0) {
 		israr = -1;
-#if defined(_WIN32) && defined(WINUAE)
+#ifdef _WIN32
 		{
 			HMODULE rarlib;
 
@@ -708,7 +718,7 @@ static int canrar (void)
 	return israr < 0 ? 0 : 1;
 }
 
-static int CALLBACK RARCallbackProc (UINT msg,LONG UserData,LONG P1,LONG P2)
+static int CALLBACK RARCallbackProc (UINT msg, LONG UserData, LONG P1, LONG P2)
 {
 	if (msg == UCM_PROCESSDATA) {
 		zfile_fwrite ((uae_u8*)P1, 1, P2, rarunpackzf);
@@ -732,6 +742,9 @@ static void archive_close_rar (void *ctx)
 
 struct zvolume *archive_directory_rar (struct zfile *z)
 {
+#ifdef WIN64
+	return archive_directory_arcacc (z, ArchiveFormatRAR);
+#else
 	struct zvolume *zv;
 	struct RARContext *rc;
 	struct zfile *zftmp;
@@ -770,10 +783,12 @@ struct zvolume *archive_directory_rar (struct zfile *z)
 	zv->archive = zftmp;
 	zv->method = ArchiveFormatRAR;
 	return zv;
+#endif
 }
 
 static struct zfile *archive_access_rar (struct znode *zn)
 {
+#ifndef WIN64
 	struct RARContext *rc = (struct RARContext*)zn->volume->handle;
 	int i;
 	struct zfile *zf = NULL;
@@ -804,6 +819,9 @@ static struct zfile *archive_access_rar (struct znode *zn)
 end:
 	pRARCloseArchive(rc->hArcData);
 	return zf;
+#else
+	return NULL;
+#endif
 }
 #endif
 
@@ -846,7 +864,7 @@ static aapGetFileInfo aaGetFileInfo;
 static aapExtract aaExtract;
 static aapCloseArchive aaCloseArchive;
 
-#if defined(_WIN32) && defined(WINUAE)
+#ifdef _WIN32
 static HMODULE arcacc_mod;
 
 static void arcacc_free (void)
@@ -1165,6 +1183,7 @@ static uae_u32 gwx (uae_u8 *p)
 static const int secs_per_day = 24 * 60 * 60;
 static const int diff = (8 * 365 + 2) * (24 * 60 * 60);
 static const int diff2 = (-8 * 365 - 2) * (24 * 60 * 60);
+
 static time_t put_time (long days, long mins, long ticks)
 {
 	time_t t;
@@ -1238,7 +1257,7 @@ static void recurseadf (struct znode *zn, int root, TCHAR *name)
 				size = 0;
 			zai.size = size;
 			zai.flags = gl (adf, bs - 48 * 4);
-			amiga_to_timeval (&zai.tv, gl (adf, bs - 23 * 4), gl (adf, bs - 22 * 4),gl (adf, bs - 21 * 4));
+			amiga_to_timeval (&zai.tv, gl (adf, bs - 23 * 4), gl (adf, bs - 22 * 4),gl (adf, bs - 21 * 4), 50);
 			if (secondary == -3) {
 				struct znode *znnew = zvolume_addfile_abs (zv, &zai);
 				znnew->offset = block;
@@ -1260,7 +1279,6 @@ static void recursesfs (struct znode *zn, int root, TCHAR *name, int sfs2)
 	struct zvolume *zv = zn->volume;
 	struct adfhandle *adf = (struct adfhandle*)zv->handle;
 	TCHAR name2[MAX_DPATH];
-	int bs = adf->blocksize;
 	int block;
 	uae_u8 *p, *s;
 	struct zarchive_info zai;
@@ -1344,7 +1362,6 @@ struct zvolume *archive_directory_adf (struct znode *parent, struct zfile *z)
 {
 	struct zvolume *zv;
 	struct adfhandle *adf;
-	TCHAR *volname = NULL;
 	TCHAR name[MAX_DPATH];
 	int gotroot = 0;
 
@@ -1369,7 +1386,7 @@ struct zvolume *archive_directory_adf (struct znode *parent, struct zfile *z)
 		goto fail;
 	adf->dostype = gl (adf, 0);
 
-	if ((adf->dostype & 0xffffff00) == 'DOS\0') {
+	if ((adf->dostype & 0xffffff00) == MCC('D', 'O', 'S', '\0')) {
 		int bs = adf->blocksize;
 		int res;
 
@@ -1413,15 +1430,15 @@ struct zvolume *archive_directory_adf (struct znode *parent, struct zfile *z)
 			goto fail;
 		adf->blocksize = bs;
 		adf->highblock = adf->size / adf->blocksize;
-		volname = getBSTR (adf->block + adf->blocksize - 20 * 4);
 		zv = zvolume_alloc (z, ArchiveFormatADF, NULL, NULL);
 		zv->method = ArchiveFormatADF;
 		zv->handle = adf;
+		zv->volumename = getBSTR (adf->block + adf->blocksize - 20 * 4);
 
 		name[0] = 0;
 		recurseadf (&zv->root, adf->rootblock, name);
 
-	} else if ((adf->dostype & 0xffffff00) == 'SFS\0') {
+	} else if ((adf->dostype & 0xffffff00) == MCC('S', 'F', 'S', '\0')) {
 
 		uae_u16 version, sfs2;
 
@@ -1434,14 +1451,14 @@ struct zvolume *archive_directory_adf (struct znode *parent, struct zfile *z)
 				adf->rootblock = gl (adf, 104);
 				if (!adf_read_block (adf, adf->rootblock))
 					break;
-				if (gl (adf, 0) != 'OBJC')
+				if (gl (adf, 0) != MCC('O', 'B', 'J', 'C'))
 					break;
 				if (sfs_checksum (adf->block, adf->blocksize, sfs2))
 					break;
 				adf->rootblock = gl (adf, 40);
 				if (!adf_read_block (adf, adf->rootblock))
 					break;
-				if (gl (adf, 0) != 'OBJC')
+				if (gl (adf, 0) != MCC('O', 'B', 'J', 'C'))
 					break;
 				if (sfs_checksum (adf->block, adf->blocksize, sfs2))
 					break;
@@ -1468,8 +1485,6 @@ struct zvolume *archive_directory_adf (struct znode *parent, struct zfile *z)
 		goto fail;
 	}
 
-
-	xfree (volname);
 	return zv;
 fail:
 	xfree (adf);
@@ -1542,8 +1557,8 @@ static struct zfile *archive_access_adf (struct znode *zn)
 	struct zfile *z = NULL;
 	int root, ffs;
 	struct adfhandle *adf = (struct adfhandle*)zn->volume->handle;
-	int size, bs;
-	int i;
+	uae_s64 size;
+	int i, bs;
 	uae_u8 *dst;
 
 	size = zn->size;
@@ -1552,7 +1567,7 @@ static struct zfile *archive_access_adf (struct znode *zn)
 	if (!z)
 		return NULL;
 
-	if ((adf->dostype & 0xffffff00) == 'DOS\0') {
+	if ((adf->dostype & 0xffffff00) == MCC('D', 'O', 'S', '\0')) {
 
 		ffs = adf->dostype & 1;
 		root = zn->offset;
@@ -1560,7 +1575,7 @@ static struct zfile *archive_access_adf (struct znode *zn)
 		for (;;) {
 			adf_read_block (adf, root);
 			for (i = bs / 4 - 51; i >= 6; i--) {
-				int bsize = ffs ? bs : bs - 24;
+				uae_s64 bsize = ffs ? bs : bs - 24;
 				int block = gl (adf, i * 4);
 				if (size < bsize)
 					bsize = size;
@@ -1578,11 +1593,11 @@ static struct zfile *archive_access_adf (struct znode *zn)
 				break;
 			root = gl (adf, bs - 2 * 4);
 		}
-	} else if ((adf->dostype & 0xffffff00) == 'SFS\0') {
+	} else if ((adf->dostype & 0xffffff00) == MCC('S', 'F', 'S', '\0')) {
 
 		struct sfsblock *sfsblocks;
 		int sfsblockcnt, sfsmaxblockcnt, i;
-		int bsize;
+		uae_s64 bsize;
 		int block = zn->offset;
 		int dblock;
 		int btree, version, sfs2;
@@ -1739,7 +1754,7 @@ struct zvolume *archive_directory_rdb (struct zfile *z)
 	zfile_fseek (z, 0, SEEK_SET);
 	p = buf;
 	zfile_fread (buf, 1, 512, z);
-	zai.name = _T("rdb_dump.dat");
+	zai.name = my_strdup(_T("rdb_dump.dat"));
 	bs = rl (p + 16);
 	zai.size = rl (p + 140) * bs;
 	zai.comment = NULL;
@@ -1756,7 +1771,8 @@ static struct zfile *archive_access_rdb (struct znode *zn)
 	struct zfile *zf;
 	uae_u8 buf[512] = { 0 };
 	int surf, spb, spt, lowcyl, highcyl;
-	int size, block, blocksize;
+	int block, blocksize;
+	uae_s64 size;
 	uae_u8 *p;
 
 	if (zn->offset) {
@@ -1905,7 +1921,7 @@ static int getcluster (struct zfile *z, int cluster, int fatstart, int fatbits)
 	return fat;
 }
 
-static void fatdirectory (struct zfile *z, struct zvolume *zv, TCHAR *name, int startblock, int entries, int sectorspercluster, int fatstart, int dataregion, int fatbits)
+static void fatdirectory (struct zfile *z, struct zvolume *zv, const TCHAR *name, int startblock, int entries, int sectorspercluster, int fatstart, int dataregion, int fatbits)
 {
 	struct zarchive_info zai;
 	struct znode *znnew;
@@ -2019,12 +2035,12 @@ static struct zfile *archive_access_fat (struct znode *zn)
 {
 	uae_u8 buf[512] = { 0 };
 	int fatbits = 12;
-	int size = zn->size;
+	uae_s64 size = zn->size;
 	struct zfile *sz, *dz;
 	int rootdir, reserved, sectorspercluster;
 	int numfats, sectorsperfat, rootentries;
-	int dataregion;
-	int offset, cluster;
+	int dataregion, cluster;
+	uae_s64 offset;
 
 	sz = zn->volume->archive;
 
@@ -2048,7 +2064,7 @@ static struct zfile *archive_access_fat (struct znode *zn)
 	offset = 0;
 	cluster = zn->offset;
 	while (size && cluster >= 2) {
-		int left = size > sectorspercluster * 512 ? sectorspercluster * 512 : size;
+		uae_s64 left = size > sectorspercluster * 512 ? sectorspercluster * 512 : size;
 		int sector = dataregion + (cluster - 2) * sectorspercluster;
 		zfile_fseek (sz, sector * 512, SEEK_SET);
 		zfile_fread (dz->data + offset, 1, left, sz);
@@ -2169,7 +2185,9 @@ struct zfile *archive_getzfile (struct znode *zn, unsigned int id, int flags)
 		zf = archive_access_tar (zn);
 		break;
 	}
-	if (zf)
+	if (zf) {
 		zf->archiveid = id;
+		zfile_fseek (zf, 0, SEEK_SET);
+	}
 	return zf;
 }

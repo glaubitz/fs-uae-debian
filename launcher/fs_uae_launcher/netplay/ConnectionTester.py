@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import time
 import socket
 import threading
@@ -10,6 +5,7 @@ import traceback
 from fsbc.Application import call_after
 from ..Config import Config
 from ..Signal import Signal
+
 
 class ConnectionTester():
 
@@ -26,7 +22,7 @@ class ConnectionTester():
         print("on_quit_signal")
         self.stopping = True
 
-    def on_config(self, key, value):
+    def on_config(self, key, _):
         if key in ["__netplay_addresses", "__netplay_port"]:
             addresses = Config.get("__netplay_addresses")
             port = Config.get("__netplay_port")
@@ -34,7 +30,8 @@ class ConnectionTester():
             if host_info != self.host_info:
                 self.host_info = host_info
             if not self.running:
-                threading.Thread(target=self.thread_main).start()
+                threading.Thread(target=self.thread_main,
+                                 name="ConnectionTesterThread").start()
                 self.running = True
 
     def thread_main(self):
@@ -46,14 +43,16 @@ class ConnectionTester():
     def set_host(self, host, last_error):
         if last_error:
             last_error = "attempt {1} {0}".format(
-                    last_error, self.connection_attempt)
+                last_error, self.connection_attempt)
         values = [("__netplay_host", host),
-                ("__netplay_host_last_error", last_error)]
+                  ("__netplay_host_last_error", last_error)]
         if last_error or not host:
             # force not ready when we cannot connect to server
             values.append(("__netplay_ready", "0"))
+
         def function():
             Config.set_multiple(values)
+
         call_after(function)
 
     def _thread_main(self):
@@ -90,17 +89,17 @@ class ConnectionTester():
                 try:
                     print("trying", host, port)
                     s = socket.create_connection((host, port))
-                    s.send("PING")
+                    s.send(b"PING")
                     # FIXME: set timeout, don't want to wait forever here...
                     data = s.recv(4)
-                    if data == "PONG":
+                    if data == b"PONG":
                         verified_host = host
                         last_error = ""
                         break
                     else:
                         last_error = "Wrong PING response"
-                except Exception as e:
-                    last_error = repr(e)
+                except Exception:
+                    last_error = traceback.format_exc()
                     print(last_error)
             finally:
                 if s is not None:

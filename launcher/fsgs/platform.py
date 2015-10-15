@@ -1,9 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-
 from fsbc.util import memoize
 
 
@@ -67,6 +61,7 @@ from .platforms.mega_drive import MegaDrivePlatformHandler
 from .platforms.nintendo import NintendoPlatformHandler
 from .platforms.super_nintendo import SuperNintendoPlatformHandler
 from .platforms.turbografx_16 import TurboGrafx16PlatformHandler
+from .platforms.zx_spectrum import ZXSpectrumPlatformHandler
 
 
 platforms = {
@@ -91,5 +86,5 @@ platforms = {
     "nintendo": NintendoPlatformHandler,
     "super-nintendo": SuperNintendoPlatformHandler,
     "turbografx-16": TurboGrafx16PlatformHandler,
-    # "zx-spectrum":,
+    "zx-spectrum": ZXSpectrumPlatformHandler,
 }

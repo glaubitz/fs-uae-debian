@@ -1,14 +1,9 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import tempfile
 import traceback
 import subprocess
 from fsbc.system import windows, macosx
-from fsbc.Application import Application
+from fsbc.Application import Application, app
 
 try:
     getcwd = os.getcwdu
@@ -38,6 +33,10 @@ class FSUAE(object):
         print("current dir (cwd): ", getcwd())
         print("using fs-uae executable:", exe)
         args = [exe] + args
+
+        # if "--always-on-top" in sys.argv:
+        #     args += ["--always-on-top"]
+
         print(args)
         for name in ["SDL_VIDEODRIVER", "__GL_SYNC_TO_VBLANK"]:
             if name in os.environ:
@@ -45,17 +44,35 @@ class FSUAE(object):
                 del os.environ[name]
         env = os.environ.copy()
         print(repr(env))
-        #env = None
+        # env = None
         try:
             cls.center_window(args, env)
         except Exception:
             traceback.print_exc()
-            env = None
+        cls.add_environment_from_settings(env)
+        # env[str("SDL_VIDEO_WINDOW_POS")] = "0,0"
+        # args += ["--fullscreen-mode", "desktop"]
         if windows:
             p = subprocess.Popen(args, env=env, close_fds=True, **kwargs)
         else:
             p = subprocess.Popen(args, env=env, **kwargs)
         return p
+
+    @classmethod
+    def add_environment_from_settings(cls, env):
+        for key, value in app.settings.values.items():
+            # if not key.startswith("environment_"):
+            #     continue
+            # key = key[12:].upper()
+            if not key.isupper():
+                continue
+            # Check if it looks like a valid environment variable
+            for c in key:
+                if c not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789":
+                    break
+            else:
+                print("[ENV] {} = {}".format(key, value))
+                env[key] = value
 
     @classmethod
     def center_window(cls, args, env):
@@ -90,17 +107,17 @@ class FSUAE(object):
         env[str("SDL_VIDEO_WINDOW_POS")] = str("{0},{1}".format(x, y))
         args.append("--window-x={0}".format(x))
         args.append("--window-y={0}".format(y))
-        #print("window position", env["SDL_VIDEO_WINDOW_POS"])
-        #os.environ["SDL_VIDEO_WINDOW_POS"] = "{0},{1}".format(x, y)
+        # print("window position", env["SDL_VIDEO_WINDOW_POS"])
+        # os.environ["SDL_VIDEO_WINDOW_POS"] = "{0},{1}".format(x, y)
 
     @classmethod
-    def find_executable(cls):
+    def find_executable(cls, executable="fs-uae"):
         application = Application.instance()
 
         if os.path.isdir("../fs-uae/src"):
             # running FS-UAE Launcher from source directory, we
             # then want to run the locally compiled fs-uae binary
-            path = "../fs-uae/fs-uae"
+            path = "../fs-uae/" + executable
             if windows:
                 path += ".exe"
             if os.path.isfile(path):
@@ -109,30 +126,45 @@ class FSUAE(object):
 
         if windows:
             exe = os.path.join(
-                application.executable_dir(), "fs-uae/fs-uae.exe")
+                application.executable_dir(), executable + ".exe")
             if not os.path.exists(exe):
                 exe = os.path.join(
-                    application.executable_dir(), "../fs-uae.exe")
+                    application.executable_dir(),
+                    "fs-uae/" + executable + ".exe")
+            if not os.path.exists(exe):
+                exe = os.path.join(
+                    application.executable_dir(), "../" + executable + ".exe")
         elif macosx:
-            exe = os.path.join(
-                application.executable_dir(),
-                "../FS-UAE.app/Contents/MacOS/fs-uae")
+            exe = os.path.join(application.executable_dir(), executable)
             if not os.path.exists(exe):
                 exe = os.path.join(
                     application.executable_dir(),
-                    "../../../FS-UAE.app/Contents/MacOS/fs-uae")
+                    "../FS-UAE.app/Contents/MacOS/" + executable)
             if not os.path.exists(exe):
                 exe = os.path.join(
                     application.executable_dir(),
-                    "../../../Programs/Mac OS X/FS-UAE.app/Contents/MacOS/fs-uae")
+                    "../../../FS-UAE.app/Contents/MacOS/" + executable)
+            if not os.path.exists(exe):
+                exe = os.path.join(
+                    application.executable_dir(),
+                    "../../../Programs/Mac OS X/FS-UAE.app/Contents/MacOS/" + executable)
             if not os.path.exists(exe):
                 exe = os.path.join(
                     application.executable_dir(),
                     "../../../FS-UAE Launcher.app/Contents/Resources/"
-                    "FS-UAE.app/Contents/MacOS/fs-uae")
+                    "FS-UAE.app/Contents/MacOS/" + executable)
         else:
-            return "fs-uae"
+            print("application executable dir", application.executable_dir())
+            exe = os.path.join(application.executable_dir(), executable)
+            print("checking", exe)
+            if not os.path.exists(exe):
+                exe = os.path.join(
+                    application.executable_dir(), "..", "bin", executable)
+                print("checking", exe)
+            if not os.path.exists(exe):
+                return executable
 
         if not os.path.exists(exe):
-            raise Exception("Could not find FS-UAE executable")
+            raise Exception("Could not find {0} executable".format(
+                repr(executable)))
         return exe

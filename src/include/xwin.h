@@ -6,6 +6,14 @@
   * Copyright 1995-1997 Bernd Schmidt
   */
 
+#ifndef UAE_XWIN_H
+#define UAE_XWIN_H
+
+#ifdef FSUAE
+#include "uae/types.h"
+#include "uae/asm.h"
+#include <string.h>
+#endif
 #include "machdep/rpt.h"
 
 typedef uae_u32 xcolnr;
@@ -19,13 +27,18 @@ extern uae_u32 p96_rgbx16[65536];
 
 extern int graphics_setup (void);
 extern int graphics_init (bool);
-extern void graphics_leave (void);
-extern void handle_events (void);
+extern void graphics_leave(void);
+extern void graphics_reset(bool);
+extern bool handle_events (void);
 extern int handle_msgpump (void);
 extern void setup_brkhandler (void);
 extern int isfullscreen (void);
 extern void toggle_fullscreen (int);
+extern bool toggle_rtg (int);
+
 extern void toggle_mousegrab (void);
+void setmouseactivexy (int x, int y, int dir);
+
 extern void desktop_coords (int *dw, int *dh, int *x, int *y, int *w, int *h);
 extern bool vsync_switchmode (int);
 extern frame_time_t vsync_busywait_end (int*);
@@ -45,16 +58,20 @@ extern void flush_block (struct vidbuffer*, int, int);
 extern void flush_screen (struct vidbuffer*, int, int);
 extern void flush_clear_screen (struct vidbuffer*);
 extern bool render_screen (bool);
-extern void show_screen (void);
+extern void show_screen (int);
 extern bool show_screen_maybe (bool);
 
 extern int lockscr (struct vidbuffer*, bool);
 extern void unlockscr (struct vidbuffer*);
 extern bool target_graphics_buffer_update (void);
 
+void getgfxoffset (float *dxp, float *dyp, float *mxp, float *myp);
+double getcurrentvblankrate (void); /* todo: remove from od-win32/win32gfx.h */
+
 extern int debuggable (void);
 extern void LED (int);
 extern void screenshot (int,int);
+void refreshtitle (void);
 
 extern int bits_in_mask (unsigned long mask);
 extern int mask_shift (unsigned long mask);
@@ -131,6 +148,7 @@ struct vidbuffer
 };
 
 extern bool isnativevidbuf (void);
+extern int max_uae_width, max_uae_height;
 
 struct vidbuf_description
 {
@@ -158,3 +176,4 @@ extern struct vidbuf_description gfxvidinfo;
 extern struct bstring *video_mode_menu;
 extern void vidmode_menu_selected(int);
 
+#endif // UAE_XWIN_H

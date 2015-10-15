@@ -1,27 +1,22 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
-import six
 import hashlib
 import traceback
-from fsbc.Application import app
 from fsgs.FileDatabase import FileDatabase
 from fsgs.Archive import Archive
 from fsgs.amiga.ROMManager import ROMManager
-from .I18N import _
+from fsgs.ogd.client import OGDClient
+from .I18N import gettext
 from .Util import get_real_case
 
 
-class FileScanner:
+class FileScanner(object):
 
     def __init__(self, paths, purge_other_dirs,
                  on_status=None, on_rom_found=None, stop_check=None):
         self.paths = paths
 
         self.purge_other_dirs = purge_other_dirs
+        self.database_file_ids = []
 
         self.on_status = on_status
         self.on_rom_found = on_rom_found
@@ -46,38 +41,55 @@ class FileScanner:
         self.extensions.add(".fs-uae")
         self.extensions.add(".7z")
 
-        if app.settings["database_server"] == "games.fengestad.no":
+        # if OGDClient.get_server() != "oagd.net":
+        if True:
             self.extensions.add(".bin")
 
             # Amstrad CPC
             self.extensions.add(".dsk")
+
             # Atari 2600
             self.extensions.add(".a26")
+
             # Atari 5200
             self.extensions.add(".a52")
+
             # Atari 7800
             self.extensions.add(".a78")
+
             # Atari ST
             self.extensions.add(".st")  # disk images
             self.extensions.add(".img")  # bios images
             self.extensions.add(".bin")  # bios images
+
             # Game Boy
             self.extensions.add(".gb")
+
             # Game Boy Advance
             self.extensions.add(".gba")
+
             # Game Boy Color
             self.extensions.add(".gbc")
 
             # Master System
             self.extensions.add(".sms")
+
             # Mega Drive
             self.extensions.add(".md")
             self.extensions.add(".bin")
             self.extensions.add(".gen")
+
             # Nintendo
             self.extensions.add(".nes")
+
             # Super Nintendo
             self.extensions.add(".sfc")
+
+            # ZX Spectrum
+            self.extensions.add(".dsk")
+            self.extensions.add(".tap")
+            self.extensions.add(".tzx")
+            self.extensions.add(".z80")
 
     def stop_check(self):
         if self._stop_check:
@@ -91,19 +103,23 @@ class FileScanner:
         return self.paths
 
     def purge_file_ids(self, file_ids):
-        self.set_status(_("Scanning files"), _("Purging old entries..."))
+        self.set_status(gettext("Scanning files"),
+                        gettext("Purging old entries..."))
         database = FileDatabase.get_instance()
         for file_id in file_ids:
             database.delete_file(id=file_id)
 
     def scan(self):
-        self.set_status(_("Scanning files"), _("Scanning files"))
+        self.set_status(gettext("Scanning files"),
+                        gettext("Scanning files"))
         database = FileDatabase.get_instance()
-        #database.clear()
+        # database.clear()
         scan_dirs = self.get_scan_dirs()
         
         if self.purge_other_dirs:
-            self.all_database_file_ids = database.get_file_ids()
+            all_database_file_ids = database.get_file_ids()
+        else:
+            all_database_file_ids = None
 
         for dir in scan_dirs:
             # this is important to make sure the database is portable across
@@ -112,28 +128,30 @@ class FileScanner:
 
             self.database_file_ids = database.get_file_hierarchy_ids(dir)
             if self.purge_other_dirs:
-                self.all_database_file_ids.difference_update(
+                all_database_file_ids.difference_update(
                     self.database_file_ids)
 
             self.scan_dir(database, dir)
 
-            #print("Remaining files:", self.database_file_ids)
+            # print("Remaining files:", self.database_file_ids)
             self.purge_file_ids(self.database_file_ids)
 
-            self.set_status(_("Scanning files"), _("Committing data..."))
+            self.set_status(gettext("Scanning files"),
+                            gettext("Committing data..."))
             # update last_file_insert and last_file_delete
             database.update_last_event_stamps()
-            print("FileScanner.scan - commiting data")
+            print("FileScanner.scan - committing data")
             database.commit()
 
         if self.purge_other_dirs:
-            self.purge_file_ids(self.all_database_file_ids)
+            self.purge_file_ids(all_database_file_ids)
 
         if self.stop_check():
             database.rollback()
         else:
-            self.set_status(_("Scanning files"), _("Committing data..."))
-            print("FileScanner.scan - commiting data")
+            self.set_status(gettext("Scanning files"),
+                            gettext("Committing data..."))
+            print("FileScanner.scan - committing data")
             database.commit()
 
     def scan_dir(self, database, dir, all_files=False):
@@ -173,11 +191,11 @@ class FileScanner:
 
     def scan_file(self, database, path):
         name = os.path.basename(path)
-        #path = os.path.normcase(os.path.normpath(path))
+        # path = os.path.normcase(os.path.normpath(path))
 
         self.scan_count += 1
         self.set_status(
-            _("Scanning files ({count} scanned)").format(
+            gettext("Scanning files ({count} scanned)").format(
                 count=self.scan_count), name)
 
         try:
@@ -189,20 +207,20 @@ class FileScanner:
         mtime = int(st.st_mtime)
 
         result = database.find_file(path=path)
-        #print(result)
+        # print(result)
         if result["path"]:
             if size == result["size"] and mtime == result["mtime"]:
 
                 self.database_file_ids.remove(result["id"])
-                #self.database_file_ids.difference_update(
-                #        database.get_file_hierarchy_ids(path + "#"))
+                # self.database_file_ids.difference_update(
+                #         database.get_file_hierarchy_ids(path + "#"))
                 
-                #self.database_file_ids.difference_update(
-                #        database.get_child_ids(id=result["id"]))
+                # self.database_file_ids.difference_update(
+                #         database.get_child_ids(id=result["id"]))
                 return
 
         archive = Archive(path)
-        #if archive.is_archive():
+        # if archive.is_archive():
 
         file_id = self.scan_archive_stream(
             database, archive, path, name, size, mtime)
@@ -211,10 +229,10 @@ class FileScanner:
             if p.endswith("/"):
                 # don't index archive directory entries
                 continue
-            #print(p)
+            # print(p)
             if self.stop_check():
                 return
-            #n = p.replace("\\", "/").replace("|", "/").split("/")[-1]
+            # n = p.replace("\\", "/").replace("|", "/").split("/")[-1]
             n = os.path.basename(p)
             self.scan_count += 1
             self.scan_archive_stream(
@@ -225,7 +243,7 @@ class FileScanner:
     def scan_archive_stream(
             self, database, archive, path, name, size, mtime, parent=None):
         self.set_status(
-            _("Scanning files ({count} scanned)").format(
+            gettext("Scanning files ({count} scanned)").format(
                 count=self.scan_count), name)
         base_name, ext = os.path.splitext(name)
         ext = ext.lower()
@@ -250,16 +268,18 @@ class FileScanner:
                 sha1_dec = None
             if sha1_dec:
                 if sha1_dec != sha1:
-                    print("found encrypted rom {0} => {1}".format(sha1, sha1_dec))
+                    print("found encrypted rom {0} => {1}".format(
+                        sha1, sha1_dec))
                     # sha1 is now the decrypted sha1, not the actual sha1 of the
                     # file itself, a bit ugly, since md5 and crc32 are still
                     # encrypted hashes, but it works well with the kickstart
                     # lookup mechanism
                     sha1 = sha1_dec
             else:
-                # If the ROM was encrypted and could not be decrypted, we don't add
-                # it to the database. This way, the file will be correctly added on
-                # later scans if rom.key is added to the directory.
+                # If the ROM was encrypted and could not be decrypted, we
+                # don't add it to the database. This way, the file will be
+                # correctly added on later scans if rom.key is added to the
+                # directory.
                 return None
 
         if parent:
@@ -279,8 +299,9 @@ class FileScanner:
 def check_valid_name(name):
     # check that the file is actually unicode object (indirectly). listdir
     # will return str objects for file names on Linux with invalid encoding.
+    # FIXME: not needed for Python 3
     try:
-        six.text_type(name)
+        str(name)
     except UnicodeDecodeError:
         return False
     return True

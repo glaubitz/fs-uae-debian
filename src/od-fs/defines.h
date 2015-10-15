@@ -10,22 +10,12 @@
 #endif
 */
 
-#include "tchar.h"
-
+// #include "tchar.h"
 // rename init_audio to make init_audio available
 
 #define init_audio uae_init_audio
 
-#include "uae_host.h"
-
-#define STUB(format, ...) { write_log(" -- stub -- %s " format "\n", \
-        __func__, ##__VA_ARGS__); \
-        printf(" -- stub -- %s " format "\n", __func__, ##__VA_ARGS__); }
-
-#define LOG_STUB(format, ...) { write_log(" -- stub -- %s " format "\n", \
-        __func__, ##__VA_ARGS__); }
-
-#define VERBOSE_STUB(format, ...)
+#include "uae/log.h"
 
 // we are using our own main function, not the one from UAE...
 
@@ -64,11 +54,7 @@ extern FILE *g_fs_uae_sync_debug_file;
 
 #define DEBUGGER 1
 
-#define A_DMS
-#define A_ZIP
 //#define A2065
-#define A2091
-#define ACTION_REPLAY
 #define AGA
 //#define AHI
 #define ARCADIA
@@ -78,56 +64,50 @@ extern FILE *g_fs_uae_sync_debug_file;
 #define BSDSOCKET
 #endif
 
-#define CD32
-#define CDTV
 #define ECS_DENISE
-#define CAPS
-#define CPUEMU_0
-#define CPUEMU_11
-#define CPUEMU_12
-#define CPUEMU_20
-#define CPUEMU_21
-#define CPUEMU_22
-#define CPUEMU_31
+#define CPUEMU_0 /* generic 680x0 emulation with direct memory access */
+#define CPUEMU_11 /* 68000/68010 prefetch emulation */
+#define CPUEMU_13 /* 68000/68010 cycle-exact cpu&blitter */
+#define CPUEMU_20 /* 68020 prefetch */
+#define CPUEMU_21 /* 68020 "cycle-exact" + blitter */
+#define CPUEMU_22 /* 68030 prefetch */
+#define CPUEMU_23 /* 68030 "cycle-exact" + blitter */
+#define CPUEMU_24 /* 68060 "cycle-exact" + blitter */
+#define CPUEMU_25 /* 68040 "cycle-exact" + blitter */
+#define CPUEMU_31 /* Aranym 68040 MMU */
+#define CPUEMU_32 /* Previous 68030 MMU */
+#define CPUEMU_33 /* 68060 MMU */
+#define CPUEMU_40 /* generic 680x0 with indirect memory access */
 //#define DEBUGGER
-#define DRIVESOUND
 //#define ENFORCER
 #define FDI2RAW
 #define FILESYS
-#define FPUEMU /* FPU emulation */
-#define FPU_UAE
 #define GFXFILTER
 
 #define MMU
 #define MMUEMU /* Aranym 68040 MMU */
 //#define MULTIDISPLAY 1
 #define NATMEM_OFFSET natmem_offset
+#define NCR
 #define FULLMMU /* Aranym 68040 MMU */
 #define PARALLEL_PORT
-#define PICASSO96
-#define PICASSO96_SUPPORTED
 #define SAVESTATE
+#define SCP
 #define SCSIEMU
-#define SERIAL_PORT
 #define SUPPORT_THREADS
 #define UAESERIAL
 #define UAE_FILESYS_THREADS
 //#define UAE_FILESYS_ASYNCHRONOUS
 //#define USE_SDL
 
+#ifdef LINUX
+#define WITH_SCSI_IOCTL
+#endif
+
 #define XARCADE
 #define GNU_SOURCE 1
 
-// needed several places in the code
-#define MAX_DPATH 1024
-#ifndef MAX_PATH
-#define MAX_PATH PATH_MAX
-//#ifdef WINDOWS
-//#define MAX_PATH 512
-//#else
-//define MAX_PATH 1024
-//#endif
-#endif
+#include "uae/limits.h"
 
 // needed by serial.cpp
 #ifdef WINDOWS
@@ -140,13 +120,13 @@ extern FILE *g_fs_uae_sync_debug_file;
 #define FSDB_DIR_SEPARATOR_S "/"
 
 // FIXME: OK?
-#define _stat64 stat
+//#define _stat64 stat
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
 #endif
 #ifdef WINDOWS
-typedef unsigned int SOCKET;
+typedef uintptr_t SOCKET;
 #else
 typedef int SOCKET;
 #endif
@@ -160,15 +140,20 @@ typedef unsigned short USHORT;
 #include "winuae_compat.h"
 #endif
 
-#include "../include/sysdeps.h"
+// Some WinUAE-derived code which must not be used is guarded by _WIN32
+// defines. The code is fixed so compiling without _WIN32 defined works
+// when compiling FS-UAE for Windows. FS-UAE code use the WINDOWS define
+// instead to avoid collision with WinUAE.
 
-// make use of enums compatible with C++: in C++ you cannot assign an
-// enum value to an int
+//#undef _WIN32
+//#undef WIN32
+
+#include "../include/sysdeps.h"
 
 #undef ENUMNAME
 #undef ENUMDECL
-#define ENUMDECL enum
-#define ENUMNAME(name) ; typedef int name ;
+
+#include "uae/enum.h"
 
 #include "machdep/machdep.h"
 
@@ -204,11 +189,6 @@ extern int uae_start_thread_fast (void *(*f)(void *), void *arg,
 
 
 #define Sleep sleep_millis
-typedef unsigned int WPARAM;
-typedef long LPARAM;
-typedef int BOOL;
-#define TRUE 1
-#define FALSE 0
 
 // needed to compile gencpu.cpp as C code (which is needed because
 // of int to enum conversions (illegal in C++)
@@ -236,12 +216,36 @@ typedef int BOOL;
 #define DRIVE_CDROM 0
 #endif
 
-#include "uae_util.h"
 #include <stddef.h>
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
 #include "uae/jitconfig.h"
+
+#ifndef NORETURN
+#ifdef __GNUC__
+#define NORETURN __attribute__((__noreturn__))
+#else
+#define NORETURN
+#endif
+#endif
+
+#ifdef WINDOWS
+#ifdef __MINGW64_VERSION_MAJOR
+#define _argc __argc
+#define _argv __argv
+#endif
+extern int _argc;
+extern char** _argv;
+#undef main
+// prevent later imports of SDL to overwrite main
+#define _SDL_main_h
+int _uae_main(int argc, char* argv[]);
+#define main(a, b) WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) { \
+    return _uae_main(_argc, _argv); \
+} \
+int _uae_main(int argc, char* argv[])
+#endif
 
 #endif // EXTRA_DEFINES_H

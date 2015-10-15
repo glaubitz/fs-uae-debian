@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from fsgs.ogd.client import OGDClient
 import fsui
 from fsbc.Application import app
@@ -10,11 +5,10 @@ from fs_uae_workspace.shell import SimpleApplication
 from fs_uae_launcher.res import gettext
 
 
-class LogoutWindow(fsui.Window):
+class LogoutWindow(fsui.Dialog):
 
     def __init__(self):
-        fsui.Window.__init__(
-            self, None, gettext("Log Out from Your OAGD.net Account"))
+        super().__init__(None, gettext("Log Out from Your OAGD.net Account"))
         self.set_icon(fsui.Icon("password", "pkg:fs_uae_workspace"))
 
         self.layout = fsui.VerticalLayout()
@@ -41,16 +35,24 @@ class LogoutWindow(fsui.Window):
         self.created_label = fsui.Label(self, "")
         hori_layout.add(self.created_label, expand=True)
         hori_layout.add_spacer(20)
+
         self.logout_button = fsui.Button(self, gettext("Log Out"))
         # self.logout_button.disable()
         self.logout_button.activated.connect(self.on_logout_activated)
         hori_layout.add(self.logout_button)
+
+        self.close_button = fsui.Button(self, gettext("Close"))
+        self.close_button.activated.connect(self.on_close_activated)
+        hori_layout.add(self.close_button, margin_left=10)
 
         self.set_size(self.layout.get_min_size())
         self.center_on_parent()
 
     def __del__(self):
         print("LogoutWindow.__del__")
+
+    def on_close_activated(self):
+        self.close()
 
     def on_logout_activated(self):
         auth_token = app.settings["database_auth"]

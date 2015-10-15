@@ -1,10 +1,11 @@
 #ifndef LIBFSEMU_EMU_H_
 #define LIBFSEMU_EMU_H_
 
+#include <fs/malloc.h>
 #include <fs/fs.h>
 #include <fs/ref.h>
 #include <fs/log.h>
-#include <fs/config.h>
+#include <fs/conf.h>
 #include <fs/ml.h>
 
 #if 0
@@ -17,6 +18,8 @@
 #include <glib.h>
 #endif
 #endif
+
+#include <stdbool.h>
 
 //#ifdef MACOSX
 // SDL.h must be included in the compilation unit containing main
@@ -55,7 +58,7 @@ void fs_emu_set_controllers_dir(const char *path);
 // initialize libfsemu
 
 void fs_emu_init_overlays(const char **overlay_names);
-void fs_emu_init();
+void fs_emu_init(void);
 
 #define FS_EMU_INIT_VIDEO 1
 #define FS_EMU_INIT_AUDIO 2
@@ -266,16 +269,13 @@ void fs_emu_toggle_fullscreen();
 double fs_emu_get_average_emu_fps();
 double fs_emu_get_average_sys_fps();
 
-double fs_emu_audio_get_measured_avg_buffer_fill(int stream);
-double fs_emu_audio_get_measured_output_frequency();
-
 // video interface
 
-int fs_emu_get_video_frame_rate();
+double fs_emu_get_video_frame_rate();
 /**
  * Specify the frame rate for emulated video (typically 50 or 60).
  */
-void fs_emu_set_video_frame_rate(int frame_rate);
+void fs_emu_set_video_frame_rate(double frame_rate);
 
 int fs_emu_video_get_aspect_correction();
 /**
@@ -367,47 +367,17 @@ int fs_emu_video_buffer_grow(fs_emu_video_buffer *buffer, int width,
 
 // audio interface
 
-int fs_emu_audio_get_volume();
-int fs_emu_audio_get_mute();
-void fs_emu_audio_set_volume(int volume);
-void fs_emu_audio_set_mute(int mute);
+#include <fs/emu/audio.h>
 
+bool fs_emu_mouse_integration(void);
+void fs_emu_show_cursor(int show);
+void fs_emu_show_cursor_msec(int duration);
+int fs_emu_is_cursor_visible(void);
+bool fs_emu_cursor_allowed(void);
+int64_t fs_emu_cursor_is_visible_to(void);
 
-typedef struct fs_emu_audio_stream_options {
-    int struct_size;
-    int frequency;
-    int channels;
-    int sample_size;
-    int buffer_size;
-    int min_buffers;
-} fs_emu_audio_stream_options;
-
-void fs_emu_init_audio_stream(int stream,
-        fs_emu_audio_stream_options *options);
-void fs_emu_init_audio_stream_options(fs_emu_audio_stream_options *options);
-void fs_emu_audio_pause_stream(int stream);
-void fs_emu_audio_resume_stream(int stream);
-int fs_emu_queue_audio_buffer(int stream, int16_t* buffer, int size);
-int fs_emu_check_audio_buffer_done(int stream, int buffer);
-int fs_emu_get_audio_frequency();
-
-#if 0
-// start deprecated
-void fs_emu_enable_audio_stream(int stream);
-void fs_emu_disable_audio_stream(int stream);
-int fs_emu_get_audio_buffer_size();
-void fs_emu_audio_sample(int stream, int16_t left, int16_t right);
-void fs_emu_set_max_audio_buffers(int buffers);
-void fs_emu_set_audio_buffer_frequency(int stream, int frequency);
-// end deprecated
-#endif
-
-void fs_emu_show_pointer(int show);
-void fs_emu_show_pointer_msec(int duration);
-int fs_emu_is_pointer_visible();
-int64_t fs_emu_pointer_is_visible_to();
 void fs_emu_grab_input(int mode);
-int fs_emu_has_input_grab();
+int fs_emu_has_input_grab(void);
 
 void fs_emu_screenshot(const char *path, int crop);
 
@@ -492,29 +462,6 @@ void fs_emu_release_gui_lock();
 
 #include <fs/emu/dialog.h>
 #include <fs/emu/video.h>
-
-// main function support for windows
-
-#ifdef WINDOWS
-#include <winsock2.h>
-#include <windows.h>
-extern int __argc;
-extern char** __argv;
-
-#undef main
-// prevent later imports of SDL to overwrite main
-#define _SDL_main_h
-
-extern int g_fs_ml_ncmdshow;
-extern HINSTANCE g_fs_ml_hinstance;
-int _fs_emu_windows_main(int argc, char* argv[]);
-#define main(a, b) WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) { \
-    g_fs_ml_hinstance = hInstance; \
-    g_fs_ml_ncmdshow = nCmdShow; \
-    return _fs_emu_windows_main(__argc, __argv); \
-} \
-int _fs_emu_windows_main(int argc, char* argv[])
-#endif
 
 #ifdef __cplusplus
 }

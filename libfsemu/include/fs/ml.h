@@ -19,8 +19,10 @@
 #ifndef LIBFSML_ML_H_
 #define LIBFSML_ML_H_
 
+#include <fs/malloc.h>
 #include <fs/base.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 //#include <fs/ml/opengl.h>
 
@@ -43,6 +45,8 @@ typedef struct fs_ml_video_mode {
 } fs_ml_video_mode;
 
 void fs_ml_show_cursor(int show, int immediate);
+bool fs_ml_mouse_integration(void);
+bool fs_ml_cursor_allowed(void);
 int fs_ml_has_automatic_input_grab();
 void fs_ml_grab_input(int grab, int immediate);
 
@@ -100,6 +104,7 @@ int fs_ml_get_windowed_width();
 int fs_ml_get_windowed_height();
 
 char *fs_ml_input_unique_device_name(char *name);
+char *fs_ml_input_fix_joystick_name(const char *name, int upper);
 
 //int fs_ml_main_iteration();
 // FIXME: REMOVE?
@@ -305,6 +310,8 @@ fs_ml_input_device *fs_ml_get_input_devices(int* count);
 #define FS_ML_BUTTON_RIGHT     3
 #define FS_ML_BUTTON_WHEELUP   4
 #define FS_ML_BUTTON_WHEELDOWN 5
+
+#define FS_ML_NO_ABSOLUTE_MOUSE_POS 0xffff
 
 typedef enum {
     FS_ML_KEY_UNKNOWN        = 0,

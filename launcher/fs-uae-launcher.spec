@@ -1,6 +1,6 @@
 %define name fs-uae-launcher
-%define version 2.4.1
-%define unmangled_version 2.4.1
+%define version 2.6.1
+%define unmangled_version 2.6.1
 %define release 1%{?dist}
 
 Summary: Graphical configuration frontend and launcher for FS-UAE
@@ -15,23 +15,21 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Frode Solheim <frode@fs-uae.net>
-Requires: python-qt4 fs-uae python-setuptools
-BuildRequires: python-devel python-setuptools
-
-%define is_mandrake %(test -e /etc/mandrake-release && echo 1 || echo 0)
-%define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
-%define is_fedora %(test -e /etc/fedora-release && echo 1 || echo 0)
+Requires: python3-qt5 fs-uae python3-setuptools
+BuildRequires: python3-devel python3-setuptools
 
 %if 0%{?suse_version}
+%global __python  /usr/bin/python3
+%global __python3  /usr/bin/python3
 %else
 %if 0%{?mandriva_version}
 %else
+%global __python %{__python3}
 %endif
 %endif
 
 %description
-FS-UAE Launcher is a graphical configuration program and
-launcher for FS-UAE.
+FS-UAE Launcher is a graphical configuration program and launcher for FS-UAE.
 
 %prep
 %setup -n %{name}-%{unmangled_version}
@@ -41,21 +39,10 @@ launcher for FS-UAE.
 make
 
 %install
-#%{__python} install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES \
-#--prefix=/usr
-
-%{__python} setup.py install \
---prefix=%{_prefix} \
---root=%{buildroot} \
---install-lib=%{_prefix}/share/fs-uae-launcher \
---install-scripts=%{_prefix}/share/fs-uae-launcher
-make install DESTDIR=$RPM_BUILD_ROOT
-mkdir %{buildroot}/%{_prefix}/bin
-ln -s %{_prefix}/share/fs-uae-launcher/fs-uae-launcher \
-%{buildroot}/%{_prefix}/bin/fs-uae-launcher
+make install DESTDIR=%{buildroot} prefix=%{_prefix}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)

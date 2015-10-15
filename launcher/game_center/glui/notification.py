@@ -1,16 +1,9 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import pygame
-from game_center.resources import resources
 from game_center.notification import Notification
 from game_center.glui.opengl import *
 from game_center.glui.render import Render
 
 
-#noinspection PyAttributeOutsideInit
+# noinspection PyAttributeOutsideInit
 class NotificationRender(object):
 
     font = None
@@ -18,22 +11,24 @@ class NotificationRender(object):
 
     @classmethod
     def init(cls):
-        import pygame.font
-        font_path = resources.resource_filename(
-            "LiberationSans-Bold.ttf")
-        cls.font = pygame.font.Font(
-            font_path, int(0.022 * Render.display_height))
-        #Notification("New device connected:\nLogitech Gamepad F310", duration=60)
-        #Notification("Test 2", duration=10)
-        #Notification("Test 3")
+        pass
+        # import pygame.font
+        # font_path = resources.resource_filename(
+        #     "LiberationSans-Bold.ttf")
+        # cls.font = pygame.font.Font(
+        #     font_path, int(0.022 * Render.display_height))
+        # #Notification("New device connected:\nLogitech Gamepad F310", duration=60)
+        # #Notification("Test 2", duration=10)
+        # #Notification("Test 3")
 
     @classmethod
     def update(cls):
-        if Notification.new:
-            Notification.new = False
-            Render.dirty = True
-            # post wake-up event
-            pygame.event.post(pygame.event.Event(pygame.NUMEVENTS - 1))
+        pass
+        # if Notification.new:
+        #     Notification.new = False
+        #     Render.dirty = True
+        #     # post wake-up event
+        #     pygame.event.post(pygame.event.Event(pygame.NUMEVENTS - 1))
 
     @classmethod
     def render(cls):

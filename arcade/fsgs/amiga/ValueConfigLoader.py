@@ -1,11 +1,5 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import six
 # FIXME: send fsgs as parameter to ValueConfigLoader instead
-from fsgs import fsgs
+from fsgs.context import fsgs
 import os
 import json
 from fsbc.Paths import Paths
@@ -21,7 +15,10 @@ class ValueConfigLoader(object):
     def __init__(self, uuid=""):
         self.config = {}
         self.options = {}
+        self.viewport = []
+        self.values = {}
         self.uuid = uuid
+        self._file_list = None
         if uuid:
             self.options["database_url"] = "http://{0}/game/{1}".format(
                 OGDClient.get_server(), uuid)
@@ -36,10 +33,11 @@ class ValueConfigLoader(object):
             except ValueError:
                 version = 10000
             if version > self.DB_VERSION_MAX:
-                self.config["__config_name"] = "Unsupported Database " \
-                        "Version (Please upgrade FS-UAE Launcher)"
+                self.config["__config_name"] = \
+                    "Unsupported Database " \
+                    "Version (Please upgrade FS-UAE Launcher)"
                 return self.get_config()
-            
+
         self.values = values
 
         cd_based = False
@@ -60,16 +58,16 @@ class ValueConfigLoader(object):
             raise Exception("unknown platform")
         self.config["amiga_model"] = amiga_model
 
-        #self.config["x_game_uuid"] = self.values["uuid"]
+        # self.config["x_game_uuid"] = self.values["uuid"]
 
         self.viewport = []
-        #game_node = self.root.find("game")
-        #if game_node is not None:
-        #    game_uuid = game_node.get("uuid", "")
-        #    self.config["x_game_uuid"] = game_uuid
-        #    self.load_game_info(game_uuid)
+        # game_node = self.root.find("game")
+        # if game_node is not None:
+        #     game_uuid = game_node.get("uuid", "")
+        #     self.config["x_game_uuid"] = game_uuid
+        #     self.load_game_info(game_uuid)
 
-        #self.load_options())
+        # self.load_options())
         
         sort_list = []
         for key in values:
@@ -87,35 +85,17 @@ class ValueConfigLoader(object):
         if self.viewport:
             self.options["viewport"] = ", ".join(self.viewport)
 
-        #self.options["sub_title"] = amiga_model + " - FS-UAE"
-        #self.options["sub_title"] = "FS-UAE ({0})".format(amiga_model)
-
-
         if cd_based:
             if self.check_all_files():
                 self.load_cdroms()
         else:
             self.load_floppies()
 
-        #if cd_based:
-        #    self.load_cdroms()
-        #else:
-        #    self.load_floppies()
-    
         self.load_hard_drives()
         
-        if self.check_all_files():
-            print(" -- all files found --")
-        else:
-            print(" -- some files are missing --")
-            self.options["x_missing_files"] = "1"
-
-        # downloadable = values.get("_downloadable", "")
-        # if not downloadable:
-        #     downloadable = values.get("__source", "")
-        #     if not downloadable.startswith("http"):
-        #         downloadable = ""
-        # self.options["x_download_page"] = downloadable
+        # if not self.check_all_files():
+        #     print(" -- some files are missing --")
+        #     self.options["x_missing_files"] = "1"
 
         download_page = values.get("download_page", "")
         if download_page:
@@ -131,7 +111,7 @@ class ValueConfigLoader(object):
             self.options["download_notice"] = download_notice
 
         # for now, just copy all options to config without checking
-        for key, value in six.iteritems(self.options):
+        for key, value in self.options.items():
             self.config[key] = value
 
         self.set_name_and_uuid()
@@ -145,7 +125,7 @@ class ValueConfigLoader(object):
             if file["name"].endswith("/"):
                 # this is a folder
                 continue
-            #print(repr(file))
+            # print(repr(file))
             if not file["sha1"]:
                 return False
             if not fsgs.file.find_by_sha1(file["sha1"]):
@@ -156,8 +136,7 @@ class ValueConfigLoader(object):
         def fix(key):
             if self.config.get(key):
                 self.config[key] = Paths.contract_path(
-                        self.config.get(key), default_dir,
-                        force_real_case=False)
+                    self.config.get(key), default_dir, force_real_case=False)
 
         default_dir = fsgs.amiga.get_floppies_dir()
         for i in range(Amiga.MAX_FLOPPY_DRIVES):
@@ -165,14 +144,14 @@ class ValueConfigLoader(object):
         for i in range(Amiga.MAX_FLOPPY_IMAGES):
             fix("floppy_image_{0}".format(i))
 
-        default_dir =  fsgs.amiga.get_cdroms_dir()
+        default_dir = fsgs.amiga.get_cdroms_dir()
         for i in range(Amiga.MAX_CDROM_DRIVES):
             fix("cdrom_drive_{0}".format(i))
         for i in range(Amiga.MAX_CDROM_IMAGES):
             fix("cdrom_image_{0}".format(i))
 
     def set_name_and_uuid(self):
-        #self.config["x_config_uuid"] = self.root.get("uuid", "")
+        # self.config["x_config_uuid"] = self.root.get("uuid", "")
 
         game_name = self.values.get("game_name", "")
         platform_name = self.values.get("platform", "")
@@ -188,17 +167,6 @@ class ValueConfigLoader(object):
         else:
             self.config["__config_name"] = self.values.get("config_name", "")
 
-    def load_cdroms(self):
-        print("\n\n\nload_cdroms\n\n\n")
-        media_list = self.build_media_list(cds=True)
-        for i, values in enumerate(media_list):
-            path, sha1 = values
-            if i < 1:
-                self.config["cdrom_drive_{0}".format(i)] = path
-                self.config["x_cdrom_drive_{0}_sha1".format(i)] = sha1
-            self.config["cdrom_image_{0}".format(i)] = path
-            self.config["x_cdrom_image_{0}_sha1".format(i)] = sha1
-
     def load_option(self, key, value):
         model = self.options.get("amiga_model", "")
         if key in ["variant_viewport", "viewport"]:
@@ -206,32 +174,34 @@ class ValueConfigLoader(object):
                 parts = value.split(",")
                 for i in range(len(parts)):
                     parts[i] = parts[i].split("#", 1)[0].strip()
-                    #parts[i] = parts[i].replace("=", "=>")
-                    #parts[i] = parts[i].replace("==>", "=>")
+                    # parts[i] = parts[i].replace("=", "=>")
+                    # parts[i] = parts[i].replace("==>", "=>")
                 value = ", ".join(parts)
                 while "  " in value:
                     value = value.replace("  ", " ")
             else:
                 value = "* * * * = " + value
             self.viewport.append(value)
-        #if key.startswith("viewport_"):
-        #    parts = key.split("_")
-        #    if len(parts) == 5:
-        #        parts = parts[1:]
-        #        value = " ".join(parts) + " => " + value
-        #        value = value.replace("x", "*")
-        #        self.viewport.append(value)
+        # if key.startswith("viewport_"):
+        #     parts = key.split("_")
+        #     if len(parts) == 5:
+        #         parts = parts[1:]
+        #         value = " ".join(parts) + " => " + value
+        #         value = value.replace("x", "*")
+        #         self.viewport.append(value)
         elif key == "hd_startup":
             self.options["hd_startup"] = value
-        elif key == "hd_requirements":
-            self.options["hd_requirements"] = value
-
+            self.options["floppy_drive_volume_empty"] = "0"
         elif key == "whdload_args":
             self.options["x_whdload_args"] = value
-            self.options["floppy_drive_volume"] = "0"
+            self.options["floppy_drive_volume_empty"] = "0"
         elif key == "hdinst_args":
             self.options["x_hdinst_args"] = value
-            self.options["floppy_drive_volume"] = "0"
+            self.options["floppy_drive_volume_empty"] = "0"
+        elif key == "hd_requirements":
+            self.options["hd_requirements"] = value
+        elif key == "save_disk":
+            self.options["save_disk"] = value
         elif key == "whdload_version":
             self.options["x_whdload_version"] = value
         elif key == "whdload_icon":
@@ -246,7 +216,7 @@ class ValueConfigLoader(object):
                     self.options["amiga_model"] = "A600"
             elif value == "2.0+":
                 if model in ["A500+", "A600", "A1200", "A1200/020",
-                        "A3000", "A4000/040"]:
+                             "A3000", "A4000/040"]:
                     pass
                 else:
                     self.options["amiga_model"] = "A600"
@@ -295,7 +265,7 @@ class ValueConfigLoader(object):
                 if model in ["A1200", "A1200/020", "A4000/040"]:
                     pass
                 else:
-                #    self.options["amiga_model"] = "A1200"
+                    # self.options["amiga_model"] = "A1200"
                     self.options["chip_memory"] = "2048"
             else:
                 self.options["chip_memory"] = value
@@ -340,8 +310,8 @@ class ValueConfigLoader(object):
             self.options["x_variant_error"] = value
         elif key == "joy_emu_conflict":
             self.options["x_joy_emu_conflict"] = value
-        #elif key == "languages":
-        #    self.options["x_languages"] = value
+        # elif key == "languages":
+        #     self.options["x_languages"] = value
 
     def load_joystick_port_x_mode_option(self, key, value):
         value = value.lower()
@@ -360,6 +330,71 @@ class ValueConfigLoader(object):
                 v = "action_" + v
             k = "joystick_port_{0}_{1}".format(port, k)
             self.options[k] = v
+
+    def get_file_list(self):
+        if self._file_list is None:
+            file_list_json = self.values.get("file_list", "[]")
+            self._file_list = json.loads(file_list_json)
+        return self._file_list
+
+    def build_media_list(self, floppies=False, cds=False, hds=False):
+        media_list = []
+        added = set()
+        for file_item in self.get_file_list():
+            name = file_item["name"]
+            url = file_item.get("url", "")
+
+            if name.startswith("DH0/"):
+                if hds:
+                    # p = os.path.join(self.path, "HardDrive")
+                    p = "hd://game/" + self.uuid + "/DH0"
+                    if p in added:
+                        # already added
+                        continue
+                    added.add(p)
+                    # FIXME: hack for now
+                    sha1 = self.values.get("dh0_sha1", "")
+                    media_list.append((p, sha1))
+                else:
+                    continue
+
+            sha1 = file_item["sha1"]
+            base, ext = os.path.splitext(name)
+            ext = ext.lower()
+
+            if hds:
+                if ext not in [".zip"]:
+                    continue
+            elif cds:
+                if ext not in [".cue", ".iso"]:
+                    continue
+                if "(Track" in base:
+                    # probably part of a split multi-track cue
+                    continue
+            elif floppies:
+                if ext not in [".adf", ".adz", ".dms", ".ipf"]:
+                    continue
+
+            path = ""
+            found_sha1 = ""
+            if sha1:
+                print(sha1)
+                file = FileDatabase.get_instance().find_file(sha1=sha1)
+                if file:
+                    found_sha1 = sha1
+                    path = file["path"]
+            if url and not path:
+                path = url
+                found_sha1 = sha1
+
+            if path:
+                media_list.append((path, found_sha1))
+            else:
+                pass
+                # return False
+                #  FIXME: handle it with a visible error message
+                # raise Exception("could not find file " + repr(name))
+        return media_list
 
     def load_floppies_from_floppy_list(self):
         media_list = []
@@ -395,85 +430,24 @@ class ValueConfigLoader(object):
         if floppy_drive_count < 4:
             self.config["floppy_drive_count"] = floppy_drive_count
 
-    def build_media_list(self, floppies=False, cds=False, hds=False):
-        media_list = []
-        added = set()
-        #file_nodes = self.root.findall("file")
-        file_list_json = self.values.get("file_list", "[]")
-        file_list = json.loads(file_list_json)
-        for file_item in file_list:
-            name = file_item["name"]
-            url = file_item.get("url", "")
+    def cdrom_sha1_to_uri(self, sha1):
+        for file_item in self.get_file_list():
+            if file_item["sha1"] == sha1:
+                return "game://{}/{}".format(self.uuid, file_item["name"])
+        raise Exception("cdrom_sha1_to_uri: could not find " + sha1)
 
-            #type = file_node.get("type", "")
-            #name = file_node.find("name").text.strip()
-
-            if name.startswith("DH0/"):
-                if hds:
-                    #p = os.path.join(self.path, "HardDrive")
-                    p = "hd://game/" + self.uuid + "/DH0"
-                    if p in added:
-                        # already added
-                        continue
-                    added.add(p)
-                    # FIXME: hack for now
-                    sha1 = self.values.get("dh0_sha1", "")
-                    media_list.append((p, sha1))
-                else:
-                    continue
-
-            sha1 = file_item["sha1"]
-            base, ext = os.path.splitext(name)
-            ext = ext.lower()
-            #if type == "hd" and not hds:
-            #    continue
-            if hds:
-                #if type and not type == "HD":
-                #    continue
-                if ext not in [".zip"]:
-                    continue
-            elif cds:
-                #if type and not type == "cd":
-                #    continue
-                if ext not in [".cue", ".iso"]:
-                    continue
-                if "(Track" in base:
-                    # probably part of a split multi-track cue
-                    continue
-            elif floppies:
-                #if type and not type == "floppy":
-                #    continue
-                if ext not in [".adf", ".adz", ".dms", ".ipf"]:
-                    continue
-
-            path = ""
-            found_sha1 = ""
-            if sha1:
-                print(sha1)
-                file = FileDatabase.get_instance().find_file(sha1=sha1)
-                if file:
-                    found_sha1 = sha1
-                    path = file["path"]
-            if url and not path:
-                path = url
-                found_sha1 = sha1
-            #if not path:
-            #    path = FileDatabase.get_instance().find_file(name=name)
-            #if not path:
-            #    if self.path:
-            #        # loaded from an external XML file:
-            #        path = os.path.join(self.path, name)
-            if path:
-                media_list.append((path, found_sha1))
-            else:
-                pass
-                #return False
-                # FIXME: handle it with a visible error message
-                #raise Exception("could not find file " + repr(name))
-        return media_list
+    def load_cdroms(self):
+        media_list = self.build_media_list(cds=True)
+        for i, values in enumerate(media_list):
+            path, sha1 = values
+            path = self.cdrom_sha1_to_uri(sha1)
+            if i < 1:
+                self.config["cdrom_drive_{0}".format(i)] = path
+                self.config["x_cdrom_drive_{0}_sha1".format(i)] = sha1
+            self.config["cdrom_image_{0}".format(i)] = path
+            self.config["x_cdrom_image_{0}_sha1".format(i)] = sha1
 
     def load_hard_drives(self):
-        print("load_hard_drives")
         media_list = self.build_media_list(hds=True)
         print(media_list)
         for i, values in enumerate(media_list):

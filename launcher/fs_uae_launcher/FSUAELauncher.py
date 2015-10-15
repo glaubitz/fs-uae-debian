@@ -1,40 +1,36 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import sys
-import shutil
 import hashlib
 import traceback
 from collections import defaultdict
+from fs_uae_launcher.Options import Option, Options
+from fs_uae_launcher.ui.config.HardDriveGroup import HardDriveGroup
 from fs_uae_launcher.ui.download import DownloadGameWindow, DownloadTermsDialog
 from fsgs.Downloader import Downloader
-import six
 from fs_uae_launcher.PluginHelper import PluginHelper
 from fsbc.Application import app
-from fsbc.configparser import ConfigParser, NoSectionError
+from configparser import ConfigParser, NoSectionError
 from fsbc.system import windows, macosx
 from fsbc.task import Task
+import fsbc.user
+from fsbc.util import unused, is_uuid
 from fsgs.application import ApplicationMixin
-from fsgs.input.helper import DeviceHelper
+from fsgs.input.enumeratehelper import EnumerateHelper
 from fsgs.platform import PlatformHandler
+import fstd.desktop
 import fsbc.fs as fs
 import fsui as fsui
-from fsgs import fsgs
+from fsgs.context import fsgs
 from fsgs.Database import Database
 from .ui.MainWindow import MainWindow
-
 from fsgs.FileDatabase import FileDatabase
 from fsbc.Paths import Paths
 from fsgs.amiga.Amiga import Amiga
 from fsgs.amiga.ROMManager import ROMManager
-
 from .Config import Config
 from .ConfigurationScanner import ConfigurationScanner
 from fsgs.FSGSDirectories import FSGSDirectories
-from .I18N import _, gettext, initialize_locale
+from .I18N import gettext, initialize_locale
 from .Settings import Settings
 from .UpdateManager import UpdateManager
 
@@ -44,19 +40,8 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
     def __init__(self):
         fsui.Application.__init__(self, "fs-uae-launcher")
         self.set_icon(fsui.Icon("fs-uae-launcher", "pkg:fs_uae_launcher"))
-
         if fsui.use_qt:
-            from fsui.qt import QStyleFactory
-            self.qapplication.setStyle(QStyleFactory.create("Fusion"))
-
-            plugin_helper = PluginHelper()
-            for res in plugin_helper.find_resource_dirs(
-                    "fs-uae-launcher-theme"):
-                qt_css = os.path.join(res, "stylesheet.qss")
-                if os.path.exists(qt_css):
-                    with open(qt_css, "rb") as f:
-                        data = f.read()
-                    self.qapplication.setStyleSheet(data)
+            initialize_qt_style(self.qapplication)
 
     @staticmethod
     def get_game_database_path():
@@ -64,7 +49,7 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
         path = os.path.join(launcher_dir, "Game Database.sqlite")
         return path
 
-    #noinspection PyMethodMayBeStatic
+    # noinspection PyMethodMayBeStatic
     def on_idle(self):
         fsgs.signal.process()
 
@@ -83,13 +68,13 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
         self.config_startup_scan()
         self.kickstart_startup_scan()
 
-        #sys.exit(1)
+        # sys.exit(1)
 
         # FIXME: should now sanitize check some options -for instance,
         # - check if configured joysticks are still connected
         # - check if paths still exists, etc
 
-        #Config.update_kickstart()
+        # Config.update_kickstart()
 
         icon = None
 
@@ -128,17 +113,85 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
             finally:
                 sys.dont_write_bytecode = dont_write_bytecode
 
-        window = MainWindow(icon=icon)
+        config_path = None
+        archive_path = None
+        floppy_image_path = None
+        config_uuid = None
+
+        # FIXME: replace argument "parsing" with use of argparse module
+        # at some point
+
+        if sys.argv[-1].endswith(".fs-uae"):
+            config_path = sys.argv[-1]
+        elif sys.argv[-1].endswith(".zip"):
+            archive_path = sys.argv[-1]
+        elif sys.argv[-1].endswith(".lha"):
+            archive_path = sys.argv[-1]
+        elif sys.argv[-1].endswith(".adf"):
+            # FIXME: support / check for other disk images as well
+            floppy_image_path = sys.argv[-1]
+        elif is_uuid(sys.argv[-1]):
+            config_uuid = sys.argv[-1].lower()
+
+        if config_path:
+            print("config path given:", config_path)
+            if not os.path.exists(config_path):
+                print("config path does not exist", file=sys.stderr)
+                return False
+            Config.load_file(config_path)
+            Settings.set("parent_uuid", "")
+            self.start_game()
+            return False
+
+        elif archive_path:
+            print("archive path given:", archive_path)
+            if not os.path.exists(archive_path):
+                print("archive path does not exist", file=sys.stderr)
+                return False
+            # FIXME: if archive is determined to contain (only) floppy disk
+            # images, load those into floppy drives instead
+            values = HardDriveGroup.generate_config_for_archive(archive_path)
+            values["hard_drive_0"] = archive_path
+            Config.load(values)
+            Settings.set("parent_uuid", "")
+            self.start_game()
+            return False
+
+        elif floppy_image_path:
+            values = {
+                "floppy_drive_0": floppy_image_path,
+            }
+            Config.load(values)
+            Settings.set("parent_uuid", "")
+            self.start_game()
+            return False
+
+        elif config_uuid:
+            print("config uuid given:", config_uuid)
+            variant_uuid = config_uuid
+            # values = fsgs.game.set_from_variant_uuid(variant_uuid)
+            if fsgs.load_game_variant(variant_uuid):
+                print("loaded variant")
+            else:
+                print("could not load variant, try to load game")
+                game_uuid = config_uuid
+                variant_uuid = fsgs.find_preferred_game_variant(game_uuid)
+                print("preferred variant:", variant_uuid)
+                fsgs.load_game_variant(variant_uuid)
+            self.start_game()
+            return False
+
+        window = MainWindow(fsgs, icon=icon)
         MainWindow.instance = window
         window.show()
 
         if "--workspace" in sys.argv:
             window.set_position((300, 200))
-
             from fs_uae_workspace.desktop import get_desktop_window
             get_desktop_window()
 
         UpdateManager.run_update_check()
+        return True
 
     @staticmethod
     def load_plugins(plugins_dir):
@@ -153,10 +206,9 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
             print(name)
             import imp
             try:
-                #with open(path, "r") as f:
-                #    plugin = imp.load_source(name, name, f)
-                plugin = imp.load_source(
-                    name, path.encode(sys.getfilesystemencoding()))
+                # with open(path, "r") as f:
+                #     plugin = imp.load_source(name, name, f)
+                plugin = imp.load_source(name, path)
                 print("name:", getattr(plugin, "name", ""))
                 print("version:", getattr(plugin, "version", ""))
                 plugin.fsgs = fsgs
@@ -165,17 +217,16 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
             except Exception:
                 traceback.print_exc()
                 continue
+            else:
+                print(name, "initialized")
 
     def load_settings(self):
         path = app.get_settings_path()
         print("loading last config from " + repr(path))
         if not os.path.exists(path):
             print("settings file does not exist")
-        if six.PY3:
-            # noinspection PyArgumentList
-            cp = ConfigParser(interpolation=None)
-        else:
-            cp = ConfigParser()
+        # noinspection PyArgumentList
+        cp = ConfigParser(interpolation=None)
         try:
             cp.read([path])
         except Exception as e:
@@ -189,75 +240,28 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
             keys = []
         for key in keys:
             config[key] = fs.from_utf8_str(cp.get("config", key))
-        for key, value in six.iteritems(config):
+        for key, value in config.items():
             print("loaded", key, value)
             fsgs.config.values[key] = value
 
-        #settings = {}
-        #try:
-        #    keys = cp.options("settings")
-        #except configparser.NoSectionError:
-        #    keys = []
-        #for key in keys:
-        #    settings[key] = fs.from_utf8_str(cp.get("settings", key))
-        #for key, value in six.iteritems(settings):
-        #    #if key in Settings.settings:
-        #    #    # this setting is already initialized, possibly via
-        #    #    # command line arguments
-        #    #    pass
-        #    #else:
-        #
-        #    #Settings.settings[key] = value
-        #
-        #    # FIXME: setting values directly in settings dict
-        #    app.settings.values[key] = value
-        #
-        ##Settings.set("config_search", "")
-
     def parse_arguments(self):
         pass
-        #for arg in sys.argv:
-        #    if arg.startswith("--"):
-        #        if "=" in arg:
-        #            key, value = arg[2:].split("=", 1)
-        #            key = key.replace("-", "_")
-        #            if key == "base_dir":
-        #                Settings.set("base_dir", value)
+        # for arg in sys.argv:
+        #     if arg.startswith("--"):
+        #         if "=" in arg:
+        #             key, value = arg[2:].split("=", 1)
+        #             key = key.replace("-", "_")
+        #             if key == "base_dir":
+        #                 Settings.set("base_dir", value)
 
     def save_settings(self):
-        path = app.get_settings_path()
-        path += ".part"
-        print("writing " + repr(path))
-
-        if six.PY3:
-            # noinspection PyArgumentList
-            cp = ConfigParser(interpolation=None)
-        else:
-            cp = ConfigParser()
-        cp.add_section("settings")
-
-        for key, value in six.iteritems(app.settings.values):
-            #lines.append("{0} = {1}".format(key, value))
-            cp.set("settings", str(key), fs.to_utf8_str(value))
-
-        cp.add_section("config")
-        #lines.append("[config]")
-
-        for key, value in six.iteritems(fsgs.config.values):
+        extra = {}
+        for key, value in fsgs.config.values.items():
             if key.startswith("__"):
                 # keys starting with __ are never saved
                 continue
-            cp.set("config", str(key), fs.to_utf8_str(value))
-
-        if six.PY3:
-            # noinspection PyArgumentList
-            with open(path, "w", encoding="UTF-8", newline="\n") as f:
-                cp.write(f)
-        else:
-            with open(path, "w") as f:
-                cp.write(f)
-        print("moving to " + repr(app.get_settings_path()))
-        shutil.move(path, app.get_settings_path())
+            extra["config/" + str(key)] = str(value)
+        app.settings.save(extra=extra)
 
     @staticmethod
     def get_dir_mtime_str(path):
@@ -270,11 +274,13 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
         configs_dir = FSGSDirectories.get_configurations_dir()
         print("config_startup_scan", configs_dir)
         print(Settings.settings)
+
         settings_mtime = Settings.get("configurations_dir_mtime")
         dir_mtime = self.get_dir_mtime_str(configs_dir)
-        if settings_mtime == dir_mtime:
+        if settings_mtime == dir_mtime + "+" + str(Database.VERSION):
             print("... mtime not changed", settings_mtime, dir_mtime)
             return
+
         database = Database.get_instance()
         file_database = FileDatabase.get_instance()
 
@@ -291,7 +297,7 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
                     # already exists in database
                     continue
                 name, ext = os.path.splitext(file_name)
-                #search = ConfigurationScanner.create_configuration_search(
+                # search = ConfigurationScanner.create_configuration_search(
                 # name)
                 scanner = ConfigurationScanner()
                 print("[startup] adding config", path)
@@ -305,15 +311,17 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
                 database.update_game_search_terms(
                     game_id, scanner.create_search_terms(name))
 
-        for path, id in six.iteritems(local_configs):
+        for path, id in local_configs.items():
             if id is not None:
                 print("[startup] removing configuration", path)
                 database.delete_game(id=id)
                 file_database.delete_file(path=path)
         print("... commit")
         database.commit()
-        Settings.set("configurations_dir_mtime",
-                     self.get_dir_mtime_str(configs_dir))
+
+        Settings.set(
+            "configurations_dir_mtime",
+            self.get_dir_mtime_str(configs_dir) + "+" + str(Database.VERSION))
 
     def kickstart_startup_scan(self):
         print("kickstart_startup_scan")
@@ -328,7 +336,8 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
             print("... walk kickstarts_dir")
             for dir_path, dir_names, file_names in os.walk(kickstarts_dir):
                 for file_name in file_names:
-                    if not file_name.endswith(".rom"):
+                    if not file_name.lower().endswith(".rom") and not \
+                            file_name.lower().endswith(".bin"):
                         continue
                     path = Paths.join(dir_path, file_name)
                     if path in local_roms:
@@ -338,7 +347,7 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
                     print("[startup] adding kickstart", path)
                     ROMManager.add_rom_to_database(path, file_database)
             print(local_roms)
-            for path, id in six.iteritems(local_roms):
+            for path, id in local_roms.items():
                 if id is not None:
                     print("[startup] removing kickstart", path)
                     file_database.delete_file(id=id)
@@ -360,9 +369,7 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
     def amiga_forever_kickstart_scan(self):
         if windows:
             print("amiga forever kickstart scan")
-            # noinspection PyUnresolvedReferences
-            from win32com.shell import shell, shellcon
-            path = shell.SHGetFolderPath(0, shellcon.CSIDL_COMMON_DOCUMENTS, 0, 0)
+            path = fsbc.user.get_common_documents_dir()
             path = os.path.join(path, "Amiga Files", "Shared", "rom")
             self.scan_dir_for_kickstarts(path)
 
@@ -375,9 +382,6 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
                     continue
                 path = Paths.join(dir_path, file_name)
                 if file_database.find_file(path=path):
-                #if path in local_roms:
-                #    local_roms[path] = None
-                #    # already exists in database
                     continue
                 print("[startup] adding kickstart", path)
                 ROMManager.add_rom_to_database(path, file_database)
@@ -408,13 +412,13 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
 
             elif Config.get("download_page"):
                 from .ui.MainWindow import MainWindow
-                #fsui.show_error(_("This game must be downloaded first."))
+                # fsui.show_error(_("This game must be downloaded first."))
                 DownloadGameWindow(MainWindow.instance, fsgs).show()
                 return
             else:
                 fsui.show_error(
-                    _("This game variant cannot be started "
-                      "because you don't have all required files."))
+                    gettext("This game variant cannot be started "
+                            "because you don't have all required files."))
                 return
 
         platform_id = Config.get("platform")
@@ -426,10 +430,15 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
 
     @classmethod
     def start_local_game_other(cls):
+        # platform_id = Config.get("platform")
+        # FIXME:
+        # if platform_id == "super-nintendo":
+        #     platform_id = "snes"
+        database_name = Config.get("__database")
         variant_uuid = Config.get("variant_uuid")
         assert variant_uuid
 
-        fsgs.game.set_from_variant_uuid(variant_uuid)
+        fsgs.game.set_from_variant_uuid(database_name, variant_uuid)
         platform_handler = PlatformHandler.create(fsgs.game.platform.id)
         runner = platform_handler.get_runner(fsgs)
 
@@ -447,18 +456,19 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
         # make sure x_kickstart_file is initialized
         Config.set_kickstart_from_model()
 
-        if not Config.get("x_kickstart_file"):  # or not \
-            #  os.path.exists(Config.get("kickstart_file")):
-            fsui.show_error(_("No kickstart found for this model. "
-                              "Use the 'Import Kickstarts' function from "
-                              "the menu."))
-            return
+        # if not Config.get("x_kickstart_file"):  # or not \
+        #     #  os.path.exists(Config.get("kickstart_file")):
+        #     fsui.show_error(
+        #         gettext("No kickstart found for this model. Use the 'Import "
+        #                 "Kickstarts' function from the menu."))
+        #     return
         cs = Amiga.get_model_config(Config.get("amiga_model"))["ext_roms"]
         if len(cs) > 0:
             # extended kickstart ROM is needed
             if not Config.get("x_kickstart_ext_file"):
-                fsui.show_error(_("No extended kickstart found for this "
-                                  "model. Try 'scan' function."))
+                fsui.show_error(
+                    gettext("No extended kickstart found for this model. "
+                            "Try 'scan' function."))
                 return
 
         config = Config.copy()
@@ -484,20 +494,21 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
         from .ui.LaunchDialog import LaunchDialog
         from .ui.MainWindow import MainWindow
         task = AmigaLaunchTask(launch_handler)
-        #dialog = LaunchDialog(MainWindow.instance, launch_handler)
+        # dialog = LaunchDialog(MainWindow.instance, launch_handler)
         dialog = LaunchDialog(
             MainWindow.instance, gettext("Launching FS-UAE"), task)
 
         def on_show_license_information(license_text):
+            unused(license_text)
             # FIXME: don't depend on wx here
             # noinspection PyUnresolvedReferences
-            #import wx
-            #license_dialog = wx.MessageDialog(
-            #    dialog, license_text, _("Terms of Use"),
-            #    wx.OK | wx.CANCEL | wx.CENTRE)
-            #license_dialog.CenterOnParent()
-            #result = license_dialog.ShowModal()
-            #return result == wx.ID_OK
+            # import wx
+            # license_dialog = wx.MessageDialog(
+            #     dialog, license_text, _("Terms of Use"),
+            #     wx.OK | wx.CANCEL | wx.CENTRE)
+            # license_dialog.CenterOnParent()
+            # result = license_dialog.ShowModal()
+            # return result == wx.ID_OK
             # FIXME
             return True
         fsgs.file.on_show_license_information = on_show_license_information
@@ -508,8 +519,8 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
 
     @classmethod
     def prepare_config(cls, original_config):
-        config = defaultdict(six.text_type)
-        for key, value in six.iteritems(app.settings.values):
+        config = defaultdict(str)
+        for key, value in app.settings.values.items():
             if key in Config.config_keys:
                 print("... ignoring config key from settings:", key)
                 continue
@@ -517,7 +528,7 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
 
         config["base_dir"] = FSGSDirectories.get_base_dir()
 
-        for key, value in six.iteritems(original_config):
+        for key, value in original_config.items():
             config[key] = value
 
         if not config["joystick_port_0_mode"]:
@@ -547,6 +558,7 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
                 del config[remove_key]
 
         # overwrite netplay config
+
         if config.get("__netplay_host", ""):
             config["netplay_server"] = config["__netplay_host"]
         if config.get("__netplay_password", ""):
@@ -555,22 +567,112 @@ class FSUAELauncher(ApplicationMixin, fsui.Application):
             config["netplay_port"] = config["__netplay_port"]
 
         # copy actual kickstart options from x_ options
+
         config["kickstart_file"] = config["x_kickstart_file"]
         config["kickstart_ext_file"] = config["x_kickstart_ext_file"]
 
+        if not config["kickstart_file"]:
+            # Warning will have been shown on the status bar
+            config["kickstart_file"] = "internal"
+
+        # Copy default configuration values from model defaults. The main
+        # purpose of this is to let the launch code know about implied defaults
+        # so it can for example configure correct ROM files for expansions.
+
+        model_config = Amiga.get_current_config(config)
+        for key, value in model_config["defaults"].items():
+            if not config.get(key):
+                config[key] = value
+
         # make sure FS-UAE does not load other config files (Host.fs-uae)
         config["end_config"] = "1"
-
-        # set titles
-        #if not config["sub_title"]:
-        #    config["sub_title"] = config["amiga_model"] or "A500"
 
         if config.get("__netplay_game", ""):
             print("\nfixing config for netplay game")
             for key in [x for x in config.keys() if x.startswith("uae_")]:
                 print("* removing option", key)
                 del config[key]
+
         return config
+
+
+def initialize_qt_style(qapplication):
+    from fsui.qt import QStyleFactory, QPalette, QColor, Qt, QFont
+    fusion_variant = ""
+
+    launcher_theme = Settings.get("launcher_theme")
+    if launcher_theme == "standard":
+        use_fusion_theme = False
+    elif launcher_theme == "native":
+        # native is an older deprecated name for standard
+        use_fusion_theme = False
+    elif launcher_theme == "fusion-adwaita":
+        use_fusion_theme = True
+        fusion_variant = "adwaita"
+    elif launcher_theme == "fusion-plain":
+        use_fusion_theme = True
+    elif launcher_theme == "fusion-dark":
+        use_fusion_theme = True
+        fusion_variant = "dark"
+    else:
+        use_fusion_theme = True
+        if fstd.desktop.is_running_gnome_3():
+            fusion_variant = "adwaita"
+
+    if "--launcher-theme=fusion-dark" in sys.argv:
+        use_fusion_theme = True
+        fusion_variant = "dark"
+
+    font = qapplication.font()
+    print("FONT: Default is {} {}".format(font.family(), font.pointSize()))
+    Options.get(Option.LAUNCHER_FONT_SIZE)["default"] = font.pointSize()
+
+    if use_fusion_theme:
+        # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
+        qapplication.setStyle(QStyleFactory.create("Fusion"))
+        if fusion_variant == "adwaita":
+            pa = QPalette()
+            pa.setColor(QPalette.Window, QColor(237, 237, 237))
+            pa.setColor(QPalette.AlternateBase, QColor(237, 237, 237))
+            pa.setColor(QPalette.Button, QColor(237, 237, 237))
+            qapplication.setPalette(pa)
+        elif fusion_variant == "dark":
+            pa = QPalette()
+            pa.setColor(QPalette.Window, QColor(53, 53, 53))
+            pa.setColor(QPalette.WindowText, Qt.white)
+            pa.setColor(QPalette.Base, QColor(25, 25, 25))
+            pa.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+            pa.setColor(QPalette.ToolTipBase, Qt.white)
+            pa.setColor(QPalette.ToolTipText, Qt.white)
+            pa.setColor(QPalette.Text, Qt.white)
+            pa.setColor(QPalette.Button, QColor(53, 53, 53))
+            pa.setColor(QPalette.ButtonText, Qt.white)
+            pa.setColor(QPalette.BrightText, Qt.red)
+            pa.setColor(QPalette.Link, QColor(42, 130, 218))
+            pa.setColor(QPalette.Highlight, QColor(42, 130, 218))
+            pa.setColor(QPalette.HighlightedText, Qt.black)
+            qapplication.setPalette(pa)
+            qapplication.setStyleSheet(
+                "QToolTip { color: #ffffff; background-color: #2a82da; "
+                "border: 1px solid white; }")
+
+        try:
+            launcher_font_size = int(Settings.get("launcher_font_size"))
+        except ValueError:
+            launcher_font_size = 0
+        if launcher_font_size:
+            print("FONT: Override size {}".format(launcher_font_size))
+            font.setPointSize(launcher_font_size)
+            qapplication.setFont(font)
+
+    plugin_helper = PluginHelper()
+    for res in plugin_helper.find_resource_dirs(
+            "fs-uae-launcher-theme"):
+        qt_css = os.path.join(res, "stylesheet.qss")
+        if os.path.exists(qt_css):
+            with open(qt_css, "rb") as f:
+                data = f.read()
+            qapplication.setStyleSheet(data)
 
 
 # FIXME: Files to clean up:
@@ -598,7 +700,7 @@ class RunnerTask(Task):
         self.runner = runner
 
     def run(self):
-        device_helper = DeviceHelper()
+        device_helper = EnumerateHelper()
         device_helper.default_port_selection(self.runner.ports)
 
         self.runner.prepare()

@@ -1,8 +1,9 @@
 msgid ""
-msgstr "Project-Id-Version: fs-uae\n"
-"Report-Msgid-Bugs-To: fs-uae@fengestad.no\n"
-"POT-Creation-Date: 2014-03-14 19:32+0100\n"
-"PO-Revision-Date: 2014-03-22 07:32-0400\n"
+msgstr ""
+"Project-Id-Version: fs-uae\n"
+"Report-Msgid-Bugs-To: frode@fs-uae.net\n"
+"POT-Creation-Date: 2015-09-19 12:02+0200\n"
+"PO-Revision-Date: 2015-09-19 06:02-0400\n"
 "Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -10,16 +11,19 @@ msgstr "Project-Id-Version: fs-uae\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.net\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: fs-uae\n"
+"X-Crowdin-Language: de\n"
+"X-Crowdin-File: /fs-uae-launcher/messages.pot\n"
 
 msgid "16-bit"
-msgstr "16 Bit"
+msgstr "16-Bit"
 
 msgid "32-bit BGRA"
-msgstr "32 Bit BGRA"
+msgstr "32-Bit BGRA"
 
 msgid "32-bit RGBA"
-msgstr "32 Bit RGBA"
+msgstr "32-Bit RGBA"
 
 msgid "640x400 + Border"
 msgstr "640x400 + Rand"
@@ -30,35 +34,33 @@ msgstr "640x480 + Rand"
 msgid "640x512 + Border"
 msgstr "640x512 + Rand"
 
-msgid "A change of language will only affect applications which are restarted after the change."
-msgstr "Eine Änderung der Sprache betrifft nur Anwendungen, die nach der Änderung neu gestartet werden."
-
 msgid "ADF - Extended Floppy Disk Image (MFM Encoded)"
-msgstr "ADF - Erweitertes Diskettenimage (MFM Kodiert)"
+msgstr "ADF - Erweitertes Diskettenabbild (MFM Kodiert)"
 
 msgid "ADF - Standard Floppy Disk Image"
-msgstr "ADF - Standard-Diskettenimage"
+msgstr "ADF - Standard-Diskettenabbild"
 
 msgid "ADF Creator"
-msgstr "ADF Ersteller"
+msgstr "ADF-Ersteller"
 
 msgid "ADF Disk Image Creator"
-msgstr "ADF Diskettenimage Ersteller"
+msgstr "ADF-Diskettenabbild-Ersteller"
 
 msgid "Abort"
 msgstr "Abbrechen"
 
-msgid "About OAGD.net"
-msgstr "Über OAGD.net"
-
+#, python-brace-format
 msgid "About {name}"
 msgstr "Über {name}"
 
 msgid "Accept"
 msgstr "Akzeptieren"
 
-msgid "Accurate"
-msgstr "Genau"
+msgid "Accuracy:"
+msgstr "Genauigkeit:"
+
+msgid "Add"
+msgstr "Hinzufügen"
 
 msgid "Add Directory to Search Path"
 msgstr "Ordner zum Suchpfad hinzufügen"
@@ -70,7 +72,16 @@ msgid "Add Multiple CD-ROMs at Once"
 msgstr "Mehrere CD-ROMs gleichzeitig hinzufügen"
 
 msgid "Add Multiple Floppies at Once"
-msgstr "Mehrere Diskettenimages gleichzeitig hinzufügen"
+msgstr "Mehrere Diskettenabbilder gleichzeitig hinzufügen"
+
+msgid "Additional Configuration"
+msgstr "Zusätzliche Konfiguration"
+
+msgid "Adult-Themed Games"
+msgstr "Spiele für Erwachsene"
+
+msgid "Advanced"
+msgstr "Fortgeschritten"
 
 msgid "Advanced Audio Options"
 msgstr "Erweiterte Audio Einstellungen"
@@ -81,23 +92,35 @@ msgstr "Erweiterte Einstellungen"
 msgid "Advanced Video Settings"
 msgstr "Erweiterte Video Einstellungen"
 
-msgid "All games and configurations"
+msgid "All"
+msgstr "Alle"
+
+msgid "All Configurations"
+msgstr "Alle Konfigurationen"
+
+msgid "All Games"
+msgstr "Alle Spiele"
+
+msgid "All Games and Configurations"
 msgstr "Alle Spiele und Konfigurationen"
 
 msgid "Also synchronize emulation with display when possible (smooth scrolling)"
 msgstr "Synchronisiere die Emulation auch mit dem Bildschirm falls möglich (weiches Scrolling)"
 
 msgid "Amiga Forever Import"
-msgstr "Amiga Forever Importer"
+msgstr "Amiga Forever-Import"
 
 msgid "Amiga Forever import task started"
-msgstr "Amiga Forever Importprozess gestartet"
+msgstr "Amiga Forever-Importprozess gestartet"
 
 msgid "Amiga Model"
-msgstr "Amiga Modell"
+msgstr "Amiga-Modell"
 
 msgid "An Error Occurred"
 msgstr "Ein Fehler ist aufgetreten"
+
+msgid "Appearance"
+msgstr "Erscheinungsbild"
 
 msgid "Audio"
 msgstr "Audio"
@@ -106,13 +129,13 @@ msgid "Audio Settings"
 msgstr "Audioeinstellungen"
 
 msgid "Audio buffer target size (bytes)"
-msgstr "Audiopuffer Zielgröße (Bytes)"
+msgstr "Audiopuffer-Zielgröße (Bytes)"
 
 msgid "Audio buffer target size (ms)"
-msgstr "Audiopuffer Zielgröße (ms)"
+msgstr "Audiopuffer-Zielgröße (ms)"
 
-msgid "Audio output freqency"
-msgstr "Audio Ausgabefrequenz"
+msgid "Audio output frequency"
+msgstr "Audio-Ausgabefrequenz"
 
 msgid "Auto"
 msgstr "Automatisch"
@@ -126,8 +149,26 @@ msgstr "Dauerfeuer ist AUS"
 msgid "Auto-Fire is On"
 msgstr "Dauerfeuer ist AN"
 
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgid "Automatic Download"
+msgstr "Automatischer Download"
+
+msgid "Available Games"
+msgstr "Verfügbare Spiele"
+
 msgid "Available Kickstart Versions"
 msgstr "Verfügbare Kickstart-Versionen"
+
+msgid "Available and Auto-Downloadable Games"
+msgstr "Verfügbare und automatisch-herunterladbare Spiele"
+
+msgid "Available and Downloadable Games"
+msgstr "Verfügbare und herunterladbare Spiele"
+
+msgid "Blizzard SCSI Kit"
+msgstr "Blizzard SCSI Kit"
 
 msgid "Browse"
 msgstr "Öffnen"
@@ -139,16 +180,13 @@ msgid "Browse for Folder"
 msgstr "Ordner öffnen"
 
 msgid "Buffer swap only"
-msgstr "nur Buffer swap"
-
-msgid "Built-in TCP/IP Stack"
-msgstr "Integrierter TCP/IP-Stack"
-
-msgid "Built-in TCP/IP Stack (bsdsocket.library)"
-msgstr "Integrierter TCP/IP-Stack (bsdsocket.library)"
+msgstr "ausschließl. Pufferaustausch"
 
 msgid "CD-ROM Drive"
 msgstr "CD-ROM Laufwerk"
+
+msgid "CD-ROM Drive Count"
+msgstr "Anzahl der CD-ROM-Laufwerke"
 
 msgid "CD-ROM Drives"
 msgstr "CD-ROM Laufwerke"
@@ -157,10 +195,23 @@ msgid "CD-ROMs"
 msgstr "CD-ROMs"
 
 msgid "CD32 Pad"
-msgstr "CD32 Joypad"
+msgstr "CD32-Joypad"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "CPU Accelerator Board"
+msgstr "CPU-Beschleuniger-Karte"
+
+msgid "CPU Accelerator Board RAM"
+msgstr "Speicher der CPU-Beschleuniger-Karte"
 
 msgid "Cancel"
-msgstr "Abbruch"
+msgstr "Abbrechen"
+
+#, python-brace-format
+msgid "Cannot find required ROM file: {name}"
+msgstr "Kann erforderliche ROM-Datei nicht finden: {name}"
 
 msgid "Checksumming"
 msgstr "Berechne Prüfsumme"
@@ -172,13 +223,13 @@ msgid "Chip RAM"
 msgstr "Chip RAM"
 
 msgid "Choose CD-ROM Image"
-msgstr "CD-ROM Image auswählen"
+msgstr "CD-Abbild auswählen"
 
 msgid "Choose Extended ROM"
 msgstr "Erweiterten ROM auswählen"
 
 msgid "Choose Floppy Image"
-msgstr "Diskettenimage auswählen"
+msgstr "Diskettenabbild auswählen"
 
 msgid "Choose Hard Drive"
 msgstr "Festplatte auswählen"
@@ -186,35 +237,38 @@ msgstr "Festplatte auswählen"
 msgid "Choose Kickstart ROM"
 msgstr "Kickstart ROM auswählen"
 
+msgid "Choose Type"
+msgstr "Typ auswählen"
+
 msgid "Choose what folders you want to scan for Amiga files"
 msgstr "Wählen Sie Verzeichnisse zum Scannen nach Amiga-Dateien aus"
 
 msgid "Cleaning up..."
-msgstr "Räume auf..."
+msgstr "Räume auf …"
 
 msgid "Clear List"
 msgstr "Liste leeren"
 
 msgid "Click 'Scan' button if you want to re-scan"
-msgstr "Klicken Sie den 'Suchen' Knopf, wenn Sie neu suchen wollen"
+msgstr "Klicken Sie auf »Scannen«, um erneut zu scannen"
 
 msgid "Click 'Scan' button to start scan"
-msgstr "Zum Starten 'Suchen' Knopf klicken"
+msgstr "Klicken Sie auf »Scannen«, um zu starten"
 
-msgid "Click here to download"
-msgstr "Zum Download hier klicken"
+msgid "Click to Download Game"
+msgstr "Klicken, um das Spiel herunterzuladen"
 
-msgid "Click here to import kickstarts"
-msgstr "Hier klicken zum Importieren der Kickstarts"
+msgid "Click to Import Kickstart ROMs"
+msgstr "Klicken, um Kickstart ROMs zu importieren"
 
 msgid "Close"
 msgstr "Schließen"
 
-msgid "Commiting locker data..."
-msgstr "Übertrage locker Daten..."
-
 msgid "Committing data..."
-msgstr "Übertrage Daten..."
+msgstr "Übertrage Daten …"
+
+msgid "Committing locker data..."
+msgstr "Übertrage Locker-Daten …"
 
 msgid "Config"
 msgstr "Konfiguration"
@@ -225,9 +279,6 @@ msgstr "Konfiguration"
 msgid "Configuration Browser"
 msgstr "Konfigurationsbrowser"
 
-msgid "Configuration Warning"
-msgstr "Konfigurationswarnung"
-
 msgid "Configurations"
 msgstr "Konfigurationen"
 
@@ -237,8 +288,11 @@ msgstr "Joystickeinstellungen und bevorzugte Joystick Geräte"
 msgid "Connect"
 msgstr "Verbinden"
 
-msgid "Copy {0}\nto {1}"
-msgstr "Kopiere {0}\nzu {1}"
+#, python-brace-format
+msgid "Copy {0}\n"
+"to {1}"
+msgstr "Kopiere {0}\n"
+"zu {1}"
 
 msgid "Could not open file for writing"
 msgstr "Kann Datei für Schreibzugriff nicht öffnen"
@@ -273,14 +327,19 @@ msgstr "Eigene IRC Server Adresse"
 msgid "Custom Joystick Port"
 msgstr "Benutzerdefinierter Joystickport"
 
-msgid "Custom game database server address"
-msgstr "Benutzerdefinierte Spiele-Datenbank Server-Adresse"
+msgid "Database Games"
+msgstr "Datenbank-Spiele"
 
 msgid "Default"
 msgstr "Vorgabe"
 
+#, python-brace-format
 msgid "Default ({0})"
 msgstr "Vorgabe ({0})"
+
+#, python-brace-format
+msgid "Default - {0}"
+msgstr "Standard - {0}"
 
 msgid "Defragment Databases"
 msgstr "Datenbank defragmentieren"
@@ -288,14 +347,30 @@ msgstr "Datenbank defragmentieren"
 msgid "Defragmenting the databases will improve performance by ensuring that tables and indices are stored contiguously on disk. It will also reclaim some storage space."
 msgstr "Das Defragmentieren der Datenbanken wird die Leistung verbessern, indem sichergestellt wird, dass Tabellen und Indizes zusammenhängend auf der Festplatte gespeichert werden. Es wird auch etwas Speicherplatz zurückzugewonnen."
 
+#, python-brace-format
 msgid "Defragmenting {name}"
 msgstr "Defragmentiere {name}"
 
 msgid "Depending on your OS and OpenGL drivers, synchronizing can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
 msgstr "Je nach Betriebssystem und OpenGL-Treibern kann die Synchronisation unnötig viel CPU-Last verursachen (gilt insb. für Linux). Sie können mit verschiedenen Sync-Methoden experimentieren, um die Leistung zu verbessern."
 
+msgid "Deprecated Options"
+msgstr "Veraltete Optionen"
+
 msgid "Device ID used with OAGD.net authentication"
 msgstr "Mit OAGD.net Authentifizierung verwendete Geräte ID"
+
+msgid "Did not find required Kickstart or ROM"
+msgstr "Benötigtes Kickstart or ROM nicht gefunden"
+
+msgid "Digital Joystick"
+msgstr "Digitaler Joystick"
+
+msgid "Directory for WHDLoad.key file (if you have it):"
+msgstr "Verzeichnis für WHDLoad.key (wenn vorhanden):"
+
+msgid "Disabled"
+msgstr "Deaktiviert"
 
 msgid "Disconnect"
 msgstr "Trennen"
@@ -309,35 +384,65 @@ msgstr "Diese Spielvariante nicht mögen"
 msgid "Don't have an account already?"
 msgstr "Sie haben noch kein Konto?"
 
+msgid "Dongle"
+msgstr "Dongle"
+
 msgid "Double-click a device entry to configure it (map joystick buttons)."
 msgstr "Zum konfigurieren einen Geräte-Eintag doppelklicken (Joystick-Knöpfe festlegen)"
 
 msgid "Download Game Manually"
 msgstr "Manueller Spiele Download"
 
+#, python-brace-format
 msgid "Download failed (attempt {0}) - retrying in {0} seconds"
 msgstr "Download fehlgeschlagen (Versuch {0}) - Wiederholung in {0} Sekunden"
 
+#, python-brace-format
 msgid "Download to the following directory, and then click '{0}':"
 msgstr "Laden Sie das folgende Verzeichnis herunter und klicken Sie '{0}':"
 
+#, python-brace-format
 msgid "Downloading {0}..."
 msgstr "Lade herunter {0}..."
 
 msgid "E-mail:"
 msgstr "E-Mail:"
 
-msgid "Edit Custom Options"
-msgstr "Benutzerdefinierte Optionen bearbeiten"
-
 msgid "Eject"
 msgstr "Auswerfen"
+
+msgid "Empty Floppy Drive Volume"
+msgstr "Lautstärke der leeren Diskettenlaufwerke"
+
+msgid "Enable experimental config visualization (requires restart)"
+msgstr "Aktiviere experimentelle Config-Visualisierung (Programm-Neustart erforderlich)"
 
 msgid "Enable experimental net play GUI (requires restart)"
 msgstr "Experimentelle Net-Play-Oberfläche aktivieren (Neustart erforderlich)"
 
 msgid "Enable online database support (requires restart)"
 msgstr "Online Datenbank Unterstützung aktivieren (Neustart erforderlich)"
+
+msgid "Enable/disable use of OAGD.net locker"
+msgstr "Aktiviere/deaktiviere die Nutzung von OAGD.net-Locker"
+
+msgid "Enable/disable use of the Arcade game database"
+msgstr "Verwendung der Arcade Spiele-Datenbank aktivieren/deaktivieren"
+
+msgid "Enable/disable use of the DOS game database"
+msgstr "Verwendung der DOS Spiele-Datenbank aktivieren/deaktivieren"
+
+msgid "Enable/disable use of the Game Boy Advance database"
+msgstr "Verwendung der Game Boy Advance Datenbank aktivieren/deaktivieren"
+
+msgid "Enable/disable use of the Nintendo (NES) database"
+msgstr "Verwendung der Nintendo (NES) Datenbank aktivieren/deaktivieren"
+
+msgid "Enable/disable use of the Super Nintendo database"
+msgstr "Verwendung der Super Nintendo Datenbank aktivieren/deaktivieren"
+
+msgid "Enabled"
+msgstr "Aktiviert"
 
 msgid "Enabling the following option will prevent tearing from occurring, but will also use more CPU. Input latency may become slightly higher."
 msgstr "Das Aktivieren der folgenden Option wird nicht nur Tearing verhindern, sondern auch mehr CPU-Leistung verwenden. Die Eingabe-Latenzzeit kann sich etwas erhöhen."
@@ -357,15 +462,23 @@ msgstr "Experimentelle Einstellungen"
 msgid "Extended ROM:"
 msgstr "Erweiterter ROM:"
 
+msgid "FS-UAE   Arcade"
+msgstr ""
+
 msgid "FS-UAE Launcher Settings"
 msgstr "FS-UAE Launcher Einstellungen"
 
-msgid "Fast RAM"
-msgstr "Fast RAM"
+msgid "Fade-in Duration on Start"
+msgstr "Einblendzeit beim Starten"
 
+msgid "Favorites"
+msgstr "Favoriten"
+
+#, python-brace-format
 msgid "Fetching database entries ({0})"
 msgstr "Hole Datenbank-Einträge ({0})"
 
+#, python-brace-format
 msgid "Fetching game ratings ({0})"
 msgstr "Hole Spielbewertungen ({0})"
 
@@ -375,8 +488,15 @@ msgstr "Rufe Locker Daten ab..."
 msgid "Fetching synchronization information..."
 msgstr "Rufe Synchronisationsinformationen ab..."
 
+#, python-brace-format
 msgid "Fetching user game ratings ({0})"
 msgstr "Hole Benutzer-Spielebewertungen ({0})"
+
+msgid "File Database"
+msgstr ""
+
+msgid "File Database Settings"
+msgstr ""
 
 msgid "File already exists"
 msgstr "Datei existiert bereits"
@@ -393,9 +513,6 @@ msgstr "Filter Einstellungen"
 msgid "Filters"
 msgstr "Filter"
 
-msgid "Filters:"
-msgstr "Filter:"
-
 msgid "Finding files eligible for OAGD.net Locker"
 msgstr "Suche für OAGD.net Locker berechtigte Dateien"
 
@@ -408,14 +525,23 @@ msgstr "Zuerst gerenderte Zeile (PAL)"
 msgid "Floppies"
 msgstr "Disketten"
 
+msgid "Floppy Drive Count"
+msgstr "Anzahl der Diskettenlaufwerke"
+
 msgid "Floppy Drive Sound Emulation"
 msgstr "Diskettenlaufwerks-Sound Emulation"
+
+msgid "Floppy Drive Speed"
+msgstr "Geschwindigkeit der Diskettenlaufwerke"
+
+msgid "Floppy Drive Volume"
+msgstr "Lautstärke der Diskettenlaufwerke"
 
 msgid "Floppy Drives"
 msgstr "Disketten Laufwerke"
 
-msgid "Floppy drive volume"
-msgstr "Lautstärke der Diskettenlaufwerke"
+msgid "Font Size"
+msgstr ""
 
 msgid "Forgot your password?"
 msgstr "Passwort vergessen?"
@@ -429,8 +555,14 @@ msgstr "Full-Scene Anti-Aliasing (FSAA)"
 msgid "Fullscreen"
 msgstr "Vollbild"
 
+msgid "Game   Center"
+msgstr ""
+
 msgid "Game Database"
 msgstr "Spiele-Datenbank"
+
+msgid "Game Database Server"
+msgstr "Spiel-Datenbankserver"
 
 msgid "Game Database Settings"
 msgstr "Spiele-Datenbank Einstellungen"
@@ -447,17 +579,23 @@ msgstr "Spiele-Datenbank Passwort"
 msgid "Game database user name"
 msgstr "Spiele-Datenbank Benutzername"
 
-msgid "Games you have and all downloadable games"
-msgstr "Spiele, die Sie besitzen + alle herunterladbaren Spiele"
+msgid "Gamepad"
+msgstr "Gamepad"
 
-msgid "Games you have and automatically downloadable"
-msgstr "Spiele, die Sie besitzen + alle autom. herunterladb. Spiele"
+msgid "Grab Input on Click"
+msgstr "Eingabe nach Klick einfangen"
 
-msgid "Grab mouse and keyboard input when FS-UAE starts"
-msgstr "Maus und Tastatur übernehmen wenn FS-UAE startet"
+msgid "Grab Input on FS-UAE Startup"
+msgstr "Eingabe nach FS-UAE-Start einfangen"
 
-msgid "Grab mouse and keyboard input when clicking on FS-UAE window"
-msgstr "Maus und Tastatur übernehmen wenn ins FS-UAE Fenster geklickt wird"
+msgid "Grab keyboard when input is grabbed"
+msgstr "Auch Tastatur einfangen wenn Eingabe eingefangen wird"
+
+msgid "Graphics Card"
+msgstr "Grafikkarte"
+
+msgid "Graphics Card VRAM"
+msgstr "Grafikkarten-VRAM"
 
 msgid "HDF - Partitionable Hard Drive Image (RDB)"
 msgstr "HDF - partitionierbares Festplatten-Image (RDB)"
@@ -477,8 +615,23 @@ msgstr "Festplatten"
 msgid "Hardware"
 msgstr "Hardware"
 
-msgid "Hardware Options"
-msgstr "Hardwareoptionen"
+msgid "High"
+msgstr "Hoch"
+
+msgid "Home"
+msgstr "Eingang"
+
+msgid "Host Key BACKSLASH"
+msgstr "Host-Taste BACKSLASH"
+
+msgid "Host Key EQUALS"
+msgstr "Host-Taste IST-GLEICH"
+
+msgid "Host Key INSERT"
+msgstr "Host-Taste EINFG"
+
+msgid "Host Key LESS"
+msgstr "Host-Taste KLEINER-ALS"
 
 msgid "How to achieve perfectly smooth scrolling"
 msgstr "Wie man weiches Scrolling erreicht [en]"
@@ -486,6 +639,7 @@ msgstr "Wie man weiches Scrolling erreicht [en]"
 msgid "IRC nickname"
 msgstr "IRC Nickname"
 
+#, python-brace-format
 msgid "If you own Amiga Forever, select the drive/folder and click \"{0}\""
 msgstr "Zum Import von Amiga Forever Pfad angeben und klicken \"{0}\""
 
@@ -537,29 +691,32 @@ msgstr "Joystick-Einstellungen"
 msgid "Keep aspect ratio when scaling (do not stretch)"
 msgstr "Seitenverhältnis beim Skalieren beibehalten (nicht strecken)"
 
+msgid "Key Mapping"
+msgstr "Tastenzuordnung"
+
 msgid "Keyboard"
 msgstr "Tastatur"
-
-msgid "Keyboard Setting"
-msgstr "Tastatur Einstellung"
 
 msgid "Keyboard Settings"
 msgstr "Tastatur-Einstellungen"
 
+msgid "Keyword"
+msgstr "Stichwort"
+
 msgid "Kickstart ROM"
 msgstr "Kickstart ROM"
-
-msgid "Kickstart ROMs are missing"
-msgstr "Kickstart ROMs fehlen"
 
 msgid "Kickstart import task started"
 msgstr "Kickstart-Importprozeß gestartet"
 
-msgid "Language"
-msgstr "Sprache"
-
 msgid "Language Preference"
 msgstr "Spracheinstellung"
+
+msgid "Language:"
+msgstr "Sprache:"
+
+msgid "Launch FS-UAE"
+msgstr "FS-UAE starten"
 
 msgid "Launching FS-UAE"
 msgstr "Starte FS-UAE"
@@ -567,20 +724,26 @@ msgstr "Starte FS-UAE"
 msgid "Launching Game"
 msgstr "Starte Spiel"
 
-msgid "Least Accurate"
-msgstr "Am wenigsten genau"
+msgid "Left"
+msgstr "Links"
 
-msgid "Less Accurate"
-msgstr "Weniger genau"
+msgid "Letter"
+msgstr "Buchstabe"
 
 msgid "Like This Game Variant"
 msgstr "Diese Spielvariante mögen"
+
+msgid "List"
+msgstr "Liste"
 
 msgid "Load state by number"
 msgstr "Lade nach Spielstandsnummer"
 
 msgid "Loading..."
 msgstr "Lade..."
+
+msgid "Log Autoscale Changes"
+msgstr "Autoscale Änderungen protokollieren"
 
 msgid "Log In"
 msgstr "Einloggen"
@@ -591,20 +754,26 @@ msgstr "Einloggen / Registrieren"
 msgid "Log In to Your OAGD.net Account"
 msgstr "In Ihr OAGD.net Konto einloggen"
 
+msgid "Log Input Events"
+msgstr "Eingabeereignisse protokollieren"
+
 msgid "Log Out"
 msgstr "Ausloggen"
 
 msgid "Log Out from Your OAGD.net Account"
 msgstr "Aus Ihrem OAGD.net Konto ausloggen"
 
-msgid "Log in to enable online game DB"
-msgstr "Einloggen um online Spiele DB zu aktivieren"
+msgid "Log database query plans"
+msgstr "Datenbank-Auswertung loggen"
 
-msgid "Logged In"
-msgstr "Eingeloggt"
+msgid "Logging"
+msgstr "Protokollierung"
 
 msgid "Logging in will enable the online game database and more"
 msgstr "Das Einloggen aktiviert die Online Spiele Datenbank und mehr"
+
+msgid "Low"
+msgstr "Niedrig"
 
 msgid "Low latency video sync"
 msgstr "Video Sync mit geringer Latenzzeit"
@@ -618,11 +787,14 @@ msgstr "Allgemeine Konfigurationsoptionen"
 msgid "Main Menu"
 msgstr "Hauptmenü"
 
-msgid "Main volume control"
-msgstr "Hauptlautstärkeregler"
+msgid "Main Volume"
+msgstr "Haupt-Lautstärke"
 
 msgid "Maintenance"
 msgstr "Wartung"
+
+msgid "Make:"
+msgstr "Erstelle:"
 
 msgid "Mark This Game Variant as Personal Favorite"
 msgstr "Diese Spiel-Variante als persönlichen Favoriten markieren"
@@ -630,26 +802,51 @@ msgstr "Diese Spiel-Variante als persönlichen Favoriten markieren"
 msgid "Media Swap List"
 msgstr "Medienwechsler"
 
+msgid "Medium"
+msgstr "Mittel"
+
 msgid "Memory"
 msgstr "Speicher"
 
+msgid "Memory Configuration"
+msgstr "Speicherkonfiguration"
+
+msgid "Middle Left"
+msgstr "Mitte Links"
+
+msgid "Middle Right"
+msgstr "Mitte Rechts"
+
+#, python-brace-format
 msgid "Miscellaneous functions to optimize {name}"
 msgstr "Verschiedene Funktionen zur Optimierung von {name}"
 
 msgid "Missing Files"
 msgstr "Fehlende Dateien"
 
+msgid "Missing Game Files"
+msgstr "Fehlende Spiele-Dateien"
+
+msgid "Model:"
+msgstr "Modell:"
+
+msgid "Monitor to display FS-UAE on (fullscreen)"
+msgstr "Monitor zur Darstellung von FS-UAE (Vollbild)"
+
+msgid "Motherboard Fast RAM"
+msgstr "Motherboard-Fast-RAM"
+
 msgid "Mouse"
 msgstr "Maus"
-
-msgid "Mouse Setting"
-msgstr "Mauseinstellung"
 
 msgid "Mouse Settings"
 msgstr "Maus-Einstellungen"
 
-msgid "Mouse speed (%)"
+msgid "Mouse Speed (%)"
 msgstr "Mausgeschwindigkeit (%)"
+
+msgid "Multi-Select..."
+msgstr "Mehrfachauswahl..."
 
 msgid "N/A"
 msgstr "N/V"
@@ -678,17 +875,17 @@ msgstr "Kein Gerät"
 msgid "No Host Device"
 msgstr "Kein Host Gerät"
 
-msgid "No Protection"
-msgstr "Kein Schutz"
+msgid "No Last Played"
+msgstr "Nie gespielt"
 
 msgid "No extended kickstart found for this model. Try 'scan' function."
 msgstr "Kein erweitertes Kickstart ROM für dieses Modell gefunden. Benutzen Sie die \"Scan\" Funktion."
 
-msgid "No kickstart found for this model. Use the 'Import Kickstarts' function from the menu."
-msgstr "Kein Kickstart für dieses Modell gefunden. Verwenden Sie die 'Importiere Kickstarts'-Funktion aus dem Menü."
-
 msgid "No scan in progress"
 msgstr "Kein Scan-Prozess im Gange"
+
+msgid "None"
+msgstr "Keine"
 
 msgid "Not logged in"
 msgstr "Nicht eingeloggt"
@@ -714,14 +911,18 @@ msgstr "Aus"
 msgid "On"
 msgstr "Ein"
 
-msgid "Only games you have"
-msgstr "Nur Spiele, die Sie besitzen"
-
-msgid "Open Scan Dialog"
-msgstr "Öffne Scan-Dialog"
-
 msgid "OpenGL Settings"
 msgstr "OpenGL Einstellungen"
+
+#, python-brace-format
+msgid "Option {name} is overridden by current configuration"
+msgstr "Option {name} wird von der aktuellen Konfiguration überschrieben"
+
+msgid "Options for WHDLoad support in FS-UAE Launcher"
+msgstr "Optionen für WHDLoad-Unterstützung in FS-UAE Launcher"
+
+msgid "Other Device"
+msgstr ""
 
 msgid "Override Installed Memory"
 msgstr "Überschreibe installierten Speicher"
@@ -732,11 +933,8 @@ msgstr "Parallelport Joysticks"
 msgid "Password:"
 msgstr "Passwort:"
 
-msgid "Picasso96 Support"
-msgstr "Picasso96 Unterstützung"
-
-msgid "Picasso96 Support (uaegfx.card)"
-msgstr "Picasso96 Unterstützung (uaegfx.card)"
+msgid "Platform"
+msgstr "Plattform"
 
 msgid "Please open the following web page and download the game from there:"
 msgstr "Bitte öffnen Sie die folgende Webseite und laden Sie das Spiel von dort herunter:"
@@ -751,40 +949,44 @@ msgid "Preferred device for secondary joystick:"
 msgstr "Bevorzugtes Gerät für den sekundären  Joystick:"
 
 msgid "Preparing WHDLoad..."
-msgstr "Bereite WHDLoad vor..."
+msgstr "Vorbereitung von WHDLoad …"
 
 msgid "Preparing floppy images..."
-msgstr "Bereite Diskettenimages vor..."
+msgstr "Bereite Disketten-Images vor …"
 
 msgid "Preparing hard drives..."
-msgstr "Bereite Festplatten vor..."
+msgstr "Vorbereitung der Festplatten …"
 
 msgid "Preparing kickstart ROMs..."
-msgstr "Bereite Kickstart ROMs vor..."
+msgstr "Vorbereitung der Kickstart-ROMs …"
 
 msgid "Preparing..."
-msgstr "Vorbereitung..."
+msgstr "Vorbereitung …"
 
 msgid "Purging old entries..."
 msgstr "Säubere alte Einträge"
 
+msgid "Quit"
+msgstr "Beenden"
+
+msgid "ROM and RAM"
+msgstr "ROM und RAM"
+
+#, python-brace-format
 msgid "Re-trying in {0} seconds..."
-msgstr "Versuche erneut in {0} Sekunden..."
+msgstr "Neuversuch in {0} Sekunden …"
 
 msgid "Read more"
-msgstr "Lesen Sie mehr [en]"
-
-msgid "Refresh Game Configurations from Online Database"
-msgstr "Aktualisiere Spiel-Konfigurationen aus Online-Datenbank"
-
-msgid "Refresh Game Database"
-msgstr "Aktualisiere Spieledatenbank"
+msgstr "Mehr erfahren …"
 
 msgid "Refresh List of Connected Joystick Devices"
-msgstr "Aktualisire Liste der angeschlossenden Joystick Geräte"
+msgstr "Aktualisiere Liste der angeschlossenden Joysticks"
 
 msgid "Reject"
 msgstr "Ablehnen"
+
+msgid "Relax host CPU usage when using fastest-possible CPU"
+msgstr "Host-CPU entlasten bei Emulation der schnellstmöglichen CPU"
 
 msgid "Remove Directory from Search Path"
 msgstr "Entferne Ordner vom Suchpfad"
@@ -792,6 +994,7 @@ msgstr "Entferne Ordner vom Suchpfad"
 msgid "Remove Selected Files"
 msgstr "Entferne ausgewählte Dateien"
 
+#, python-brace-format
 msgid "Removing list {0}"
 msgstr "Entferne Liste {0}"
 
@@ -799,19 +1002,26 @@ msgid "Render scan lines"
 msgstr "Scanlines anzeigen"
 
 msgid "Render scan lines in RTG graphics mode"
-msgstr "Scanlines im RTG Grafikmodus anzeigen"
+msgstr "Scanlines im RTG-Grafikmodus anzeigen"
 
 msgid "Reset password via e-mail"
-msgstr "Passwort via e-mail zurücksetzen"
+msgstr "Passwort via E-Mail zurücksetzen"
 
 msgid "Resetting game database..."
-msgstr "Setze Spiele-Datenbanke zurück..."
+msgstr "Spieledatenbank wird zurückgesetzt …"
 
 msgid "Restoring changes..."
-msgstr "Stelle Änderungen wieder her..."
+msgstr "Stelle Änderungen wieder her …"
 
+#, python-brace-format
 msgid "Retrying last operation (attempt {0})"
 msgstr "Vorgang wird wiederholt (Versuch {0})"
+
+msgid "Right"
+msgstr "Rechts"
+
+msgid "Save"
+msgstr "Speichern"
 
 msgid "Save Configuration"
 msgstr "Konfiguration sichern"
@@ -831,14 +1041,8 @@ msgstr "Skalierungsoptionen"
 msgid "Scan"
 msgstr "Scannen"
 
-msgid "Scan & Indexing"
-msgstr "Scannen und indexieren"
-
 msgid "Scan Downloads"
 msgstr "Downloads scannen"
-
-msgid "Scan Files and Configurations"
-msgstr "Scanne Dateien und Konfigurationen"
 
 msgid "Scan Settings"
 msgstr "Einstellungen scannen"
@@ -848,9 +1052,6 @@ msgstr "Scan beendet"
 
 msgid "Scan error"
 msgstr "Scanfehler"
-
-msgid "Scan for Files"
-msgstr "Scan nach Dateien"
 
 msgid "Scan for Kickstarts, Files and Configurations"
 msgstr "Scan nach Kickstarts, Dateien und Konfigurationen"
@@ -864,50 +1065,69 @@ msgstr "Scan Konfigurationen"
 msgid "Scanning files"
 msgstr "Scanne Dateien"
 
+#, python-brace-format
 msgid "Scanning files ({count} scanned)"
 msgstr "Scanne Dateien ({count} bearbeitet)"
 
 msgid "Scanning game database entries..."
 msgstr "Scanne Spiel-Datenbankeinträge"
 
+#, python-brace-format
 msgid "Scanning game variants ({count} scanned)"
 msgstr "Scanne Spiele-Varianten ({count} gescannt)"
 
 msgid "Scanning games"
 msgstr "Scanne Spiele"
 
+#, python-brace-format
 msgid "Scanning games ({count} scanned)"
 msgstr "Scanne Spiele ({count} gescannt)"
 
 msgid "Select Destination Directory"
 msgstr "Wähle Zielverzeichnis"
 
+msgid "Select First Letter"
+msgstr "Ersten Buchstaben wählen"
+
+msgid "Select Keyword"
+msgstr "Schlagwort wählen"
+
+msgid "Select List"
+msgstr "Liste wählen"
+
 msgid "Select Multiple CD-ROMs"
 msgstr "Mehrere CD-ROMs auswählen"
-
-msgid "Select Multiple Files..."
-msgstr "Mehrere Dateien gleichzeitig auswählen..."
 
 msgid "Select Multiple Floppies"
 msgstr "Mehrere Diskettenimages auswählen"
 
+msgid "Select Platform"
+msgstr "Plattform wählen"
+
 msgid "Select Source Directory"
 msgstr "Wähle Quellverzeichnis"
 
+msgid "Select Year"
+msgstr "Jahr wählen"
+
+#, python-brace-format
 msgid "Select a folder containing Amiga kickstart files and click \"{0}\""
 msgstr "Ordner mit Amiga-Kickstart-Dateien auswählen und \"{0}\" drücken"
 
-msgid "Set preferred language for FS-UAE applications"
-msgstr "Bevorzugte Spracheinstellung für FS-UAE-Anwendungen"
+msgid "Set language and look for FS-UAE applications"
+msgstr "Sprache einstellen und nach FS-UAE-Anwendungen suchen"
 
 msgid "Settings"
 msgstr "Einstellungen"
 
-msgid "Show games from database"
-msgstr "Spiele aus Datenbank anzeigen"
-
 msgid "Show kickstart setup page on startup when all ROMs are missing"
-msgstr "Kickstart-Einstellungen beim Start anzeigen, wenn alle ROMs fehlen"
+msgstr "Kickstart-Scanner beim Start anzeigen, wenn alle ROMs fehlen"
+
+msgid "Show window border and decorations"
+msgstr "Fensterrahmen und Dekorationen anzeigen"
+
+msgid "Shuffle"
+msgstr "Zufall"
 
 msgid "Size:"
 msgstr "Größe:"
@@ -915,17 +1135,17 @@ msgstr "Größe:"
 msgid "Slow RAM"
 msgstr "Slow RAM"
 
-msgid "Some required files are missing"
-msgstr "Einige erforderliche Dateien fehlen"
-
-msgid "Sound emulation"
-msgstr "Sound Emulation"
+msgid "Sound Card"
+msgstr "Soundkarte"
 
 msgid "Specified directory does not exist"
-msgstr "Spezifiziertes Verzeichnis existiert nicht"
+msgstr "Angegebenes Verzeichnis existiert nicht"
 
 msgid "Specify global options and settings which does not have UI controls"
-msgstr "Optionen und Einstellungen, für die keine grafischen UI-Steuerelemente verfügbar sind"
+msgstr "Optionen und Einstellungen, die über grafische Benutzeroberfläche nicht verfügbar"
+
+msgid "Standard"
+msgstr ""
 
 msgid "Start"
 msgstr "Start"
@@ -936,7 +1156,7 @@ msgstr "FS-UAE im Vollbildmodus starten"
 msgid "Starting scan"
 msgstr "Starte Scan"
 
-msgid "Stereo separation"
+msgid "Stereo Separation"
 msgstr "Stereotrennung"
 
 msgid "Stop"
@@ -946,22 +1166,25 @@ msgid "Stopped by user"
 msgstr "Durch Benutzer beendet"
 
 msgid "Swap left and right CTRL keys"
-msgstr "Tausche linke und rechte STRG (CTRL) Tasten"
+msgstr "Tausche linke und rechte Strg-Tasten"
+
+msgid "Synchronization"
+msgstr "Synchronisierung"
 
 msgid "Synchronize FS-UAE with your display for smooth video"
-msgstr "Synchronisiere FS-UAE mit Bildschirm für flüssige Videodarstellung"
+msgstr "Synchronisiere FS-UAE mit dem Bildschirm für flüssige Videodarstellung"
 
 msgid "Synchronize buffer swaps with display (prevents tearing)"
-msgstr "Synchronisiere Buffer-Swaps mit Bildschirm (verhindert Tearing)"
+msgstr "Synchronisiere Buffer-Swaps mit dem Bildschirm (verhindert Tearing)"
 
 msgid "Synchronizing game database..."
-msgstr "Synchronisiere Spiele-Datenbank..."
+msgstr "Synchronisiere Spiele-Datenbank …"
 
 msgid "Synchronizing personal ratings..."
-msgstr "Synchronisiere persönliche Bewertungen…"
+msgstr "Synchronisiere persönliche Bewertungen …"
 
 msgid "Synchronizing with the display can in some cases cause increased stuttering and low frame rates (esp. in some Linux desktop environments with compositing enabled)."
-msgstr "Synchronisation mit dem Bildschirm kann in einigen Fällen Ursache für erhöhtes Stottern und niedrige Bildraten sein (v.a. in einigen Linux-Desktop-Umgebungen mit aktiviertem Compositing)."
+msgstr "Synchronisation mit dem Bildschirm kann in einigen Fällen Ursache für ein Holpern der Emulation und niedrige Bildraten sein (insbs. in einigen Linux-Desktop-Umgebungen mit aktiviertem Compositing)."
 
 msgid "Terms of Download"
 msgstr "Download-Bedingungen"
@@ -972,29 +1195,51 @@ msgstr "Texturfilter"
 msgid "The following joystick will be preferred, if present:"
 msgstr "Der folgende Joystick wird bevorzugt, falls vorhanden:"
 
-msgid "The game may not start properly"
-msgstr "Das Spiel startet möglicherweise nicht ordnungsgemäß"
+msgid "The following options may affect performance, so only enable them when needed for testing or debugging purposes."
+msgstr "Die folgenden Optionen können die Leistung beeinträchtigen, also aktivieren Sie sie nur zum Testen oder Debuggen."
 
-msgid "This game can can be automatically downloaded if you accept the terms"
-msgstr "Dieses Spiel kann automatisch heruntergeladen werden, wenn Sie die Bedingungen akzeptieren"
+msgid "The following options only apply when you use the automatic WHDLoad support in FS-UAE Launcher, for example in relation with the online game database."
+msgstr "Die folgenden Optionen werden nur angewendet, wenn die automatische WHDLoad-Unterstützung im FS-UAE Launcher aktiviert ist, z. B. im Zusammenspiel mit der Online-Spieledatenbank."
 
-msgid "This game must be downloaded"
-msgstr "Dieses Spiel muss heruntergeladen werden"
+msgid "Theme"
+msgstr ""
+
+msgid "This game can be automatically downloaded if you accept the terms"
+msgstr "Dieses Spiel kann automatisch heruntergeladen werden, wenn Sie die Lizenz-/Nutzungsbedingungen akzeptieren"
 
 msgid "This game must be downloaded before you can play it"
-msgstr "Dieses Spiel muss heruntergeladen werden, bevor Sie es spielen können"
+msgstr "Dieses Spiel muss heruntergeladen werden, bevor es gespielt werden kann"
 
 msgid "This game variant cannot be started because you don't have all required files."
-msgstr "Diese Spielvariante kann nicht gestartet werden, weil Sie nicht alle erforderlichen Dateien haben."
+msgstr "Diese Spielvariante kann nicht gestartet werden, weil nicht alle erforderlichen Dateien vorhanden sind."
 
 msgid "Toggle Between Windowed and Full-Screen Mode"
 msgstr "Wechsle zwischen Fenster- und Vollbildmodus"
 
-msgid "Ungrab mouse and keyboard on middle mouse click"
-msgstr "Maus und Tastatur mit mittlerer Maustaste freigeben"
+msgid "Turbo"
+msgstr "Turbo"
 
-msgid "Update available ({version})"
-msgstr "Update verfügbar ({version})"
+msgid "UAE Graphics Card (Picasso96 Support)"
+msgstr "UAE-Grafikkarte (Picasso96 Unterstützung)"
+
+msgid "UAE bsdsocket.library"
+msgstr "UAE bsdsocket.library"
+
+msgid "Ungrab Input on Middle Mouse Button"
+msgstr "Eingabe nach Klick auf mittlere Maustaste freigeben"
+
+msgid "Unprotected"
+msgstr "Ungeschützt"
+
+#, python-brace-format
+msgid "Update Available: {version}"
+msgstr "Update verfügbar: {version}"
+
+msgid "Update File Database"
+msgstr "Datei-Datenbank aktualisieren"
+
+msgid "Update Game Database"
+msgstr "Spiel-Datenbank aktualisieren"
 
 msgid "Updating Database"
 msgstr "Aktualisiere Datenbank"
@@ -1003,13 +1248,14 @@ msgid "Updating database"
 msgstr "Aktualisiere Datenbank"
 
 msgid "Updating game lists..."
-msgstr "Aktialisiere Spiele Listen..."
+msgstr "Aktialisiere Spielelisten..."
 
+#, python-brace-format
 msgid "Updating list '{0}'..."
 msgstr "Aktualisiere Liste '{0}'..."
 
 msgid "Updating locker data..."
-msgstr "Aktualisiere Locker Daten..."
+msgstr "Aktualisiere Locker-Daten..."
 
 msgid "Upload"
 msgstr "Hochladen"
@@ -1018,65 +1264,83 @@ msgid "Upload Files to OAGD.net Locker"
 msgstr "Dateien in OAGD.net Locker hochladen"
 
 msgid "Upload recognized Amiga files to your OAGD.net locker"
-msgstr "Erkannte Amiga Dateien in OAGD.net Locker hochladen"
+msgstr "Erkannte Amiga-Dateien in OAGD.net Locker hochladen"
 
+#, python-brace-format
 msgid "Uploading {name}"
 msgstr "Lade {name} hoch"
 
+#, python-brace-format
 msgid "Use RDB disk images for size >= {0}"
-msgstr "Nutze RDB Images für Größe >= {0}"
+msgstr "Nutze RDB-Images für Größe >= {0}"
 
-msgid "User Menu"
-msgstr "Benutzermenü"
+msgid "Using Kickstart ROM Replacement"
+msgstr "Verwende Kickstart ROM Ersatz"
 
 msgid "Video"
 msgstr "Video"
 
-msgid "Video (Advanced)"
-msgstr "Video (Erweitert)"
-
 msgid "Video Settings"
 msgstr "Videoeinstellungen"
 
-msgid "Video Synchronization"
-msgstr "Video Synchronisation"
-
 msgid "Video Synchronization Settings"
-msgstr "Video Synchronisationseinstellungen"
+msgstr "Einstellungen der Video-Synchronisation"
 
 msgid "Video buffer format and color depth"
-msgstr "Video-Puffer-Format und Farbtiefe"
+msgstr "Video-Pufferformat und -farbtiefe"
 
 msgid "Video synchronization"
-msgstr "Videosynchronisierung"
+msgstr "Video-Synchronisierung"
 
 msgid "Video synchronization method"
-msgstr "Video-Sychronisierungs-Methode"
+msgstr "Art der Video-Sychronisierung"
 
 msgid "Video texture format (on the GPU)"
-msgstr "Video-Textur-Format (auf der GPU)"
+msgstr "Video-Texturformat (auf der GPU)"
 
 msgid "WHDLoad Arguments"
-msgstr "WHDLoad Argumente"
+msgstr "WHDLoad-Argumente"
+
+msgid "WHDLoad Settings"
+msgstr "WHDLoad-Einstellungen"
+
+msgid "WHDLoad splash delay"
+msgstr "WHDLoad Splash Delay"
+
+msgid "Warning"
+msgstr "Warnung"
 
 msgid "Web Links"
-msgstr "Web Links"
+msgstr "Web-Links"
 
 msgid "When Automatic is specified, your preferred language is set based on information from the operating system (or English, if a supported language is not detected)."
-msgstr "Wenn \"Automatisch\" angegeben ist, wird Ihre bevorzugte Sprache, basierend auf Informationen vom Betriebssystem eingestellt (oder Englisch, wenn eine unterstützte Sprache nicht erkannt wird)."
+msgstr "Wenn „Automatisch“ angegeben ist, wird Ihre bevorzugte Sprache, basierend auf Informationen vom Betriebssystem eingestellt (oder Englisch, wenn keine unterstützte Sprache erkannt wird)."
 
 msgid "While logged out you will not get database updates"
 msgstr "Während Sie ausgeloggt sind, bekommen sie keine Datenbank-Aktualisierungen."
 
+msgid "Write .uaem metadata files"
+msgstr "Schreibe Metadatendateien (*.uaem)"
+
+msgid "Year"
+msgstr "Jahr"
+
 msgid "You should have kickstart files for each Amiga model you want to use:"
-msgstr "Sie sollten eine Kickstart-Datei für jedes Amiga-Modell das Sie benutzen wollen besitzen:"
+msgstr "Für jedes Amiga-Modell, das Sie benutzen wollen, sollte eine Kickstart-Datei vorliegen:"
 
 msgid "Zoom Amiga display (crop)"
-msgstr "Amigaanzeige strecken"
+msgstr "Amiga-Anzeige strecken"
 
-msgid "Zorro III RAM"
-msgstr "Zorro III RAM"
+msgid "Zorro II Fast RAM"
+msgstr "Zorro II Fast RAM"
 
+msgid "Zorro III Fast RAM"
+msgstr "Zorro III Fast RAM"
+
+msgid "uaegfx_card"
+msgstr "uaegfx_card"
+
+#, python-brace-format
 msgid "{amiga_model} with < 2 MB chip memory"
 msgstr "{amiga_model} mit < 2 MB Chip Memory"
 

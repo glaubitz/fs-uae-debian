@@ -1,3 +1,9 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <stdlib.h>
+
 const char* g_fs_emu_key_names[] = {
 "",
 "",

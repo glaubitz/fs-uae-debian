@@ -1,49 +1,33 @@
-# -*- coding: UTF-8 -*-
-
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import fsui as fsui
-from ..I18N import _
+import fsui
+from fsui.extra.iconheader import IconHeader
+from fsbc.Application import app
+from ..I18N import gettext
 
 
 class AboutDialog(fsui.Dialog):
 
     def __init__(self, parent):
-        fsui.Dialog.__init__(
-            self, parent, _("About {name}").format(name="FS-UAE Launcher"))
-        self.layout = fsui.VerticalLayout()
+        title = gettext("About {name}").format(name="FS-UAE Launcher")
+        super().__init__(parent, title)
+        buttons, layout = fsui.DialogButtons.create_with_layout(self)
+        buttons.create_close_button()
+
+        self.icon_header = IconHeader(
+            self, fsui.Icon("fs-uae-launcher", "pkg:fs_uae_launcher"),
+            "{name} {version}".format(name="FS-UAE Launcher",
+                                      version=app.version),
+            "Copyright © 2012-2015 Frode Solheim")
+        layout.add(self.icon_header, fill=True, margin_bottom=20)
 
         self.text_area = fsui.TextArea(
-            self, about_message, read_only=True, font_family="monospace",
-            border=False)
+            self, about_message, read_only=True, font_family="monospace")
         self.text_area.scroll_to_start()
-        self.text_area.set_min_width(700)
-        self.text_area.set_min_height(400)
-        self.layout.add(self.text_area, fill=True, expand=True)
-
-        #self.layout.add_spacer(10)
-        #hori_layout = fsui.HorizontalLayout()
-        #hori_layout.add_spacer(10, expand=True)
-        #self.layout.add(hori_layout, fill=True)
-        #
-        #self.close_button = fsui.Button(self, _("Close"))
-        #self.close_button.on_activate = self.on_close_button
-        #hori_layout.add(self.close_button, margin_left=10)
-        #hori_layout.add_spacer(10)
-        #self.layout.add_spacer(10)
-
-        self.set_size(self.layout.get_min_size())
-        self.center_on_parent()
-
-    #def on_close_button(self):
-    #    self.end_modal(False)
+        self.text_area.set_min_width(760)
+        self.text_area.set_min_height(340)
+        layout.add(self.text_area, fill=True, expand=True)
 
 
-about_message = """FS-UAE Launcher is Copyright (C) 2012-2013 Frode Solheim.
-
+about_message = """\n
 This package is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation; either version 2 of the License, or (at your option) any later
@@ -122,5 +106,5 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 FS-UAE Launcher depends on several open source third party software packages,
-including but not limited to, Python and wxPython.
+including but not limited to, Python and PyQt/Pyside.
 """

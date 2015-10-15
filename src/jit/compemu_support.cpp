@@ -102,10 +102,6 @@ extern const struct cputbl op_smalltbl_4_nf[];
 extern const struct cputbl op_smalltbl_5_nf[];
 #endif
 
-static void flush_icache_hard(uae_u32 ptr, int n);
-
-
-
 static bigstate live;
 static smallstate empty_ss;
 static smallstate default_ss;
@@ -276,7 +272,11 @@ STATIC_INLINE void adjust_jmpdep(dependency* d, void* a)
 * Soft flush handling support functions                            *
 ********************************************************************/
 
+#ifdef FSUAE
 STATIC_INLINE void set_dhtu(blockinfo* bi, cpuop_func *dh)
+#else
+STATIC_INLINE void set_dhtu(blockinfo* bi, void* dh)
+#endif
 {
 	//write_log (_T("JIT: bi is %p\n"),bi);
 	if (dh!=bi->direct_handler_to_use) {
@@ -288,7 +288,11 @@ STATIC_INLINE void set_dhtu(blockinfo* bi, cpuop_func *dh)
 			//write_log (_T("JIT: x->prev_p is %p\n"),x->prev_p);
 
 			if (x->jmp_off) {
+#ifdef FSUAE
 				adjust_jmpdep(x, (void*) dh);
+#else
+				adjust_jmpdep(x,dh);
+#endif
 			}
 			x=x->next;
 		}
@@ -467,8 +471,6 @@ bool check_prefs_changed_comp (void)
 		alloc_cache();
 		changed = 1;
 	}
-	if (!candirect)
-		canbang = 0;
 
 	// Turn off illegal-mem logging when using JIT...
 	if(currprefs.cachesize)
@@ -3998,38 +4000,6 @@ MENDFUNC(1,fcuts_r,(FRW r))
 }
 MENDFUNC(1,fcut_r,(FRW r))
 
-	MIDFUNC(2,fmovl_ri,(FW r, IMMS i))
-{
-	r=f_writereg(r);
-	raw_fmovl_ri(r,i);
-	f_unlock(r);
-}
-MENDFUNC(2,fmovl_ri,(FW r, IMMS i))
-
-	MIDFUNC(2,fmovs_ri,(FW r, IMM i))
-{
-	r=f_writereg(r);
-	raw_fmovs_ri(r,i);
-	f_unlock(r);
-}
-MENDFUNC(2,fmovs_ri,(FW r, IMM i))
-
-	MIDFUNC(3,fmov_ri,(FW r, IMM i1, IMM i2))
-{
-	r=f_writereg(r);
-	raw_fmov_ri(r,i1,i2);
-	f_unlock(r);
-}
-MENDFUNC(3,fmov_ri,(FW r, IMM i1, IMM i2))
-
-	MIDFUNC(4,fmov_ext_ri,(FW r, IMM i1, IMM i2, IMM i3))
-{
-	r=f_writereg(r);
-	raw_fmov_ext_ri(r,i1,i2,i3);
-	f_unlock(r);
-}
-MENDFUNC(4,fmov_ext_ri,(FW r, IMM i1, IMM i2, IMM i3))
-
 	MIDFUNC(2,fmov_ext_mr,(MEMW m, FR r))
 {
 	r=f_readreg(r);
@@ -4496,7 +4466,7 @@ void init_comp(void)
 
 	for (i=0;i<VREGS;i++) {
 		if (i<16) { /* First 16 registers map to 68k registers */
-			live.state[i].mem=((uae_u32*)&regs)+i;
+			live.state[i].mem=&regs.regs[i];
 			live.state[i].needflush=NF_TOMEM;
 			set_status(i,INMEM);
 		}
@@ -4520,7 +4490,7 @@ void init_comp(void)
 
 	for (i=0;i<VFREGS;i++) {
 		if (i<8) { /* First 8 registers map to 68k FPU registers */
-			live.fate[i].mem=(uae_u32*)(((fptype*)regs.fp)+i);
+			live.fate[i].mem=(uae_u32*)(&regs.fp[i].fp);
 			live.fate[i].needflush=NF_TOMEM;
 			live.fate[i].status=INMEM;
 		}
@@ -4891,11 +4861,10 @@ static void align_target(uae_u32 a)
 		*target++=0x90;
 }
 
-extern uae_u8* kickmemory;
 STATIC_INLINE int isinrom(uae_u32 addr)
 {
-	return (addr>=(uae_u32)kickmemory &&
-		addr<(uae_u32)kickmemory+8*65536);
+	return (addr>=(uae_u32)kickmem_bank.baseaddr &&
+		addr<(uae_u32)kickmem_bank.baseaddr+8*65536);
 }
 
 static void flush_all(void)
@@ -5045,7 +5014,8 @@ STATIC_INLINE void writemem(int address, int source, int offset, int size, int t
 
 void writebyte(int address, int source, int tmp)
 {
-	int  distrust;
+	int distrust = currprefs.comptrustbyte;
+#ifdef FSUAE
 	switch (currprefs.comptrustbyte) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5053,7 +5023,7 @@ void writebyte(int address, int source, int tmp)
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if ((special_mem&S_WRITE) || distrust)
 		writemem_special(address,source,20,1,tmp);
 	else
@@ -5063,7 +5033,8 @@ void writebyte(int address, int source, int tmp)
 STATIC_INLINE void writeword_general(int address, int source, int tmp,
 	int clobber)
 {
-	int  distrust;
+	int distrust = currprefs.comptrustword;
+#ifdef FSUAE
 	switch (currprefs.comptrustword) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5071,7 +5042,7 @@ STATIC_INLINE void writeword_general(int address, int source, int tmp,
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if ((special_mem&S_WRITE) || distrust)
 		writemem_special(address,source,16,2,tmp);
 	else
@@ -5091,7 +5062,8 @@ void writeword(int address, int source, int tmp)
 STATIC_INLINE void writelong_general(int address, int source, int tmp,
 	int clobber)
 {
-	int  distrust;
+	int  distrust = currprefs.comptrustlong;
+#ifdef FSUAE
 	switch (currprefs.comptrustlong) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5099,7 +5071,7 @@ STATIC_INLINE void writelong_general(int address, int source, int tmp,
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if ((special_mem&S_WRITE) || distrust)
 		writemem_special(address,source,12,4,tmp);
 	else
@@ -5172,7 +5144,8 @@ STATIC_INLINE void readmem(int address, int dest, int offset, int size, int tmp)
 
 void readbyte(int address, int dest, int tmp)
 {
-	int  distrust;
+	int distrust = currprefs.comptrustbyte;
+#ifdef FSUAE
 	switch (currprefs.comptrustbyte) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5180,7 +5153,7 @@ void readbyte(int address, int dest, int tmp)
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if ((special_mem&S_READ) || distrust)
 		readmem_special(address,dest,8,1,tmp);
 	else
@@ -5189,7 +5162,8 @@ void readbyte(int address, int dest, int tmp)
 
 void readword(int address, int dest, int tmp)
 {
-	int  distrust;
+	int distrust = currprefs.comptrustword;
+#ifdef FSUAE
 	switch (currprefs.comptrustword) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5197,7 +5171,7 @@ void readword(int address, int dest, int tmp)
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if ((special_mem&S_READ) || distrust)
 		readmem_special(address,dest,4,2,tmp);
 	else
@@ -5206,7 +5180,8 @@ void readword(int address, int dest, int tmp)
 
 void readlong(int address, int dest, int tmp)
 {
-	int  distrust;
+	int distrust = currprefs.comptrustlong;
+#ifdef FSUAE
 	switch (currprefs.comptrustlong) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5214,7 +5189,7 @@ void readlong(int address, int dest, int tmp)
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if ((special_mem&S_READ) || distrust)
 		readmem_special(address,dest,0,4,tmp);
 	else
@@ -5252,7 +5227,8 @@ STATIC_INLINE void get_n_addr_real(int address, int dest, int tmp)
 
 void get_n_addr(int address, int dest, int tmp)
 {
-	int  distrust;
+	int distrust = currprefs.comptrustnaddr;
+#ifdef FSUAE
 	switch (currprefs.comptrustnaddr) {
 	case 0: distrust=0; break;
 	case 1: distrust=1; break;
@@ -5260,7 +5236,7 @@ void get_n_addr(int address, int dest, int tmp)
 	case 3: distrust=!have_done_picasso; break;
 	default: abort();
 	}
-
+#endif
 	if (special_mem || distrust)
 		get_n_addr_old(address,dest,tmp);
 	else
@@ -5701,16 +5677,7 @@ void build_comp(void)
 #endif
 	raw_init_cpu();
 #ifdef NATMEM_OFFSET
-	write_log (_T("JIT: Setting signal handler\n"));
-#ifndef _WIN32
-	struct sigaction sa;
-	sa.sa_handler = (void (*)(int)) vec;
- 	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-
-	sigaction(SIGSEGV, &sa, NULL);
-//	signal(SIGSEGV,vec);
-#endif
+	install_exception_handler();
 #endif
 	write_log (_T("JIT: Building Compiler function table\n"));
 	for (opcode = 0; opcode < 65536; opcode++) {
@@ -5829,7 +5796,7 @@ void build_comp(void)
 }
 
 
-static void flush_icache_hard(uae_u32 ptr, int n)
+void flush_icache_hard(uaecptr ptr, int n)
 {
 	blockinfo* bi;
 

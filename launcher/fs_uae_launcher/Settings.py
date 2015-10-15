@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from fsbc.Application import app
 from fsbc.user import get_user_name
 from .Signal import Signal
@@ -13,6 +8,9 @@ class Settings(object):
 
     base_dir = ""
 
+    # The main use of default_settings is actually to hide the corresponding
+    # options from advanced settings (because there is UI for them, or
+    # because the settings are internal)
     default_settings = {
         "__netplay_ready": "",
         "automatic_input_grab": "",
@@ -22,48 +20,58 @@ class Settings(object):
         "config_base": "",
         "config_changed": "0",
         "config_name": "Unnamed Configuration",
+        "config_feature": "",
         "config_path": "",
         "config_refresh": "",
         "config_search": "",
         "config_xml_path": "",
         "configurations_dir_mtime": "",
+        "database_auth": "",
+        "database_email": "",
         "database_feature": "",
         "database_password": "",
+        "database_server": "",
+        "database_show_adult": "",
+        "database_show_games": "",
         "database_username": "",
-        "database_email": "",
-        "database_auth": "",
         "device_id": "",
         "fsaa": "",
         "floppy_drive_volume": "",
+        "floppy_drive_volume_empty": "",
         "fullscreen": "",
         "game_uuid": "",
+        "game_list_uuid": "",
         "initial_input_grab": "",
         "irc_nick": "",
         "irc_server": "",
         "keep_aspect": "",
         "kickstarts_dir_mtime": "",
         "kickstart_setup": "",
+        "language": "",
         "last_cd_dir": "",
         "last_floppy_dir": "",
         "last_hd_dir": "",
         "last_rom_dir": "",
         "last_scan": "",
         "last_settings_page": "",
+        "launcher_theme": "",
         "low_latency_vsync": "",
         "maximized": "0",
         "middle_click_ungrab": "",
+        "monitor": "",
         "mouse_speed": "",
         "netplay_feature": "",
         "netplay_tag": "",
         "parent_uuid": "",
         "primary_joystick": "",
-        "rtg_scanlines": "",
+        # "rtg_scanlines": "",
         "scan_configs": "1",
         "scan_files": "1",
         "scan_roms": "1",
-        "scanlines": "",
+        # "scanlines": "",
         "search_path": "",
         "secondary_joystick": "",
+        "stereo_separation": "",
         "swap_ctrl_keys": "",
         "texture_filter": "",
         "texture_format": "",
@@ -71,12 +79,12 @@ class Settings(object):
         "video_sync": "",
         "video_sync_method": "",
         "zoom": "",
-        #"window_width": "",
-        #"window_height": "",
+        # "window_width": "",
+        # "window_height": "",
     }
 
     settings = default_settings.copy()
-    #settings_listeners = []
+    # settings_listeners = []
 
     initialize_from_config = set([
         "fullscreen",
@@ -92,12 +100,12 @@ class Settings(object):
 
     @classmethod
     def add_listener(cls, listener):
-        #cls.settings_listeners.append(listener)
+        # cls.settings_listeners.append(listener)
         Signal.add_listener("setting", listener)
 
     @classmethod
     def remove_listener(cls, listener):
-        #cls.settings_listeners.remove(listener)
+        # cls.settings_listeners.remove(listener)
         Signal.remove_listener("setting", listener)
 
     @classmethod
@@ -134,4 +142,3 @@ class Settings(object):
         if value:
             return value
         return "irc.fengestad.no"
-#

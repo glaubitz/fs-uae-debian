@@ -1,13 +1,7 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-from ..Config import Config
 from .IRC import IRC
 from .IRCColor import IRCColor
-#from .Netplay import Netplay
 from .IRCBroadcaster import IRCBroadcaster
+
 
 class Channel:
 
@@ -43,8 +37,8 @@ class Channel:
         line = message + "\n"
         self.lines.append(line)
         self.colors.append(color)
-        IRCBroadcaster.broadcast("message", {"channel": self.name,
-            "message": line, "color": color})
+        IRCBroadcaster.broadcast(
+            "message", {"channel": self.name, "message": line, "color": color})
 
     def info(self, message):
         return self.message(message, color=IRCColor.INFO)
@@ -91,14 +85,14 @@ class Channel:
 
     def add_nick(self, nick):
         self.nicks.add(nick)
-        IRCBroadcaster.broadcast("join", {"channel": self.name,
-                "nick": nick})
+        IRCBroadcaster.broadcast(
+            "join", {"channel": self.name, "nick": nick})
 
     def remove_nick(self, nick):
-        IRCBroadcaster.broadcast("part", {"channel": self.name,
-                "nick": nick})
+        IRCBroadcaster.broadcast(
+            "part", {"channel": self.name, "nick": nick})
         if nick not in self.nicks:
-            #print("Channel.parted - warning, nick not in list", nick)
+            # print("Channel.parted - warning, nick not in list", nick)
             pass
         else:
             self.nicks.remove(nick)
@@ -148,23 +142,23 @@ class Channel:
             IRCBroadcaster.broadcast("joined", {"channel": self.name})
         else:
             self.message("* {0} joined ({1}) ".format(
-                    nick, self.name), IRCColor.JOIN)
+                nick, self.name), IRCColor.JOIN)
             if nick in self.nicks:
                 print("Channel.joined - warning, nick already in list", nick)
             else:
-                #self.nicks.add(nick)
+                # self.nicks.add(nick)
                 self.add_nick(nick)
         IRCBroadcaster.broadcast("nick_list", {"channel": self.name})
 
     def on_kick(self, kicker, kickee, reason):
         self.message("* {0} kicked {1} ({2})".format(
-                kicker, kickee, reason), IRCColor.KICK)
+            kicker, kickee, reason), IRCColor.KICK)
         if IRC.me(kickee):
             self.handle_leave_channel()
 
     def on_topic(self, who, topic):
-        self.message("* {0} changed topic to:\n{1} ".format(who, topic),
-                IRCColor.TOPIC)
+        self.message("* {0} changed topic to:\n{1} ".format(
+            who, topic), IRCColor.TOPIC)
 
     def on_mode(self, who, args):
         if args[0] == "+o":
@@ -192,22 +186,22 @@ class Channel:
             color = IRCColor.POS_MODE
         else:
             color = IRCColor.NEG_MODE
-        self.message("* {0} sets mode {1}".format(who, " ".join(args)),
-                color)
+        self.message("* {0} sets mode {1}".format(
+            who, " ".join(args)), color)
         IRCBroadcaster.broadcast("nick_list", {"channel": self.name})
 
     def on_namreply(self, nicks):
         for nick in nicks:
             if nick.startswith('@'):
-                #self.nicks.add(nick[1:])
+                # self.nicks.add(nick[1:])
                 self.ops.add(nick[1:])
                 self.add_nick(nick[1:])
             elif nick.startswith('+'):
-                #self.nicks.add(nick[1:])
+                # self.nicks.add(nick[1:])
                 self.voices.add(nick[1:])
                 self.add_nick(nick[1:])
             else:
-                #self.nicks.add(nick)
+                # self.nicks.add(nick)
                 self.add_nick(nick)
         IRCBroadcaster.broadcast("nick_list", {"channel": self.name})
 
@@ -217,12 +211,12 @@ class Channel:
             self.handle_leave_channel()
         else:
             self.message("* {0} left {1}".format(
-                    nick, self.name), IRCColor.PART)
+                nick, self.name), IRCColor.PART)
             self.remove_nick(nick)
         IRCBroadcaster.broadcast("nick_list", {"channel": self.name})
 
     def on_quit(self, nick, reason):
         if nick in self.nicks or self.name == nick or not self.name:
-            self.message("* {0} quit ({1}) ".format(nick, reason),
-                    IRCColor.PART)
+            self.message("* {0} quit ({1}) ".format(
+                nick, reason), IRCColor.PART)
         self.remove_nick(nick)

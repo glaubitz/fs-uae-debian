@@ -1,9 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-
 from fsgs.mednafen.mednafen import MednafenRunner
 
 
@@ -21,6 +15,9 @@ class GameBoyRunner(MednafenRunner):
             "types": [CONTROLLER]
         },
     ]
+
+    def __init__(self, fsgs):
+        super().__init__(fsgs)
 
     def get_game_refresh_rate(self):
         return 59.73
@@ -49,5 +46,5 @@ class GameBoyRunner(MednafenRunner):
     def mednafen_system_prefix(self):
         return "gb"
 
-    #def mednafen_video_size(self):
-    #    return 160, 144
+    # def mednafen_video_size(self):
+    #     return 160, 144

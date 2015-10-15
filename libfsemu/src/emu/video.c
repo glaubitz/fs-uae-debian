@@ -1,9 +1,14 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <fs/emu.h>
 #include <stdio.h>
 #include <string.h>
+#include <fs/glib.h>
 #include <fs/ml.h>
-#include <fs/queue.h>
 #include <fs/thread.h>
+#include <math.h>
 
 #ifdef USE_OPENGL
 #include <fs/ml/opengl.h>
@@ -64,19 +69,19 @@ int64_t g_fs_emu_video_mode_change_time = 0;
 // when holding this lock
 static fs_mutex *g_video_render_mutex;
 
-int g_fs_emu_video_sync_to_vblank = 1;
-int g_fs_emu_video_allow_full_sync = 1;
+int g_fs_emu_video_sync_to_vblank = 0;
+int g_fs_emu_video_allow_full_sync = 0;
 int g_fs_emu_video_frame_rate_host = 0;
 
 // this is the target frame rate for the video (emulator output)
-static int g_video_frame_rate = 0;
+static double g_video_frame_rate = 0;
 
 // this is the aspect ratio of the video frame from the emulator, defaults
 // to 1.0 (1:1 pixels)
 static double g_video_aspect_ratio = 1.0;
 
 //static int g_emu_video_struct_seq_no = 0;
-static fs_queue *g_emu_video_struct_queue = NULL;
+static GQueue *g_emu_video_struct_queue = NULL;
 static fs_mutex *g_emu_video_struct_mutex = NULL;
 
 void fs_emu_set_toggle_zoom_function(fs_emu_zoom_function function) {
@@ -93,12 +98,12 @@ void fs_emu_set_pixel_aspect_ratio(double ratio) {
     g_video_aspect_ratio = ratio;
 }
 
-int fs_emu_get_video_frame_rate() {
+double fs_emu_get_video_frame_rate() {
     return g_video_frame_rate;
 }
 
-void fs_emu_set_video_frame_rate(int frame_rate) {
-    static int last_frame_rate = 0;
+void fs_emu_set_video_frame_rate(double frame_rate) {
+    static double last_frame_rate = 0;
     static int last_frame_rate_host = 0;
     if (frame_rate == last_frame_rate
             && last_frame_rate_host == g_fs_emu_video_frame_rate_host) {
@@ -107,17 +112,20 @@ void fs_emu_set_video_frame_rate(int frame_rate) {
     last_frame_rate = frame_rate;
     last_frame_rate_host = g_fs_emu_video_frame_rate_host;
 
-    fs_log("fs_emu_set_video_frame_rate: %d\n", frame_rate);
+    int frame_rate_i = round(frame_rate);
+    fs_log("fs_emu_set_video_frame_rate: %0.2f (%d)\n",
+           frame_rate, frame_rate_i);
     g_video_frame_rate = frame_rate;
 
     fs_log("g_fs_emu_video_sync_to_vblank = %d\n",
             g_fs_emu_video_sync_to_vblank);
+
     if (g_fs_emu_video_sync_to_vblank) {
         fs_log("g_fs_emu_video_allow_full_sync = %d\n",
                 g_fs_emu_video_allow_full_sync);
         if (g_fs_emu_video_allow_full_sync) {
-            if (frame_rate && (frame_rate == g_fs_emu_video_frame_rate_host ||
-                    frame_rate == g_fs_emu_video_frame_rate_host + 1)) {
+            if (frame_rate && (frame_rate_i == g_fs_emu_video_frame_rate_host
+                    || frame_rate_i == g_fs_emu_video_frame_rate_host + 1)) {
                 fs_log("frame rate (%d) close enough to screen refresh (%d)\n",
                         frame_rate, g_fs_emu_video_frame_rate_host);
                 fs_ml_video_sync_enable(1);
@@ -164,14 +172,19 @@ void fs_emu_video_render_mutex_unlock() {
     fs_mutex_unlock(g_video_render_mutex);
 }
 
-void fs_emu_video_init() {
+#ifdef FS_EMU_DRIVERS
+/* see video/init.c instead */
+#else
+void fs_emu_video_init(void)
+{
     fs_log("fs_emu_video_init\n");
     fs_emu_video_init_options();
 
     g_video_render_mutex = fs_mutex_create();
-    g_emu_video_struct_queue = fs_queue_new();
+    g_emu_video_struct_queue = g_queue_new();
     g_emu_video_struct_mutex = fs_mutex_create();
 }
+#endif
 
 int fs_emu_get_video_format() {
     return g_fs_emu_video_format;
@@ -189,7 +202,9 @@ void fs_emu_video_init_opengl() {
 #ifdef WITH_XML_SHADER
     fs_emu_xml_shader_init();
 #endif
+#ifdef WITH_LUA
     fs_emu_lua_run_handler("on_fs_emu_init_video");
+#endif
 }
 
 void fs_emu_toggle_fullscreen() {
@@ -225,7 +240,7 @@ void fs_emu_update_video_stats_2() {
     g_frame_time_last = time_ms;
 }
 
-void update_video_stats_system_video() {
+static void update_video_stats_system_video() {
     if (g_fs_emu_benchmark_start_time > 0) {
         g_fs_emu_total_sys_frames++;
     }
@@ -385,10 +400,10 @@ void fs_emu_video_after_update() {
     fs_emu_video_buffer_unlock();
     int64_t t = fs_emu_monotonic_time();
 
-    if (fs_emu_pointer_is_visible_to() > 0) {
-        if (fs_emu_pointer_is_visible_to() < fs_emu_monotonic_time()) {
+    if (fs_emu_cursor_is_visible_to() > 0) {
+        if (fs_emu_cursor_is_visible_to() < fs_emu_monotonic_time()) {
             //fs_log("%lld\n", fs_emu_monotonic_time());
-            fs_emu_show_pointer(0);
+            fs_emu_show_cursor(0);
         }
     }
 
@@ -399,7 +414,7 @@ void fs_emu_video_after_update() {
     if (g_fs_emu_benchmark_start_time) {
         static int64_t last_report = 0;
         if (t - last_report > 5000000) {
-            double ttime = ((t - g_fs_emu_benchmark_start_time) / 1000000);
+            double ttime = ((t - g_fs_emu_benchmark_start_time) / 1000000.0);
             double sys_fps = g_fs_emu_total_sys_frames / ttime;
             double emu_fps = g_fs_emu_total_emu_frames / ttime;
             //fs_log("average fps sys: %0.1f emu: %0.1f\n", sys_fps, emu_fps);

@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #if !defined(USE_OPENAL)
 
 #include <fs/emu.h>
@@ -55,5 +59,9 @@ void fs_emu_audio_set_volume(double volume) {
 void fs_emu_audio_render_debug_info(uint32_t *texture) {
 
 }
+
+#else
+
+int libfsemu_audio_dummy_dummy;
 
 #endif

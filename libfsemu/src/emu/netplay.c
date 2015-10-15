@@ -1,8 +1,12 @@
-#include <fs/emu.h>
-#define _GNU_SOURCE 1
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef WINDOWS
 #define WINVER 0x0502
 #endif
+#include <fs/emu.h>
+#define _GNU_SOURCE 1
 #include "netplay.h"
 
 char *g_fs_emu_netplay_server = 0;
@@ -38,8 +42,6 @@ void fs_emu_set_state_check_function(fs_emu_checksum_function function) {
 #include <string.h>
 
 #include <fs/emu.h>
-#include <fs/random.h>
-#include <fs/string.h>
 #include <fs/thread.h>
 
 #include "hud.h"
@@ -75,9 +77,9 @@ int g_fs_emu_netplay_num_players = 0;
 int g_fs_emu_netplay_connected = 0;
 
 // FIXME: move to emulator
-static int g_fs_emu_netplay_emulation_version_major = 2;
-static int g_fs_emu_netplay_emulation_version_minor = 4;
-static int g_fs_emu_netplay_emulation_version_revision = 0;
+static int g_fs_emu_netplay_emulation_version_major = PACKAGE_MAJOR;
+static int g_fs_emu_netplay_emulation_version_minor = PACKAGE_MINOR;
+static int g_fs_emu_netplay_emulation_version_revision = PACKAGE_REVISION;
 
 #define TCP
 
@@ -129,7 +131,7 @@ int close(int socket) {
 #define CREATE_EXT_MESSAGE(x, y) (0x80000000 | (x << 24) | (y & 0x00ffffff))
 
 static fs_mutex* g_input_event_mutex;
-static fs_queue* g_input_event_queue;
+static GQueue* g_input_event_queue;
 
 static fs_emu_dialog* g_waiting_dialog = NULL;
 
@@ -168,25 +170,6 @@ const char *fs_emu_get_netplay_tag(int player) {
     return "PLY";
 }
 
-static void check_random_number_generator() {
-    fs_random_set_seed(1234);
-    // random number generator must be same across platforms
-    // generate a sequence of random numbers and compare to expected value
-    for(int i = 0; i < 1001; i++) {
-        fs_random_int_range(0, 2147483647);
-    }
-    int random_number = fs_random_int_range(0, 2147483647);
-    if (random_number == 317699229) {
-        fs_log("random number generator for netplay verified (%d)\n",
-                random_number);
-    }
-    else {
-        fs_log("random number generator for netplay failed (%d)\n",
-                random_number);
-        exit(1);
-    }
-}
-
 int fs_emu_netplay_connected() {
     return g_fs_emu_netplay_connected;
 }
@@ -197,18 +180,17 @@ void fs_emu_netplay_init() {
     g_send_mutex = fs_mutex_create();
     g_connection_mutex = fs_mutex_create();
     g_input_event_mutex = fs_mutex_create();
-    g_input_event_queue = fs_queue_new();
+    g_input_event_queue = g_queue_new();
     g_wait_for_frame_cond = fs_condition_create();
     g_wait_for_frame_mutex = fs_mutex_create();
 
     value = fs_config_get_const_string("netplay_server");
     if (value) {
-        g_fs_emu_netplay_server = fs_strdup(value);
+        g_fs_emu_netplay_server = g_strdup(value);
     }
     if (!fs_emu_netplay_enabled()) {
         return;
     }
-    check_random_number_generator();
 
     value = fs_config_get_const_string("netplay_tag");
     if (value) {
@@ -223,7 +205,7 @@ void fs_emu_netplay_init() {
 
     value = fs_config_get_const_string("netplay_port");
     if (value) {
-        g_fs_emu_netplay_port = fs_strdup(value);
+        g_fs_emu_netplay_port = g_strdup(value);
     }
 
     char *password_value = fs_config_get_string("netplay_password");
@@ -248,19 +230,19 @@ void fs_emu_netplay_init() {
 
 static int fs_emu_get_netplay_input_event() {
     fs_mutex_lock(g_input_event_mutex);
-    int input_event = FS_POINTER_TO_INT(fs_queue_pop_tail(
+    int input_event = FS_POINTER_TO_INT(g_queue_pop_tail(
             g_input_event_queue));
     fs_mutex_unlock(g_input_event_mutex);
     return input_event;
 }
 
-void fs_emu_queue_netplay_input_event(int input_event) {
+static void fs_emu_queue_netplay_input_event(int input_event) {
     if (input_event == 0) {
         fs_log("WARNING: tried to queue input event 0\n");
         return;
     }
     fs_mutex_lock(g_input_event_mutex);
-    fs_queue_push_head(g_input_event_queue, FS_INT_TO_POINTER(input_event));
+    g_queue_push_head(g_input_event_queue, FS_INT_TO_POINTER(input_event));
     fs_mutex_unlock(g_input_event_mutex);
 }
 
@@ -276,7 +258,7 @@ static uint32_t bytes_to_uint(unsigned char* buffer) {
             buffer[3];
 }
 
-void fs_emu_netplay_on_disconnect() {
+static void fs_emu_netplay_on_disconnect() {
     dismiss_waiting_dialog();
     //fs_emu_log("fs_emu_netplay_on_disconnect\n");
     fs_mutex_lock(g_connection_mutex);
@@ -311,7 +293,7 @@ void fs_emu_netplay_disconnect() {
     fs_emu_netplay_on_disconnect();
 }
 
-void fs_emu_netplay_on_socket_error() {
+static void fs_emu_netplay_on_socket_error() {
     fs_emu_log("fs_emu_netplay_on_socket_error\n");
     fs_emu_netplay_on_disconnect();
 }
@@ -421,10 +403,12 @@ int fs_emu_netplay_wait_for_frame(int frame) {
 
         //fs_get_current_time(&abs_time);
         //fs_time_val_add(&abs_time, 100 * 1000);
-        int64_t abs_time = fs_get_real_time() + 100 * 1000;
+        // int64_t abs_time = fs_get_real_time() + 100 * 1000;
+        int64_t end_time = fs_condition_get_wait_end_time(100 * 1000);
 
-        fs_condition_timed_wait(g_wait_for_frame_cond, g_wait_for_frame_mutex,
-                abs_time);
+        // FIXME: check for spurious wakeup
+        fs_condition_wait_until(
+            g_wait_for_frame_cond, g_wait_for_frame_mutex, end_time);
 
         if (fs_emu_is_quitting()) {
             fs_log("fs_emu_netplay_wait_for_frame: quitting\n");
@@ -453,16 +437,10 @@ int fs_emu_netplay_wait_for_frame(int frame) {
         dismiss_waiting_dialog();
     }
 
-    int always = 1;
-    int frame_mod = frame % 50;
-    if (always || frame_mod == 25) {
-        send_message(MESSAGE_RNDCHECK | (g_rand_checksum_function() &
-                0x00ffffff));
-    }
-    if (always || frame_mod == 0) {
-        send_message(MESSAGE_MEMCHECK | (g_state_checksum_function() &
-                0x00ffffff));
-    }
+    send_message(MESSAGE_RNDCHECK | (g_rand_checksum_function() &
+            0x00ffffff));
+    send_message(MESSAGE_MEMCHECK | (g_state_checksum_function() &
+            0x00ffffff));
     send_message(MESSAGE_FRAME_MASK | frame);
 
     // add all pending events for this frame to libfsemu's input queue
@@ -491,7 +469,7 @@ int fs_emu_netplay_wait_for_frame(int frame) {
 //#define EXTRACT_BITS(m, a, b) ((m >> a) & ((1 << (b - a + 1)) - 1))
 //#define FILTER_BITS(m, a, b) (((m >> a) << a) & ((1 << (b + 1)) - 1))
 
-void handle_player_tag_message(int ply, int data) {
+static void handle_player_tag_message(int ply, int data) {
     fs_emu_player *p = g_fs_emu_players + ply;
     p->tag[0] = (data & 0x00ff0000) >> 16;
     p->tag[1] = (data & 0x0000ff00) >> 8;
@@ -502,7 +480,7 @@ void handle_player_tag_message(int ply, int data) {
 
 static char g_text_buffer[FS_EMU_MAX_CHAT_STRING_SIZE + 1];
 
-void process_text_message(const char *text, int from_player) {
+static void process_text_message(const char *text, int from_player) {
     //printf("process message from player %d -- self = %d\n",
     //        from_player, g_fs_emu_netplay_player);
     if (from_player == g_fs_emu_netplay_player) {
@@ -519,7 +497,7 @@ void process_text_message(const char *text, int from_player) {
     fs_emu_hud_add_chat_message(text, fs_emu_get_netplay_tag(from_player));
 }
 
-void handle_ext_message(int message, int data) {
+static void handle_ext_message(int message, int data) {
     if (message == MESSAGE_PING) {
         //printf("ping at frame %d\n", g_frame);
         send_message(CREATE_EXT_MESSAGE(MESSAGE_PING, 0));
@@ -615,7 +593,7 @@ void handle_ext_message(int message, int data) {
     }
 }
 
-void handle_message(uint32_t message) {
+static void handle_message(uint32_t message) {
     //printf("----> received message %08x\n", message);
     int message_type = message & 0xff000000;
 
@@ -648,7 +626,7 @@ void handle_message(uint32_t message) {
     }
 }
 
-void *receive_thread(void * data) {
+static void *receive_thread(void * data) {
     static unsigned char buffer[5] = {};
     int count = 0;
     while (1) {
@@ -675,7 +653,7 @@ void *receive_thread(void * data) {
 }
 
 int fs_emu_netplay_connect() {
-    g_socket = socket(AF_INET, SOCK_STREAM, 0);
+    g_socket = 0;
 
     fs_log("look up address for %s...\n", g_fs_emu_netplay_server);
 
@@ -725,7 +703,9 @@ int fs_emu_netplay_connect() {
 #endif
     }
 
-    if (g_socket == 0) {
+    freeaddrinfo(result);
+
+    if (g_socket <= 0) {
         fs_log("ERROR: could not connect to server\n");
         return 0;
     }
@@ -786,7 +766,7 @@ int fs_emu_netplay_connect() {
     return 1;
 }
 
-void *netplay_thread(void * data) {
+static void *netplay_thread(void * data) {
     fs_log("netplay_thread started\n");
     int connected = 0;
     int retry_secs = 2;
@@ -795,7 +775,7 @@ void *netplay_thread(void * data) {
     fs_emu_dialog* dialog = fs_emu_dialog_create(
             "Connecting To Net Play Server", NULL, "Abort");
     //fs_emu_dialog_add_option(dialog, "Abort", 1);
-    char *line = fs_strdup_printf("%s:%s", g_fs_emu_netplay_server,
+    char *line = g_strdup_printf("%s:%s", g_fs_emu_netplay_server,
             g_fs_emu_netplay_port);
     fs_emu_dialog_set_line(dialog, 0, line);
     free(line);
@@ -806,7 +786,7 @@ void *netplay_thread(void * data) {
     while (1) {
         if (connection_attempt > 1) {
             fs_emu_acquire_gui_lock();
-            char *line = fs_strdup_printf("Connection attempt %d",
+            char *line = g_strdup_printf("Connection attempt %d",
                     connection_attempt);
             fs_emu_dialog_set_line(dialog, 2, line);
             free(line);
@@ -854,7 +834,8 @@ void *netplay_thread(void * data) {
     }
 
     // FIXME: use non-joinable thread?
-    g_receive_thread = fs_thread_create(receive_thread, NULL);
+    g_receive_thread = fs_thread_create(
+                "netplay-receive", receive_thread, NULL);
     if (g_receive_thread == NULL) {
         fs_log("ERROR: could not create receive thread\n");
     }
@@ -875,7 +856,7 @@ void fs_emu_netplay_start() {
 #endif
 
     // FIXME: use non-joinable thread?
-    g_netplay_thread = fs_thread_create(netplay_thread, NULL);
+    g_netplay_thread = fs_thread_create("netplay", netplay_thread, NULL);
     if (g_netplay_thread == NULL) {
         fs_emu_warning("ERROR: could not create netplay thread\n");
     }

@@ -1,98 +1,119 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-
-#include <fs/base.h>
-#include <fs/log.h>
-#include <fs/filesys.h>
-#include <fs/string.h>
-#include <fs/thread.h>
-
-#ifdef USE_GLIB
-#include <glib.h>
-#include <glib/gstdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
 
-int g_fs_log_stdout = 0;
+#include <fs/base.h>
+#include <fs/conf.h>
+#include <fs/glib.h>
+#include <fs/log.h>
+#include <fs/thread.h>
+#include <fs/util.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-static FILE *g_log_file = NULL;
-static char *g_initial_log_file = NULL;
-static int g_initialized = 0;
-static fs_mutex *g_mutex = NULL;
+static struct {
+    int use_stdout;
+    FILE *file;
+    char *initial_path;
+    int initialized;
+    fs_mutex *mutex;
+    int flush;
+} log;
 
-static void initialize() {
-    if (g_initialized) {
+static void initialize()
+{
+    if (log.initialized) {
         return;
     }
-    g_mutex = fs_mutex_create();
-    g_initialized = 1;
+    log.mutex = fs_mutex_create();
+    log.initialized = 1;
 
-    char *dir = fs_path_join(fs_get_user_data_dir(), "fs-uae", NULL);
+    char *dir = g_build_filename(fs_get_user_data_dir(), "fs-uae", NULL);
     if (!fs_path_exists(dir)) {
-        if (fs_mkdir_with_parents(dir, 0755) == -1) {
+        if (g_mkdir_with_parents(dir, 0755) == -1) {
             // could not create directory
             printf("WARNING: could not create directory %s\n", dir);
-            free(dir);
+            g_free(dir);
             return;
         }
     }
-    g_initial_log_file = fs_path_join(dir, "fs-uae.log", NULL);
-    g_log_file = fs_fopen(g_initial_log_file, "w");
-    if (g_log_file) {
-        printf("logging to %s\n", g_initial_log_file);
+    log.initial_path = g_build_filename(dir, "fs-uae.log", NULL);
+    log.file = g_fopen(log.initial_path, "w");
+    if (log.file) {
+        // printf("[LOG] %s\n", log.initial_path);
     }
-    free(dir);
+    g_free(dir);
 }
 
-void fs_log_enable_stdout() {
-    g_fs_log_stdout = 1;
+void fs_log_enable_stdout()
+{
+    log.use_stdout = 1;
 }
 
-void fs_config_set_log_file(const char *path) {
+void fs_config_set_log_file(const char *path)
+{
     fs_log("switch to log file %s\n", path);
-    fs_mutex_lock(g_mutex);
-    if (g_log_file) {
-        fclose(g_log_file);
+    fs_mutex_lock(log.mutex);
+    if (log.file) {
+        fclose(log.file);
     }
-    g_log_file = fs_fopen(path, "w");
-    if (g_log_file) {
-        printf("logging to %s\n", path);
-        if (g_initial_log_file) {
-            FILE *f = fs_fopen(g_initial_log_file, "r");
+    log.file = g_fopen(path, "w");
+    if (log.file) {
+        printf("LOG: %s\n", path);
+        if (log.initial_path) {
+            FILE *f = g_fopen(log.initial_path, "r");
             if (f) {
-                char *buffer = (char *) malloc(1024);
+                char *buffer = (char *) g_malloc(1024);
                 int read = fread(buffer, 1, 1024, f);
                 while (read > 0) {
-                    fwrite(buffer, 1, read, g_log_file);
+                    fwrite(buffer, 1, read, log.file);
                     read = fread(buffer, 1, 1024, f);
                 }
-                free(buffer);
+                g_free(buffer);
+                fclose(f);
             }
-            fclose(f);
         }
     }
-    fs_mutex_unlock(g_mutex);
+
+    /* All options should have been read, so we can no check log options */
+
+    if (fs_config_get_boolean("flush_log") == 1) {
+        log.flush = 1;
+    }
+
+    fs_mutex_unlock(log.mutex);
+
+    if (log.flush) {
+        fs_log_string("flush_log: will flush log after each log line\n");
+    }
 }
 
-void fs_log_string(const char *str) {
-    if (!g_initialized) {
+void fs_log_string(const char *str)
+{
+    if (!log.initialized) {
         initialize();
     }
-    fs_mutex_lock(g_mutex);
-    if (g_fs_log_stdout) {
+    fs_mutex_lock(log.mutex);
+    if (log.use_stdout) {
         printf("%s", str);
+        fflush(stdout);
     }
-    if (g_log_file) {
-        fprintf(g_log_file, "%s", str);
+    if (log.file) {
+        fprintf(log.file, "%s", str);
     }
-    fs_mutex_unlock(g_mutex);
+    if (log.flush) {
+        fflush(log.file);
+    }
+    fs_mutex_unlock(log.mutex);
 }
 
-void fs_log(const char *format, ...) {
+void fs_log(const char *format, ...)
+{
     va_list ap;
     va_start(ap, format);
-    char *buffer = fs_strdup_vprintf(format, ap);
+    char *buffer = g_strdup_vprintf(format, ap);
     va_end(ap);
     fs_log_string(buffer);
-    free(buffer);
+    g_free(buffer);
 }

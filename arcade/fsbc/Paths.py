@@ -1,11 +1,7 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import sys
-import six
+import unicodedata
+from fsbc.system import windows, macosx
 from fsbc.user import get_home_dir
 from fsbc.util import memoize
 
@@ -22,17 +18,17 @@ class Paths(object):
 
     @staticmethod
     def unicode(path):
-        if isinstance(path, six.text_type):
+        if isinstance(path, str):
             return path
         return path.decode(sys.getfilesystemencoding())
 
     @classmethod
     def join(cls, a, b):
-        #if not a:
-        #    return b
-        #if a[-1] == "/" or a[-1] == "\\":
-        #    return a + b
-        #return a + "/" + b
+        # if not a:
+        #     return b
+        # if a[-1] == "/" or a[-1] == "\\":
+        #     return a + b
+        # return a + "/" + b
         return os.path.join(a, b).replace("\\", "/")
 
     @classmethod
@@ -68,8 +64,8 @@ class Paths(object):
             print("before", path)
             path = cls.get_real_case(path)
             print("after", path)
-        #dir, file = os.path.split(path)
-        #norm_dir = dir + "/"
+        # dir, file = os.path.split(path)
+        # norm_dir = dir + "/"
         if default_dir is not None:
             default_dir += "/"
             if path.startswith(default_dir):
@@ -106,7 +102,14 @@ class Paths(object):
         """Check the case for the (case insensitive) path. Used to make the
         database portable across sensitive/insensitive file systems."""
 
-        # not really needed on Linux
+        # get_real_case will fail on Linux if you have "conflicting" paths
+        # (differing only by case), unless we check that the specified path
+        # is already correct. The reason for not simply returning the path
+        # as-is on Linux, is that this function can find files in directories
+        # (portable version) when the directory is specified with wrong case.
+        if not windows and not macosx:
+            if os.path.exists(path):
+                return path
 
         parts = []
         drive, p = os.path.splitdrive(path)
@@ -124,7 +127,7 @@ class Paths(object):
             last = p
             p = os.path.dirname(p)
         parts.reverse()
-        #print(drive, parts)
+        # print(drive, parts)
         result = [drive]
         result.extend(parts)
 
@@ -132,18 +135,35 @@ class Paths(object):
         combined = combined.upper()
         k = 1
         for part in parts:
-            #print("part is", part)
+            part_compare = part
+            part_compare = part_compare.lower()
+            if macosx:
+                part_compare = unicodedata.normalize("NFC", part_compare)
+            # print("part is", part)
             if os.path.isdir(combined):
-                #print("checking case of", combined+ "/" + part)
+                # print("checking case of", combined + "/" + part)
                 for name in os.listdir(combined):
-                    if name.lower() == part.lower():
-                        #print("found case =", name)
-                        combined += "/" + name
+                    # if part == "Førde":
+                    #     print(os.listdir(combined))
+                    name_compare = name
+                    name_compare = name_compare.lower()
+                    if macosx:
+                        name_compare = unicodedata.normalize(
+                            "NFC", name_compare)
+                    if name_compare == part_compare:
+                        # print("found case =", name)
+                        if not combined.endswith("/"):
+                            combined += "/"
+                        combined += name
                         result[k] = name
                         break
                 else:
                     raise Exception("could not find case for path " + path)
             k += 1
+
+        # FIXME: could be an idea to always normalize to NFC on OS X too,
+        # to make the database even more portable
+
         # normalizing slashes to forward slash to make the database more
         # portable
         result_path = os.path.join(*result).replace("\\", "/")

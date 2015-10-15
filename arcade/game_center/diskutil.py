@@ -1,10 +1,5 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
-from game_center.nameutil import NameUtil
+from fsgs.util.gamenameutil import GameNameUtil
 
 
 class DiskUtil(object):
@@ -15,15 +10,15 @@ class DiskUtil(object):
         print("")
         print("FIRST DISK", path)
         print("")
-        #disks = []
+        # disks = []
         use_name = script.rename_file(os.path.basename(path))
-        number = NameUtil.find_number(use_name)
-        first_without_number = NameUtil.strip_number(use_name)
-        first_without_flags = NameUtil.strip_flags(first_without_number)
+        number = GameNameUtil.find_number(use_name)
+        first_without_number = GameNameUtil.strip_number(use_name)
+        first_without_flags = GameNameUtil.strip_flags(first_without_number)
         if number is None:
             # only this disk
             return disks
-        base_name = NameUtil.find_base_name(path)
+        base_name = GameNameUtil.find_base_name(path)
         dir = os.path.dirname(path)
         candidates = {}
         items = []
@@ -32,21 +27,21 @@ class DiskUtil(object):
         else:
             all_items = os.listdir(dir)
             for item in all_items:
-                b = NameUtil.find_base_name(item)
+                b = GameNameUtil.find_base_name(item)
                 if base_name == b:
                     items.append(item)
-        #print("items is", items)
+        # print("items is", items)
         for item in items:
             use_name = script.rename_file(item)
-            if NameUtil.is_bad_dump(use_name):
+            if GameNameUtil.is_bad_dump(use_name):
                 continue
-            n = NameUtil.find_number(use_name)
+            n = GameNameUtil.find_number(use_name)
             if n == 0:
                 n = 99
             if n:
                 candidates.setdefault(n, []).append(
                     (use_name, os.path.join(dir, item)))
-        #print(candidates)
+        # print(candidates)
         for n, items in candidates.items():
             print("")
             print("FIND FLOPPIES FOR n", n, "=", items)
@@ -57,15 +52,15 @@ class DiskUtil(object):
             print(" - floppy number", n)
             matches = []
             for use_name, p in items:
-                without_number = NameUtil.strip_number(use_name)
-                #print(without_number, "vs", first_without_number)
+                without_number = GameNameUtil.strip_number(use_name)
+                # print(without_number, "vs", first_without_number)
                 if without_number == first_without_number:
                     print("perfect match")
-                    #disks.append(p)
+                    # disks.append(p)
                     matches.append((0, p))
                     continue
-                    #break
-                without_flags = NameUtil.strip_flags(without_number)
+                    # break
+                without_flags = GameNameUtil.strip_flags(without_number)
                 if without_flags == first_without_flags:
                     print("ok match")
                     if without_flags == without_number:
@@ -75,14 +70,14 @@ class DiskUtil(object):
                         # slightly worse score since there were flags
                         # not matching floppy 1
                         matches.append((2, p))
-                    #disks.append(p)
-                    #break
-                #matches.append((2, p))
+                    # disks.append(p)
+                    # break
+                # matches.append((2, p))
             if len(matches) == 0:
-                #raise Exception("no candidates for floppy " + num)
-                #print("WARNING: choosing partial matching floppy", p,
-                #        "for floppy number", n)
-                #disks.append(p)
+                # raise Exception("no candidates for floppy " + num)
+                # print("WARNING: choosing partial matching floppy", p,
+                #         "for floppy number", n)
+                # disks.append(p)
                 print("Did not find good match for floppy", n)
                 print("candidates:")
                 for item in items:
@@ -91,7 +86,7 @@ class DiskUtil(object):
             matches.sort()
             print(matches)
             score, p = matches[0]
-            #if score == 2:
+            # if score == 2:
             disks.append(p)
             # TOSEC (x of y) disk number labelling format
             if ' of {0})'.format(n) in path:

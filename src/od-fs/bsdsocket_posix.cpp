@@ -40,7 +40,8 @@
 
 volatile int bsd_int_requested;
 
-void bsdsock_fake_int_handler(void) {
+void bsdsock_fake_int_handler(void)
+{
     STUB("");
 }
 
@@ -61,12 +62,10 @@ void bsdsock_fake_int_handler(void) {
 #include <signal.h>
 #include <arpa/inet.h>
 
-//#define DEBUG_BSDSOCKET
-#ifdef DEBUG_BSDSOCKET
-#define DEBUG_LOG write_log
-#else
-#define DEBUG_LOG(...) do ; while(0)
-#endif
+#define DEBUG_LOG(format, ...) \
+    do { \
+        if (log_bsd) write_log(format, ##__VA_ARGS__); \
+    } while(0)
 
 #define WAITSIGNAL  waitsig (context, sb)
 #ifdef ANDROID
@@ -215,6 +214,10 @@ static int mapsockoptname (int level, int optname)
             return SO_DONTROUTE;
         case 0x0020:
             return SO_BROADCAST;
+#if 0
+        case 0x0023:
+            return SO_TIMESTAMPNS;
+#endif
 #ifdef SO_USELOOPBACK
         case 0x0040:
             return SO_USELOOPBACK;
@@ -245,8 +248,8 @@ static int mapsockoptname (int level, int optname)
             return SO_TYPE;
 
         default:
-            DEBUG_LOG ("Invalid setsockopt option %x for level %d\n",
-                   optname, level);
+            DEBUG_LOG("Invalid setsockopt option 0x%x for level %d\n",
+                      optname, level);
             return -1;
         }
         break;
@@ -277,8 +280,8 @@ static int mapsockoptname (int level, int optname)
             return IP_ADD_MEMBERSHIP;
 
         default:
-            DEBUG_LOG ("Invalid setsockopt option %x for level %d\n",
-                   optname, level);
+            DEBUG_LOG("Invalid setsockopt option 0x%x for level %d\n",
+                      optname, level);
             return -1;
         }
         break;
@@ -291,18 +294,17 @@ static int mapsockoptname (int level, int optname)
             return TCP_MAXSEG;
 
         default:
-            DEBUG_LOG ("Invalid setsockopt option %x for level %d\n",
-                   optname, level);
+            DEBUG_LOG("Invalid setsockopt option 0x%x for level %d\n",
+                      optname, level);
             return -1;
         }
         break;
 
     default:
-        DEBUG_LOG ("Unknown level %d\n", level);
+        DEBUG_LOG("Unknown level %d\n", level);
         return -1;
     }
 }
-
 
 /*
  * Map amiga (s|g)etsockopt return value into the correct form
@@ -489,16 +491,12 @@ STATIC_INLINE void bsd_amigaside_FD_SET (int n, uae_u32 set)
     put_long (set, get_long (set) | (1 << (n % 32)));
 }
 
-#ifdef DEBUG_BSDSOCKET
 static void printSockAddr (struct sockaddr_in *in)
 {
     DEBUG_LOG ("Family %d, ", in->sin_family);
     DEBUG_LOG ("Port %d,",    ntohs (in->sin_port));
     DEBUG_LOG ("Address %s,", inet_ntoa (in->sin_addr));
 }
-#else
-#define printSockAddr(sockAddr)
-#endif
 
 /*
  * Copy a sockaddr object from amiga space to native space
@@ -595,7 +593,7 @@ static void copyHostent (const struct hostent *hostent, SB)
  */
 static void copyProtoent (TrapContext *context, SB, const struct protoent *p)
 {
-    size_t size = 16;
+    int size = 16;
     int numaliases = 0;
     int i;
     uae_u32 aptr;
@@ -722,7 +720,7 @@ uae_u32 bsdthr_WaitSelect (SB)
         if (sb->sets [set] != 0)
         bsd_amigaside_FD_ZERO (sb->sets [set]);
     }
-    DEBUG_LOG ("WaitSelect: %d(%d)\n", r, errno);
+    DEBUG_LOG ("WaitSelect: r=%d errno=%d\n", r, errno);
     return r;
 }
 
@@ -754,14 +752,13 @@ uae_u32 bsdthr_Accept_2 (SB)
 uae_u32 bsdthr_Recv_2 (SB)
 {
     int foo;
-    int l, i;
     if (sb->from == 0) {
         foo = recv (sb->s, sb->buf, sb->len, sb->flags /*| MSG_NOSIGNAL*/);
         DEBUG_LOG ("recv2, recv returns %d, errno is %d\n", foo, errno);
     } else {
         struct sockaddr_in addr;
         socklen_t l = sizeof (struct sockaddr_in);
-        i = get_long (sb->fromlen);
+        int i = get_long (sb->fromlen);
         copysockaddr_a2n (&addr, sb->from, i);
         foo = recvfrom (sb->s, sb->buf, sb->len, sb->flags | MSG_NOSIGNAL, (struct sockaddr *)&addr, &l);
         DEBUG_LOG ("recv2, recvfrom returns %d, errno is %d\n", foo, errno);
@@ -1326,7 +1323,7 @@ void host_getservbynameport (TrapContext *context, SB, uae_u32 name, uae_u32 pro
     struct servent *s = (type) ?
     getservbyport (name, (char *)get_real_address (proto)) :
     getservbyname ((char *)get_real_address (name), (char *)get_real_address (proto));
-    size_t size = 20;
+    int size = 20;
     int numaliases = 0;
     uae_u32 aptr;
     int i;
@@ -1711,7 +1708,6 @@ void clearsockabort (SB)
 
     while ((num = read (sb->sockabort[0], &chr, sizeof(chr))) >= 0) {
         DEBUG_LOG ("Sockabort got %d bytes\n", num);
-        ;
     }
 }
 
@@ -1719,7 +1715,9 @@ void sockabort (SB)
 {
     int chr = 1;
     DEBUG_LOG ("Sock abort!!\n");
-    write (sb->sockabort[1], &chr, sizeof (chr));
+    if (write (sb->sockabort[1], &chr, sizeof (chr)) != sizeof (chr)) {
+        DEBUG_LOG ("sockabort - did not write %d bytes\n", sizeof (chr));
+    }
 }
 
 void locksigqueue (void)
