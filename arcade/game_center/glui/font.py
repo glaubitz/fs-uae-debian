@@ -1,30 +1,24 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import json
-#import ctypes
+from fsui.qt import QFontDatabase, QPainter, QImage, QFontMetrics, QPoint
+from fsui.qt import QPen, QColor
 from fsbc.util import memoize
 from game_center.resources import resources
-from game_center.glui.opengl import *
+from game_center.glui.opengl import gl, fs_emu_texturing, fs_emu_blending
 from game_center.glui.texture import Texture
 
+
 CACHE_SIZE = 100
-
 text_cache = []
-
-# initialize cache
-for i in range(CACHE_SIZE):
-    item = {
+for _ in range(CACHE_SIZE):
+    text_cache.append({
         "text": None,
         "font": None,
         "texture": None,
-    }
-    text_cache.append(item)
+    })
 
 
 class Font(object):
+
     title_font = None
     subtitle_font = None
     small_font = None
@@ -32,14 +26,74 @@ class Font(object):
     list_subtitle_font = None
     header_font = None
 
+    font_ids = {}
 
-class BitmappedFont(object):
-    
+    def __init__(self, path, size):
+        self.database = QFontDatabase()
+        try:
+            self.font_id = Font.font_ids[path]
+        except Exception:
+            self.font_id = self.database.addApplicationFont(path)
+            Font.font_ids[path] = self.font_id
+        self.families = self.database.applicationFontFamilies(self.font_id)
+        print(self.families)
+        self.size = size
+        if len(self.families) > 0:
+            styles = self.database.styles(self.families[0])
+            print(styles)
+            self.font = self.database.font(self.families[0], "Bold", size)
+            self.font.setPixelSize(self.size)
+        else:
+            self.font = None
+
+    def set_size(self, size):
+        if self.font is not None:
+            self.size = size
+            self.font.setPixelSize(self.size)
+
+    def render(self, text, _, color):
+        if self.font is None:
+            return "", (0, 0)
+
+        fm = QFontMetrics(self.font)
+        rect = fm.boundingRect(text)
+        im = QImage(rect.x() + rect.width(), rect.height(),
+                    QImage.Format_ARGB32_Premultiplied)
+        im.fill(QColor(0, 0, 0, 0))
+        painter = QPainter()
+        painter.begin(im)
+        painter.setPen(QPen(QColor(*color)))
+        painter.setFont(self.font)
+        painter.drawText(QPoint(0 - rect.x(), 0 - rect.y()), text)
+        painter.end()
+
+        bits = im.bits()
+        try:
+            pixels = bits.tobytes()
+        except AttributeError:
+            bits.setsize(im.byteCount())
+            pixels = bytes(bits)
+        return pixels, (rect.x() + rect.width(), rect.height())
+
+    def rendered_size(self, text):
+        if self.font is None:
+            return 0, 0
+
+        fm = QFontMetrics(self.font)
+        rect = fm.boundingRect(text)
+        return rect.width(), rect.height()
+
+
+class BitmapFont(object):
+
     title_font = None
     menu_font = None
     
     def __init__(self, name):
-        self.w = [0 for x in range(256)]
+        self.texture = None
+        self.x = []
+        self.y = []
+        self.w = [0 for _ in range(256)]
         self.h = 0
         self.load(name)
 
@@ -55,22 +109,7 @@ class BitmappedFont(object):
         global text_cache
         if not text:
             return 0
-        #if (!g_initialized) {
-        #    initialize();
-        #}
-        #if (g_fs_emu_video_version != g_video_version) {
-        #    GList* list = g_cache;
-        #    while (list) {
-        #        cache_item *item = (cache_item *) list->data;
-        #        g_free(item->text);
-        #        g_free(item);
-        #        list = list->next;
-        #    }
-        #    g_list_free(g_cache);
-        #    g_cache = NULL;
-        #    initialize_cache();
-        #}
-        
+
         # find cached text entry, if any
         
         for i, item in enumerate(text_cache):
@@ -81,157 +120,128 @@ class BitmappedFont(object):
             item = None
         
         if item:
-            # FIXME: REMOVE
-            #fs_emu_blending(False)
-            #fs_emu_texturing(False)
-            
             fs_emu_blending(True)
             fs_emu_texturing(True)
             
-            #//fs_emu_ortho();
-            #fs_emu_set_texture(NULL);
             w = item["w"]
             h = item["h"]
-            glBindTexture(GL_TEXTURE_2D, item["texture"])
-            glBegin(GL_QUADS)
-            glColor4f(r * alpha, g * alpha, b * alpha, alpha)
-            glTexCoord2d(0.0, 0.0)
-            glVertex2d(x, y)
-            glTexCoord2d(1.0, 0.0)
-            glVertex2d(x + w, y)
-            glTexCoord2d(1.0, 1.0)
-            glVertex2d(x + w, y + h)
-            glTexCoord2d(0.0, 1.0)
-            glVertex2d(x, y + h)
-            glEnd()
+            gl.glBindTexture(gl.GL_TEXTURE_2D, item["texture"])
+            gl.glBegin(gl.GL_QUADS)
+            gl.glColor4f(r * alpha, g * alpha, b * alpha, alpha)
+            gl.glTexCoord2d(0.0, 0.0)
+            gl.glVertex2d(x, y)
+            gl.glTexCoord2d(1.0, 0.0)
+            gl.glVertex2d(x + w, y)
+            gl.glTexCoord2d(1.0, 1.0)
+            gl.glVertex2d(x + w, y + h)
+            gl.glTexCoord2d(0.0, 1.0)
+            gl.glVertex2d(x, y + h)
+            gl.glEnd()
             
             # re-insert item at front
             text_cache.insert(0, item)
             return w, h
     
         # calculate size of text
+
         required_width, required_height = self.measure(text)
     
         # setup fbo
-    
-        mip_mapping = 0
-    
-        render_texture = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, render_texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, required_width,
-                     required_height, 0, GL_RGBA, GL_UNSIGNED_INT, None)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+        render_texture = gl.glGenTextures(1)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, render_texture)
+        gl.glTexImage2D(
+            gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, required_width,
+            required_height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_INT, None)
+        gl.glTexParameteri(
+            gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(
+            gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(
+            gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
     
         # FIXME: Mipmapping?
+        mip_mapping = 0
         if mip_mapping:
-            glTexParameteri(
-                GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE)
-            glGenerateMipmapEXT(GL_TEXTURE_2D)
+            gl.glTexParameteri(
+                gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER,
+                gl.GL_LINEAR_MIPMAP_LINEAR)
+            gl.glTexParameteri(
+                gl.GL_TEXTURE_2D, gl.GL_GENERATE_MIPMAP, gl.GL_TRUE)
+            gl.glGenerateMipmapEXT(gl.GL_TEXTURE_2D)
         else:
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+            gl.glTexParameteri(
+                gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
 
-        glBindTexture(GL_TEXTURE_2D, 0)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
     
         # Set up some renderbuffer state
     
-        frame_buffer = GLuint()
-        #glGenFramebuffersEXT(1, frame_buffer)
-        #glGenFramebuffersEXT(1, ctypes.byref(frame_buffer))
-        glGenFramebuffersEXT(1, frame_buffer)
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frame_buffer)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                                  GL_TEXTURE_2D, render_texture, 0)
+        frame_buffer = gl.GLuint()
+        gl.glGenFramebuffersEXT(1, frame_buffer)
+        gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, frame_buffer)
+        gl.glFramebufferTexture2DEXT(
+            gl.GL_FRAMEBUFFER_EXT, gl.GL_COLOR_ATTACHMENT0_EXT,
+            gl.GL_TEXTURE_2D, render_texture, 0)
     
-        status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
-        if status != GL_FRAMEBUFFER_COMPLETE_EXT:
-            print ("glCheckFramebufferStatusEXT error", status)
+        status = gl.glCheckFramebufferStatusEXT(gl.GL_FRAMEBUFFER_EXT)
+        if status != gl.GL_FRAMEBUFFER_COMPLETE_EXT:
+            print("glCheckFramebufferStatusEXT error", status)
     
-        glPushMatrix()
-        glLoadIdentity()
-        glPushAttrib(int(GL_VIEWPORT_BIT) | int(GL_ENABLE_BIT))
-        glViewport(0, 0, required_width, required_height)
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        gluOrtho2D(0, required_width, 0, required_height)
+        gl.glPushMatrix()
+        gl.glLoadIdentity()
+        gl.glPushAttrib(int(gl.GL_VIEWPORT_BIT) | int(gl.GL_ENABLE_BIT))
+        gl.glViewport(0, 0, required_width, required_height)
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPushMatrix()
+        gl.glLoadIdentity()
+        gl.gluOrtho2D(0, required_width, 0, required_height)
     
-        glClearColor(0.0, 0.0, 0.0, 0.0)
-        glClear(GL_COLOR_BUFFER_BIT)
+        gl.glClearColor(0.0, 0.0, 0.0, 0.0)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-        # FIXME: DUPLICATE ASSIGNMENT HERE?
-        # glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-        # GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, render_texture, 0)
+        gl.glEnable(gl.GL_BLEND)
+        gl.glEnable(gl.GL_TEXTURE_2D)
     
-        # FIXME:
-        #fs_emu_blending(False)
-        #fs_emu_blending(True)
-        
-        glEnable(GL_BLEND)
-        glEnable(GL_TEXTURE_2D)
-    
-        # FIXME:
-        # fs_emu_set_texture(NULL);
-        # fs_emu_set_texture(font->texture);
-        #glBindTexture(GL_TEXTURE_2D, )
         self.texture.bind()
     
-        # fs_emu_texturing(0);
         tw = self.texture.w
         th = self.texture.h
     
-        # int length = strlen(text);
-        # for (int i = 0; i < length; i++) {
-        
-        glBegin(GL_QUADS)
-        glColor4f(1.0, 1.0, 1.0, 1.0)
+        gl.glBegin(gl.GL_QUADS)
+        gl.glColor4f(1.0, 1.0, 1.0, 1.0)
         x2 = 0
         h = self.h
         for ch in text:
             c = ord(ch)
             w = self.w[c]
-            #printf("%d %d %d %d\n", font->x[c], font->y[c], w, h)
             s1 = self.x[c] / tw
             s2 = (self.x[c] + w) / tw
-            # double t1 = 1.0 - (font->y[c]) / th
-            # double t2 = 1.0 - (font->y[c] + h) / th
             t1 = (self.y[c]) / th
             t2 = (self.y[c] + h) / th
-            # printf("%d %d %d %d\n", x, y, w, h)
-            glTexCoord2d(s1, t2)
-            # glVertex2d(x, y)
-            glVertex2d(x2, 0)
-            glTexCoord2d(s2, t2)
-            # glVertex2d(x + w, y)
-            glVertex2d(x2 + w, 0)
-            glTexCoord2d(s2, t1)
-            # glVertex2d(x + w, y + h)
-            glVertex2d(x2 + w, h)
-            glTexCoord2d(s1, t1)
-            # glVertex2d(x, y + h)
-            glVertex2d(x2, h)
+            gl.glTexCoord2d(s1, t2)
+            gl.glVertex2d(x2, 0)
+            gl.glTexCoord2d(s2, t2)
+            gl.glVertex2d(x2 + w, 0)
+            gl.glTexCoord2d(s2, t1)
+            gl.glVertex2d(x2 + w, h)
+            gl.glTexCoord2d(s1, t1)
+            gl.glVertex2d(x2, h)
             x2 += w
-        glEnd()
+        gl.glEnd()
     
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-        glPopAttrib()
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-        glPopMatrix()
+        gl.glPopMatrix()
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glPopAttrib()
+        gl.glBindFramebufferEXT(gl.GL_FRAMEBUFFER_EXT, 0)
+        gl.glPopMatrix()
     
-        #glDeleteFramebuffersEXT(1, ctypes.byref(frame_buffer))
-        glDeleteFramebuffersEXT(1, frame_buffer)
-        # glDeleteRenderbuffersEXT(1, &depth_buffer)
-
-        # FIXME:
-        #fs_emu_set_texture(NULL);
+        gl.glDeleteFramebuffersEXT(1, frame_buffer)
 
         if mip_mapping:
-            glBindTexture(GL_TEXTURE_2D, render_texture)
-            glGenerateMipmapEXT(GL_TEXTURE_2D)
-            glBindTexture(GL_TEXTURE_2D, 0)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, render_texture)
+            gl.glGenerateMipmapEXT(gl.GL_TEXTURE_2D)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
         new_item = {
             "font": self,
@@ -243,18 +253,17 @@ class BitmappedFont(object):
         text_cache.insert(0, new_item)
 
         item = text_cache.pop()
-        #print(repr(item))
         if item["texture"]:
-            glDeleteTextures([item["texture"]])
+            gl.glDeleteTextures([item["texture"]])
 
         # now the text is in the cache, so call function again
         return self.render(text, x, y, r, g, b, alpha)
     
     def load(self, name):
-        print ("load font", name)
+        print("load font", name)
         self.texture = Texture(name + ".png")
         f = resources.resource_stream(name + ".json")
-        doc = json.load(f)
+        doc = json.loads(f.read().decode("UTF-8"))
         self.x = doc["x"]
         self.y = doc["y"]
         self.w = doc["w"]

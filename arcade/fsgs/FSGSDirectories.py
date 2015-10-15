@@ -1,16 +1,11 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import sys
 import traceback
-from fsbc.Application import app
+from fsbc.Application import app, Application
 import fsbc.fs as fs
 from fsbc.Paths import Paths
-from fsbc.path import unicode_path
-from fsbc.user import get_home_dir, get_documents_dir, get_desktop_dir
+from fsbc.user import get_home_dir, get_documents_dir
+from fsbc.user import get_common_documents_dir
 from fsbc.util import memoize
 from fsbc.system import windows
 
@@ -26,7 +21,6 @@ class FSGSDirectories(object):
             return
         cls.initialized = True
         for arg in sys.argv[1:]:
-            # arg = arg.decode(sys.getfilesystemencoding())
             if arg.startswith("--"):
                 if "=" in arg:
                     key, value = arg[2:].split("=", 1)
@@ -60,12 +54,8 @@ class FSGSDirectories(object):
 
     @classmethod
     def setup_portable(cls):
-        """This ab
-        ba
-
-        :return: None
-        """
-        path = os.path.dirname(os.path.abspath(sys.executable))
+        path = Application.executable_dir()
+        # path = os.path.dirname(os.path.abspath(sys.executable))
         last = ""
         while not last == path:
             portable_ini_path = os.path.join(path, "Portable.ini")
@@ -80,20 +70,20 @@ class FSGSDirectories(object):
 
     @classmethod
     def read_custom_path(cls, name):
-        for app in ["fs-uae-launcher", "fs-uae"]:
-            key_path = os.path.join(fs.get_app_config_dir(app), name)
+        for app_name in ["fs-uae-launcher", "fs-uae"]:
+            key_path = os.path.join(fs.get_app_config_dir(app_name), name)
             print("- checking", key_path)
             if os.path.exists(key_path):
                 try:
-                    with open(key_path, "rb") as f:
+                    with open(key_path, "r", encoding="UTF-8") as f:
                         path = f.read().strip()
                         break
                 except Exception as e:
                     print("error reading custom path", repr(e))
         else:
             return None
-        lpath = path.lower()
-        if lpath.startswith("$home/") or lpath.startswith("$home\\"):
+        path_lower = path.lower()
+        if path_lower.startswith("$home/") or path_lower.startswith("$home\\"):
             path = os.path.join(get_home_dir(), path[6:])
         return path
 
@@ -121,16 +111,12 @@ class FSGSDirectories(object):
     def get_default_search_path(cls):
         paths = []
         path = cls.get_base_dir()
-        #if windows:
-        #    path = path.replace("/", "\\")
+        # if windows:
+        #     path = path.replace("/", "\\")
         paths.append(path)
 
         if windows:
-            # noinspection PyUnresolvedReferences
-            from win32com.shell import shell, shellcon
-            path = shell.SHGetFolderPath(
-                0, shellcon.CSIDL_COMMON_DOCUMENTS, 0, 0)
-            path = unicode_path(path)
+            path = get_common_documents_dir()
             path = os.path.join(path, "Amiga Files")
             if os.path.exists(path):
                 paths.append(path)
@@ -276,6 +262,8 @@ class FSGSDirectories(object):
         path = os.path.join(cls.get_base_dir(), "Cache")
         if not os.path.exists(path):
             os.makedirs(path)
+        if not os.path.exists(os.path.join(path, ".nobackup")):
+            open(os.path.join(path, ".nobackup"), "w").close()
         return path
 
     @classmethod
@@ -283,9 +271,6 @@ class FSGSDirectories(object):
         paths = [
             cls.get_floppies_dir(),
             cls.get_cdroms_dir(),
-            os.path.expanduser("~/Games/Amiga/Files/"),
-            os.path.expanduser("~/Games/CD32/Files"),
-            os.path.expanduser("~/Games/CDTV/Files")
         ]
         return paths
 
@@ -293,9 +278,6 @@ class FSGSDirectories(object):
     def get_titles_dirs(cls):
         paths = [
             cls.get_titles_dir(),
-            os.path.join(get_home_dir(), "Games", "Amiga", "Titles"),
-            os.path.join(get_home_dir(), "Games", "CD32", "Titles"),
-            os.path.join(get_home_dir(), "Games", "CDTV", "Titles"),
         ]
         return paths
 
@@ -303,9 +285,6 @@ class FSGSDirectories(object):
     def get_screenshots_dirs(cls):
         paths = [
             cls.get_screenshots_dir(),
-            os.path.join(get_home_dir(), "Games", "Amiga", "Screenshots"),
-            os.path.join(get_home_dir(), "Games", "CD32", "Screenshots"),
-            os.path.join(get_home_dir(), "Games", "CDTV", "Screenshots"),
         ]
         return paths
 
@@ -313,13 +292,6 @@ class FSGSDirectories(object):
     def get_images_dirs(cls):
         paths = [
             cls.get_images_dir(),
-            os.path.join(get_home_dir(), "Games"),
-            #os.path.join(get_home_dir(), "Games",
-            #        "Amiga", "Images"),
-            #os.path.join(get_home_dir(), "Games",
-            #        "CD32", "Images"),
-            #os.path.join(get_home_dir(), "Games",
-            #        "CDTV", "Images"),
         ]
         return paths
 
@@ -327,26 +299,10 @@ class FSGSDirectories(object):
     def get_covers_dirs(cls):
         paths = [
             cls.get_covers_dir(),
-            os.path.join(get_home_dir(), "Games", "Amiga", "Covers"),
-            os.path.join(get_home_dir(), "Games", "CD32", "Covers"),
-            os.path.join(get_home_dir(), "Games", "CDTV", "Covers"),
         ]
         return paths
 
     @classmethod
     def get_themes_dirs(cls):
         paths = [cls.get_themes_dir()]
-        return paths
-
-    @classmethod
-    def get_configurations_dirs(cls):
-        paths = [
-            cls.get_configurations_dir(),
-            #os.path.expanduser("~/Games/Amiga/Configs"),
-            os.path.expanduser("~/Games/Amiga/Data"),
-            #os.path.expanduser("~/Games/CD32/Configs"),
-            os.path.expanduser("~/Games/CD32/Data"),
-            #os.path.expanduser("~/Games/CDTV/Configs"),
-            os.path.expanduser("~/Games/CDTV/Data")
-        ]
         return paths

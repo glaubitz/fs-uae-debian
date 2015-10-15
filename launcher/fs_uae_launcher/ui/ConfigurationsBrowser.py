@@ -1,11 +1,6 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 from fsgs.Database import Database
 from fsgs.platform import PlatformHandler
-from fsgs.util.GameNameUtil import GameNameUtil
-
+from fsgs.util.gamenameutil import GameNameUtil
 import fsui as fsui
 from ..Config import Config
 from ..Settings import Settings
@@ -38,7 +33,7 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
     def on_select_item(self, index):
         if index is None:
             return
-        #self.load_configuration(self.items[index][str("uuid")])
+        # self.load_configuration(self.items[index][str("uuid")])
         self.load_configuration(self.items[index])
 
     def on_activate_item(self, index):
@@ -46,7 +41,8 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
         FSUAELauncher.start_game()
 
     def on_setting(self, key, _):
-        if key in ["config_search", "game_list_uuid"]:
+        if key in ["config_search", "game_list_uuid", "database_show_games",
+                   "database_show_adult"]:
             # if key == "game_list_uuid":
             self.update_search()
             if len(self.items) > 0:
@@ -54,7 +50,9 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
                 self.select_item(0)
             else:
                 # self.select_item(None)
-                Settings.set("parent_uuid", "")
+                if Settings.get("parent_uuid"):
+                    Settings.set("parent_uuid", "")
+                    Config.load_default_config()
         elif key == "config_refresh":
             self.update_search()
             self.select_item(None)
@@ -62,6 +60,10 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
             if old_parent_uuid:
                 Settings.set("parent_uuid", "")
                 Settings.set("parent_uuid", old_parent_uuid)
+
+        elif key == "parent_uuid" or key == "config_path":
+            if not (Settings.get("parent_uuid") or Settings.get("config_path")):
+                self.select_item(None)
 
     def set_items(self, items):
         self.items = items
@@ -100,7 +102,7 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
         #     return "{0} \u00b7 {1}{2}".format(name, extra, platform)
 
     def get_item_search_text(self, index):
-        #return self.items[index][3]
+        # return self.items[index][3]
         # FIXME: lower-case search string?
         return self.items[index][str("sort_key")]
 
@@ -130,9 +132,9 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
         else:
             return self.config_icon
 
-    #def on_get_item_tooltip(self, row, column):
-    #    return self.items[row][1]
-    #    #text = text.replace("\nAmiga \u00b7 ", "\n")
+    # def on_get_item_tooltip(self, row, column):
+    #     return self.items[row][1]
+    #     #text = text.replace("\nAmiga \u00b7 ", "\n")
 
     def update_search(self):
         search = Settings.get("config_search").strip().lower()
@@ -172,14 +174,3 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
             print("load config from", config_path)
             Config.load_file(config_path)
             Settings.set("parent_uuid", "")
-
-        # database = Database.get_instance()
-        # config_info = database.get_config(configuration_id)
-        # if config_info["data"]:
-        #     Config.load_data(config_info["data"])
-        #     Settings.set("parent_uuid", "")
-        # elif config_info["path"]:
-        #     Config.load_file(config_info["path"])
-        #     Settings.set("parent_uuid", "")
-        # else:
-        #     Settings.set("parent_uuid", config_info["uuid"])

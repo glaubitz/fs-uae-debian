@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from fsgs.mednafen.mednafen import MednafenRunner
 
 
@@ -23,6 +18,9 @@ class NintendoRunner(MednafenRunner):
             "types": [CONTROLLER]
         },
     ]
+
+    def __init__(self, fsgs):
+        super().__init__(fsgs)
 
     def force_aspect_ratio(self):
         return 4.0 / 3.0

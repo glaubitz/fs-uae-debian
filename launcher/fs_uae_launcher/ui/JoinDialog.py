@@ -1,16 +1,10 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import fsui as fsui
-from .Config import Config
-from .I18N import _, ngettext
 
-class JoinDialog(fsui.Dialog):
+
+class JoinDialog(fsui.LegacyDialog):
 
     def __init__(self):
-        fsui.Dialog.__init__(self, None, "Create/Join Game")
+        fsui.LegacyDialog.__init__(self, None, "Create/Join Game")
         self.layout = fsui.VerticalLayout()
 
         self.layout.add_spacer(20)
@@ -20,7 +14,7 @@ class JoinDialog(fsui.Dialog):
 
         hor_layout.add_spacer(20)
         self.text = fsui.TextField(self)
-        self.text.on_activate = self.on_ok_button
+        self.text.activated.connect(self.on_ok_button)
         hor_layout.add(self.text, expand=True)
         hor_layout.add_spacer(20)
 
@@ -31,11 +25,11 @@ class JoinDialog(fsui.Dialog):
 
         hor_layout.add_spacer(20, expand=True)
         self.cancel_button = fsui.Button(self, "    Cancel    ")
-        self.cancel_button.on_activate = self.on_cancel_button
+        self.cancel_button.activated.connect(self.on_cancel_button)
         hor_layout.add(self.cancel_button)
         hor_layout.add_spacer(10)
         self.ok_button = fsui.Button(self, "    Create/Join    ")
-        self.ok_button.on_activate = self.on_ok_button
+        self.ok_button.activated.connect(self.on_ok_button)
         hor_layout.add(self.ok_button)
         hor_layout.add_spacer(20)
 

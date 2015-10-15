@@ -7,6 +7,14 @@
   * Copyright 1999 Bernd Schmidt
   */
 
+#ifndef UAE_FSDB_H
+#define UAE_FSDB_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#include <stdio.h>
+#endif
+
 #ifndef FSDB_FILE
 #define FSDB_FILE _T("_UAEFSDB.___")
 #endif
@@ -18,6 +26,7 @@
 /* AmigaOS errors */
 #define ERROR_NO_FREE_STORE			103
 #define ERROR_BAD_NUMBER			115
+#define ERROR_LINE_TOO_LONG			120
 #define ERROR_OBJECT_IN_USE			202
 #define ERROR_OBJECT_EXISTS			203
 #define ERROR_DIR_NOT_FOUND			204
@@ -37,6 +46,7 @@
 #define ERROR_NOT_A_DOS_DISK		225
 #define ERROR_NO_DISK				226
 #define ERROR_NO_MORE_ENTRIES		232
+#define ERROR_IS_SOFT_LINK			233
 #define ERROR_NOT_IMPLEMENTED		236
 #define ERROR_RECORD_NOT_LOCKED		240
 #define ERROR_LOCK_COLLISION		241
@@ -51,6 +61,15 @@
 #define A_FIBF_WRITE   (1<<2)
 #define A_FIBF_EXECUTE (1<<1)
 #define A_FIBF_DELETE  (1<<0)
+
+struct virtualfilesysobject
+{
+	int dir;
+	TCHAR *comment;
+	uae_u32 amigaos_mode;
+	uae_u8 *data;
+	int size;
+};
 
 /* AmigaOS "keys" */
 typedef struct a_inode_struct {
@@ -74,13 +93,14 @@ typedef struct a_inode_struct {
     uae_u32 uniq;
     /* For a directory that is being ExNext()ed, the number of child ainos
        which must be kept locked in core.  */
-    unsigned long locked_children;
+    unsigned int locked_children;
     /* How many ExNext()s are going on in this directory?  */
-    unsigned long exnext_count;
+    unsigned int exnext_count;
     /* AmigaOS locking bits.  */
     int shlock;
     long db_offset;
     unsigned int dir:1;
+    unsigned int softlink:2;
     unsigned int elock:1;
     /* Nonzero if this came from an entry in our database.  */
     unsigned int has_dbentry:1;
@@ -96,6 +116,7 @@ typedef struct a_inode_struct {
     /* not equaling unit.mountcount -> not in this volume */
     unsigned int mountcount;
 	uae_u64 uniq_external;
+	struct virtualfilesysobject *vfso;
 #ifdef AINO_DEBUG
     uae_u32 checksum2;
 #endif
@@ -156,6 +177,16 @@ extern FILE *my_opentext (const TCHAR*);
 extern bool my_stat (const TCHAR *name, struct mystat *ms);
 extern bool my_utime (const TCHAR *name, struct mytimeval *tv);
 extern bool my_chmod (const TCHAR *name, uae_u32 mode);
+extern bool my_resolveshortcut(TCHAR *linkfile, int size);
+extern bool my_resolvessymboliclink(TCHAR *linkfile, int size);
+extern bool my_resolvesoftlink(TCHAR *linkfile, int size);
+extern const TCHAR *my_getfilepart(const TCHAR *filename);
+extern void my_canonicalize_path(const TCHAR *path, TCHAR *out, int size);
+extern int my_issamevolume(const TCHAR *path1, const TCHAR *path2, TCHAR *path);
+extern bool my_issamepath(const TCHAR *path1, const TCHAR *path2);
+extern bool my_createsoftlink(const TCHAR *path, const TCHAR *target);
+extern bool my_createshortcut(const TCHAR *source, const TCHAR *target, const TCHAR *description);
+
 
 extern char *custom_fsdb_search_dir (const char *dirname, TCHAR *rel);
 extern a_inode *custom_fsdb_lookup_aino_aname (a_inode *base, const TCHAR *aname);
@@ -170,9 +201,11 @@ extern int custom_fsdb_used_as_nname (a_inode *base, const TCHAR *nname);
 
 extern int my_getvolumeinfo (const TCHAR *root);
 
-#ifdef FSUAE
+#ifdef FSUAE // NL
 char *fsdb_native_path(const char *root_dir, const char *amiga_path);
 void fsdb_get_file_time(a_inode *node, int *days, int *mins, int *ticks);
 int fsdb_set_file_time(a_inode *node, int days, int mins, int ticks);
 int host_errno_to_dos_errno(int err);
 #endif
+
+#endif // UAE_FSDB_H

@@ -1,13 +1,11 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-
 from fsbc.system import windows, linux, macosx
 
 
 class Device(object):
+
+    TYPE_KEYBOARD = "keyboard"
+    TYPE_JOYSTICK = "joystick"
+    TYPE_MOUSE = "mouse"
 
     def __init__(self):
         self.id = ""
@@ -21,6 +19,22 @@ class Device(object):
         self.hats = 0
         self.axes = 0
         self.buttons = 0
+
+    def __lt__(self, other):
+        if self.index < other.index:
+            return True
+        return self.name < other.name
+
+    @property
+    def sdl_name(self):
+        # FIXME: check sdl_name usage
+        return self.name
+
+    def is_keyboard(self):
+        # print("id:", self.id)
+        # print("name:", self.name)
+        # print("type:", self.type)
+        return self.type == self.TYPE_KEYBOARD
 
     def get_config_name(self):
         name = self.name.rsplit("#", 1)[0]
@@ -62,8 +76,9 @@ class Device(object):
             print("error initializing device {0} for {1}".format(
                 self.name, system))
             print(repr(e))
-            return {}
-        #config_inv = []
+            # return {}
+            raise e
+        # config_inv = []
         for key, val in list(config.items()):
             val = val.upper()
             config[key] = val

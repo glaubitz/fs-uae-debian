@@ -1,21 +1,16 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-from fsui.qt import QPushButton, Signal
+from fsui.qt import QPushButton, QSignal
 from .Widget import Widget
 
 
 class Button(QPushButton, Widget):
 
-    activated = Signal()
+    activated = QSignal()
 
     def __init__(self, parent, label):
         label = "  " + label + "  "
         # self._widget = QPushButton(label, parent.get_container())
         QPushButton.__init__(self, label, parent.get_container())
-        #Widget.__init__(self, parent)
+        # Widget.__init__(self, parent)
         self.init_widget(parent)
         # self._widget.clicked.connect(self.__clicked)
         # if not System.macosx:

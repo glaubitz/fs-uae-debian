@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 // FIXME: REMOVE
 #include "../emu/video.h"
 #ifdef WINDOWS
@@ -9,10 +13,9 @@
 #include <string.h>
 
 #include <fs/base.h>
-#include <fs/string.h>
+#include <fs/glib.h>
 #include <fs/log.h>
 #include <fs/ml.h>
-#include <fs/queue.h>
 #include <fs/thread.h>
 
 #if 0
@@ -63,18 +66,18 @@ void fs_ml_set_quit_function(fs_ml_void_function function) {
 void fs_ml_video_screenshot(const char *path) {
     fs_mutex_lock(g_fs_ml_video_screenshot_mutex);
     if (g_fs_ml_video_screenshot_path) {
-        free(g_fs_ml_video_screenshot_path);
+        g_free(g_fs_ml_video_screenshot_path);
     }
-    g_fs_ml_video_screenshot_path = fs_strdup(path);
+    g_fs_ml_video_screenshot_path = g_strdup(path);
 #if 0
     if (g_fs_ml_video_screenshots_dir) {
-        free(g_fs_ml_video_screenshots_dir);
+        g_free(g_fs_ml_video_screenshots_dir);
     }
     if (g_fs_ml_video_screenshots_prefix) {
-        free(g_fs_ml_video_screenshots_prefix);
+        g_free(g_fs_ml_video_screenshots_prefix);
     }
-    g_fs_ml_video_screenshots_dir = fs_strdup(screenshots_dir);
-    g_fs_ml_video_screenshots_prefix = fs_strdup(prefix);
+    g_fs_ml_video_screenshots_dir = g_strdup(screenshots_dir);
+    g_fs_ml_video_screenshots_prefix = g_strdup(prefix);
     g_fs_ml_video_screenshot = number;
 #endif
     fs_mutex_unlock(g_fs_ml_video_screenshot_mutex);
@@ -108,7 +111,8 @@ fs_ml_input_device *fs_ml_get_input_devices(int* count) {
     return g_fs_ml_input_devices;
 }
 
-int fs_ml_input_device_get(int index, fs_ml_input_device *device) {
+int fs_ml_input_device_get(int index, fs_ml_input_device *device)
+{
     if (index < 0) {
         return 0;
     }
@@ -234,20 +238,7 @@ int fs_ml_handle_keyboard_shortcut(fs_ml_event *event) {
 }
 
 void fs_ml_init() {
-
-#if defined(WINDOWS)
-    fs_log("WINDOWS\n");
-#elif defined(MACOSX)
-    fs_log("MACOSX\n");
-#elif defined(LINUX)
-    fs_log("LINUX\n");
-#elif defined(FREEBSD)
-    fs_log("FREEBSD\n");
-#elif defined(OPENBSD)
-    fs_log("OPENBSD\n");
-#else
-    fs_log("UNKNOWN OS\n");
-#endif
+    fs_log("fs_ml_init (operating system: %s)\n", OS_NAME);
 
     g_fs_ml_video_render_function = NULL;
     g_fs_ml_video_post_render_function = NULL;
@@ -319,9 +310,3 @@ void fs_ml_init_2() {
 double fs_ml_get_refresh_rate() {
     return g_fs_ml_target_refresh_rate;
 }
-
-#ifdef WINDOWS
-// parameters from WinMain
-int g_fs_ml_ncmdshow;
-HINSTANCE g_fs_ml_hinstance;
-#endif

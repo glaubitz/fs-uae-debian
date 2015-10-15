@@ -1,18 +1,26 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#define FS_EMU_INTERNAL
 #include <fs/emu.h>
+#include <fs/emu/options.h>
+#include <fs/emu/path.h>
+
 #include "render.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <fs/config.h>
+#include <fs/conf.h>
 #include <fs/filesys.h>
 #include <fs/i18n.h>
+#include <fs/glib.h>
 #include <fs/ml.h>
-#include <fs/queue.h>
-#include <fs/string.h>
 #include <fs/thread.h>
 #include <fs/time.h>
+#include <fs/util.h>
 
 #include "libfsemu.h"
 #include "audio.h"
@@ -148,11 +156,11 @@ void fs_emu_initialize_opengl() {
     fs_gl_add_context_notification(context_notification_handler, NULL);
 }
 
-void get_buffer_format(int *gl_buffer_format, int *gl_buffer_type) {
+static void get_buffer_format(int *gl_buffer_format, int *gl_buffer_type) {
     int format = fs_emu_get_video_format();
     if (format == FS_EMU_VIDEO_FORMAT_BGRA) {
         *gl_buffer_format = GL_BGRA;
-#ifdef __BIG_ENDIAN__
+#ifdef WORDS_BIGENDIAN
         *gl_buffer_type = GL_UNSIGNED_INT_8_8_8_8_REV;
 #else
         *gl_buffer_type = GL_UNSIGNED_BYTE;
@@ -160,7 +168,7 @@ void get_buffer_format(int *gl_buffer_format, int *gl_buffer_type) {
     }
     else if (format == FS_EMU_VIDEO_FORMAT_RGBA) {
         *gl_buffer_format = GL_RGBA;
-#ifdef __BIG_ENDIAN__
+#ifdef WORDS_BIGENDIAN
         *gl_buffer_type = GL_UNSIGNED_INT_8_8_8_8_REV;
 #else
         *gl_buffer_type = GL_UNSIGNED_BYTE;
@@ -168,7 +176,7 @@ void get_buffer_format(int *gl_buffer_format, int *gl_buffer_type) {
     }
     else if (format == FS_EMU_VIDEO_FORMAT_RGB) {
         *gl_buffer_format = GL_RGB;
-#ifdef __BIG_ENDIAN__
+#ifdef WORDS_BIGENDIAN
         *gl_buffer_type = GL_UNSIGNED_INT_8_8_8_8_REV;
 #else
         *gl_buffer_type = GL_UNSIGNED_BYTE;
@@ -209,10 +217,12 @@ static void create_texture_if_needed(int width, int height) {
     //g_frame_texture.opengl_context_stamp = g_fs_ml_opengl_context_stamp;
     //fs_emu_set_texture(&g_frame_texture);
     fs_gl_bind_texture(g_frame_texture);
+#if 0
     // with high quality borders, there should be no reason to initialize
     // the texture to black
+    void *data = g_malloc0(g_frame_texture_width * g_frame_texture_height * 4);
+#endif
     void *data = NULL;
-    //void *data = fs_malloc0(g_frame_texture_width * g_frame_texture_height * 4);
     fs_gl_unpack_row_length(0);
     int gl_buffer_format = 0;
     int gl_buffer_type = 0;
@@ -221,9 +231,11 @@ static void create_texture_if_needed(int width, int height) {
             g_frame_texture_width, g_frame_texture_height, 0,
             gl_buffer_format, gl_buffer_type, data);
     CHECK_GL_ERROR();
+#if 0
     if (data) {
         free(data);
     }
+#endif
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, g_texture_filter);
     CHECK_GL_ERROR();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, g_texture_filter);
@@ -337,7 +349,7 @@ static void save_screenshot(const char *path, int cx, int cy, int cw, int ch,
         uint8_t *op = out_data + y * cw * 3;
         if (frame_format == FS_EMU_VIDEO_FORMAT_BGRA) {
             for (int x = 0; x < row_len; x += frame_bpp) {
-#ifdef __BIG_ENDIAN__
+#ifdef WORDS_BIGENDIAN
                 *op++ = ip[x + 1];
                 *op++ = ip[x + 2];
                 *op++ = ip[x + 3];
@@ -466,18 +478,19 @@ static int update_texture() {
         static char* screenshots_prefix = NULL;
         static int screenshots_mask = 7;
         if (screenshots_dir == NULL) {
-            char *path = fs_config_get_string("screenshots_output_dir");
+            char *path = fs_config_get_string(OPTION_SCREENSHOTS_OUTPUT_DIR);
             if (path) {
+                path = fs_emu_path_expand_and_free(path);
                 if (fs_path_exists(path)) {
                     screenshots_dir = path;
                 }
                 else {
                     fs_emu_warning("Directory does not exist: %s", path);
-                    free(path);
+                    g_free(path);
                 }
             }
             if (!screenshots_dir) {
-                screenshots_dir = fs_strdup(fs_get_desktop_dir());
+                screenshots_dir = g_strdup(fs_get_desktop_dir());
             }
             screenshots_mask = fs_config_get_int("screenshots_output_mask");
             if (screenshots_mask == FS_CONFIG_NONE) {
@@ -487,7 +500,7 @@ static int update_texture() {
             screenshots_prefix = fs_config_get_string(
                     "screenshots_output_prefix");
             if (!screenshots_prefix) {
-                screenshots_prefix = fs_strdup("fs-uae");
+                screenshots_prefix = g_strdup("fs-uae");
             }
         }
 
@@ -507,37 +520,37 @@ static int update_texture() {
             strftime(strbuf, 20, "%y%m%d%H%M", tm_p);
             if (strcmp(strbuf, laststrbuf) != 0) {
                 count = 0;
-                strncpy(laststrbuf, strbuf, 20);
+                memcpy(laststrbuf, strbuf, 20);
             }
 
             count += 1;
             total_count += 1;
 
             if (screenshots_mask & 1) {
-                name = fs_strdup_printf("%s-%s-%s-%02d.png",
+                name = g_strdup_printf("%s-%s-%s-%02d.png",
                         screenshots_prefix, "full", strbuf, count);
-                path = fs_path_join(screenshots_dir, name, NULL);
+                path = g_build_filename(screenshots_dir, name, NULL);
                 save_screenshot(path, 0, 0, width, height, count, frame,
                         width, height, bpp);
-                free(path);
-                free(name);
+                g_free(path);
+                g_free(name);
             }
             if (screenshots_mask & 2) {
-                name = fs_strdup_printf("%s-%s-%s-%02d.png",
+                name = g_strdup_printf("%s-%s-%s-%02d.png",
                         screenshots_prefix, "crop", strbuf, count);
-                path = fs_path_join(screenshots_dir, name, NULL);
+                path = g_build_filename(screenshots_dir, name, NULL);
                 save_screenshot(path, g_crop.x, g_crop.y, g_crop.w, g_crop.h,
                         count, frame, width, height, bpp);
-                free(path);
-                free(name);
+                g_free(path);
+                g_free(name);
             }
             if (screenshots_mask & 4) {
-                name = fs_strdup_printf("%s-%s-%s-%02d.png",
+                name = g_strdup_printf("%s-%s-%s-%02d.png",
                         screenshots_prefix, "real", strbuf, count);
-                path = fs_path_join(screenshots_dir, name, NULL);
+                path = g_build_filename(screenshots_dir, name, NULL);
                 fs_ml_video_screenshot(path);
-                free(path);
-                free(name);
+                g_free(path);
+                g_free(name);
             }
             g_fs_emu_screenshot++;
         }
@@ -644,7 +657,7 @@ static int update_texture() {
         //printf("%d %d\n", black_left, black_right);
         int black_width = black_right - black_left;
         if (black_width > 0) {
-            void *black_data = fs_malloc0(
+            void *black_data = g_malloc0(
                     black_width * g_frame_texture_height * bpp);
             //memset(black_data, 0xff, black_width * g_frame_texture_height * bpp);
             //printf("black1 w %d h %d\n", black_width, g_frame_texture_height);
@@ -665,7 +678,7 @@ static int update_texture() {
         int black_height = black_bottom - black_top;
         //printf("---- %d %d\n", black_top, black_bottom);
         if (black_height > 0) {
-            void *black_data = fs_malloc0(
+            void *black_data = g_malloc0(
                     upload_w * black_height * bpp);
             //memset(black_data, 0xff, upload_w * black_height * bpp);
             //printf("black2 w %d h %d\n", upload_w, black_height);
@@ -907,8 +920,17 @@ static void render_overlays(void) {
     }
 }
 
+#include <fs/emu/hacks.h>
+
+double fs_emu_video_scale_x = 0.0;
+double fs_emu_video_scale_y = 0.0;
+double fs_emu_video_offset_x = 1.0;
+double fs_emu_video_offset_y = 1.0;
+
 static void render_frame(double alpha, int perspective) {
+#ifdef WITH_LUA
     fs_emu_lua_run_handler("on_fs_emu_render_frame");
+#endif
 
 #ifdef WITH_LUA
 
@@ -1052,6 +1074,12 @@ static void render_frame(double alpha, int perspective) {
     int offset_y = (screen_h - output_h) * (1.0 - g_align_y);
 
     //printf("w %d h %d x %d y %d\n", output_w, output_h, offset_x, offset_y);
+
+    fs_emu_video_scale_x = (double) input_w / output_w;
+    fs_emu_video_scale_y = (double) input_h / output_h;
+
+    fs_emu_video_offset_x = offset_x - g_crop.x / fs_emu_video_scale_x;
+    fs_emu_video_offset_y = offset_y - g_crop.y / fs_emu_video_scale_y;
 
     double s1 = 0.0;
     double t1 = 0.0;
@@ -1686,7 +1714,8 @@ static void render_glow(double opacity) {
     CHECK_GL_ERROR();
     //printf("--- render glow done ---\n");
 }
-void render_fade_overlay(double alpha) {
+
+static void render_fade_overlay(double alpha) {
     // draw fading effect
     fs_gl_viewport(0, 0, fs_ml_video_width(), fs_ml_video_height());
     fs_gl_ortho_hd();
@@ -1728,6 +1757,7 @@ void render_fade_overlay(double alpha) {
 static void handle_quit_sequence() {
     int fade_time = fs_config_get_int_clamped("fade_out_duration", 0, 10000);
     if (fade_time == FS_CONFIG_NONE) {
+        // fade out over 750ms
         fade_time = 750;
     }
     fade_time = fade_time * 1000;
@@ -1747,13 +1777,14 @@ static void handle_quit_sequence() {
         exit(1);
     }
 
-    // fade out over 750ms
-    float fade = (1.0 * dt) / fade_time;
-    if (fade > 1.0) {
-        fade = 1.0;
-    }
 
-    render_fade_overlay(fade);
+    if (fade_time > 0) {
+        float fade = (1.0 * dt) / fade_time;
+        if (fade > 1.0) {
+            fade = 1.0;
+        }
+        render_fade_overlay(fade);
+    }
 }
 
 int fs_emu_video_update_function() {
@@ -2046,22 +2077,22 @@ void fs_emu_video_render_function() {
             int y = 1038;
 
             int rendered_tag = 0;
-            if (player->tag && player->tag[0]) {
-                str = fs_strdup_printf("%s", player->tag);
+            if (player->tag[0]) {
+                str = g_strdup_printf("%s", player->tag);
                 fs_emu_font_render(menu_font, str, x, y,
                         1.0, 1.0, 1.0, 1.0);
                 free(str);
                 rendered_tag = 1;
             }
             if (rendered_tag || player->ping) {
-                str = fs_strdup_printf("%03d", player->ping);
+                str = g_strdup_printf("%03d", player->ping);
                 fs_emu_font_render(menu_font, str, x + 100, y,
                         1.0, 1.0, 1.0, 1.0);
                 free(str);
             }
             /*
             if (rendered_tag || player->lag) {
-                str = fs_strdup_printf("%03d", player->lag);
+                str = g_strdup_printf("%03d", player->lag);
                 fs_emu_font_render(menu_font, str, x + 200, y,
                         1.0, 1.0, 1.0, 1.0);
                 free(str);
@@ -2090,7 +2121,7 @@ void fs_emu_video_render_function() {
         static GLuint debug_texture = 0;
         static uint32_t *debug_texture_data = NULL;
         if (debug_texture == 0) {
-            debug_texture_data = fs_malloc0(256 * 256 * 4);
+            debug_texture_data = g_malloc0(256 * 256 * 4);
             glGenTextures(1, &debug_texture);
             CHECK_GL_ERROR();
             fs_gl_bind_texture(debug_texture);
@@ -2171,38 +2202,49 @@ void fs_emu_video_render_function() {
         char *str;
 
         /*
-        str = fs_strdup_printf("%d", fs_emu_get_audio_frequency());
+        str = g_strdup_printf("%d", fs_emu_get_audio_frequency());
         fs_emu_font_render(menu_font, str, 1920 / 2 + 20, 3,
                 1.0, 1.0, 1.0, 1.0);
         free(str);
         */
 
-        str = fs_strdup_printf("%0.1f",
-                fs_emu_audio_get_measured_avg_buffer_fill(0) / 1000.0);
+        static double avg_emu = 0.0;
+        static double avg_sys = 0.0;
+        static double avg_fill = 0.0;
+        static int avg_throttle = 0;
+        if (avg_throttle == 0) {
+            avg_emu = fs_emu_get_average_emu_fps();
+            avg_sys = fs_emu_get_average_sys_fps();
+            avg_fill = fs_emu_audio_get_measured_avg_buffer_fill(0);
+            avg_throttle = 10;
+        }
+        avg_throttle -= 1;
+
+        str = g_strdup_printf("%0.1f", avg_fill / 1000.0);
         fs_emu_font_render(menu_font, str, 1920 / 2 + 220, 3,
                 1.0, 1.0, 1.0, 1.0);
         free(str);
-        str = fs_strdup_printf("%d", g_fs_emu_audio_buffer_underruns);
+        str = g_strdup_printf("%d", g_fs_emu_audio_buffer_underruns);
         fs_emu_font_render(menu_font, str, 1920 / 2 + 420, 3,
                 1.0, 1.0, 1.0, 1.0);
         free(str);
 
         fs_emu_font_render(menu_font, "EMU", 20, 3, 1.0, 1.0, 1.0, 1.0);
-        str = fs_strdup_printf("%0.1f", fs_emu_get_average_emu_fps());
+        str = g_strdup_printf("%0.2f", avg_emu);
         fs_emu_font_render(menu_font, str, 220, 3, 1.0, 1.0, 1.0, 1.0);
         free(str);
-        str = fs_strdup_printf("%d", g_fs_emu_lost_frames);
+        str = g_strdup_printf("%d", g_fs_emu_lost_frames);
         fs_emu_font_render(menu_font, str, 420, 3, 1.0, 1.0, 1.0, 1.0);
         free(str);
-        str = fs_strdup_printf("%d", g_fs_emu_repeated_frames);
+        str = g_strdup_printf("%d", g_fs_emu_repeated_frames);
         fs_emu_font_render(menu_font, str, 620, 3, 1.0, 1.0, 1.0, 1.0);
         free(str);
 
         fs_emu_font_render(menu_font, "SYS", 20, 140, 1.0, 1.0, 1.0, 1.0);
-        str = fs_strdup_printf("%0.1f", fs_emu_get_average_sys_fps());
+        str = g_strdup_printf("%0.2f", avg_sys);
         fs_emu_font_render(menu_font, str, 220, 140, 1.0, 1.0, 1.0, 1.0);
         free(str);
-        str = fs_strdup_printf("%d", g_fs_emu_lost_vblanks);
+        str = g_strdup_printf("%d", g_fs_emu_lost_vblanks);
         fs_emu_font_render(menu_font, str, 420, 140, 1.0, 1.0, 1.0, 1.0);
         free(str);
 
@@ -2222,12 +2264,12 @@ void fs_emu_video_render_function() {
     if (fade_time == FS_CONFIG_NONE) {
         fade_time = fs_config_get_int_clamped("fade_in_duration", 0, 10000);
         if (fade_time == FS_CONFIG_NONE) {
-            fade_time = 750;
+            fade_time = 0;
         }
         fade_time = fade_time * 1000;
     }
 
-    int64_t dt = fs_emu_monotonic_time() - start_time;
+    uint64_t dt = fs_emu_monotonic_time() - start_time;
     if (dt < fade_time) {
         float fade = 1.0 - (1.0 * dt) / fade_time;
         if (fade < 0.0) {
@@ -2244,7 +2286,7 @@ void fs_emu_video_render_debug_info(uint32_t *texture) {
     int x;
     //, y;
     int y1;
-    fs_list *link;
+    GList *link;
     uint32_t color = 0x80404080;
     fs_gl_ortho_hd();
     fs_gl_blending(TRUE);
@@ -2269,7 +2311,7 @@ void fs_emu_video_render_debug_info(uint32_t *texture) {
     x = 127;
     y1 = 128;
     color = 0x80404080;
-    link = fs_queue_peek_head_link(g_fs_emu_sys_frame_times.queue);
+    link = g_queue_peek_head_link(g_fs_emu_sys_frame_times.queue);
     while (link) {
         int val = FS_POINTER_TO_INT(link->data);
         //int x2 = x - 8;
@@ -2289,7 +2331,7 @@ void fs_emu_video_render_debug_info(uint32_t *texture) {
     x = 127;
     y1 = 0;
     color = 0x80205080;
-    link = fs_queue_peek_head_link(g_fs_emu_emu_frame_times.queue);
+    link = g_queue_peek_head_link(g_fs_emu_emu_frame_times.queue);
     while (link) {
         int val = FS_POINTER_TO_INT(link->data);
         //int x2 = x - 8;
@@ -2309,7 +2351,7 @@ void fs_emu_video_render_debug_info(uint32_t *texture) {
     x = 127;
     y1 = 0;
     color = 0x80008080;
-    link = fs_queue_peek_head_link(g_fs_emu_emu2_frame_times.queue);
+    link = g_queue_peek_head_link(g_fs_emu_emu2_frame_times.queue);
     while (link) {
         int val = FS_POINTER_TO_INT(link->data);
         //int x2 = x - 8;
@@ -2432,7 +2474,7 @@ void fs_emu_init_render() {
     }
 
     const char *ccstr = fs_config_get_const_string("texture_filter");
-    if (ccstr && fs_ascii_strcasecmp(ccstr, "nearest") == 0) {
+    if (ccstr && g_ascii_strcasecmp(ccstr, "nearest") == 0) {
         g_texture_filter = GL_NEAREST;
     }
 

@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from fsgs.ogd.client import OGDClient
 import fsui
 from fsbc.Application import app
@@ -10,11 +5,10 @@ from fs_uae_workspace.shell import SimpleApplication, shell_open
 from fs_uae_launcher.res import gettext
 
 
-class LoginWindow(fsui.Window):
+class LoginWindow(fsui.Dialog):
 
     def __init__(self):
-        fsui.Window.__init__(
-            self, None, gettext("Log In to Your OAGD.net Account"))
+        super().__init__(None, gettext("Log In to Your OAGD.net Account"))
         self.set_icon(fsui.Icon("password", "pkg:fs_uae_workspace"))
 
         self.layout = fsui.VerticalLayout()
@@ -35,6 +29,12 @@ class LoginWindow(fsui.Window):
             self, gettext("Logging in will enable the online game database "
                           "and more")))
 
+        self.username_field = fsui.TextField(
+            self, app.settings["database_email"])
+        self.password_field = fsui.PasswordField(self)
+        if self.username_field.get_text():
+            self.password_field.focus()
+
         self.layout.add_spacer(20)
         hori_layout = fsui.HorizontalLayout()
         self.layout.add(hori_layout, fill=True)
@@ -42,8 +42,6 @@ class LoginWindow(fsui.Window):
         label.set_min_width(100)
         hori_layout.add(label)
         hori_layout.add_spacer(20)
-        self.username_field = fsui.TextField(
-            self, app.settings["database_email"])
         # self.username_field.select_all()
         self.username_field.changed.connect(self.on_text_field_changed)
         self.username_field.activated.connect(self.on_username_activated)
@@ -56,9 +54,6 @@ class LoginWindow(fsui.Window):
         label.set_min_width(100)
         hori_layout.add(label)
         hori_layout.add_spacer(20)
-        self.password_field = fsui.PasswordField(self)
-        if self.username_field.get_text():
-            self.password_field.focus()
         self.password_field.changed.connect(self.on_text_field_changed)
         self.password_field.activated.connect(self.on_password_activated)
         hori_layout.add(self.password_field, expand=True)
@@ -92,16 +87,24 @@ class LoginWindow(fsui.Window):
         self.created_label = fsui.Label(self, "")
         hori_layout.add(self.created_label, expand=True)
         hori_layout.add_spacer(20)
+
         self.login_button = fsui.Button(self, gettext("Log In"))
         self.login_button.disable()
         self.login_button.activated.connect(self.on_login_activated)
         hori_layout.add(self.login_button)
+
+        self.close_button = fsui.Button(self, gettext("Close"))
+        self.close_button.activated.connect(self.on_close_activated)
+        hori_layout.add(self.close_button, margin_left=10)
 
         self.set_size(self.layout.get_min_size())
         self.center_on_parent()
 
     def __del__(self):
         print("LoginWindow.__del__")
+
+    def on_close_activated(self):
+        self.close()
 
     def on_text_field_changed(self):
         email = self.username_field.get_text().strip()
@@ -135,7 +138,10 @@ class LoginWindow(fsui.Window):
         task.start()
 
     def on_success(self):
-        shell_open("Workspace:Tools/Refresh", center=self.get_window_center())
+        center = self.get_window_center()
+
+        fsui.call_after(start_refresh_task, center)
+        # shell_open("Workspace:Tools/Refresh", center=self.get_window_center())
         self.close()
 
     def on_failure(self, message):
@@ -151,5 +157,10 @@ class LoginWindow(fsui.Window):
 
     # def on_success(self):
     #     self.close()
+
+
+def start_refresh_task(center):
+    shell_open("Workspace:Tools/Refresh", center=center)
+
 
 application = SimpleApplication(LoginWindow)

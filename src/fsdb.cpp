@@ -20,6 +20,12 @@
 #include "fsusage.h"
 #include "scsidev.h"
 #include "fsdb.h"
+#include "uae/io.h"
+
+#ifdef FSUAE // NL
+#include "uae/fs.h"
+#undef _WIN32
+#endif
 
 /* The on-disk format is as follows:
 * Offset 0, 1 byte, valid
@@ -44,7 +50,7 @@ TCHAR *nname_begin (TCHAR *nname)
 	return nname;
 }
 
-#if !defined(_WIN32) || !defined(WINUAE)
+#ifndef _WIN32
 /* Find the name REL in directory DIRNAME.  If we find a file that
 * has exactly the same name, return REL.  If we find a file that
 * has the same name when compared case-insensitively, return a
@@ -81,7 +87,7 @@ static FILE *get_fsdb (a_inode *dir, const TCHAR *mode)
 	if (!dir->nname)
 		return NULL;
 	n = build_nname (dir->nname, FSDB_FILE);
-	f = _tfopen (n, mode);
+	f = uae_tfopen (n, mode);
 	xfree (n);
 	return f;
 }
@@ -127,7 +133,7 @@ void fsdb_clean_dir (a_inode *dir)
 	if (!dir->nname)
 		return;
 	n = build_nname (dir->nname, FSDB_FILE);
-	f = _tfopen (n, _T("r+b"));
+	f = uae_tfopen (n, _T("r+b"));
 	if (f == 0) {
 		xfree (n);
 		return;
@@ -299,6 +305,9 @@ static void write_aino (FILE *f, a_inode *aino)
 
 void fsdb_dir_writeback (a_inode *dir)
 {
+#ifdef FSUAE
+	// .uaem files are used instead of fsdb
+#else
 	FILE *f;
 	int changes_needed = 0;
 	int entries_needed = 0;
@@ -391,4 +400,5 @@ void fsdb_dir_writeback (a_inode *dir)
 	TRACE ((_T("end\n")));
 	fclose (f);
 	xfree (tmpbuf);
+#endif
 }

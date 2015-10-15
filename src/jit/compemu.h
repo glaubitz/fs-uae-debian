@@ -96,6 +96,7 @@ extern int get_cache_state(void);
 extern uae_u32 get_jitted_size(void);
 #ifdef JIT
 extern void flush_icache(uaecptr ptr, int n);
+extern void flush_icache_hard(uaecptr ptr, int n);
 #endif
 extern void alloc_cache(void);
 extern void compile_block(cpu_history* pc_hist, int blocklen, int totcyles);
@@ -106,7 +107,6 @@ extern int check_for_cache_miss(void);
 
 
 extern uae_u32 needed_flags;
-//extern cacheline cache_tags[];
 extern uae_u8* comp_pc_p;
 extern void* pushall_call_handler;
 
@@ -233,7 +233,6 @@ typedef struct {
     n_smallstatus  nat[N_REGS];
 } smallstate;
 
-//extern bigstate live;
 extern int touchcnt;
 
 
@@ -324,6 +323,7 @@ DECLARE(setcc_m(IMM d, IMM cc));
 DECLARE(cmov_b_rr(RW1 d, R1 s, IMM cc));
 DECLARE(cmov_w_rr(RW2 d, R2 s, IMM cc));
 DECLARE(cmov_l_rr(RW4 d, R4 s, IMM cc));
+DECLARE(setzflg_l(RW4 r));
 DECLARE(cmov_l_rm(RW4 d, IMM s, IMM cc));
 DECLARE(bsf_l_rr(W4 d, R4 s));
 DECLARE(pop_m(IMM d));
@@ -446,10 +446,6 @@ DECLARE(fmovs_rm(FW r, MEMR m));
 DECLARE(fmovs_mr(MEMW m, FR r));
 DECLARE(fcuts_r(FRW r));
 DECLARE(fcut_r(FRW r));
-DECLARE(fmovl_ri(FW r, IMMS i));
-DECLARE(fmovs_ri(FW r, IMM i));
-DECLARE(fmov_ri(FW r, IMM i1, IMM i2));
-DECLARE(fmov_ext_ri(FW r, IMM i1, IMM i2, IMM i3));
 DECLARE(fmov_ext_mr(MEMW m, FR r));
 DECLARE(fmov_ext_rm(FW r, MEMR m));
 DECLARE(fmov_rr(FW d, FR s));
@@ -583,3 +579,10 @@ void comp_fbcc_opp (uae_u32 opcode);
 void comp_fsave_opp (uae_u32 opcode);
 void comp_frestore_opp (uae_u32 opcode);
 void comp_fpp_opp (uae_u32 opcode, uae_u16 extra);
+
+#ifdef _WIN32
+LONG WINAPI EvalException(LPEXCEPTION_POINTERS info);
+#if defined(_MSC_VER) && !defined(NO_WIN32_EXCEPTION_HANDLER)
+#define USE_STRUCTURED_EXCEPTION_HANDLING
+#endif
+#endif

@@ -6,16 +6,28 @@
 * Copyright 2013 Frode SOlheim
 */
 
-#ifndef LUASCRIPT_H_
-#define LUASCRIPT_H_
+#ifndef UAE_LUASCRIPT_H
+#define UAE_LUASCRIPT_H
 
 #ifdef WITH_LUA
 
+#ifdef FSUAE // NL
 extern "C" {
-#include <lauxlib.h>
-}
+#endif // NL
 
-void uae_lua_init(void (*lock)(void), void (*unlock)(void));
+#include <lauxlib.h>
+
+#ifdef FSUAE // NL
+}
+#endif
+
+#ifdef FSUAE
+//void uae_lua_init(void (*lock)(void), void (*unlock)(void));
+#endif
+void uae_lua_init(void);
+void uae_lua_load(const TCHAR *filename);
+void uae_lua_loadall(void);
+void uae_lua_free(void);
 void uae_lua_init_state(lua_State *L);
 void uae_lua_run_handler(const char *name);
 void uae_lua_aquire_lock();
@@ -23,4 +35,4 @@ void uae_lua_release_lock();
 
 #endif // WITH_LUA
 
-#endif // LUASCRIPT_H_
+#endif // UAE_LUASCRIPT_H

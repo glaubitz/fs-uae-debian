@@ -3,14 +3,14 @@
 #include "sysdeps.h"
 
 #include "uae.h"
-#include "autoconf.h"
 
 #include <string.h>
 #include <string.h>
-#include <fs/string.h>
 
 #include "uae/memory.h"
+#include "autoconf.h"
 #include "options.h"
+#include "blkdev.h"
 #include "custom.h"
 #include "keyboard.h"
 #include "inputdevice.h"
@@ -20,6 +20,8 @@
 #include "luascript.h"
 
 #include "uae/fs.h"
+#include "uae/log.h"
+#include "uae/glib.h"
 
 void keyboard_settrans (void);
 libamiga_callbacks g_libamiga_callbacks = {};
@@ -28,7 +30,6 @@ amiga_media_function g_amiga_media_function = NULL;
 
 int g_uae_deterministic_mode = 0;
 int g_amiga_paused = 0;
-char *g_libamiga_save_image_path = NULL;
 
 int g_amiga_savestate_docompress = 1;
 
@@ -92,26 +93,28 @@ void amiga_set_save_state_compression(int compress) {
     g_amiga_savestate_docompress = compress ? 1 : 0;
 }
 
-void amiga_init_lua(void (*lock)(void), void (*unlock)(void)) {
 #ifdef WITH_LUA
-    uae_lua_init(lock, unlock);
-#endif
+
+void amiga_init_lua(void (*lock)(void), void (*unlock)(void)) {
+    //uae_lua_init(lock, unlock);
+    write_log("WARNING: not sending lock function to uae_lua_init\n");
+    uae_lua_init();
 }
 
 void amiga_init_lua_state(lua_State *L) {
-#ifdef WITH_LUA
     uae_lua_init_state(L);
-#endif
 }
+
+#endif
 
 void amiga_set_floppy_sounds_dir(const char *path) {
     int len = strlen(path);
     if (path[len - 1] == '/') {
-        g_floppy_sounds_dir = fs_strdup(path);
+        g_floppy_sounds_dir = g_strdup(path);
     }
     else {
         // must have directory separator at the end
-        g_floppy_sounds_dir = fs_strconcat(path, "/", NULL);
+        g_floppy_sounds_dir = g_strconcat(path, "/", NULL);
     }
 }
 
@@ -123,11 +126,10 @@ void amiga_floppy_set_writable_images(int writable) {
     g_fs_uae_writable_disk_images = writable;
 }
 
-int amiga_init() {
-    printf("libamiga (based on emulation core from %s) initialized\n",
-            get_libamiga_base_version());
-    write_log("libamiga (based on emulation core from %s) initialized\n",
-            get_libamiga_base_version());
+int amiga_init()
+{
+    printf("UAE: Initializing core derived from %s\n", UAE_BASE_VERSION);
+    write_log("UAE: Initializing core derived from %s\n", UAE_BASE_VERSION);
 
     // because frame_time_t is sometimes cast to int, we make sure to
     // start from 0 wo it will work for "a while". Should be fixed
@@ -147,6 +149,9 @@ int amiga_init() {
     //syncbase = 10000;
 
     filesys_host_init();
+
+    romlist_init();
+
     return 1;
 }
 
@@ -200,49 +205,53 @@ void amiga_write_uae_config(const char *path) {
     cfgfile_save(&currprefs, path, 0);
 }
 
+static void set_path(TCHAR *d1, TCHAR *d2, const TCHAR *s)
+{
+    /* Use PATH_MAX - 1 so we have space for any trailing slash */
+    uae_strlcpy(d1, s, PATH_MAX - 1);
+    int d1_len = strlen(d1);
+    if (d1[d1_len - 1] != '/') {
+        strcat(d1, "/");
+    }
+    uae_strlcpy(d2, d1, PATH_MAX);
+}
+
 void amiga_set_paths(const char **rom_paths, const char **floppy_paths,
-        const char **cd_paths, const char **hd_paths) {
+                     const char **cd_paths, const char **hd_paths)
+{
     for (int i = 0; i < MAX_PATHS; i++) {
         if (floppy_paths[i] == NULL || floppy_paths[i][0] == '\0') {
             break;
         }
-        strncpy(&(currprefs.path_floppy.path[i][0]),
-                floppy_paths[i], MAX_PATH - 1);
-        strncpy(&(changed_prefs.path_floppy.path[i][0]),
-                floppy_paths[i], MAX_PATH - 1);
+        set_path(currprefs.path_floppy.path[i],
+                 changed_prefs.path_floppy.path[i], floppy_paths[i]);
     }
     for (int i = 0; i < MAX_PATHS; i++) {
         if (cd_paths[i] == NULL || cd_paths[i][0] == '\0') {
             break;
         }
-        strncpy(&(currprefs.path_cd.path[i][0]),
-                cd_paths[i], MAX_PATH - 1);
-        strncpy(&(changed_prefs.path_cd.path[i][0]),
-                cd_paths[i], MAX_PATH - 1);
+        set_path(currprefs.path_cd.path[i],
+                 changed_prefs.path_cd.path[i], cd_paths[i]);
     }
     for (int i = 0; i < MAX_PATHS; i++) {
         if (hd_paths[i] == NULL || hd_paths[i][0] == '\0') {
             break;
         }
-        strncpy(&(currprefs.path_hardfile.path[i][0]),
-                hd_paths[i], MAX_PATH - 1);
-        strncpy(&(changed_prefs.path_hardfile.path[i][0]),
-                hd_paths[i], MAX_PATH - 1);
+        set_path(currprefs.path_hardfile.path[i],
+                 changed_prefs.path_hardfile.path[i], hd_paths[i]);
     }
     for (int i = 0; i < MAX_PATHS; i++) {
         if (rom_paths[i] == NULL || rom_paths[i][0] == '\0') {
             break;
         }
-        strncpy(&(currprefs.path_rom.path[i][0]),
-                rom_paths[i], MAX_PATH - 1);
-        strncpy(&(changed_prefs.path_rom.path[i][0]),
-                rom_paths[i], MAX_PATH - 1);
+        set_path(currprefs.path_rom.path[i],
+                 changed_prefs.path_rom.path[i], rom_paths[i]);
     }
 }
 
 int amiga_set_synchronization_log_file(const char *path) {
 #ifdef DEBUG_SYNC
-    FILE *f = fs_fopen(path, "wb");
+    FILE *f = g_fopen(path, "wb");
     if (f) {
         write_log("sync debug log to %s\n", path);
         g_fs_uae_sync_debug_file = f;
@@ -265,11 +274,6 @@ int amiga_quickstart(int quickstart_model, int quickstart_config,
             quickstart_compa, quickstart_romcheck);
 }
 
-void amiga_set_save_image_dir(const char *path) {
-    write_log("amiga_set_save_image_dir %s\n", path);
-    g_libamiga_save_image_path = fs_strdup(path);
-}
-
 int amiga_get_rand_checksum() {
     return uaerand() & 0x00ffffff;
 }
@@ -285,7 +289,9 @@ int amiga_get_state_checksum() {
 //int amiga_main(int argc, char** argv) {
 void amiga_main() {
     write_log("amiga_main\n");
+
     keyboard_settrans();
+
     int argc = 1;
     char *argv[4] = {
             strdup("fs-uae"),
@@ -323,8 +329,13 @@ int amiga_enable_serial_port(const char *serial_name) {
     return 1;
 }
 
-void amiga_set_cpu_idle(int idle) {
-    write_log("setting cpu_idle = %d\n", idle);
+void amiga_set_cpu_idle(int idle)
+{
+    idle = CLAMP(idle, 0, 10);
+    if (idle != 0) {
+        idle = (12 - idle) * 15;
+    }
+    uae_log("setting cpu_idle = %d\n", idle);
     changed_prefs.cpu_idle = idle;
     currprefs.cpu_idle = idle;
 }
@@ -390,12 +401,10 @@ int amiga_floppy_get_drive_type(int index) {
 }
 
 int amiga_get_num_cdrom_drives() {
-    // FIXME: this is a bit of a hack, if CD devices / SCSI system
-    // has not been enabled, it seems type is 0 in all slots, which
-    // is why we return 0 at the end of the function.
+    // FIXME: a bit hackish, do some sanity check on this method
     for (int i = 0; i < MAX_TOTAL_SCSI_DEVICES; i++) {
-        if (currprefs.cdslots[i].type != 0) {
-            return i;
+        if (currprefs.cdslots[i].inuse != 0) {
+            return i + 1;
         }
     }
     return 0;
@@ -460,26 +469,48 @@ const char *amiga_cdrom_get_file(int index) {
     return currprefs.cdslots[index].name;
 }
 
-int amiga_cdrom_set_file(int drive, const char *file) {
-    write_log("insert CD (%s) into drive (%d)\n", file, drive);
-    int i;
-    // eject CD from other drive (if inserted)
-    for (i = 0; i < 4; i++) {
-        if (file[0] != '\0' && strcmp (currprefs.cdslots[i].name, file) == 0) {
-            changed_prefs.cdslots[i].name[0] = 0;
-            changed_prefs.cdslots[i].inuse = 0;
+void amiga_cdrom_eject(int drive)
+{
+    write_log("CD-ROM: eject drive %d\n", drive);
+#if 0
+    write_log("  (currprefs.cdslots[%d].name = %s)\n",
+              drive, currprefs.cdslots[drive].name);
+#endif
+
+    // changed_prefs.cdslots[drive].inuse = false;
+    changed_prefs.cdslots[drive].name[0] = '\0';
+    changed_prefs.cdslots[drive].type = SCSI_UNIT_DEFAULT;
+    config_changed = 1;
+}
+
+int amiga_cdrom_set_file(int drive, const char *file)
+{
+    write_log("CD-ROM: insert \"%s\" into drive %d\n", file, drive);
+#if 0
+    write_log("  (currprefs.cdslots[%d].name = %s)\n",
+              drive, currprefs.cdslots[drive].name);
+    write_log("  (changed_prefs.cdslots[%d].name = %s)\n",
+              drive, changed_prefs.cdslots[drive].name);
+#endif
+
+    /* Eject CD from current drive */
+    amiga_cdrom_eject(drive);
+
+    /* Insert new CD */
+    if (file[0] != '\0') {
+        uae_tcslcpy(changed_prefs.cdslots[drive].name, file, MAX_DPATH);
+        // changed_prefs.cdslots[drive].inuse = 1;
+
+        /* Ejecting CD from other drives if it is inserted there */
+        // FIXME: REPLACE 4 with constant
+        for (int i = 0; i < 4; i++) {
+            if (i != drive && strcmp (currprefs.cdslots[i].name, file) == 0) {
+                amiga_cdrom_eject(i);
+            }
         }
     }
-    // insert CD
-    // FIXME: IMPORTANT: CHECK length of file (prevent buffer overrun)
-    strcpy(changed_prefs.cdslots[drive].name, file);
-    if (file[0] == '\0') {
-        changed_prefs.cdslots[drive].inuse = 0;
-    }
-    else {
-        changed_prefs.cdslots[drive].inuse = 1;
-    }
     config_changed = 1;
+
     return 1;
 }
 
@@ -527,7 +558,7 @@ int amiga_cpu_set_speed(int speed) {
     return 1;
 }
 
-int amiga_parse_option(const char *option, const char *value, int type) {
+static int amiga_parse_option(const char *option, const char *value, int type) {
     // some strings are modified during parsing
     char *value2 = strdup(value);
     int result = cfgfile_parse_option(&currprefs, (char*) option,
@@ -536,7 +567,7 @@ int amiga_parse_option(const char *option, const char *value, int type) {
     write_log("set option \"%s\" to \"%s\" (result: %d)\n", option,
             value, result);
     if (result != 1) {
-        // FIXME: Log
+        gui_message("Option failed: %s = %s", option, value);
         amiga_log_warning("failed to set option \"%s\" to \"%s\" "
                 "(result: %d)\n", option, value, result);
     }
@@ -559,13 +590,15 @@ int amiga_set_hardware_option(const char *option, const char *value) {
 }
 
 int amiga_set_int_option(const char *option, int value) {
-    char *str_value = fs_strdup_printf("%d", value);
+    char *str_value = g_strdup_printf("%d", value);
     int result = amiga_set_option(option, str_value);
-    free(str_value);
+    g_free(str_value);
     return result;
 }
 
-int amiga_quit() {
+int amiga_quit()
+{
+    printf("UAE: Calling uae_quit\n");
     uae_quit();
     return 1;
 }
@@ -615,7 +648,7 @@ void gui_disk_image_change (int unitnum, const TCHAR *name, bool writeprotected)
 }
 
 bool get_plugin_path (TCHAR *out, int size, const TCHAR *path) {
-    static char* plugin_path_none = NULL;
+    // static char* plugin_path_none = NULL;
 
     if (strcmp(path, "floppysounds") == 0) {
         if (g_floppy_sounds_dir) {

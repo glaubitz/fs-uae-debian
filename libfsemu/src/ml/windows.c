@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef WINDOWS
 #define _WIN32_WINNT 0x0501
 #include <Windows.h>
@@ -22,7 +26,11 @@ void fs_ml_configure_window() {
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version); // this is important!
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+    if (!SDL_GetWindowWMInfo(g_fs_ml_window, &info)) {
+#else
     if (!SDL_GetWMInfo(&info)) {
+#endif
         fs_log("error getting window information\n");
         return;
     }
@@ -38,10 +46,19 @@ void fs_ml_configure_window() {
         fs_log("hIconBig = %d\n", hIconBig);
     }
     if (hIconSmall != 0) {
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+        SendMessage(info.info.win.window, WM_SETICON, ICON_SMALL, (LPARAM) hIconSmall);
+#else
         SendMessage(info.window, WM_SETICON, ICON_SMALL, (LPARAM) hIconSmall);
+#endif
     }
     if (hIconBig != 0) {
+#if SDL_VERSION_ATLEAST(2, 0, 0) 
+        SendMessage(info.info.win.window, WM_SETICON, ICON_BIG, (LPARAM) hIconBig);
+#else
         SendMessage(info.window, WM_SETICON, ICON_BIG, (LPARAM) hIconBig);
+#endif
+
     }
 }
 
@@ -165,7 +182,7 @@ void fs_ml_initialize_keymap() {
 #ifdef WITH_WINDOWS_VIDEO
 
 #include "video.h"
-#include <fs/glee.>
+// #include <fs/glee.>
 #include <Ddraw.h>
 
 /*
@@ -760,6 +777,10 @@ void fs_ml_input_init() {
 }
 
 #endif // WITH_VIDEO_WINDOWS
+
+#else
+
+int libfsemu_ml_windows_dummy;
 
 #endif // WINDOWS
 

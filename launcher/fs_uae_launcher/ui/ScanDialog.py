@@ -1,13 +1,8 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import fsui as fsui
 from ..Scanner import Scanner
-from ..Settings import Settings
-from ..I18N import _
+from ..I18N import gettext
 from .settings.ScanPathsGroup import ScanPathsGroup
+
 
 TIMER_INTERVAL = 100
 
@@ -21,78 +16,87 @@ class ScanDialog(fsui.Dialog):
 
     def __init__(self, parent, minimal=False, interactive=True,
                  scan_for_files=True):
-        fsui.Dialog.__init__(self, parent, _("Scan"))
-        self.layout = fsui.VerticalLayout()
-        self.layout.padding_left = 10
-        self.layout.padding_top = 10
-        self.layout.padding_right = 10
-        self.layout.padding_bottom = 10
+        super().__init__(parent, gettext("Scan"))
+        buttons, layout = fsui.DialogButtons.create_with_layout(self)
+        buttons.create_close_button()
 
         self.layout.add_spacer(640, 0)
 
         self.interactive = interactive
         self.scan_for_files = scan_for_files
         self.update_game_database = False
-        #self.update_game_database = True
+        # self.update_game_database = True
 
         if not minimal:
-            #self.layout.add_spacer(20)
+            # layout.add_spacer(20)
 
             from .ScanKickstartGroup import ScanKickstartGroup
             self.scan_kickstart_group = ScanKickstartGroup(self)
-            self.layout.add(self.scan_kickstart_group, fill=True)
+            layout.add(self.scan_kickstart_group, fill=True)
 
-            #self.layout.add_spacer(20)
+            layout.add_spacer(20)
 
             label = fsui.HeadingLabel(
-                self, _("Scan for Kickstarts, Files and Configurations"))
-            self.layout.add(label, margin=10)
+                self, gettext("Scan for Kickstarts, Files and Configurations"))
+            layout.add(label, margin_bottom=10)
 
             self.scan_paths_group = ScanPathsGroup(self)
-            self.layout.add(self.scan_paths_group, fill=True, margin=10)
+            layout.add(self.scan_paths_group, fill=True, margin=0)
 
-            #self.layout.add_spacer(20)
+            layout.add_spacer(20)
 
         from .ScanProgressGroup import ScanProgressGroup
         self.scan_progress_group = ScanProgressGroup(self)
-        self.layout.add(self.scan_progress_group, fill=True)
+        layout.add(self.scan_progress_group, fill=True)
 
-        self.layout.add_spacer(20)
-        #self.layout.add_spacer(20)
+        # layout.add_spacer(20)
+        # layout.add_spacer(20)
 
-        hor_layout = fsui.HorizontalLayout()
-        self.layout.add(hor_layout, fill=True)
+        # hor_layout = fsui.HorizontalLayout()
+        # layout.add(hor_layout, fill=True)
 
-        hor_layout.add_spacer(10, expand=True)
+        # hor_layout.add_spacer(10, expand=True)
         if interactive:
-            self.scan_button = fsui.Button(self, _("Scan"))
-            self.scan_button.on_activate = self.on_scan_button
-            hor_layout.add(self.scan_button)
-            hor_layout.add_spacer(10)
+            self.scan_button = buttons.add_button(
+                fsui.Button(buttons, gettext("Scan")))
+            # self.scan_button = fsui.Button(self, _("Scan"))
+            # hor_layout.add(self.scan_button)
+            # hor_layout.add_spacer(10)
+            self.scan_button.activated.connect(self.on_scan_button)
         else:
             self.scan_button = None
-        self.stop_button = fsui.Button(self, _("Abort"))
-        self.stop_button.on_activate = self.on_stop_button
-        hor_layout.add(self.stop_button)
-        hor_layout.add_spacer(10)
-        #self.close_button = fsui.Button(self, _("Close"))
-        #self.close_button.on_activate = self.on_close_button
-        #hor_layout.add(self.close_button)
-        #hor_layout.add_spacer(10)
 
-        self.layout.add_spacer(10)
+        # self.stop_button = fsui.Button(self, _("Abort"))
+        # hor_layout.add(self.stop_button)
+        self.stop_button = buttons.add_button(
+            fsui.Button(buttons, gettext("Abort")))
+        self.stop_button.activated.connect(self.on_stop_button)
 
-        self.set_size(self.layout.get_min_size())
-        self.center_on_parent()
+        # hor_layout.add_spacer(10)
+        # self.close_button = fsui.Button(self, _("Close"))
+        # self.close_button.activated.connect(self.on_close_button
+        # hor_layout.add(self.close_button)
+        # hor_layout.add_spacer(10)
+
+        # layout.add_spacer(10)
+
+        # self.set_size(layout.get_min_size())
+        # self.center_on_parent()
 
         self.old_title = ""
         self.old_status = ""
         self.has_started_scan = False
 
-        self.on_timer()
-        fsui.call_later(TIMER_INTERVAL, self.on_timer)
+        # self.on_timer()
+        # self.set_timer(TIMER_INTERVAL)
+        self.timer = fsui.IntervalTimer(TIMER_INTERVAL)
+        self.timer.activated.connect(self.on_timer)
+
         if not self.interactive:
             self.start_scan()
+
+    def __del__(self):
+        print("ScanDialog.__del__")
 
     def on_close(self):
         Scanner.stop_flag = True
@@ -117,35 +121,31 @@ class ScanDialog(fsui.Dialog):
         self.scan_progress_group.status_label.set_text(text)
 
     def on_timer(self):
-        fsui.call_later(TIMER_INTERVAL, self.on_timer)
-
         if not Scanner.running:
             if self.has_started_scan:
                 if Scanner.error:
-                    self.set_scan_title(_("Scan error"))
+                    self.set_scan_title(gettext("Scan error"))
                     self.set_scan_status(Scanner.error)
                 else:
                     if not self.interactive:
                         self.end_modal(True)
                         return
-                    self.set_scan_title(_("Scan complete"))
+                    self.set_scan_title(gettext("Scan complete"))
                     self.set_scan_status(
-                        _("Click 'Scan' button if you want to re-scan"))
+                        gettext("Click 'Scan' button if you want to re-scan"))
             else:
-                self.set_scan_title(_("No scan in progress"))
-                self.set_scan_status(_("Click 'Scan' button to start scan"))
+                self.set_scan_title(gettext("No scan in progress"))
+                self.set_scan_status(
+                    gettext("Click 'Scan' button to start scan"))
             if self.scan_button is not None:
                 self.scan_button.enable()
             self.stop_button.disable()
-            #self.close_button.enable()
+            # self.close_button.enable()
             return
 
         status = Scanner.status
         self.set_scan_title(status[0])
         self.set_scan_status(status[1])
-
-    #def on_rom_found(self, path, sha1):
-    #    self.text.append_text("found {0}\n".format(path))
 
     def on_scan_button(self):
         self.start_scan()
@@ -154,20 +154,20 @@ class ScanDialog(fsui.Dialog):
         if self.scan_button is not None:
             self.scan_button.disable()
         self.has_started_scan = True
-        self.set_scan_title(_("Starting scan"))
-        self.set_scan_status(_("Please wait..."))
+        self.set_scan_title(gettext("Starting scan"))
+        self.set_scan_status(gettext("Please wait..."))
         paths = ScanPathsGroup.get_search_path()
 
-        #self.close_button.disable()
+        # self.close_button.disable()
         self.stop_button.enable()
 
         Scanner.start(paths, scan_for_files=self.scan_for_files,
                       update_game_database=self.update_game_database,
                       purge_other_dirs=True)
 
-    #def on_close_button(self):
-    #    self.end_modal(False)
+    # def on_close_button(self):
+    #     self.end_modal(False)
 
     def on_stop_button(self):
         Scanner.stop_flag = True
-        #self.close_button.enable()
+        # self.close_button.enable()

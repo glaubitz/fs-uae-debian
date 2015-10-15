@@ -87,22 +87,26 @@ static int open_device (int unitnum, const TCHAR *ident, int flags)
     int result = 0;
     struct scsidevdata *sdd = &drives[unitnum];
 
-    DEBUG_LOG ("SCSIDEV: unit = %d: open_device %s\n", unitnum, ident);
-
-    DEBUG_LOG ("SCSIDEV: unit = %d, name = %s, fd = %d\n", unitnum, ident, sdd->fd);
-
+    uae_log("SCSIDEV: unit = %d, name = %s, fd = %d\n", unitnum, ident, sdd->fd);
     if (sdd->fd == -1) {
         sdd->name = ident;
-        if ((sdd->fd = open (sdd->name, O_RDONLY|O_NONBLOCK)) >= 0) {
-            DEBUG_LOG ("SCSIDEV: Successfully opened drive %s\n", sdd->name);
+        struct stat sb;
+        if (stat(sdd->name, &sb) == -1) {
+            uae_log("SCSIDEV: could not stat %s\n", sdd->name);
+        }
+        else if (S_ISREG(sb.st_mode)) {
+            uae_log("SCSIDEV: path is not a device\n");
+        }
+        else if ((sdd->fd = open (sdd->name, O_RDONLY|O_NONBLOCK)) >= 0) {
+            uae_log("SCSIDEV: Successfully opened drive %s\n", sdd->name);
             sdd->isatapi = is_atapi_drive (unitnum);
             result = 1;
         } else {
-            DEBUG_LOG ("SCSIDEV: Failed to open drive %s: %d\n", sdd->name, errno);
+            uae_log("SCSIDEV: Failed to open drive %s: %d\n", sdd->name, errno);
         }
     } else {
         /* already open */
-        DEBUG_LOG ("SCSIDEV: unit %d is already opened as %s.\n", unitnum, sdd->name);
+        uae_log("SCSIDEV: unit %d is already opened as %s.\n", unitnum, sdd->name);
         result = 1;
     }
     return result;
@@ -144,9 +148,9 @@ static int ismedia_ioctl ( int unitnum, int quick)
 
 static inline void dscsi(struct cdrom_generic_command *cmd)
 {
-    int i;
+#ifdef DEBUG_ME
     DEBUG_LOG("\t cmd:");
-    for (i = 0; i < 12; i++) DEBUG_LOG(" %02x", cmd->cmd[i]);
+    for (unsigned int i = 0; i < 12; i++) DEBUG_LOG(" %02x", cmd->cmd[i]);
     DEBUG_LOG("\n");
     DEBUG_LOG("\t  buffer: %p\n", cmd->buffer);
     DEBUG_LOG("\t  buflen: %d\n", cmd->buflen);
@@ -154,7 +158,7 @@ static inline void dscsi(struct cdrom_generic_command *cmd)
     DEBUG_LOG("\t  sense :");
     if (0 && cmd->sense) {
         uae_u8 *bp = (uae_u8 *)cmd->sense;
-        for (i = 0; i < sizeof(*cmd->sense); i++) {
+        for (unsigned int i = 0; i < sizeof(*cmd->sense); i++) {
             DEBUG_LOG(" %02x", bp[i]);
         }
     } else {
@@ -164,6 +168,7 @@ static inline void dscsi(struct cdrom_generic_command *cmd)
     DEBUG_LOG("\t  dir   : %d\n", cmd->data_direction);
     DEBUG_LOG("\t  quiet : %d\n", cmd->quiet);
     DEBUG_LOG("\t timeout: %d\n", cmd->timeout);
+#endif
 }
 
 static uae_u8 *execscsicmd_out (int unitnum, uae_u8 *cmd_data, int cmd_len)
@@ -255,12 +260,14 @@ static int execscsicmd_direct (int unitnum, struct amigascsi *as)
     int     scsi_cmd_len      = as->cmd_len;
     uae_u8  scsi_flags        = as->flags;
     uae_u8  scsi_status       = as->status;
+#ifdef DEBUG_ME
     uae_u8 *scsi_sense        = as->sensedata;
+#endif
     uae_u16 scsi_sense_len    = as->sense_len;
 
     int io_error;
     unsigned int senselen;
-    int parm, i;
+    int parm;
 
     uae_u8   *scsi_datap;
     uae_u8   *scsi_datap_org;
@@ -308,12 +315,8 @@ static int execscsicmd_direct (int unitnum, struct amigascsi *as)
 
     as->status = cmd.stat;
     if (cmd.stat != 0) {
-        int n;
-
 	io_error = 45;  /* HFERR_BadStatus */
-
 	as->actual = 0;
-
         memcpy(&as->sensedata[0], &sense, as->sense_len);
         as->sactual = as->sense_len;
     } else {
@@ -430,11 +433,6 @@ static int play_ioctl (int unitnum, int startlsn, int endlsn, int scan, play_sta
     return -1;
 }
 
-static int tobcd(int val)
-{
-    return (val % 10) | ((val / 10) << 4);
-}
-
 static int qcode_ioctl (int unitnum, uae_u8 *buf, int sector)
 {
     struct scsidevdata *sdd = unitisopen(unitnum);
@@ -476,15 +474,10 @@ void encode_l2 (uae_u8 *p, int address);
 
 static int read_block (struct scsidevdata *sdd, int unitnum, uae_u8 *data, int sector, int size, int sectorsize)
 {
-	DWORD len;
 	uae_u8 p[4096];
 	int ret;
-	int origsize = size;
-	int origsector = sector;
-	uae_u8 *origdata = data;
 	bool got;
 
-retry:
 	ret = 0;
 	while (size-- > 0) {
 		got = false;
@@ -551,7 +544,6 @@ static int rawread_ioctl(int unitnum, uae_u8 *data, int sector, int size, int se
     struct scsidevdata *sdd = unitisopen(unitnum);
     DEBUG_LOG ("SCSIDEV: unit = %d, rawread_ioctl\n", unitnum);
     if (sdd) {
-        int err;
         int ret = 0;
         uint8_t p[4096];
 
@@ -572,10 +564,10 @@ static int rawread_ioctl(int unitnum, uae_u8 *data, int sector, int size, int se
         } else {
             uae_u8 sectortype = extra >> 16;
             uae_u8 cmd9 = extra >> 8;
-            int sync = (cmd9 >> 7) & 1;
-            int headercodes = (cmd9 >> 5) & 3;
-            int userdata = (cmd9 >> 4) & 1;
-            int edcecc = (cmd9 >> 3) & 1;
+            // int sync = (cmd9 >> 7) & 1;
+            // int headercodes = (cmd9 >> 5) & 3;
+            // int userdata = (cmd9 >> 4) & 1;
+            // int edcecc = (cmd9 >> 3) & 1;
             int errorfield = (cmd9 >> 1) & 3;
             uae_u8 subs = extra & 7;
             if (subs != 0 && subs != 1 && subs != 2 && subs != 4)
@@ -724,6 +716,7 @@ static int toc_ioctl (int unitnum, struct cd_toc_head *tocout)
             t++;
             th->points++;
 
+#ifdef DEBUG_ME
             DEBUG_LOG("th: first_track %d (%d), last_track %d (%d)\n",
                     th->first_track, th->first_track_offset,
                     th->last_track, th->last_track_offset);
@@ -736,7 +729,7 @@ static int toc_ioctl (int unitnum, struct cd_toc_head *tocout)
                 DEBUG_LOG("%d: %02x track %d adr 0x%x ctrl 0x%x lsn %d\n",
                         i, t->point, t->track, t->adr, t->control, t->paddress);
             }
-
+#endif
             memcpy(tocout, th, sizeof (struct cd_toc_head));
             return 1;
         }
@@ -782,7 +775,7 @@ struct device_functions devicefunc_scsi_linux_raw = {
     0,             /* scsiemu_func scsiemu; */
 };
 
-struct device_functions devicefunc_scsi_linux_ioctl = {
+struct device_functions devicefunc_scsi_ioctl = {
     _T("IOCTL"),
     open_bus, /* open_bus_func     openbus; */
     close_bus, /* close_bus_func    closebus; */
@@ -809,5 +802,9 @@ struct device_functions devicefunc_scsi_linux_ioctl = {
     ismedia_ioctl, /* ismedia_func ismedia; */
     0,             /* scsiemu_func scsiemu; */
 };
+
+#else
+
+int uae_od_fs_blkdev_linux_dummy;
 
 #endif

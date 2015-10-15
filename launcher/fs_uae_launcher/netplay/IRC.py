@@ -1,19 +1,16 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import sys
 import threading
-#import fsui as fsui
+
 from fsbc.Application import call_after
 from ..Settings import Settings
-from .oyoyo.client import IRCClient
-from .oyoyo import helpers
+from oyoyo.client import IRCClient
+from oyoyo import helpers
 from .CommandHandler import CommandHandler
 from .IRCBroadcaster import IRCBroadcaster
 from .IRCColor import IRCColor
 
+
+# noinspection PyUnusedLocal
 class IRC:
 
     running = False
@@ -21,6 +18,7 @@ class IRC:
     nick_number = 0
     channels = {}
     my_nick = ""
+    client = None
 
     # FIXME: should not be hardcoded here
     default_channel = "#lobby"
@@ -56,7 +54,7 @@ class IRC:
             print("new channel", repr(name))
             cls.channels[name] = Channel(name)
             print("channels are now", repr(cls.channels))
-            #cls.set_active_channel(name)
+            # cls.set_active_channel(name)
             IRCBroadcaster.broadcast("channel_list", {"added": name})
             return cls.channels[name]
 
@@ -75,7 +73,8 @@ class IRC:
         if cls.running:
             print("IRC.start - already running")
             return
-        threading.Thread(target=cls.irc_thread).start()
+        threading.Thread(target=cls.irc_thread,
+                         name="IRCThread").start()
         cls.running = True
 
     @classmethod
@@ -84,7 +83,7 @@ class IRC:
             return
         cls.stopping = True
         helpers.quit(cls.client, "Exited")
-        #cls.client.quit()
+        # cls.client.quit()
 
     @classmethod
     def irc_thread(cls):
@@ -117,19 +116,21 @@ class IRC:
     def irc_main(cls):
         def func():
             cls.message("connecting to {0}...".format(
-                    cls.get_irc_server_host()))
+                cls.get_irc_server_host()))
         call_after(func)
 
-        cls.client = IRCClient(CommandHandler,
-                host=cls.get_irc_server_host(),
-                port=6667, nick=cls.generate_nick(True),
-                blocking=True,
-                connect_cb=cls.connect_callback)
+        cls.client = IRCClient(
+            CommandHandler,
+            host=cls.get_irc_server_host(),
+            port=6667,
+            nick=cls.generate_nick(True),
+            blocking=True,
+            connect_cb=cls.connect_callback)
         cls.client.handler = cls
         cls.connection = cls.client.connect()
 
         while not cls.stopping:
-            cls.connection.next()
+            next(cls.connection)
         print("irc_main done")
         cls.running = False
 
@@ -141,19 +142,22 @@ class IRC:
 
     @classmethod
     def post_message(cls, command, args):
+        # command = command.decode("UTF-8", errors="replace")
         if cls.stopping:
             print("ignoring message", command, "because we're stopping")
             return
-        #print("post_message", command, args)
-        #cls.on_message(command, args)
-        #print(command, args)
+        # print("post_message", command, args)
+        # cls.on_message(command, args)
+        # print(command, args)
+
         args = list(args)
-        for i, arg in enumerate(args):
-            if arg is not None:
-                args[i] = arg.decode("UTF-8", errors="replace")
+        # for i, arg in enumerate(args):
+        #     if arg is not None:
+        #         args[i] = arg.decode("UTF-8", errors="replace")
+
         def func():
-            #if IRC.broadcast(command, args):
-            #    return
+            # if IRC.broadcast(command, args):
+            #     return
             if cls.irc_server_message(command, args):
                 return
             name = "irc_" + command
@@ -164,6 +168,7 @@ class IRC:
                 pass
             else:
                 method(*args)
+
         call_after(func)
 
     @classmethod
@@ -249,11 +254,10 @@ class IRC:
         if len(args) >= 2:
             channel = args[0]
             message = " ".join(args[1:])
-            #cls.channel(channel).privmsg(message)
-            #cls.channel(channel).message("<{0}> {1}".format(cls.my_nick,
+            # cls.channel(channel).privmsg(message)
+            # cls.channel(channel).message("<{0}> {1}".format(cls.my_nick,
             #        message), IRCColor.MY_MESSAGE)
-            cls.client.send("privmsg {0} :{1}".format(channel,
-                    message))
+            cls.client.send("privmsg {0} :{1}".format(channel, message))
         else:
             cls.warning("usage: /msg <nick|channel> <message>")
 
@@ -262,9 +266,8 @@ class IRC:
         if len(args) >= 2:
             channel = args[0]
             message = " ".join(args[1:])
-            #cls.channel(channel).notice(message)
-            cls.client.send("notice {0} :{1}".format(channel,
-                    message))
+            # cls.channel(channel).notice(message)
+            cls.client.send("notice {0} :{1}".format(channel, message))
         else:
             cls.warning("usage: /notice <nick|channel> <message>")
 
@@ -279,7 +282,7 @@ class IRC:
     def command_slap(cls, args):
         if len(args) == 1:
             message = "slaps {0} around a bit with a large trout".format(
-                    args[0])
+                args[0])
             cls.channel(cls.active_channel).action(message)
         else:
             cls.warning("usage: /slap <nick>")
@@ -291,8 +294,6 @@ class IRC:
             cls.channel(cls.active_channel).action(message)
         else:
             cls.warning("usage: /me <message>")
-
-
 
     @classmethod
     def command_mode(cls, args):
@@ -343,9 +344,9 @@ class IRC:
 
     @classmethod
     def irc_server_message(cls, command, args):
-        if command in ["yourhost", "created",
-                "luserclient", "luserchannels", "luserme",
-                "n_local", "n_global", "luserconns", "motdstart",
+        if command in [
+                "yourhost", "created", "luserclient", "luserchannels",
+                "luserme", "n_local", "n_global", "luserconns", "motdstart",
                 "motd", "nomotd", "endofmotd"]:
             cls.message(args[2])
             return 1
@@ -363,7 +364,7 @@ class IRC:
         if password:
             cls.privmsg("nickserv", "identify {0}".format(password))
 
-        #cls.join("#support")
+        # cls.join("#support")
         cls.join("#lobby")
 
         # convenience for development...
@@ -385,8 +386,8 @@ class IRC:
         else:
             channel = IRC.filter_nick(sender)
         cls.channel(channel).on_privmsg(nick, message)
-        IRCBroadcaster.broadcast("privmsg", {"channel": channel,
-            "message": message, "nick": nick})
+        IRCBroadcaster.broadcast("privmsg", {
+            "channel": channel, "message": message, "nick": nick})
 
     @classmethod
     def irc_notice(cls, sender, destination, message):
@@ -399,16 +400,15 @@ class IRC:
         else:
             channel = cls.active_channel
         cls.channel(channel).on_notice(nick, message)
-        IRCBroadcaster.broadcast("notice", {"channel": channel,
-            "message": message, "nick": nick})
+        IRCBroadcaster.broadcast("notice", {
+            "channel": channel, "message": message, "nick": nick})
 
     @classmethod
     def irc_kick(cls, kicker, channel, who, why):
-        cls.channel(channel).on_kick(IRC.filter_nick(kicker),
-                who, why)
+        cls.channel(channel).on_kick(IRC.filter_nick(kicker), who, why)
 
     @classmethod
-    def irc_part(cls, who, channel, *args):
+    def irc_part(cls, who, channel, *_):
         cls.channel(channel).on_part(IRC.filter_nick(who))
 
     @classmethod
@@ -445,7 +445,7 @@ class IRC:
             cls.channel(destination).on_mode(IRC.filter_nick(who), args)
         else:
             cls.message("{0} set mode {1} {2}".format(
-                    who, destination, " ".join(args)))
+                who, destination, " ".join(args)))
 
     @classmethod
     def irc_quit(cls, who, reason):

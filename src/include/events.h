@@ -1,6 +1,3 @@
-#ifndef EVENTS_H
-#define EVENTS_H
-
  /*
   * UAE - The Un*x Amiga Emulator
   *
@@ -12,6 +9,17 @@
   * Copyright 1995-1998 Bernd Schmidt
   */
 
+#ifndef UAE_EVENTS_H
+#define UAE_EVENTS_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#include "uae/inline.h"
+#include "options.h"
+// FIXME: move CYCLE_UNIT define here instead
+#include "uae/cycleunit.h"
+#endif
+
 #undef EVENT_DEBUG
 
 #include "machdep/rpt.h"
@@ -21,10 +29,13 @@ extern int vsynctimebase, syncbase;
 extern void reset_frame_rate_hack (void);
 extern unsigned long int vsync_cycles;
 extern unsigned long start_cycles;
+extern int event2_count;
+extern bool event_wait;
 
 extern void compute_vsynctime (void);
 extern void init_eventtab (void);
 extern void do_cycles_ce (unsigned long cycles);
+extern void do_cycles_ce020 (unsigned long cycles);
 extern void events_schedule (void);
 extern void do_cycles_slow (unsigned long cycles_to_add);
 extern void do_cycles_fast (unsigned long cycles_to_add);
@@ -74,6 +85,8 @@ extern struct ev2 eventtab2[ev2_max];
 
 extern volatile bool vblank_found_chipset;
 extern volatile bool vblank_found_rtg;
+extern int hpos_offset;
+extern int maxhpos;
 
 STATIC_INLINE void cycles_do_special (void)
 {
@@ -108,10 +121,13 @@ STATIC_INLINE void set_cycles (unsigned long int x)
 #endif
 }
 
-STATIC_INLINE int current_hpos (void)
+STATIC_INLINE int current_hpos_safe (void)
 {
-    return (get_cycles () - eventtab[ev_hsync].oldcycles) / CYCLE_UNIT;
+    int hp = (get_cycles () - eventtab[ev_hsync].oldcycles) / CYCLE_UNIT;
+	return hp;
 }
+
+extern int current_hpos(void);
 
 STATIC_INLINE bool cycles_in_range (unsigned long endcycles)
 {
@@ -145,5 +161,4 @@ STATIC_INLINE void event2_remevent (int no)
 	eventtab2[no].active = 0;
 }
 
-
-#endif
+#endif // UAE_EVENTS_H

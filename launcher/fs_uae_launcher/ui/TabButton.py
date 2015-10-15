@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import fsui as fsui
 from .Constants import Constants
 from .Skin import Skin
@@ -22,7 +17,7 @@ class TabButton(fsui.Panel):
         fsui.Panel.__init__(self, parent, paintable=True)
         Skin.set_background_color(self)
         self.layout = fsui.VerticalLayout()
-        #self.set_background_color((0xdd, 0xdd, 0xdd))
+        # self.set_background_color((0xdd, 0xdd, 0xdd))
         self.set_min_width(Constants.TAB_WIDTH + left_padding + right_padding)
         self.set_min_height(Constants.TAB_HEIGHT)
         self.group_id = 0
@@ -43,11 +38,11 @@ class TabButton(fsui.Panel):
         TabPanel.draw_background(
             self, dc, selected=selected, hover=self.hover,
             button_style=(self.type == self.TYPE_BUTTON))
-        #TabPanel.draw_border(self, dc)
+        # TabPanel.draw_border(self, dc)
 
         x = self.left_padding + (self.size[0] - self.left_padding -
                                  self.right_padding - self.icon.size[0]) // 2
-        # subtracing two because of bottom border
+        # subtracting two because of bottom border
         y = (self.size[1] - 2 - self.icon.size[1]) // 2
         dc.draw_image(self.icon, x, y)
 
@@ -76,8 +71,8 @@ class TabButton(fsui.Panel):
         if self.type == self.TYPE_BUTTON:
             # FIXME: hack to avoid sticky hover due to mouse leave not
             # being sent if on_activate opens modal dialog
-            #self.hover = False
-            #self.refresh()
+            # self.hover = False
+            # self.refresh()
             self.on_activate()
 
     def on_activate(self):

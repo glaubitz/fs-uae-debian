@@ -1,22 +1,14 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from collections import defaultdict
-
 import os
 import sys
 import io
-import six
 import subprocess
+from collections import defaultdict
 from fsbc.Application import app
 from fsbc.system import windows, macosx
 from fsbc.task import current_task
-from fsbc.unicode import unicode_path
-from fsgs.FSGSDirectories import FSGSDirectories
 from fsgs.refreshratetool import RefreshRateTool
 from fsgs.FSGSDirectories import FSGSDirectories
-from fsgs.util.GameNameUtil import GameNameUtil
+from fsgs.util.gamenameutil import GameNameUtil
 
 
 class Port(object):
@@ -53,7 +45,7 @@ class GameRunner(object):
         self.__env = {}
         self.__args = []
 
-        self.config = defaultdict(six.text_type)
+        self.config = defaultdict(str)
         for key, value in app.settings.values.items():
             # FIXME: re-enable this check?
             # if key in Config.config_keys:
@@ -75,26 +67,26 @@ class GameRunner(object):
 
         # default current working directory for emulator
         self.cwd = self.create_temp_dir("cwd")
+        self.home = self.cwd
 
-    #self.inputs.append(self.create_input(
-    #        name='Controller {0}'.format(i + 1),
-    #        type='megadrive',
-    #        description='Gamepad'))
+    # self.inputs.append(self.create_input(
+    #         name='Controller {0}'.format(i + 1),
+    #         type='megadrive',
+    #         description='Gamepad'))
 
     def use_fullscreen(self):
-        #if app.settings["fullscreen"] == "0":
-        #    return False
-        #return True
-        if "--window" in sys.argv:
-            return False
-        if "--no-fullscreen" in sys.argv:
+        # FIXME: not a very nice hack to hard-code application name here...
+        if app.name == "fs-uae-arcade":
+            return True
+        if app.settings["fullscreen"] == "0":
             return False
         return True
 
     def use_vsync(self):
-        if "--no-vsync" in sys.argv:
-            return False
-        return True
+        # if "--no-vsync" in sys.argv:
+        #     return False
+        # return True
+        return self.config.get("video_sync") == "1"
 
     def use_doubling(self):
         return True
@@ -123,11 +115,11 @@ class GameRunner(object):
     def screenshots_name(self):
         return GameNameUtil.create_fs_name(self.get_name())
 
-    #def get_game_name(self):
-    #    return self.config["game_name"]
+    # def get_game_name(self):
+    #     return self.config["game_name"]
     #
-    #def get_variant_name(self):
-    #    return self.config["variant_name"]
+    # def get_variant_name(self):
+    #     return self.config["variant_name"]
 
     def get_platform_name(self):
         p = self.config["platform"].lower()
@@ -140,16 +132,42 @@ class GameRunner(object):
             return "CDTV"
         if p == "cd32":
             return "CD32"
-        raise Exception("Unrecgonized platform")
+        raise Exception("Unrecognized platform")
 
     def screen_size(self):
         refresh_rate_tool = RefreshRateTool()
+        # FIXME: screen size monitor size
         width = refresh_rate_tool.get_current_mode()["width"]
         height = refresh_rate_tool.get_current_mode()["height"]
-        if width > 2 * height:
-            print("width > 2 * height, assuming dual-monitor setup...")
-            return width // 2, height
+        # if width > 2 * height:
+        #     print("width > 2 * height, assuming dual-monitor setup...")
+        #     return width // 2, height
         return width, height
+
+    def screen_rect(self):
+        try:
+            desktop = app.qapplication.desktop()
+        except AttributeError:
+            # no QApplication, probably not running via QT
+            # FIXME: log warning
+            return 0, 0, 640, 480
+        screens = []
+        for i in range(desktop.screenCount()):
+            geometry = desktop.screenGeometry(i)
+            screens.append([geometry.x(), i, geometry])
+        screens.sort()
+        monitor = self.config.get("monitor", "")
+        if monitor == "left":
+            mon = 0
+        elif monitor == "middle-right":
+            mon = 2
+        elif monitor == "right":
+            mon = 3
+        else:  # middle-left
+            mon = 1
+        display = round(mon / 3 * (len(screens) - 1))
+        geometry = screens[display][2]
+        return geometry.x(), geometry.y(), geometry.width(), geometry.height()
 
     def get_screen_width(self):
         """deprecated"""
@@ -160,9 +178,9 @@ class GameRunner(object):
         return self.screen_size()[1]
 
     def get_name(self):
-        #return "{0} ({1}, {2})".format(
-        #    self.get_game_name(), self.get_platform_name(),
-        #    self.get_variant_name())
+        # return "{0} ({1}, {2})".format(
+        #     self.get_game_name(), self.get_platform_name(),
+        #     self.get_variant_name())
         return "{0} ({1}, {2})".format(
             self.fsgs.game.name, self.fsgs.game.platform.name,
             self.fsgs.game.variant.name)
@@ -190,11 +208,11 @@ class GameRunner(object):
             os.makedirs(state_dir)
         return state_dir
 
-    def get_game_file(self):
+    def get_game_file(self, config_key="cartridge"):
         if self.__game_temp_file is not None:
             return self.__game_temp_file.path
 
-        file_uri = self.config["cartridge"]
+        file_uri = self.config[config_key]
         # FIXME: create new API fsgs.file.path(file_uri), returns path
         # (and creates temp file if necessary)
         input_stream = self.fsgs.file.open(file_uri)
@@ -216,6 +234,12 @@ class GameRunner(object):
 
     def add_arg(self, *args):
         self.__args.extend(args)
+
+    def start_emulator_from_plugin_resource(
+            self, provide_name, args=None, env_vars=None):
+        resource = self.fsgs.plugins.find_executable(provide_name)
+        return self.start_emulator("", args=args, env_vars=env_vars,
+                                   executable=resource.path)
 
     def start_emulator(
             self, emulator, args=None, env_vars=None, executable=None,
@@ -245,23 +269,32 @@ class GameRunner(object):
 
         env = os.environ.copy()
         if self.use_fullscreen():
-            if env.get("FSGS_WINDOW", ""):
-                # FSGS_WINDOW already specified externally, so we just use
-                # the existing values...
-                pass
+            for key in ["FSGS_GEOMETRY", "FSGS_WINDOW"]:
+                if env.get(key, ""):
+                    # Already specified externally, so we just use
+                    # the existing values...
+                    pass
+                    print("using existing fullscreen window rect")
+                else:
+                    x, y, w, h = self.screen_rect()
+                    env[key] = "{0},{1},{2},{3}".format(x, y, w, h)
+            print("fullscreen rect:", env.get("FSGS_GEOMETRY", ""))
+
+            if self.config.get("fullscreen_mode", "") == "window":
+                print("using fullscreen window mode")
+                env["FSGS_FULLSCREEN"] = "window"
+            elif self.config.get("fullscreen_mode", "") == "fullscreen":
+                print("using fullscreen (legacy) mode")
+                env["FSGS_FULLSCREEN"] = "fullscreen"
             else:
-                x, y = 0, 0
-                w, h = self.screen_size()
-                env["FSGS_WINDOW"] = "{0},{1},{2},{3}".format(x, y, w, h)
+                print("using fullscreen desktop mode")
+                env["FSGS_FULLSCREEN"] = "desktop"
+        else:
+            print("using window mode (no fullscreen)")
+            env["FSGS_FULLSCREEN"] = ""
 
         env.update(self.__env)
-
-        #if env_vars or self.__env:
-        #    env = os.environ.copy()
-        #    env.update(env_vars)
-        #    env.update(self.__env)
-        #else:
-        #    env = None
+        env["HOME"] = self.home.path
 
         if env_vars:
             env.update(env_vars)
@@ -284,15 +317,15 @@ class GameRunner(object):
         return process
 
     def find_emulator_executable(self, name):
-        #if os.path.isdir("../fs-uae/src"):
-        #    # running from source directory, we then want to find locally
-        #    # compiled binaries if available
-        #    path = "../fs-uae/fs-uae"
-        #    if windows:
-        #        path += ".exe"
-        #    if os.path.isfile(path):
-        #        return path
-        #    raise Exception("Could not find development FS-UAE executable")
+        # if os.path.isdir("../fs-uae/src"):
+        #     # running from source directory, we then want to find locally
+        #     # compiled binaries if available
+        #     path = "../fs-uae/fs-uae"
+        #     if windows:
+        #         path += ".exe"
+        #     if os.path.isfile(path):
+        #         return path
+        #     raise Exception("Could not find development FS-UAE executable")
 
         if "/" in name:
             package, name = name.split("/")
@@ -338,7 +371,7 @@ class GameRunner(object):
 
         if package == name:
             for dir in os.environ["PATH"].split(":"):
-                dir = unicode_path(dir)
+                # dir = unicode_path(dir)
                 path = os.path.join(dir, name)
                 if os.path.exists(path):
                     return path
@@ -363,18 +396,18 @@ class GameRunner(object):
 
     def configure_vsync(self):
         print("\n" + "-" * 79 + "\n" + "CONFIGURE VSYNC")
-        #print("^" * 80)
+        # print("^" * 80)
         allow_vsync = self.use_vsync()
-        #if self.get_option('vsync'):
+        # if self.get_option('vsync'):
         if allow_vsync:
-            #try:
-            #    game_refresh = float(self.config["refresh_rate"])
-            #except Exception:
+            # try:
+            #     game_refresh = float(self.config["refresh_rate"])
+            # except Exception:
             game_refresh = self.get_game_refresh_rate() or 0.0
-                #if self.context.game.config.get('system', '') == 'NTSC':
-                #    game_refresh = 60.0
-                #else:
-                #    game_refresh = 50.0
+            # if self.context.game.config.get('system', '') == 'NTSC':
+            #     game_refresh = 60.0
+            # else:
+            #     game_refresh = 50.0
             refresh_rate_tool = RefreshRateTool(
                 game_platform=self.fsgs.game.platform.id,
                 game_refresh=round(game_refresh))

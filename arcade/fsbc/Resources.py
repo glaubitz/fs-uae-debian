@@ -1,15 +1,6 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
-import hashlib
-import traceback
-from pkg_resources import resource_filename, resource_stream
+from pkg_resources import resource_filename
 from .Application import Application
-from .Paths import Paths
-from fsbc.path import str_path
 
 
 class Resources(object):
@@ -21,17 +12,21 @@ class Resources(object):
 
     def resource_name(self, resource):
         if self.subdir:
-            #return os.path.join(self.subdir, resource)
+            # return os.path.join(self.subdir, resource)
             return self.subdir + "/" + resource
         return resource
 
     def stream(self, resource):
-        resource_name = self.resource_name(resource)
-        return resource_stream(self.package, str_path(resource_name))
-        #try:
-        #    return resource_stream(self.package, Paths.encode(resource_name))
-        #except Exception:
-        #    return open(self.path(resource), "rb")
+        # resource_name = self.resource_name(resource)
+        # return resource_stream(self.package, str_path(resource_name))
+        # try:
+        #     return resource_stream(self.package, Paths.encode(resource_name))
+        # except Exception:
+        #     return open(self.path(resource), "rb")
+        try:
+            return open(self.path(resource), "rb")
+        except FileNotFoundError:
+            raise LookupError(resource)
 
     def path(self, resource):
         print("looking up resource", resource)
@@ -40,47 +35,52 @@ class Resources(object):
         resource_name = self.resource_name(resource)
         print("resource_name", resource_name)
 
-        #relative_path = os.path.join(self.package, resource_name)
-        #try:
-        #    return application.data_file(relative_path)
-        #except LookupError:
-        #    pass
+        relative_path = os.path.join(self.package, resource_name)
+        try:
+            return application.data_file(relative_path)
+        except LookupError:
+            pass
 
         try:
             print("resource_filename(\"{0}\", \"{1}\")".format(
                 self.package, resource_name))
-            return resource_filename(self.package, Paths.encode(resource_name))
+            return resource_filename(self.package, resource_name)
+            # return resource_filename(
+            #     self.package, Paths.encode(resource_name))
         except Exception:
             pass
 
-        try:
-            sha1 = self.resource_sha1s[resource]
-        except KeyError:
-            stream = self.stream(resource)
-            data = stream.read()
-            sha1 = hashlib.sha1(data).hexdigest()
-            self.resource_sha1s[resource] = sha1
-        else:
-            data = None
+        raise LookupError(
+            "Cannot find resource {0}".format(repr(resource)))
 
-        _, ext = os.path.splitext(resource)
-        ext = ext or ".bin"
-        cache_path = os.path.join(application.cache_dir(), "Temp", sha1 + ext)
-        if not os.path.exists(cache_path):
-            if not os.path.exists(os.path.dirname(cache_path)):
-                os.makedirs(os.path.dirname(cache_path))
-            if data is None:
-                stream = self.stream(resource)
-                data = stream.read()
-            with open(cache_path + ".partial", "wb") as f:
-                f.write(data)
-            os.rename(cache_path + ".partial", cache_path)
-        return cache_path
+        # try:
+        #     sha1 = self.resource_sha1s[resource]
+        # except KeyError:
+        #     stream = self.stream(resource)
+        #     data = stream.read()
+        #     sha1 = hashlib.sha1(data).hexdigest()
+        #     self.resource_sha1s[resource] = sha1
+        # else:
+        #     data = None
 
-        #if not path or not os.path.exists(path):
-        #    raise LookupError(
-        #        "Cannot find resource {0}".format(repr(resource)))
-        #return path
+        # _, ext = os.path.splitext(resource)
+        # ext = ext or ".bin"
+        # cache_path = os.path.join(application.cache_dir(), "Temp", sha1 + ext)
+        # if not os.path.exists(cache_path):
+        #     if not os.path.exists(os.path.dirname(cache_path)):
+        #         os.makedirs(os.path.dirname(cache_path))
+        #     if data is None:
+        #         stream = self.stream(resource)
+        #         data = stream.read()
+        #     with open(cache_path + ".partial", "wb") as f:
+        #         f.write(data)
+        #     os.rename(cache_path + ".partial", cache_path)
+        # return cache_path
+
+        # if not path or not os.path.exists(path):
+        #     raise LookupError(
+        #         "Cannot find resource {0}".format(repr(resource)))
+        # return path
 
 
 # import os
@@ -138,7 +138,8 @@ class Resources(object):
 #
 # def resource_icon_stream(package_or_requirement, name, size):
 #     #print(name, size)
-#     resource_name = encode_path(u'res/icons/%dx%d/%s.png' % (size, size, name))
+#     resource_name = encode_path(u'res/icons/%dx%d/%s.png' % (
+#         size, size, name))
 #     return resource_stream(package_or_requirement, resource_name)
 #
 #

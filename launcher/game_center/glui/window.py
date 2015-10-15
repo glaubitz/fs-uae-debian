@@ -1,62 +1,44 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import os
 import sys
 import time
-from PIL import Image
-import pygame
-import threading
+import ctypes
 from collections import deque
 from fsgs.platform import PlatformHandler
 from game_center.resources import resources
-
-try:
-    # force include by py2exe
-    #noinspection PyUnresolvedReferences,PyProtectedMember
-    import pygame._view
-except ImportError:
-    pass
-from fsbc.Application import app
-from fsbc.system import windows, linux, macosx
-from fsgs.util.GameNameUtil import GameNameUtil
-from game_center.config import Config
+from fsbc.system import windows
+from fsgs.util.gamenameutil import GameNameUtil
 from game_center.gamecenter import GameCenter
 from game_center.main import Main
-from game_center.notification import Notification
-from game_center.resources import logger, _
-from game_center.glui.opengl import *
+from game_center.resources import logger
+from game_center.glui.opengl import gl, fs_emu_texturing, fs_emu_blending
 from game_center.glui.settings import Settings
-from game_center.glui.sdl import SDL_IsMinimized, SDL_Maximize
+from game_center.glui.sdl import SDL_IsMinimized
 from game_center.glui.imageloader import ImageLoader
-from game_center.glui.gamerunner import GameCenterRunner
 from game_center.glui.itemmenu import ItemMenu
-from game_center.glui.navigatable import Navigatable
 from game_center.glui.displaylists import DisplayLists
 from game_center.glui.bezier import Bezier
 from game_center.glui.input import InputHandler
 from game_center.glui.animation import AnimationSystem
 from game_center.glui.animation import AnimateValueBezier
-from game_center.glui.text import TextRenderer
 from game_center.glui.state import State
 from game_center.glui.render import Render
 from game_center.glui.notification import NotificationRender
-from game_center.glui.util import sort_configurations
-from game_center.glui.font import Font, BitmappedFont
+from game_center.glui.font import Font, BitmapFont
 from game_center.glui.items import MenuItem, AllMenuItem, NoItem, PlatformItem
 from game_center.glui.texture import Texture
 from game_center.glui.texturemanager import TextureManager
 from game_center.glui.constants import TOP_HEIGHT
 
+# FIXME: rename to manager or director or somethign
+main_window = None
 
-#ENABLE_VSYNC = Config.get_bool("Menu/VSync", True)
+# ENABLE_VSYNC = Config.get_bool("Menu/VSync", True)
 ENABLE_VSYNC = "--vsync" in sys.argv
-
-IDLE = Config.get_bool("Menu/Idle", 1)
-#Render.display_fps = pyapp.user.ini.get_bool("Menu/ShowFPS", False)
-LIGHTING = Config.get_bool("Menu/Lighting", False)
+ALWAYS_RENDER = True
+# IDLE = Config.get_bool("Menu/Idle", 1)
+IDLE = 1
+# Render.display_fps = pyapp.user.ini.get_bool("Menu/ShowFPS", False)
+# LIGHTING = Config.get_bool("Menu/Lighting", False)
+LIGHTING = False
 RENDER_DEBUG_SQUARES = 0
 SEARCH_CHARS = \
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -:.,"
@@ -71,8 +53,6 @@ real_display_height = 0
 current_menu = None
 last_menu = None
 last_game = None
-barcode_mode = False
-barcode_scanner = False
 
 
 def get_current_time():
@@ -97,23 +77,23 @@ def set_current_menu(menu):
     Render.dirty = True
 
 
-#WINDOWED_SIZE = [1024, 640]  # 16:10
-#WINDOWED_SIZE = (1024, 576)  # 16:9
-#WINDOWED_SIZE = [1024, 768]  # 4:3
-#WINDOWED_SIZE = [960, 540]  # 16:9
+# WINDOWED_SIZE = [1024, 640]  # 16:10
+# WINDOWED_SIZE = (1024, 576)  # 16:9
+# WINDOWED_SIZE = [1024, 768]  # 4:3
+# WINDOWED_SIZE = [960, 540]  # 16:9
 WINDOWED_SIZE = [1280, 720]  # 16:9
 
 
 RENDER_GAME = ["IMAGE", "REFLECTIONS", "SCREENSHOTS"]
 RENDER_GAME_OVERLAY = ["TITLE", "HEADER"]
 
-#USE_MENU_TRANSITIONS = pyapp.user.ini.get_bool("Menu/Transitions", True)
-#if "--disable-shaders" in sys.argv:
-#    USE_MENU_TRANSITIONS = False
+# USE_MENU_TRANSITIONS = pyapp.user.ini.get_bool("Menu/Transitions", True)
+# if "--disable-shaders" in sys.argv:
+#     USE_MENU_TRANSITIONS = False
 USE_MENU_TRANSITIONS = False
 FIELD_COLOR = 0.1
 WALL_COLOR = 0.0
-IDLE_EVENT = pygame.NUMEVENTS - 1
+# IDLE_EVENT = pygame.NUMEVENTS - 1
 DEFAULT_ITEM_BRIGHTNESS = 0.8
 
 
@@ -151,15 +131,14 @@ class Mouse(object):
 
     @classmethod
     def set_visible(cls, visible=True):
-        #if visible:
-        #    import traceback
-        #    traceback.print_stack()
-        if State.mouse_visible == visible:
-            return
-        if not visible:
-            cls.focus = None
-        pygame.mouse.set_visible(visible)
-        State.mouse_visible = visible
+        assert visible is not None
+        # if State.mouse_visible == visible:
+        #     return
+        # if not visible:
+        #     cls.focus = None
+        # pygame.mouse.set_visible(visible)
+        # State.mouse_visible = visible
+        print("Mouse.set_visible not implemented")
 
 
 def set_items_brightness(brightness, duration=1.0, delay=0.0):
@@ -172,18 +151,18 @@ def set_items_brightness(brightness, duration=1.0, delay=0.0):
 
 
 def compile_shader(source, shader_type):
-    shader = glCreateShaderObjectARB(shader_type)
-    glShaderSourceARB(shader, source)
-    glCompileShaderARB(shader)
+    shader = gl.glCreateShaderObjectARB(shader_type)
+    gl.glShaderSourceARB(shader, source)
+    gl.glCompileShaderARB(shader)
     try:
         status = ctypes.c_int()
-        glGetShaderiv(shader, GL_COMPILE_STATUS, ctypes.byref(status))
+        gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS, ctypes.byref(status))
         status = status.value
     except TypeError:
-        status = glGetShaderiv(shader, GL_COMPILE_STATUS)
+        status = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS)
     if not status:
         print_log(shader)
-        glDeleteObjectARB(shader)
+        gl.glDeleteObjectARB(shader)
         raise ValueError("Shader compilation failed")
     return shader
 
@@ -191,35 +170,40 @@ def compile_shader(source, shader_type):
 def compile_program(vertex_source, fragment_source):
     vertex_shader = None
     fragment_shader = None
-    program = glCreateProgram()
+    program = gl.glCreateProgram()
     if vertex_source:
         print("compile vertex shader")
-        vertex_shader = compile_shader(vertex_source, GL_VERTEX_SHADER)
-        glAttachShader(program, vertex_shader)
+        vertex_shader = compile_shader(vertex_source, gl.GL_VERTEX_SHADER)
+        gl.glAttachShader(program, vertex_shader)
     if fragment_source:
         print("compile fragment shader")
-        fragment_shader = compile_shader(fragment_source, GL_FRAGMENT_SHADER)
-        glAttachShader(program, fragment_shader)
-    glLinkProgram(program)
-    status = glGetProgramiv(program, GL_LINK_STATUS)
-    if status == GL_FALSE:
+        fragment_shader = compile_shader(fragment_source, gl.GL_FRAGMENT_SHADER)
+        gl.glAttachShader(program, fragment_shader)
+    gl.glLinkProgram(program)
+    status = gl.glGetProgramiv(program, gl.GL_LINK_STATUS)
+    if status == gl.GL_FALSE:
         print("could not link shader program")
-        print(glGetProgramInfoLog(program))
+        print(gl.glGetProgramInfoLog(program))
         sys.exit(1)
     if vertex_shader:
-        glDeleteShader(vertex_shader)
+        gl.glDeleteShader(vertex_shader)
     if fragment_shader:
-        glDeleteShader(fragment_shader)
+        gl.glDeleteShader(fragment_shader)
     return program
 
 
 def print_log(shader):
     length = ctypes.c_int()
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, ctypes.byref(length))
+    gl.glGetShaderiv(shader, gl.gl.GL_INFO_LOG_LENGTH, ctypes.byref(length))
     if length.value > 0:
-        shader_log = glGetShaderInfoLog(shader)
+        shader_log = gl.glGetShaderInfoLog(shader)
         print(shader_log)
         sys.exit(1)
+
+
+texture_program = None
+color_program = None
+premultiplied_texture_program = None
 
 
 def compile_programs():
@@ -276,213 +260,19 @@ gl_FragColor.b = s.b * opacity;
 
 def enable_texture_shader():
     fs_emu_blending(True)
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-    glUseProgram(texture_program)
+    gl.glBlendFunc(gl.GL_ONE, gl.GL_ONE_MINUS_SRC_ALPHA)
+    gl.glUseProgram(texture_program)
 
 
 def disable_shader():
-    glUseProgram(0)
+    gl.glUseProgram(0)
 
 
 def set_program(program):
     if not program:
-        glUseProgram(0)
+        gl.glUseProgram(0)
     else:
-        glUseProgram(program)
-
-
-class FrameBufferObject(object):  # Renderable, RendererBase):
-
-    def __init__(self, width=100, height=100):
-        self._transparent = True
-        self._has_transparency = True
-        self._width = width
-        self._height = height
-        self._fb = None
-        self._depth_rb = None
-        self._stencil_rb = None
-        self._texture = None
-
-    def __del__(self):
-        self.free()
-
-    def free(self):
-        if self._fb:
-            glDeleteFramebuffersEXT(1, self._fb)
-        if self._depth_rb:
-            glDeleteRenderbuffersEXT(1, self._depth_rb)
-        if self._stencil_rb:
-            glDeleteRenderbuffersEXT(1, self._stencil_rb)
-        if self._texture:
-            glDeleteTextures([self._texture])
-
-    def _create(self):
-        if self._fb is not None:
-            return
-
-        w = self._width
-        h = self._height
-        if self._transparent:
-            texture_format = GL_RGBA
-        else:
-            texture_format = GL_RGBA
-        texture_target = GL_TEXTURE_2D
-        fb = GLuint()
-        depth_rb = GLuint()
-        stencil_rb = GLuint()
-
-        glGenFramebuffersEXT(1, ctypes.byref(fb))
-        color_tex = Render.create_texture()
-        glGenRenderbuffersEXT(1, ctypes.byref(depth_rb))
-        glGenRenderbuffersEXT(1, ctypes.byref(stencil_rb))
-
-        fb = fb.value
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb)
-
-        # initialize color texture
-        glBindTexture(texture_target, color_tex)
-        glTexParameterf(texture_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexParameterf(texture_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexImage2D(
-            texture_target, 0, texture_format, w, h, 0, GL_RGB, GL_INT, None)
-        try:
-            # FIXME: An error seems to be thrown here on Windows, even
-            # though it seems to work...
-            glFramebufferTexture2DEXT(
-                GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, texture_target,
-                color_tex, 0)
-        except Exception:
-            pass
-
-        # initialize depth renderbuffer
-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb)
-        glRenderbufferStorageEXT(
-            GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, w, h)
-        glFramebufferRenderbufferEXT(
-            GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
-            depth_rb)
-
-        # initialize stencil renderbuffer
-        #glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, stencil_rb)
-        #glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_STENCIL_INDEX,
-        #        512, 512)
-        #glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
-        #        GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, stencil_rb)
-        glBindTexture(texture_target, 0)
-
-        # Check framebuffer completeness at the end of initialization.
-        status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
-        assert status == GL_FRAMEBUFFER_COMPLETE_EXT, str(status)
-        self._fb = fb
-        self._depth_rb = depth_rb
-        self._stencil_rb = stencil_rb
-        self._texture = color_tex
-
-    def bind(self):
-        if self._fb is None:
-            self._create()
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, self._fb)
-        #glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, self._depth_rb)
-
-    def unbind(self):
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-        #glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0)
-
-    def set_viewport(self):
-        glViewport(0, 0, self._width, self._height)
-        #pass
-
-    def render(self, opacity=1.0):
-        render_texture(
-            self._texture, -1.0, -1.0, 0, 2.0, 2.0, opacity=opacity,
-            transparent=False, is_premultiplied=True)
-
-
-def render_texture(texture, x, y, z, w, h, opacity=1.0, transparent=False,
-                   is_premultiplied=False):
-    if is_premultiplied:
-        set_program(premultiplied_texture_program)
-    else:
-        set_program(texture_program)
-    fs_emu_texturing(True)
-    glBindTexture(GL_TEXTURE_2D, texture)
-    glBegin(GL_QUADS)
-    glColor(1.0, 1.0, 1.0, opacity)
-    glTexCoord2f(0.0, 0.0)
-    glVertex3f(x, y, z)
-    glTexCoord2f(1.0, 0.0)
-    glVertex3f(x + w, y, z)
-    glTexCoord2f(1.0, 1.0)
-    glVertex3f(x + w, y + h, z)
-    glTexCoord2f(0.0, 1.0)
-    glVertex3f(x, y + h, z)
-    glEnd()
-    set_program(None)
-
-
-class ConfigMenu(Navigatable):
-
-    def __init__(self):
-        self.game = {}
-        self.items = []
-        self._index = 0
-        self.position = 0
-
-    def sort_items(self):
-        self.items = sort_configurations(self.items)
-
-        # # Cracked games score better, since these need no
-        # # manual lookup, etc.
-        # score_table = [
-        #     [" AGA ", -(2**16)], # amiga AGA version
-        #     [" cr ", -(2**15)], # cracked version
-        #     [" NTSC ", -(2**14)], # prefer NTSC version
-        # ]
-        # scored = []
-        # for item in self.items:
-        #     check = " " + item.replace(",", " ") + " "
-        #     score = 0
-        #     for p, s in score_table:
-        #         if p in check:
-        #             #scored.append((0, item))
-        #             score += s
-        #     # prefer shortest configs, all else being equal
-        #     score += len(item)
-        #     scored.append((score, item))
-        #     #scored.append(1, item)
-        # scored.sort()
-        # self.items[:] = [x[1] for x in scored]
-
-    def get_index(self):
-        return self._index % len(self.items)
-
-    def set_index(self, index):
-        self._index = index
-
-    index = property(get_index, set_index)
-
-    def go_up(self):
-        if self._index == 0:
-            State.down_navigatable = self
-            State.navigatable = State.top_menu
-        else:
-            self._index -= 1
-
-    def go_down(self):
-        if self._index < len(self.items) - 1:
-            self._index += 1
-
-    def go_left(self, count=1):
-        pass
-
-    def go_right(self, count=1):
-        pass
-
-    def activate(self):
-        print("run game here")
-        game = self.game
-        game["config"] = self.items[self.index]
-        run_game(game)
+        gl.glUseProgram(program)
 
 
 def enter_menu(result, replace=False):
@@ -491,26 +281,12 @@ def enter_menu(result, replace=False):
 
     if replace:
         State.history.pop()
-    current_menu = State.history[-1]
-    result.parents[:] = current_menu.parents
-    result.parents.append(current_menu)
+    c_menu = State.history[-1]
+    result.parents[:] = c_menu.parents
+    result.parents.append(c_menu)
     print("   menu parents    ", result.parents)
     State.history.append(result)
     set_current_menu(result)
-
-
-def get_last_created_games(max_count):
-    return [
-        "Heisann",
-        "og",
-        "hoppsann",
-        "og",
-        "fallerallera",
-        "for",
-        "vi",
-        "er",
-        "salige",
-    ]
 
 
 def create_main_menu():
@@ -526,19 +302,8 @@ def recreate_main_menu_if_necessary():
     set_current_menu(new_menu)
 
 
-def open_terminal():
-    import subprocess
-    process = subprocess.Popen(["xterm"])
-
-
 def show():
-    global barcode_mode
-    global barcode_scanner
     global current_menu
-    if "--barcode-mode" in sys.argv:
-        barcode_mode = True
-        barcode_scanner = True
-    #pyapp.app.require_wx_app()
 
     # fade_from is used on init_display, so we initialize this
     # color here. Set alpha to 2.0 to force 1 second of solid
@@ -550,11 +315,18 @@ def show():
         State.fade_from = (0.0, 0.0, 0.0, 2.0)
         State.fade_to = (0.0, 0.0, 0.0, 0.0)
     init_display()
+    if LIGHTING:
+        init_lighting()
+    init_textures()
+    init_fonts()
+
     if USE_MENU_TRANSITIONS:
         compile_programs()
-    init_input()
+
+    InputHandler.open()
+
     on_resize((Render.display_width, Render.display_height))
-    image_loader = ImageLoader()
+    image_loader = ImageLoader.get()
     image_loader.start()
     new_menu = create_main_menu()
     State.history.append(new_menu)
@@ -566,7 +338,7 @@ def show():
 
             platform_item = PlatformItem(platform_id)
             platform_menu.items.append(platform_item)
-            #platform_menu.set_selected_index(0, immediate=True)
+            # platform_menu.set_selected_index(0, immediate=True)
 
             new_menu = platform_item.activate(platform_menu)
             print(new_menu)
@@ -582,51 +354,67 @@ def show():
 
     State.fade_start = get_current_time()
     State.fade_end = get_current_time() + 2.000
-    # make a timer so that update events are sent to modules at least once
-    # every second
-    pygame.time.set_timer(IDLE_EVENT, 1000)
-    #pygame.event.set_blocked(pygame.MOUSEMOTION)
+
+    # # make a timer so that update events are sent to modules at least once
+    # # every second
+    # pygame.time.set_timer(IDLE_EVENT, 1000)
+
     State.start_time = get_current_time()
-    try:
-        the_main_loop()
-    finally:
-        image_loader.stop()
-    print(" --- start fade_quit ---")
-    fade_quit()
-    print(" --- show function is done ---")
 
 
 def init_fonts():
     NotificationRender.init()
-    liberation_sans_bold = resources.resource_filename(
-        "LiberationSans-Bold.ttf")
-    liberation_sans_narrow_bold = resources.resource_filename(
-        "LiberationSansNarrow-Bold.ttf")
-    vera_font_path = resources.resource_filename(
-        "VeraBd.ttf")
-    
-    Font.title_font = pygame.font.Font(
-        liberation_sans_bold, int(0.04 * Render.display_height))
-    
-    Font.subtitle_font = pygame.font.Font(
-        liberation_sans_bold, int(0.025 * Render.display_height))
-    #subtitle_font = pygame.font.Font(liberation_sans_narrow_bold,
-    #        int(0.03 * Render.display_height))
-    Font.small_font = pygame.font.Font(
-        liberation_sans_narrow_bold, int(0.025 * Render.display_height))
-    #subtitle_font = pygame.font.Font(vera_font_path,
-    #        int(0.05 * Render.display_height))
-    Font.main_path_font = pygame.font.Font(
-        liberation_sans_bold, int(0.025 * Render.display_height))
-    Font.list_subtitle_font = pygame.font.Font(
-        liberation_sans_bold, int(0.020 * Render.display_height))
-    Font.header_font = pygame.font.Font(
-        vera_font_path, int(0.06 * Render.display_height))
-#    InfoFrame.status_font = pygame.font.Font(vera_font_path,
-#            int(0.05 * Render.display_height))
 
-    BitmappedFont.title_font = BitmappedFont("title_font")
-    BitmappedFont.menu_font = BitmappedFont("menu_font")
+    BitmapFont.title_font = BitmapFont("title_font")
+    BitmapFont.menu_font = BitmapFont("menu_font")
+
+
+liberation_sans_bold_path = None
+liberation_sans_narrow_bold_path = None
+vera_font_path = None
+
+
+def reinit_fonts():
+    global liberation_sans_bold_path
+    global liberation_sans_narrow_bold_path
+    global vera_font_path
+
+    if liberation_sans_bold_path is None:
+        liberation_sans_bold_path = resources.resource_filename(
+            "LiberationSans-Bold.ttf")
+    if liberation_sans_narrow_bold_path is None:
+        liberation_sans_narrow_bold_path = resources.resource_filename(
+            "LiberationSansNarrow-Bold.ttf")
+    if vera_font_path is None:
+        vera_font_path = resources.resource_filename(
+            "VeraBd.ttf")
+
+    if Font.title_font is None:
+        Font.title_font = Font(
+            liberation_sans_bold_path, int(0.04 * Render.display_height))
+    if Font.subtitle_font is None:
+        Font.subtitle_font = Font(
+            liberation_sans_bold_path, int(0.025 * Render.display_height))
+    if Font.small_font is None:
+        Font.small_font = Font(
+            liberation_sans_narrow_bold_path, int(0.025 * Render.display_height))
+    if Font.main_path_font is None:
+        Font.main_path_font = Font(
+            liberation_sans_bold_path, int(0.025 * Render.display_height))
+    if Font.list_subtitle_font is None:
+        Font.list_subtitle_font = Font(
+            liberation_sans_bold_path, int(0.020 * Render.display_height))
+    if Font.header_font is None:
+        Font.header_font = Font(
+            vera_font_path, int(0.06 * Render.display_height))
+
+    Font.title_font.set_size(int(0.04 * Render.display_height))
+    Font.subtitle_font.set_size(int(0.025 * Render.display_height))
+    Font.small_font.set_size(int(0.025 * Render.display_height))
+    Font.main_path_font.set_size(int(0.025 * Render.display_height))
+    Font.list_subtitle_font.set_size(int(0.020 * Render.display_height))
+    Font.header_font.set_size(int(0.06 * Render.display_height))
+
 
 char_buffer = ""
 char_buffer_last_updated = 0
@@ -641,38 +429,31 @@ def handle_search_menu_on_character_press(char_buffer):
         if isinstance(current_menu, SearchResultsMenu):
             # collapse search menu
 
-            #if hasattr(current_menu, "search_text"):
+            # if hasattr(current_menu, "search_text"):
             print("setting current_menu (something with search)")
-            #set_current_menu(current_menu.parent_menu)
+            # set_current_menu(current_menu.parent_menu)
             go_back()
         else:
             current_menu.search_text = char_buffer
 
 
-#noinspection PyUnusedLocal
+# noinspection PyUnusedLocal
 def character_press(char):
-    if State.current_game: # or isinstance(current_menu, GameMenu):
+    print("character press", repr(char))
+    if State.current_game:  # or isinstance(current_menu, GameMenu):
         print("ignoring key press", repr(char))
         return
 
-    #global char_buffer
+    # global char_buffer
     char_buffer = current_menu.search_text
 
     global char_buffer_last_updated
     char_buffer_last_updated = State.time
-    print("character press", repr(char))
     # return
-    print("char")
 
     Render.dirty = True
     if char == "RETURN":
         print(char_buffer, len(char_buffer))
-        # if len(char_buffer) == 9 and barcode_scanner:
-        #     game_info = BarcodeSupport.process(char_buffer)
-        # if game_info:
-        #     activate_barcode_game(game_info)
-        #     char_buffer = ""
-        #     return True
         print("returning false")
         return False
     elif char == "BACKSPACE" or char == u"\b":
@@ -723,12 +504,12 @@ def create_search_results_menu(text):
             return False
     except AttributeError:
         pass
-    new_menu = SearchResultsMenu(_("Search Results"))
+    new_menu = SearchResultsMenu("Search Results")
     new_menu.search_text = text
     # words = [v.strip() for v in text.lower().split(" ")]
     # print "Creating search results for", words
     new_menu.top.append_left(
-        SearchTextItem(_("Search: {0}_".format(text))))
+        SearchTextItem("Search: {0}_".format(text)))
     # clause = []
     # args = []
     # for word in words:
@@ -740,13 +521,13 @@ def create_search_results_menu(text):
         new_menu.append(item)
     if len(new_menu) == 0:
         new_menu.append(NoItem("No Search Results"))
-    #if hasattr(current_menu, "search_text"):
-    #    # replace current search menu, not append to path
-    #    #new_menu.parent_menu = current_menu.parent_menu
-    #    replace = True
-    #else:
-    #    #new_menu.parent_menu = current_menu
-    #    replace = False
+    # if hasattr(current_menu, "search_text"):
+    #     # replace current search menu, not append to path
+    #     #new_menu.parent_menu = current_menu.parent_menu
+    #     replace = True
+    # else:
+    #     #new_menu.parent_menu = current_menu
+    #     replace = False
     replace = isinstance(current_menu, SearchResultsMenu)
     print("create search results menu")
     # set_current_menu(new_menu)
@@ -755,14 +536,18 @@ def create_search_results_menu(text):
 
 
 def rescan_games():
-    #global current_menu
+    # global current_menu
     print("rescan games -- currently disabled")
-    #GameScanner.scan()
-    #Render.dirty = True
+    # GameScanner.scan()
+    # Render.dirty = True
     pass
 
 
 def go_back():
+    c_menu = State.history[-1]
+    if hasattr(c_menu, "go_back"):
+        c_menu.go_back()
+        return
     State.history.pop()
     set_current_menu(State.history[-1])
 
@@ -788,28 +573,25 @@ def default_input_func(button):
         State.navigatable.activate()
 
     elif button == "BACK":
+        print("-- button is BACK -- ")
         if State.config_menu:
             State.config_menu = None
             set_current_menu(State.current_menu)
             set_items_brightness(0.66, duration=0.500)
         elif State.current_game is None and current_menu.search_text:
-            InputHandler.get_button() # clear OK status
+            InputHandler.get_button()  # clear OK status
             character_press("BACKSPACE")
         elif State.current_game:
             State.current_game = None
-            #if barcode_mode:
-            #    barcode_animation = None
-            #
-            #else:
-            game_fade_animation = AnimateValueBezier(
-                (MenuGameTransition, "value"),
-                1.0, State.time,
-                1.0, State.time + 0.133,
-                0.0, State.time + 0.133,
-                0.0, State.time + 0.400)
+            # game_fade_animation = AnimateValueBezier(
+            #     (MenuGameTransition, "value"),
+            #     1.0, State.time,
+            #     1.0, State.time + 0.133,
+            #     0.0, State.time + 0.133,
+            #     0.0, State.time + 0.400)
 
-        #elif can_navigate and current_menu.parent_menu:
-        #elif can_navigate and len(State.history) > 1:
+        # elif can_navigate and current_menu.parent_menu:
+        # elif can_navigate and len(State.history) > 1:
         elif len(State.history) > 1:
             go_back()
     elif button == "QUIT":
@@ -818,26 +600,11 @@ def default_input_func(button):
 
 def render_top():
     Render.hd_perspective()
-    glPushMatrix()
+    gl.glPushMatrix()
     transition = State.current_menu.top_menu_transition
-    glTranslate(0.0, (1.0 - transition) * 90, 0.9)
+    gl.glTranslate(0.0, (1.0 - transition) * 90, 0.9)
 
-    # fs_emu_blending(True)
-    # fs_emu_texturing(True)
-    # Texture.top_background.bind()
-    # glBegin(GL_QUADS)
-    # glColor3f(1.0, 1.0, 1.0)
-    # glTexCoord2f(0.0, 1.0)
-    # glVertex3f(0, 990, 0.0)
-    # glTexCoord2f(1.0, 1.0)
-    # glVertex3f(1920, 990, 0.0)
-    # glTexCoord2f(1.0, 0.0)
-    # glVertex3f(1920, 1080, 0.0)
-    # glTexCoord2f(0.0, 0.0)
-    # glVertex3f(0, 1080, 0.0)
-    # glEnd()
-
-    glTranslate(0.0, 0.0, 0.05)
+    gl.glTranslate(0.0, 0.0, 0.05)
 
     if State.top_menu == State.navigatable:
         selected_index = State.top_menu.get_selected_index()
@@ -871,237 +638,31 @@ def render_top():
         item.render_top_right(selected=selected)
         Mouse.items.append(item)
         index -= 1
-    glPopMatrix()
-    #fs_emu_blending(False)
-
-
-def barcode_games_add_random():
-    #for i in range(5):
-    #    # Try up to 5 times to get a "unique" game
-    #    game_info = GameList.get().get_random_game()
-    #    if game_info not in barcode_games:
-    #        break
-    ## game_info can be None if there is no registered game
-    #if game_info is not None:
-    #    barcode_games.append(game_info)
-    return
-
-
-barcode_games = []
-#barcode_time = 0.0
-
-
-class BarcodePosition(object):
-    value = -2.0
-
-
-#barcode_position = -2.0
-barcode_last_ticks = 0
-barcode_animation = None
-
-
-#def render_barcode_menu():
-#    #global barcode_position
-#    global barcode_time
-#    global barcode_last_ticks
-#    render_background()
-#    Render.standard_perspective()
-#
-#    t = get_current_time()
-#    dt = t - barcode_last_ticks
-#    if dt > 500:
-#        dt = 0
-#    barcode_last_ticks = t
-#
-#    while len(barcode_games) < 10:
-#        try:
-#            barcode_games_add_random()
-#        except IndexError:
-#            # No games
-#            break
-#
-#    if not barcode_animation:
-#        BarcodePosition.value -= dt / 4000.0
-#        while BarcodePosition.value < -3.2:
-#            BarcodePosition.value += 1.2
-#            if len(barcode_games) > 0:
-#                del barcode_games[0]
-#
-#    image_list = []
-#    for game_info in barcode_games:
-#        image_list.append(game_info.get_image_path())
-#    TextureManager.get().load_images(image_list)
-#
-#    glPushMatrix()
-#    #glRotatef(35.0, 0.0, 1.0, 0.0)
-#    glTranslate(0.0, 0.0, -2.5)
-#
-#    angle = 20.0
-#    if State.current_game:
-#        angle = 20.0 - 20 * MenuGameTransition.value
-#    glRotatef(angle, 0.0, 1.0, 0.0)
-#    #glRotatef(20.0, 0.0, 1.0, 0.0)
-#
-#    for i, game_info in enumerate(barcode_games):
-#        p = BarcodePosition.value + i * 1.2
-#        #print i, game_info, p
-#        glPushMatrix()
-#        #glTranslate(p, 0.0, -2.5)
-#        glTranslate(p, 0.0, 0.0)
-#        #glTranslate(image_offset[0], 0.0, 0.0)
-#        item = GameItem(game_info)
-#        item.render()
-#        glPopMatrix()
-#
-#    glPopMatrix()
-
-
-text_cache_history = []
-text_cache = {}
-
-
-def render_text(text, font, x, y, w=0, h=0, color=(1.0, 1.0, 1.0, 1.0),
-                shadow=False, shadow_color=(0, 0, 0)):
-
-    if not text:
-        return 0, 0
-    #if len(color) == 3:
-    #    color = (color[0], color[1], color[2], 1.0
-    try:
-        alpha = color[3]
-    except IndexError:
-        alpha = 1.0
-    color = (int(round(color[0] * 255)),
-            int(round(color[1] * 255)),
-            int(round(color[2] * 255)))
-
-    cache_key = (text, hash(font), color, alpha)
-    try:
-        text_cache_history.remove(cache_key)
-    except ValueError:
-        texture = None
-    else:
-        texture, txtsize = text_cache[cache_key]
-
-    fs_emu_blending(True)
-    glDisable(GL_DEPTH_TEST)
-
-    if texture:
-        glBindTexture(GL_TEXTURE_2D_ARB, texture)
-    else:
-        txtdata, txtsize = TextRenderer(font).Render.text(text, color)
-        texture = Render.create_texture()
-        glBindTexture(GL_TEXTURE_2D_ARB, texture)
-        glTexImage2D(GL_TEXTURE_2D_ARB, 0, GL_RGBA, txtsize[0],
-                txtsize[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, txtdata)
-        #glTexParameteri(GL_TEXTURE_2D_ARB, GL_TEXTURE_MIN_FILTER,
-        #        GL_LINEAR)
-        #glTexParameteri(GL_TEXTURE_2D_ARB, GL_TEXTURE_MAG_FILTER,
-        #        GL_LINEAR)
-    tw, th = txtsize[0] * State.ortho_pscalex, txtsize[1] * State.ortho_pscaley
-
-    tx = x
-    ty = y
-    if w > 0:
-        tx += (w - tw) / 2
-    if h > 0:
-        ty += (h - th) / 2
-    ts = 4 / Render.display_height  # Step
-
-    #glTexEnv(GL_TEXTURE_2D_ARB, GL_MODULATE)
-    glBegin(GL_QUADS)
-    glColor4f(alpha, alpha, alpha, alpha)
-
-    glTexCoord2f(0.0, 0.0)
-    glVertex2f(tx, ty)
-    glTexCoord2f(txtsize[0], 0.0)
-    glVertex2f(tx + tw, ty)
-    glTexCoord2f(txtsize[0], txtsize[1])
-    glVertex2f(tx + tw, ty + th)
-    glTexCoord2f(0.0, txtsize[1])
-    glVertex2f(tx, ty + th)
-
-    #glRasterPos2f(tx, ty)
-    #glDrawPixels(txtsize[0], txtsize[1], GL_RGBA, GL_UNSIGNED_BYTE, txtdata)
-    glEnd()
-    
-    glBindTexture(GL_TEXTURE_2D, 0)
-    #fs_emu_blending(False)
-    glEnable(GL_DEPTH_TEST)
-
-    text_cache_history.append(cache_key)
-    text_cache[cache_key] = texture, txtsize
-    if len(text_cache) > 50:
-        cache_key = text_cache_history.pop(0)
-        texture, txtsize = text_cache.pop(cache_key)
-        glDeleteTextures([texture])
-
-    # # FIXME:
-    # shadow = False
-    #
-    # glDisable(GL_DEPTH_TEST)
-    # fs_emu_blending(True)
-    # #text = current_menu.selected_item.title
-    # #if shadow:
-    # txtdata, txtsize = TextRenderer(font).Render.text(text, shadow_color)
-    # tw, th = txtsize[0] * ortho_pscalex, txtsize[1] * ortho_pscaley
-    # tx = x
-    # ty = y
-    # if w > 0:
-    #     tx = tx + (w - tw) / 2
-    # if h > 0:
-    #     ty = ty + (h - th) / 2
-    # #tx = 0 - tw / 2
-    # #ty = -0.67
-    # ts = 4 / Render.display_height # Step
-    # if shadow:
-    #     glPixelTransferf(GL_ALPHA_SCALE, 0.04)
-    #     for fx, fy in [(1, 1), (-1, -1), (1, -1), (-1, 1), (1, 0), (-1, 0),
-    #             (0, -1), (0, 1)]:
-    #         glRasterPos2f(tx - fx * ts, ty - fy * ts)
-    #         glDrawPixels(txtsize[0], txtsize[1], GL_RGBA, GL_UNSIGNED_BYTE,
-    #                 txtdata)
-    #     glPixelTransferf(GL_ALPHA_SCALE, 0.01)
-    #     for fx, fy in [(0, 2), (2, 0), (0, -2), (-2, 0),
-    #             (1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2),
-    #             (2, -1), (-1, -2), (-2, -1)]:
-    #         glRasterPos2f(tx - fx * ts, ty - fy * ts)
-    #         glDrawPixels(txtsize[0], txtsize[1], GL_RGBA, GL_UNSIGNED_BYTE,
-    #                 txtdata)
-    # glPixelTransferf(GL_ALPHA_SCALE, alpha)
-    # rendered = font.render(text, True, color)
-    # txtsize = rendered.get_size()
-    # txtdata = pygame.image.tostring(rendered, "RGBA", 1)
-    # glRasterPos2f(tx, ty)
-    # glDrawPixels(txtsize[0], txtsize[1], GL_RGBA, GL_UNSIGNED_BYTE, txtdata)
-    # #glPopAttrib()
-    # glPixelTransferf(GL_ALPHA_SCALE, 1.0)
-    # #fs_emu_blending(False)
-    # glEnable(GL_DEPTH_TEST)
-    return tw, th
+    gl.glPopMatrix()
 
 
 def render_config_menu():
     if not State.config_menu:
         return
+
     Render.ortho_perspective()
     config_menu = State.config_menu
-    #text = config_menu.items[config_menu.index]
-    #otw, th = Render.text(text, title_font,
-    #        -1.0, -0.93, 2.0, color=(1.0, 1.0, 1.0, 0.36 * strength))
-    #x = 0.0 + otw / 2 + CONFIG_SEPARATION
-    #for i in range(config_menu.index + 1, len(config_menu.items)):
-    #    text = config_menu.items[i]
-    #    tw, th = Render.text(text, title_font,
-    #            x, -0.93, color=(1.0, 1.0, 1.0, 0.36 * strength))
-    #    x += tw + CONFIG_SEPARATION
-    #x = 0.0 - otw / 2 - CONFIG_SEPARATION
+    # text = config_menu.items[config_menu.index]
+    # otw, th = Render.text(text, title_font,
+    #         -1.0, -0.93, 2.0, color=(1.0, 1.0, 1.0, 0.36 * strength))
+    # x = 0.0 + otw / 2 + CONFIG_SEPARATION
+    # for i in range(config_menu.index + 1, len(config_menu.items)):
+    #     text = config_menu.items[i]
+    #     tw, th = Render.text(text, title_font,
+    #             x, -0.93, color=(1.0, 1.0, 1.0, 0.36 * strength))
+    #     x += tw + CONFIG_SEPARATION
+    # x = 0.0 - otw / 2 - CONFIG_SEPARATION
     x = -0.55
     y = 0.8
     for i in range(len(config_menu.items)):
         text = config_menu.items[i].upper()
-        #tw, th = Render.measure_text(text, title_font)
-        #x -= tw + CONFIG_SEPARATION
+        # tw, th = Render.measure_text(text, title_font)
+        # x -= tw + CONFIG_SEPARATION
         y -= 0.15
         if i == config_menu.index and config_menu == State.navigatable:
             color = (1.0, 1.0, 1.0, 1.0)
@@ -1111,47 +672,56 @@ def render_config_menu():
 
 
 def render_scanning_status():
-    #Render.hd_perspective()
-    #text = GameScanner.get_status()
-    #Render.dirty = True
+    # Render.hd_perspective()
+    # text = GameScanner.get_status()
+    # Render.dirty = True
     #
-    #fs_emu_texturing(False)
+    # fs_emu_texturing(False)
     #
-    #z = 0.0
+    # z = 0.0
     #
-    #glBegin(GL_QUADS)
-    #glColor3f(0.0, 0.0, 0.0)
-    #glVertex3f(   0, 500, z)
-    #glVertex3f(1920, 500, z)
-    #glVertex3f(1920, 700, z)
-    #glVertex3f(   0, 700, z)
-    #glEnd()
+    # glBegin(GL_QUADS)
+    # glColor3f(0.0, 0.0, 0.0)
+    # glVertex3f(   0, 500, z)
+    # glVertex3f(1920, 500, z)
+    # glVertex3f(1920, 700, z)
+    # glVertex3f(   0, 700, z)
+    # glEnd()
     #
-    #Render.text(text, Font.title_font, 200, 600, color=(1.0, 1.0, 1.0, 1.0))
+    # Render.text(text, Font.title_font, 200, 600, color=(1.0, 1.0, 1.0, 1.0))
     #
-    #glBegin(GL_QUADS)
-    #glColor3f(1.0, 1.0, 1.0)
-    #x = 200
-    #y = 500
-    #z = 0.9
-    #x2 = 200 + 1520 * GameScanner.progress
-    #glVertex3f(x, y, z)
-    #glVertex3f(x2, y, z)
-    #glVertex3f(x2, y + 20, z)
-    #glVertex3f(x, y + 20, z)
-    #glEnd()
-    #fs_emu_texturing(True)
+    # glBegin(GL_QUADS)
+    # glColor3f(1.0, 1.0, 1.0)
+    # x = 200
+    # y = 500
+    # z = 0.9
+    # x2 = 200 + 1520 * GameScanner.progress
+    # glVertex3f(x, y, z)
+    # glVertex3f(x2, y, z)
+    # glVertex3f(x2, y + 20, z)
+    # glVertex3f(x, y + 20, z)
+    # glEnd()
+    # fs_emu_texturing(True)
     pass
 
 
 def do_render():
+    if current_menu is None:
+        return
+
+    current_menu.update()
+
     if RunTransition.value > 0.99:
         # do not render anything when running a game
         return
 
-    # try to exploit parallellism by uploading texture while rendering
+    if State.currently_ingame:
+        # print("currently ingame")
+        return
+
+    # try to exploit parallelism by uploading texture while rendering
     TextureManager.get().load_textures(1)
-    
+
     # clear mouseover rects -these will be calculated during rendering
     Mouse.items[:] = []
     Render.standard_perspective()
@@ -1171,15 +741,16 @@ def do_render():
             print("State.was_scanning")
             State.was_scanning = False
             # reload current menu
-            #if current_menu.parent_menu:
-            #    result = current_menu.parent_menu.selected_item.activate(
-            #            current_menu.parent_menu)
-            #    if isinstance(result, Menu):
-            #        #if len(result) == 0:
-            #        #    result.append(NoItem())
-            #        result.parent_menu = current_menu.parent_menu
-            #        print("set new menu (rescanned games)")
-            #        set_current_menu(result)
+
+            # if current_menu.parent_menu:
+            #     result = current_menu.parent_menu.selected_item.activate(
+            #             current_menu.parent_menu)
+            #     if isinstance(result, Menu):
+            #         #if len(result) == 0:
+            #         #    result.append(NoItem())
+            #         result.parent_menu = current_menu.parent_menu
+            #         print("set new menu (rescanned games)")
+            #         set_current_menu(result)
             recreate_main_menu_if_necessary()
 
     render_top()
@@ -1197,62 +768,47 @@ def render_fade(r=0.0, g=0.0, b=0.0, a=0.0):
     Render.hd_perspective()
     fs_emu_blending(True)
     fs_emu_texturing(False)
-    #glDisable(GL_DEPTH_TEST)
-    glBegin(GL_QUADS)
-    glColor4f(r * a, g * a, b * a, a)
-    #glVertex2f(State.gl_left, -1.0)
-    #glVertex2f(State.gl_right, -1.0)
-    #glVertex2f(State.gl_right,  1.0)
-    #glVertex2f(State.gl_left,  1.0)
-    glVertex2f(0, 0)
-    glVertex2f(1920, 0)
-    glVertex2f(1920, 1080)
-    glVertex2f(0, 1080)
-    glEnd()
-    #glEnable(GL_DEPTH_TEST)
-    #fs_emu_blending(False)
+    gl.glBegin(gl.GL_QUADS)
+    gl.glColor4f(r * a, g * a, b * a, a)
+    gl.glVertex2f(0, 0)
+    gl.glVertex2f(1920, 0)
+    gl.glVertex2f(1920, 1080)
+    gl.glVertex2f(0, 1080)
+    gl.glEnd()
 
 
 def render_global_fade():
-    #glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
-    #glPushMatrix()
-    #glTranslatef(0.0, 0.0, 0.99999)
-    #render_fade(1, 0, 0, 1.0)
-    #glPopMatrix()
-    #return
-
     t = State.time
     if State.fade_end >= t >= State.fade_start:
-        a = (t - State.fade_start) / \
-                (State.fade_end - State.fade_start)
+        a = (t - State.fade_start) / (State.fade_end - State.fade_start)
         if a < 0.0:
             a = 0.0
         elif a > 1.0:
             a = 1.0
-        #print(a)
-        #glClear(GL_DEPTH_BUFFER_BIT)
+
         Render.hd_perspective()
-        glPushMatrix()
-        glTranslatef(0.0, 0.0, 0.99999)
+        gl.glPushMatrix()
+        gl.glTranslatef(0.0, 0.0, 0.99999)
         fs_emu_blending(True)
         fs_emu_texturing(True)
-        Texture.splash.render(
-            (1920 - Texture.splash.w) // 2,
-            (1080 - Texture.splash.h) // 2, Texture.splash.w,
-            Texture.splash.h, opacity=(1.0 - a))
+        if State.fade_splash:
+            Texture.splash.render(
+                (1920 - Texture.splash.w) // 2,
+                (1080 - Texture.splash.h) // 2, Texture.splash.w,
+                Texture.splash.h, opacity=(1.0 - a))
         
         c = [0, 0, 0, (1.0 - a)]
-        #for i in range(4):
-        #    c[i] = State.fade_from[i] + \
-        #            (State.fade_to[i] - State.fade_from[i]) * a * (a)
+        # for i in range(4):
+        #     c[i] = State.fade_from[i] + \
+        #             (State.fade_to[i] - State.fade_from[i]) * a * (a)
         render_fade(*c)
-        glPopMatrix()
+        gl.glPopMatrix()
         Render.dirty = True
 
-#if Render.display_fps:
+
 FPS_FRAMES = 100
 render_times = deque()
-for i in range(FPS_FRAMES):
+for _ in range(FPS_FRAMES):
     render_times.append(0)
 
 fps_str = ""
@@ -1264,19 +820,19 @@ def render_debug_square():
     global debug_x
     Render.hd_perspective()
     fs_emu_texturing(False)
-    glBegin(GL_QUADS)
-    glColor3f(1.0, 1.0, 1.0)
+    gl.glBegin(gl.GL_QUADS)
+    gl.glColor3f(1.0, 1.0, 1.0)
     x = debug_x
     debug_x += 1
     if debug_x >= 1920:
         debug_x = 0
     y = 989
     z = 0.99
-    glVertex3f(x, y, z)
-    glVertex3f(x + 20, y, z)
-    glVertex3f(x + 20, y + 20, z)
-    glVertex3f(x, y + 20, z)
-    glEnd()
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x + 20, y, z)
+    gl.glVertex3f(x + 20, y + 20, z)
+    gl.glVertex3f(x, y + 20, z)
+    gl.glEnd()
     fs_emu_texturing(True)
 
 
@@ -1284,77 +840,80 @@ def render_debug_square_2():
     global debug_x_2
     Render.hd_perspective()
     fs_emu_texturing(False)
-    glBegin(GL_QUADS)
-    glColor3f(0.2, 0.2, 0.2)
+    gl.glBegin(gl.GL_QUADS)
+    gl.glColor3f(0.2, 0.2, 0.2)
     x = debug_x_2
     debug_x_2 += 1
     if debug_x_2 >= 1920:
         debug_x_2 = 0
     y = 989 + 5
     z = 0.99
-    glVertex3f(x, y, z)
-    glVertex3f(x + 20, y, z)
-    glVertex3f(x + 20, y + 10, z)
-    glVertex3f(x, y + 10, z)
-    glEnd()
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x + 20, y, z)
+    gl.glVertex3f(x + 20, y + 10, z)
+    gl.glVertex3f(x, y + 10, z)
+    gl.glEnd()
     fs_emu_texturing(True)
 
 
+# FIXME: remove / move some code away
 def swap_buffers():
-    global fps_str
-
-    Render.ortho_perspective()
-    #glPushMatrix()
-    #glTranslatef(0.0, 0.0, 0.5)
-
-    #if not fps_str:
-    #    fps_str = "WHY?"
-
-    if Render.display_fps or True:
-        if fps_str:
-            Render.text(fps_str, Font.main_path_font,
-                        -1.74, 0.82, h=0.1, color=(0.25, 0.25, 0.25, 1.0))
-    #glPopMatrix()
-
-    # FIXME: Why does not minimize from fullscreen work on ATI unless we render
-    # something here?
-    glBindTexture(GL_TEXTURE_2D, 0)
-    glPushMatrix()
-    glTranslate(2000.0, 0.0, 0.0)
-    glBegin(GL_QUADS)
-    glVertex2f(0.0, 0.0)
-    glVertex2f(1.0, 0.0)
-    glVertex2f(1.0, 1.0)
-    glVertex2f(0.0, 1.0)
-    glEnd()
-    glPopMatrix()
-
-    #fs_emu_blending(False)
-    #glEnable(GL_DEPTH_TEST)
-
-    #if Render.display_sync:
-    #    glFinish()
-
-    pygame.display.flip()
-    if Render.display_sync:
-        # give up time slice
-        time.sleep(0.001)
-        glFinish()
-
-    if Render.display_fps:
-        t = get_current_time()
-        render_times.append(t)
-        t0 = render_times.popleft()
-        if t0 > 0 and State.frame_number % 5 == 0:
-            time_diff = t - t0
-            #print("{0:0.2f}".format(300.0 / time_diff))
-            fps = FPS_FRAMES / time_diff
-            if fps >= 100:
-                fps_str = "FPS:  {0:0.0f}".format(fps)
-            else:
-                fps_str = "FPS: {0:0.1f}".format(fps)
-            #Render.text(fps_str, Font.title_font,
-            #        -1.0, 0.90, 2.0, shadow=True)
+    # global fps_str
+    #
+    # Render.ortho_perspective()
+    # #glPushMatrix()
+    # #glTranslatef(0.0, 0.0, 0.5)
+    #
+    # #if not fps_str:
+    # #    fps_str = "WHY?"
+    #
+    # if Render.display_fps or True:
+    #     if fps_str:
+    #         Render.text(fps_str, Font.main_path_font,
+    #                     -1.74, 0.82, h=0.1, color=(0.25, 0.25, 0.25, 1.0))
+    # #glPopMatrix()
+    #
+    # # FIXME: Why does not minimize from fullscreen work on ATI unless we render
+    # # something here?
+    # glBindTexture(GL_TEXTURE_2D, 0)
+    # glPushMatrix()
+    # glTranslate(2000.0, 0.0, 0.0)
+    # glBegin(GL_QUADS)
+    # glVertex2f(0.0, 0.0)
+    # glVertex2f(1.0, 0.0)
+    # glVertex2f(1.0, 1.0)
+    # glVertex2f(0.0, 1.0)
+    # glEnd()
+    # glPopMatrix()
+    #
+    # #fs_emu_blending(False)
+    # #glEnable(GL_DEPTH_TEST)
+    #
+    # #if Render.display_sync:
+    # #    glFinish()
+    #
+    # #pygame.display.flip()
+    # print("FIXME: not flipping")
+    #
+    # if Render.display_sync:
+    #     # give up time slice
+    #     time.sleep(0.001)
+    #     glFinish()
+    #
+    # if Render.display_fps:
+    #     t = get_current_time()
+    #     render_times.append(t)
+    #     t0 = render_times.popleft()
+    #     if t0 > 0 and State.frame_number % 5 == 0:
+    #         time_diff = t - t0
+    #         #print("{0:0.2f}".format(300.0 / time_diff))
+    #         fps = FPS_FRAMES / time_diff
+    #         if fps >= 100:
+    #             fps_str = "FPS:  {0:0.0f}".format(fps)
+    #         else:
+    #             fps_str = "FPS: {0:0.1f}".format(fps)
+    #         #Render.text(fps_str, Font.title_font,
+    #         #        -1.0, 0.90, 2.0, shadow=True)
     State.frame_number += 1
     Render.delete_textures()
 
@@ -1363,14 +922,14 @@ def render_screen():
     # set Render.dirty to False here, so that render functions can
     # request a new render frame by setting dirty
     Render.dirty = False
-    #glEnable(GL_SCISSOR_TEST)
-    #can_idle =
+    # glEnable(GL_SCISSOR_TEST)
+    # can_idle =
     if SDL_IsMinimized():
         time.sleep(0.01)
         return
-    #Render.dirty = True
-    glClearColor(0.0, 0.0, 0.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # Render.dirty = True
+    gl.glClearColor(0.0, 0.0, 0.0, 1.0)
+    gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
     do_render()
     if Render.display_fps:
         Render.dirty = True
@@ -1378,276 +937,243 @@ def render_screen():
         render_debug_square()
 
 
-#noinspection PyPep8Naming
+# noinspection PyPep8Naming
 def init_display():
     global display
-    global real_display_height, display_yoffset
-    #global banner_texture, shadow_texture, gloss_texture
-    #global top_texture, top_logo_texture, logo_texture
-    #global missing_cover_texture, default_item_texture
-    global backdrop_texture
+    global real_display_height  # , display_yoffset
+
+    # global banner_texture, shadow_texture, gloss_texture
+    # global top_texture, top_logo_texture, logo_texture
+    # global missing_cover_texture, default_item_texture
+    # global backdrop_texture
 
     logger.debug("Init OpenGL menu display")
-    #glClearColor(0.0, 0.0, 0.0, 1.0)
-    pygame.display.init()
-    pygame.font.init()
-    #resolution =(0, 0)
-    #flags = pygame.OPENGL | pygame.FULLSCREEN | pygame.DOUBLEBUF
 
     DisplayLists.clear()
 
-
-    #on_resize()
-    depth = 0
+    # on_resize()
+    # depth = 0
     # FIXME: HACK / TESTING
-    #if not Settings.fullscreen_menu:
+    # if not Settings.fullscreen_menu:
     #    if windows:
     #        os.environ["SDL_VIDEO_WINDOW_POS"] = "3,29"
     #    else:
     #        os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
-    maximize_window = (not Settings.fullscreen_menu and
-                       Settings.windowed_size is None)
+    # maximize_window = (not Settings.fullscreen_menu and
+    #                    Settings.windowed_size is None)
 
-    display_info = pygame.display.Info()
-    dw = display_info.current_w
-    dh = display_info.current_h
-    
-    if Settings.fullscreen_menu:
-        print("fullscreen is True")
-        if windows:
-            #resolution = (0, 0)
-            #flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME \
-            #        | pygame.FULLSCREEN
-            os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
-            flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME
-            #flags = flags | pygame.FULLSCREEN
-            #if fs.linux:
-            #    pass
-            #else:
-            if dw > dh * 2:
-                # Assume dual monitor setup - hack for Linux / SDL
-                resolution = (dw / 2, dh)
-            else:
-                resolution = (dw, dh)
-        else:  # fullscreen, but not microsoft windows
-            #resolution = (0, 0)
-            flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME #| pygame.FULLSCREEN
-            if dw > dh * 2:
-                # Assume dual monitor setup - hack for Linux / SDL
-                resolution = (dw / 2, dh)
-            else:
-                resolution = (dw, dh)
-            if linux:
-                overscan = Config.get("display/overscan", "0,0,0,0")
-                try:
-                    overscan = overscan.split(",")
-                    overscan = [int(x.strip()) for x in overscan]
-                    print("using overscan", overscan)
-                except Exception as e:
-                    print("error parsing overscan from config:", repr(e))
-                    overscan = [0, 0, 0, 0]
-                os.environ["SDL_VIDEO_WINDOW_POS"] = "{0},{1}".format(
-                    overscan[0], overscan[1])
-                resolution = (resolution[0] - overscan[0] - overscan[2],
-                              resolution[1] - overscan[1] - overscan[3])
-            elif macosx:
-                # FIXME: fullscreen mode does not work very well. -When
-                # opening a fullscreen emulator from fullscreen, the emulator
-                # crashes on glViewport. Tested with fs-amiga.
-                #flags |= pygame.FULLSCREEN
+    # display_info = pygame.display.Info()
+    # dw = display_info.current_w
+    # dh = display_info.current_h
+    # dw, dh = fsui.get_screen_size()
+    # dw, dh = 100, 100
+    Render.display_width = main_window.width
+    Render.display_height = main_window.height
 
-                # for now, we create an almost maximized window, works
-                # quite well when the dock is set to auto-hide
-                #resolution = (resolution[0], resolution[1] - 22)
+    # if Settings.fullscreen_menu:
+    #     print("fullscreen is True")
+    #     if windows:
+    #         #resolution = (0, 0)
+    #         #flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME \
+    #         #        | pygame.FULLSCREEN
+    #         os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+    #         flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME
+    #         #flags = flags | pygame.FULLSCREEN
+    #         #if fs.linux:
+    #         #    pass
+    #         #else:
+    #         if dw > dh * 2:
+    #             # Assume dual monitor setup - hack for Linux / SDL
+    #             resolution = (dw / 2, dh)
+    #         else:
+    #             resolution = (dw, dh)
+    #     else:  # fullscreen, but not microsoft windows
+    #         #resolution = (0, 0)
+    #         flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME #| pygame.FULLSCREEN
+    #         if dw > dh * 2:
+    #             # Assume dual monitor setup - hack for Linux / SDL
+    #             resolution = (dw / 2, dh)
+    #         else:
+    #             resolution = (dw, dh)
+    #         if linux:
+    #             overscan = Config.get("display/overscan", "0,0,0,0")
+    #             try:
+    #                 overscan = overscan.split(",")
+    #                 overscan = [int(x.strip()) for x in overscan]
+    #                 print("using overscan", overscan)
+    #             except Exception as e:
+    #                 print("error parsing overscan from config:", repr(e))
+    #                 overscan = [0, 0, 0, 0]
+    #             os.environ["SDL_VIDEO_WINDOW_POS"] = "{0},{1}".format(
+    #                 overscan[0], overscan[1])
+    #             resolution = (resolution[0] - overscan[0] - overscan[2],
+    #                           resolution[1] - overscan[1] - overscan[3])
+    #         elif macosx:
+    #             # FIXME: fullscreen mode does not work very well. -When
+    #             # opening a fullscreen emulator from fullscreen, the emulator
+    #             # crashes on glViewport. Tested with fs-amiga.
+    #             #flags |= pygame.FULLSCREEN
+    #
+    #             # for now, we create an almost maximized window, works
+    #             # quite well when the dock is set to auto-hide
+    #             #resolution = (resolution[0], resolution[1] - 22)
+    #
+    #             # FIXME: trying LSUIPresentationMode
+    #             os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+    #
+    #             # kUIModeNormal = 0
+    #             # kUIModeContentSuppressed = 1
+    #             # kUIModeContentHidden = 2
+    #             # kUIModeAllSuppressed = 4
+    #             kUIModeAllHidden = 3
+    #             kUIOptionAutoShowMenuBar = 1 << 0
+    #             # kUIOptionDisableAppleMenu = 1 << 2
+    #             # kUIOptionDisableProcessSwitch = 1 << 3
+    #             # kUIOptionDisableForceQuit = 1 << 4
+    #             # kUIOptionDisableSessionTerminate = 1 << 5
+    #             # kUIOptionDisableHide = 1 << 6
+    #
+    #             #noinspection PyUnresolvedReferences
+    #             import objc
+    #             #noinspection PyUnresolvedReferences
+    #             from Foundation import NSBundle
+    #             bundle = NSBundle.bundleWithPath_(
+    #                 "/System/Library/Frameworks/Carbon.framework")
+    #             objc.loadBundleFunctions(
+    #                 bundle, globals(),
+    #                 ((str("SetSystemUIMode"), str("III"), str("")),))
+    #             #noinspection PyUnresolvedReferences
+    #             SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar)
+    #
+    # else:
+    #     if windows and maximize_window and \
+    #             not Settings.window_decorations:
+    #         import ctypes
+    #         SPI_GETWORKAREA = 48
+    #
+    #         class RECT(ctypes.Structure):
+    #             _fields_ = [
+    #                 ("left", ctypes.c_ulong),
+    #                 ("top", ctypes.c_ulong),
+    #                 ("right", ctypes.c_ulong),
+    #                 ("bottom", ctypes.c_ulong)]
+    #
+    #         m = ctypes.windll.user32
+    #         r = RECT()
+    #         m.SystemParametersInfoA(SPI_GETWORKAREA, 0, ctypes.byref(r), 0)
+    #         x = int(r.left)
+    #         y = int(r.top)
+    #         w = int(r.right) - int(r.left)
+    #         h = int(r.bottom) - int(r.top)
+    #         print(x, y, w, h)
+    #         WINDOWED_SIZE[0] = w
+    #         WINDOWED_SIZE[1] = h
+    #         os.environ["SDL_VIDEO_WINDOW_POS"] = "{0},{1}".format(x, y)
+    #         State.allow_minimize = False
+    #
+    #     if Settings.windowed_size:
+    #         print("Settings.windowed_size", Settings.windowed_size)
+    #         WINDOWED_SIZE[0] = Settings.windowed_size[0]
+    #         WINDOWED_SIZE[1] = Settings.windowed_size[1]
+    #         Render.display_width = WINDOWED_SIZE[0]
+    #         Render.display_height = WINDOWED_SIZE[1]
+    #         #if dw > 1400:
+    #         #    Render.display_width = 1280
+    #         #    Render.display_height = 720
+    #     else:
+    #         Render.display_width = WINDOWED_SIZE[0]
+    #         Render.display_height = WINDOWED_SIZE[1]
+    #     resolution = (Render.display_width, Render.display_height)
+    #     #print(resolution)
+    #     #sys.exit(1)
+    #     if Settings.window_decorations:
+    #         flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
+    #     else:
+    #         flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME
+    #
+    # display_yoffset = 0
+    # Mouse.set_visible(False)
+    #
+    # pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, 8)
+    # pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE, 16)
+    #
+    # Render.display_sync = ENABLE_VSYNC
+    # if Render.display_sync:
+    #     print("enabling vertical sync")
+    #     os.environ["__GL_SYNC_TO_VBLANK"] = "1"
+    #     pygame.display.gl_set_attribute(pygame.GL_SWAP_CONTROL, 1)
+    # else:
+    #     os.environ["__GL_SYNC_TO_VBLANK"] = "0"
+    #     pygame.display.gl_set_attribute(pygame.GL_SWAP_CONTROL, 0)
+    # pygame.display.gl_set_attribute(pygame.GL_DOUBLEBUFFER, 1)
+    # fsaa = Config.get_int("video/fsaa", 0)
+    # if fsaa:
+    #     pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
+    #     pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, fsaa)
+    # print("pygame set display mode", resolution, flags, depth)
+    # display = pygame.display.set_mode(resolution, flags, depth)
+    # if not Settings.fullscreen_game:
+    #     try:
+    #         del os.environ["SDL_VIDEO_WINDOW_POS"]
+    #     except KeyError:
+    #         pass
+    #
+    # if app.name == "fs-uae-arcade":
+    #     pygame.display.set_caption("FS-UAE Arcade")
+    # else:
+    #     pygame.display.set_caption("FS Game Center")
+    #
+    # # FIXME: DISABLING MAXIMIZE FOR DEBUGGING
+    # #maximize_window = False
+    # if maximize_window:
+    #     print("maximizing window")
+    #     SDL_Maximize()
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.VIDEORESIZE:
+    #             #WINDOWED_SIZE[0] = event.w
+    #             #WINDOWED_SIZE[1] = event.h
+    #             on_resize((event.w, event.h))
+    #     print("DISPLAY.GET_SIZE", display.get_size())
+    # else:
+    #     on_resize(display.get_size())
 
-                # FIXME: trying LSUIPresentationMode
-                os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+    gl.glMatrixMode(gl.GL_MODELVIEW)
 
-                # kUIModeNormal = 0
-                # kUIModeContentSuppressed = 1
-                # kUIModeContentHidden = 2
-                # kUIModeAllSuppressed = 4
-                kUIModeAllHidden = 3
-                kUIOptionAutoShowMenuBar = 1 << 0
-                # kUIOptionDisableAppleMenu = 1 << 2
-                # kUIOptionDisableProcessSwitch = 1 << 3
-                # kUIOptionDisableForceQuit = 1 << 4
-                # kUIOptionDisableSessionTerminate = 1 << 5
-                # kUIOptionDisableHide = 1 << 6
+    gl.glBlendFunc(gl.GL_ONE, gl.GL_ONE_MINUS_SRC_ALPHA)
+    gl.glClearColor(*State.fade_from)
 
-                #noinspection PyUnresolvedReferences
-                import objc
-                #noinspection PyUnresolvedReferences
-                from Foundation import NSBundle
-                bundle = NSBundle.bundleWithPath_(
-                    "/System/Library/Frameworks/Carbon.framework")
-                objc.loadBundleFunctions(
-                    bundle, globals(),
-                    ((str("SetSystemUIMode"), str("III"), str("")),))
-                #noinspection PyUnresolvedReferences
-                SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar)
-
-    else:
-        if windows and maximize_window and \
-                not Settings.window_decorations:
-            import ctypes 
-            SPI_GETWORKAREA = 48
-
-            class RECT(ctypes.Structure): 
-                _fields_ = [
-                    ("left", ctypes.c_ulong),
-                    ("top", ctypes.c_ulong),
-                    ("right", ctypes.c_ulong),
-                    ("bottom", ctypes.c_ulong)]
-
-            m = ctypes.windll.user32
-            r = RECT() 
-            m.SystemParametersInfoA(SPI_GETWORKAREA, 0, ctypes.byref(r), 0)
-            x = int(r.left)
-            y = int(r.top)
-            w = int(r.right) - int(r.left)
-            h = int(r.bottom) - int(r.top)
-            print(x, y, w, h)
-            WINDOWED_SIZE[0] = w
-            WINDOWED_SIZE[1] = h
-            os.environ["SDL_VIDEO_WINDOW_POS"] = "{0},{1}".format(x, y)
-            State.allow_minimize = False
-
-        if Settings.windowed_size:
-            print("Settings.windowed_size", Settings.windowed_size)
-            WINDOWED_SIZE[0] = Settings.windowed_size[0]
-            WINDOWED_SIZE[1] = Settings.windowed_size[1]
-            Render.display_width = WINDOWED_SIZE[0]
-            Render.display_height = WINDOWED_SIZE[1]
-            #if dw > 1400:
-            #    Render.display_width = 1280
-            #    Render.display_height = 720
-        else:
-            Render.display_width = WINDOWED_SIZE[0]
-            Render.display_height = WINDOWED_SIZE[1]
-        resolution = (Render.display_width, Render.display_height)
-        #print(resolution)
-        #sys.exit(1)
-        if Settings.window_decorations:
-            flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
-        else:
-            flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.NOFRAME
-
-    display_yoffset = 0
-    #print Render.display_height, display_yoffset, real_display_height
-    #resolution = (1280, 1024)
-    #pygame.mouse.set_visible(False)
-    Mouse.set_visible(False)
-
-    pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, 8)
-    pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE, 16)
-    
-    Render.display_sync = ENABLE_VSYNC
-    if Render.display_sync:
-        print("enabling vertical sync")
-        os.environ["__GL_SYNC_TO_VBLANK"] = "1"
-        pygame.display.gl_set_attribute(pygame.GL_SWAP_CONTROL, 1)
-    else:
-        os.environ["__GL_SYNC_TO_VBLANK"] = "0"
-        pygame.display.gl_set_attribute(pygame.GL_SWAP_CONTROL, 0)
-    pygame.display.gl_set_attribute(pygame.GL_DOUBLEBUFFER, 1)
-    fsaa = Config.get_int("video/fsaa", 0)
-    if fsaa:
-        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
-        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, fsaa)
-    print("pygame set display mode", resolution, flags, depth)
-    display = pygame.display.set_mode(resolution, flags, depth)
-    if not Settings.fullscreen_game:
-        try:
-            del os.environ["SDL_VIDEO_WINDOW_POS"]
-        except KeyError:
-            pass
-
-#    if Settings.windowed_size is None:
-    if app.name == "fs-uae-arcade":
-        pygame.display.set_caption("FS-UAE Arcade")
-    else:
-        pygame.display.set_caption("FS Game Center")
-
-    #if not Settings.fullscreen_menu
-    #maximize_window = not Settings.fullscreen_menu
-
-    # FIXME: DISABLING MAXIMIZE FOR DEBUGGING
-    #maximize_window = False
-    if maximize_window:
-        print("maximizing window")
-        SDL_Maximize()
-        for event in pygame.event.get():
-            if event.type == pygame.VIDEORESIZE:
-                #WINDOWED_SIZE[0] = event.w
-                #WINDOWED_SIZE[1] = event.h
-                on_resize((event.w, event.h))
-        print("DISPLAY.GET_SIZE", display.get_size())
-    else:
-        on_resize(display.get_size())
-
-    #glScissor(0, display_yoffset, Render.display_width, Render.display_height)
-    glMatrixMode(GL_MODELVIEW)
-
-    #glClearColor(0.0, 0.0, 0.0, 1.0)
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-    glClearColor(*State.fade_from)
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #glClear(GL_DEPTH_BUFFER_BIT)
     fs_emu_texturing(True)
     Texture.splash = Texture("splash.png")
-    #Texture.splash = Texture("splash_alpha.png")
-    
-    #for i in range(10):
-    #    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #    Render.hd_perspective()
-    #    Texture.splash.render((1920 - Texture.splash.w) // 2,
-    #            (1080 - Texture.splash.h) // 2, Texture.splash.w,
-    #            Texture.splash.h)
-    #    pygame.display.flip()
-    
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #pygame.display.flip()
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #pygame.display.flip()
-    #Render.hd_perspective()
-    #Texture.splash.render((1920 - Texture.splash.w) // 2,
-    #        (1080 - Texture.splash.h) // 2, Texture.splash.w,
-    #        Texture.splash.h)
-    #pygame.display.flip()
 
-    for i in range(2):
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    for _ in range(2):
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         Render.hd_perspective()
         Texture.splash.render(
             (1920 - Texture.splash.w) // 2,
             (1080 - Texture.splash.h) // 2, Texture.splash.w,
             Texture.splash.h)
-        glFinish()
-        pygame.display.flip()
-        glFinish()
-    
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #render_background()
-    #pygame.display.flip()
+        gl.glFinish()
+        # pygame.display.flip()
+        gl.glFinish()
 
-    glEnable(GL_DEPTH_TEST)
-    #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    gl.glEnable(gl.GL_DEPTH_TEST)
 
+
+def init_textures():
     Texture.shadow = Texture.from_resource("shadow.png")
     Texture.shadow2 = Texture.from_resource("shadow2.png")
-    #Texture.gloss = Texture.from_resource("gloss.png")
+    # Texture.gloss = Texture.from_resource("gloss.png")
     Texture.gloss = Texture("gloss.png")
     Texture.screen_gloss = Texture("screen_gloss.png")
     Texture.static = Texture("preview_static0.png")
     Texture.default_item = Texture("default_item.png")
     Texture.missing_screenshot = Texture("missing_screenshot.png")
     Texture.missing_cover = Texture("missing_cover.png")
-    #path = os.path.join(fs.get_data_dir(), "logo.png")
-    #if os.path.exists(path):
-    #    im = Image.open(path)
-    #    Texture.logo = Texture.load(im)
-    #else:
+    # path = os.path.join(fs.get_data_dir(), "logo.png")
+    # if os.path.exists(path):
+    #     im = Image.open(path)
+    #     Texture.logo = Texture.load(im)
+    # else:
     Texture.logo = Texture.from_resource("logo.png")
     Texture.top = Texture.from_resource("top.png")
     Texture.top_logo = Texture("top_logo.png")
@@ -1682,55 +1208,48 @@ def init_display():
     Texture.glow_top_left = Texture("glow_top_left.png")
     Texture.glow_left = Texture("glow_left.png")
 
-    # FIXME: TEMPORARY - FOR TESTING, ONLY
-    path = "c:\\git\\fs-game-database\\Backdrops\\ffx.png"
-    if os.path.exists(path):
-        im = Image.open(path)
-        #im = resources.get_resource_image_pil("shadow.png")
-        assert im.size == (1024, 1024)
-        imdata = im.tostring("raw", "RGB")
-        backdrop_texture = Render.create_texture()
-        glBindTexture(GL_TEXTURE_2D, backdrop_texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, im.size[0], im.size[1], 0,
-                     GL_RGB, GL_UNSIGNED_BYTE, imdata)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-    else:
-        backdrop_texture = 0
-
-    #glActiveTextureARB(GL_TEXTURE1_ARB)
-    #glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
-    #glActiveTextureARB(GL_TEXTURE0_ARB)
-    if LIGHTING:
-        setup_lighting()
+    # # FIXME: TEMPORARY - FOR TESTING, ONLY
+    # path = "c:\\git\\fs-game-database\\Backdrops\\ffx.png"
+    # if os.path.exists(path):
+    #     im = Image.open(path)
+    #     #im = resources.get_resource_image_pil("shadow.png")
+    #     assert im.size == (1024, 1024)
+    #     imdata = im.tostring("raw", "RGB")
+    #     backdrop_texture = Render.create_texture()
+    #     glBindTexture(GL_TEXTURE_2D, backdrop_texture)
+    #     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, im.size[0], im.size[1], 0,
+    #                  GL_RGB, GL_UNSIGNED_BYTE, imdata)
+    #     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    #     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    # else:
+    #     backdrop_texture = 0
 
 
-def setup_lighting():
-    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE)
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)
-    glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR)
+def init_lighting():
+    gl.glLightModeli(gl.GL_LIGHT_MODEL_LOCAL_VIEWER, gl.GL_TRUE)
+    gl.glLightModeli(gl.GL_LIGHT_MODEL_TWO_SIDE, gl.GL_FALSE)
+    gl.glLightModeli(
+        gl.GL_LIGHT_MODEL_COLOR_CONTROL, gl.GL_SEPARATE_SPECULAR_COLOR)
 
     light_position = (0.0, 0.0, 3.0, 1.0)
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position)
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
-    glLightfv(GL_LIGHT0, GL_SPECULAR, (0.0, 0.0, 0.0, 1.0))
-    glEnable(GL_LIGHT0)
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, light_position)
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, (0.0, 0.0, 0.0, 1.0))
+    gl.glEnable(gl.GL_LIGHT0)
 
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.0, 0.0, 0.0, 1.0))
-    glLightfv(GL_LIGHT1, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
-    glEnable(GL_LIGHT1)
+    gl.glLightfv(gl.GL_LIGHT1, gl.GL_DIFFUSE, (0.0, 0.0, 0.0, 1.0))
+    gl.glLightfv(gl.GL_LIGHT1, gl.GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
+    gl.glEnable(gl.GL_LIGHT1)
 
-    glLightfv(GL_LIGHT2, GL_DIFFUSE, (0.0, 0.0, 0.0, 1.0))
-    glLightfv(GL_LIGHT2, GL_SPECULAR, (0.5, 0.5, 0.5, 1.0))
-    glEnable(GL_LIGHT2)
+    gl.glLightfv(gl.GL_LIGHT2, gl.GL_DIFFUSE, (0.0, 0.0, 0.0, 1.0))
+    gl.glLightfv(gl.GL_LIGHT2, gl.GL_SPECULAR, (0.5, 0.5, 0.5, 1.0))
+    gl.glEnable(gl.GL_LIGHT2)
 
-    glMaterialfv(GL_FRONT, GL_AMBIENT, (0.1, 0.1, 0.1, 1.0))
-    glMaterialfv(GL_FRONT, GL_SHININESS, (10,))
+    gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT, (0.1, 0.1, 0.1, 1.0))
+    gl.glMaterialfv(gl.GL_FRONT, gl.GL_SHININESS, (10,))
 
 
 def handle_videoresize_event(event):
-    # event.resize.w
-    # event.resize.h
     WINDOWED_SIZE[0] = event.w
     WINDOWED_SIZE[1] = event.h
     on_resize((event.w, event.h))
@@ -1750,24 +1269,25 @@ def on_resize(display_size):
     Settings.windowed_size = tuple(WINDOWED_SIZE)
 
     real_display_height = Render.display_height
-    #if Render.display_width / Render.display_height < 4 / 3:
+    # if Render.display_width / Render.display_height < 4 / 3:
     #    Render.display_height = int(Render.display_width / 4 * 3)
     #    display_yoffset = (real_display_height - Render.display_height) // 2
-    #else:
+    # else:
     display_yoffset = 0
-    #glViewport(0, 0, Render.display_width, real_display_height)
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #swap_buffers()
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #swap_buffers()
+    # glViewport(0, 0, Render.display_width, real_display_height)
+    # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # swap_buffers()
+    # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # swap_buffers()
     print(display_yoffset)
 
+    reinit_fonts()
+
     print(0, display_yoffset, Render.display_width, Render.display_height)
-    glViewport(0, display_yoffset, Render.display_width, Render.display_height)
+    gl.glViewport(
+        0, display_yoffset, Render.display_width, Render.display_height)
 
-    init_fonts()
-
-    aspect_ratio = max(4 / 3, (Render.display_width / Render.display_height))
+    # aspect_ratio = max(4 / 3, (Render.display_width / Render.display_height))
     factor = (Render.display_width / Render.display_height) / (1024 / 600)
     browse_curve = Bezier.bezier(
         (-5.0 * factor, -10.0),
@@ -1782,99 +1302,11 @@ def on_resize(display_size):
         (2.0 * factor, 0.00),
         steps=50
     )
-    #screenshot_curve = Bezier.bezier(
-    #        (0.0, 0.0),
-    #        (0.0, 0.25),
-    #        (1.0, 0.75),
-    #        (1.0, 1.0),
-    #        steps=50
-    #)
-    if USE_MENU_TRANSITIONS:
-        State.fbo = FrameBufferObject(
-            Render.display_width, Render.display_height)
+
+    # if USE_MENU_TRANSITIONS:
+    #    State.fbo = FrameBufferObject(
+    #        Render.display_width, Render.display_height)
     Render.dirty = True 
-
-
-def close_display():
-    logger.debug("Close OpenGL menu display")
-    #glDeleteTextures([banner_texture])
-    pygame.display.quit()
-
-
-def close_input():
-    InputHandler.close()
-
-
-def init_input():
-    InputHandler.open()
-
-
-def close_before_running_game():
-    logger.debug("close_before_running_game")
-    TextureManager.get().unload_textures()
-    close_display()
-    close_input()
-    logger.debug("close_before_running_game - done")
-
-
-def get_window_position():
-    return 0, 0
-
-
-def get_window_size():
-    #return (800, 600)
-    return Render.display_width, real_display_height
-
-
-def run_game(controller, on_status):
-    #global ku_background_path
-
-    #logger.info("Initiate game launch %s" % (game_info.full_id))
-    print("run game", controller, on_status)
-    #close_display()
-    #while True:
-    #    pyapp.app.main_loop()
-    #pygame.quit()
-    #app = wx.PySimpleApp()
-
-    #GameHistory().add_recently_played(game_info)
-
-    internal = True
-
-    if internal:
-        run_game_internal(controller, on_status)
-    else:
-        #run_game_with_launch_frame(controller, on_status)
-        print("FIXME: NOT IMPLEMENTED")
-
-
-def render_running_status(process, status):
-
-    #glClearColor(0.0, 0.0, 0.0, 1.0)
-    #glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    """
-    render_background()
-    what = RENDER_GAME[:]
-    what.remove("IMAGE")
-    render_game(current_game, what=what)
-    render_game(current_game, what=["SCREENSHOT_SHADOWS"])
-
-    glClear(GL_DEPTH_BUFFER_BIT)
-    render_background(alpha)
-    glClear(GL_DEPTH_BUFFER_BIT)
-    Render.standard_perspective()
-    glEnable(GL_DEPTH_TEST)
-    """
-
-    render_screen()
-
-    Render.ortho_perspective()
-    Render.text(status, Font.title_font,
-                -1.0, -0.67, 2.0, shadow=True)
-    Render.text(status, Font.subtitle_font,
-                -1.0, -0.83, 2.0, color=(1.0, 1.0, 1.0, 0.36))
-
-    swap_buffers()
 
 
 class LogoStrength(object):
@@ -1882,346 +1314,37 @@ class LogoStrength(object):
     value = 1.0
 
 
-def run_game_internal(controller, on_status):
-
-    game_runner = GameCenterRunner(controller=controller)
-
-    from game_center.glui.rundialog import RunDialog
-    State.dialog = RunDialog()
-    State.dialog_time = State.time
-
-    t1 = get_current_time()
-
-    # Using dictionary here to get correct scoping with variable access
-    # from sub-functions
-    # state_vars = {}
-    #state_vars["finished"] = False
-    run_state = {"stop_activity_thread": False}
-
-    def activity_thread():
-        print("------------------- activity thread")
-        while not run_state["stop_activity_thread"]:
-            GameCenter.register_user_activity()
-            time.sleep(5.0)
-    threading.Thread(target=activity_thread).start()
-
-    def show_run_error():
-        RunTransition.value = 0.0
-        RunTransition.anim = None
-        if State.dialog:
-            State.dialog.destroy()
-        from game_center.glui.errordialog import ErrorDialog
-        State.dialog = ErrorDialog(game_runner.error, game_runner.backtrace)
-        show_error_state = {"stop": False}
-        while not show_error_state["stop"]:
-
-            def input_func(button):
-                #print(State.quit)
-                if button == "BACK":
-                    show_error_state["stop"] = True
-                #if State.quit:
-                #    print("show_run_error.input_func, State.quit is True")
-                #    show_error_state["stop"] = True
-
-            if main_loop_iteration(input_func=input_func):
-                return back_to_menu()
-            #event = pygame.event.wait()
-            #main_loop_work()
-            #InputHandler.handle_event(event)
-            #if InputHandler.get_button() == "PRIMARY":
-            #    break
-            #if event.type == pygame.QUIT:
-            #    # FIXME: What should we do here?
-            #    sys.exit(1)
-            #render_screen()
-            #swap_buffers()
-
-            #elif event.type == pygame.VIDEOEXPOSE:
-            #    render_running_status(process, status)
-            #elif status != old_status:
-            #    render_running_status(process, status)
-            #    old_status = status
-
-    #def render_loop(process, abortable=False):
-    #    old_status = None
-    #    while not game_runner.done:
-    #        #print("...")
-    #        status = game_runner.status
-    #        event = pygame.event.wait()
-    #        main_loop_work()
-    #        InputHandler.handle_event(event)
-    #        if abortable:
-    #            if InputHandler.get_button() == "ABORT":
-    #                return "ABORT"
-    #        if event.type == pygame.QUIT:
-    #            # FIXME: What should we do here?
-    #            sys.exit(1)
-    #        elif event.type == pygame.VIDEOEXPOSE:
-    #            render_running_status(process, status)
-    #        elif status != old_status:
-    #            render_running_status(process, status)
-    #            old_status = status
-
-    def back_to_menu():
-        run_state["stop_activity_thread"] = True
-
-        if State.dialog:
-            State.dialog.destroy()
-        State.dialog = None
-        State.dialog_time = State.time
-
-        State.config_menu = None
-        set_current_menu(State.current_menu)
-        set_items_brightness(0.66, duration=0.500)
-
-        RunTransition.value = 0.0
-        RunTransition.anim = None
-        LogoStrength.anim = None
-        LogoStrength.value = 1.0
-
-        Render.zoom = 1.0
-        Render.offset_x = 0.0
-        Render.offset_y = 0.0
-
-        State.fade_start = get_current_time()
-        State.fade_end = get_current_time() + 2.0
-        # Use 2.0 here to force full black for 1 second
-        State.fade_from = (0.0, 0.0, 0.0, 2.0)
-        State.fade_to = (0.0, 0.0, 0.0, 0.0)
-
-        #while (State.time - State.dialog_time) < 0.5:
-        #    main_loop_work()
-        #    AnimationSystem.update()
-        #    render_screen()
-        #    swap_buffers()
-
-    def input_func(button):
-        #print("first_input_func")
-        if button == "BACK":
-            run_state["stop"] = True
-
-    print("> waiting for animation to settle...")
-    # main loop while waiting for animation to settle
-    run_state["stop"] = False
-    while (State.time - State.dialog_time) < ANIMATION_SETTLE_TIME_1:
-        #print(State.time > State.dialog_time)
-        Render.dirty = True
-        if main_loop_iteration(input_func=input_func):
-            return back_to_menu()
-        if run_state["stop"]:
-            # FIXME: will abort cancel prepare step also?
-            game_runner.abort()
-            print("cancelled game start")
-            return back_to_menu()
-
-    # prepare will unpack the game and prepare game files
-    game_runner.prepare()
-
-    print("> preparing...")
-    # main loop while preparing
-    while not game_runner.done:
-        Render.dirty = True
-        if main_loop_iteration(input_func=input_func):
-            return back_to_menu()
-        if game_runner.error:
-            show_run_error()
-            run_state["stop"] = True
-        if run_state["stop"]:
-            # FIXME: will abort cancel prepare step also?
-            game_runner.abort()
-            print("cancelled game start")
-            return back_to_menu()
-
-    # FIXME: ABORT IS NOT SUPPOSED TO BE USED HERE - IS USED
-    # FOR SPECIAL ABORT EMULATOR BUTTON COMBO. USE BACK
-    # TO STOP PREPARE PROCESS, ETC
-    #result = render_loop("Preparing", abortable=True)
-    #if result == "ABORT":
-    #    game_runner.abort()
-    #if game_runner.error:
-    #    show_error_message()
-    #while (State.time - State.dialog_time) < 1.0:
-    #    main_loop_work()
-    #    AnimationSystem.update()
-    #    render_screen()
-    #    swap_buffers()
-
-    print("> waiting for animation to settle (2)...")
-    # main loop while waiting for animation to settle
-    run_state["stop"] = False
-    while (State.time - State.dialog_time) < ANIMATION_SETTLE_TIME_2:
-        Render.dirty = True
-        if main_loop_iteration(input_func=input_func):
-            return back_to_menu()
-        if run_state["stop"]:
-            # FIXME: will abort cancel prepare step also?
-            game_runner.abort()
-            print("cancelled game start")
-            return back_to_menu()
-
-    #fade_run()
-
-    game_runner.configure()
-
-    print("> configuring...")
-    # main loop while configuring
-    while not game_runner.done:
-        Render.dirty = True
-        if main_loop_iteration(input_func=input_func):
-            return back_to_menu()
-        if game_runner.error:
-            show_run_error()
-            run_state["stop"] = True
-        if run_state["stop"]:
-            # FIXME: will abort cancel configure step also?
-            game_runner.abort()
-            print("cancelled game start")
-            return back_to_menu()
-
-    #State.fade_start = get_current_time()
-    #State.fade_end = get_current_time() + 1.0
-    #State.fade_from = (0.0, 0.0, 0.0, 0.0)
-    #State.fade_to = (0.0, 0.0, 0.0, 1.0)
-
-    t = get_current_time()
-    RunTransition.anim = AnimateValueBezier(
-        (RunTransition, "value"),
-        0.0, t + 0.000,
-        0.0, t + 0.000,
-        1.0, t + 1.000,
-        1.0, t + 1.000)
-
-    print("> fading screen...")
-    # main loop while fading screen
-    while RunTransition.value < 0.99:
-        Render.dirty = True
-        if main_loop_iteration(input_func=input_func):
-            return back_to_menu()
-        #if game_runner.error:
-        #    show_run_error()
-        #    run_state["stop"] = True
-        if run_state["stop"]:
-            # FIXME: will abort cancel configure step also?
-            game_runner.abort()
-            print("cancelled game start")
-            return back_to_menu()
-
-    # new input_func to be used when running game, responds to
-    # abort sequence only
-    def input_func(button):
-        #print("BUTTON", button)
-        if button == "ABORT":
-            run_state["stop"] = True
-
-    print("> running the game...")
-    # now, run the game and wait until the game is done
-    game_runner.run()
-    t = get_current_time()
-    while not game_runner.done:
-        if get_current_time() - t < 15.0:
-            # On Windows w/ATI, it seems that the emulator window will not
-            # be displayed until the game center window has been drawn at
-            # least once after the emulator has opened a fullscreen window.
-            # This does not happen on nVIDIA hardware. As a workaround, we
-            # render the game center screen for a while after starting
-            # the emulator
-            Render.dirty = True
-            if main_loop_iteration(input_func=input_func):
-                return back_to_menu()
-            if game_runner.error:
-                show_run_error()
-                run_state["stop"] = True
-            if run_state["stop"]:
-                print("aborting game")
-                game_runner.abort()
-                return back_to_menu()
-        else:
-            # FIXME: POSSIBLY RACE CONDITION HERE WHERE WE COULD WAIT
-            # ENDLESSLY FOR GAME TO END?
-            event = pygame.event.wait()
-            if event.type == pygame.VIDEOEXPOSE:
-                glClear(GL_COLOR_BUFFER_BIT)
-                swap_buffers()
-                
-            #time.sleep(0.5)
-    #    #result = render_loop("Running game", abortable=True)
-    #    #if result == "ABORT":
-    #    #    print("abort when in running game state")
-    #    #    game_runner.abort()
-    #    #    continue
-    #    #break
-    #if game_runner.error:
-    #    show_error_message()
-
-    # game completed successfully
-    return back_to_menu()
+def set_ingame_status():
+    # State.fade_start = State.time
+    # State.fade_end = State.time + 86400.0 * 365.0
+    # State.fade_from = (0.0, 0.0, 0.0, 0.0)
+    # State.fade_to = (0.0, 0.0, 0.0, 0.0)
+    # State.fade_splash = False
+    print("State.currently_ingame = True")
+    State.currently_ingame = True
 
 
-def fade_run():
-    #global ku_background_path
+def back_to_menu_from_game():
+    print("State.currently_ingame = False")
+    State.currently_ingame = False
 
-    class JumpOffset(object):
-        value = 0.0
+    set_items_brightness(0.66, duration=0.500)
 
-    t = get_current_time()
-    #RunTransition.anim = AnimateValueBezier(
-    #        (RunTransition, "value"),
-    #        0.0, t + 0.0,
-    #        0.0, t + 0.0,
-    #        1.0, t + 1500.0,
-    #        1.0, t + 1500.0)
-    RunTransition.anim = AnimateValueBezier(
-        (RunTransition, "value"),
-        0.0, t + 0.000,
-        0.7, t + 0.250,
-        1.0, t + 0.500,
-        1.0, t + 1.500)
+    RunTransition.value = 0.0
+    RunTransition.anim = None
+    LogoStrength.anim = None
+    LogoStrength.value = 1.0
 
-    start = t
-    duration = 1.500
-    alpha = 0.0
-    last_time = False
-    while True:
-        alpha = min(1.0, (get_current_time() - start) / duration)
-        AnimationSystem.update()
-        #glClear(GL_DEPTH_BUFFER_BIT)
+    Render.zoom = 1.0
+    Render.offset_x = 0.0
+    Render.offset_y = 0.0
 
-        render_screen()
-
-        if last_time:
-            # Do not flip here -- want to read pixels
-            break
-        if alpha >= 1.0:
-            last_time = True
-        swap_buffers()
-
-    #glPopAttrib()
-    #glDeleteTextures([banner_texture])
-
-    # FIXME: Distored image with GL_RGB -- why?
-
-    # screenpixels = glReadPixels(0, 0, display_width, real_display_height,
-    #         GL_RGBA, GL_UNSIGNED_BYTE)
-    #
-    # from PIL import Image
-    # im = Image.fromstring("RGBA", size=(display_width, real_display_height),
-    #         data=screenpixels)
-    # im = im.convert("RGB")
-    # im = im.transpose(Image.FLIP_TOP_BOTTOM)
-    #
-    # handle, ku_background_path = tempfile.mkstemp(".bmp")
-    # os.close(handle)
-    # im.save(ku_background_path)
-    # os.environ["KGS_BACKGROUND"] = ku_background_path
-    # screenpixels = im.tostring("raw", "RGB")
-    # #print type(screenpixels)
-    # #print len(screenpixels)
-    #
-    # image = wx.ImageFromData(display_width, real_display_height, screenpixels)
-    # bitmap = wx.BitmapFromImage(image)
-    # return bitmap
-    # #import sys
-    # #sys.exit(1)
+    State.fade_splash = True
+    State.fade_start = State.time
+    State.fade_end = State.time + 2.0
+    # Use 2.0 here to force full black for 1 second
+    State.fade_from = (0.0, 0.0, 0.0, 2.0)
+    State.fade_to = (0.0, 0.0, 0.0, 0.0)
 
 
 def fade_quit():
@@ -2237,16 +1360,16 @@ def fade_quit():
             Render.ortho_perspective()
             fs_emu_blending(True)
             fs_emu_texturing(False)
-            glDisable(GL_DEPTH_TEST)
-            glBegin(GL_QUADS)
-            glColor4f(0.0, 0.0, 0.0, alpha)
-            glVertex2f(-10.0, -1.0)
-            glVertex2f(10.0, -1.0)
-            glVertex2f(10.0, 1.0)
-            glVertex2f(-10.0, 1.0)
-            glEnd()
-            glEnable(GL_DEPTH_TEST)
-            #fs_emu_blending(False)
+            gl.glDisable(gl.GL_DEPTH_TEST)
+            gl.glBegin(gl.GL_QUADS)
+            gl.glColor4f(0.0, 0.0, 0.0, alpha)
+            gl.glVertex2f(-10.0, -1.0)
+            gl.glVertex2f(10.0, -1.0)
+            gl.glVertex2f(10.0, 1.0)
+            gl.glVertex2f(-10.0, 1.0)
+            gl.glEnd()
+            gl.glEnable(gl.GL_DEPTH_TEST)
+            # fs_emu_blending(False)
             fs_emu_texturing(True)
             swap_buffers()
             Render.dirty = True
@@ -2258,7 +1381,7 @@ def fade_quit():
 
 
 def default_render_func():
-    rendered = False 
+    # rendered = False
     
     time_str = time.strftime("%H:%M")
     if time_str != Render.last_time_str:
@@ -2266,50 +1389,54 @@ def default_render_func():
         Render.dirty = True
         Render.last_time_str = time_str
     
-    if Render.dirty:
-        #print(Render.frame_number)
+    if Render.dirty or ALWAYS_RENDER:
+        # print(Render.frame_number)
         render_screen()
-        rendered = True
+        # rendered = True
         Render.twice = False
-        #Render.twice = True
+        # Render.twice = True
     else:
         if not Render.twice:
             Render.twice = True
             render_screen()
-            rendered = True
+            # rendered = True
     if RENDER_DEBUG_SQUARES:
         render_debug_square_2()
-    #if not rendered:
-    #    pass
-    #time.sleep(0.01)
+    # if not rendered:
+    #     pass
+    # time.sleep(0.01)
     swap_buffers()
 
 
-def main_loop_iteration(input_func=default_input_func,
-                        render_func=default_render_func):
-    #print("main loop iteration")
-    #time.sleep(0.1)
-    #stop_loop = False
+def main_loop_iteration(
+        input_func=default_input_func, render_func=default_render_func):
+    # if State.currently_ingame:
+    #     print("currently ingame")
+    #     #return False
 
-    if State.idle_from and State.idle_from < get_current_time():
-        #print(State.idle_from)
-        if not Render.dirty:
-            #print("waiting for events...")
-            events = [pygame.event.wait()]
-        else:
-            events = pygame.event.get()
-    else:
-        events = pygame.event.get()
+    # print("main loop iteration")
+    # time.sleep(0.1)
+    # stop_loop = False
+
+    # if State.idle_from and State.idle_from < get_current_time():
+    #     #print(State.idle_from)
+    #     if not Render.dirty:
+    #         #print("waiting for events...")
+    #         events = [pygame.event.wait()]
+    #     else:
+    #         events = pygame.event.get()
+    # else:
+    #     events = pygame.event.get()
 
     State.time = get_current_time()
 
     Main.process()
 
-    t = State.time
+    # t = State.time
 
-    #if len(char_buffer) > 2 and t - char_buffer_last_updated > 0.5:
+    # if len(char_buffer) > 2 and t - char_buffer_last_updated > 0.5:
     # print(current_menu, isinstance(current_menu, ItemMenu))
-    #if isinstance(current_menu, ItemMenu):
+    # if isinstance(current_menu, ItemMenu):
     #
     #    # if len(char_buffer) > 2 and t - char_buffer_last_updated > 0.5:
     #    if len(char_buffer) > 2:
@@ -2329,154 +1456,151 @@ def main_loop_iteration(input_func=default_input_func,
             State.hide_mouse_time = 0
             Mouse.set_visible(False)
 
-    idle_events_only = True
+    # idle_events_only = True
 
-    for event in events:
+    for event in InputHandler.pop_all_events():
 
-        if event.type != IDLE_EVENT:
-            idle_events_only = False
-
-        if event.type == pygame.MOUSEMOTION:
-            if State.time - State.start_time < 1.0:
-                # ignore initial events
-                pass
-            elif not State.mouse_visible:
-                Mouse.set_visible(True)
-            State.hide_mouse_time = State.time + 0.250
-            mouse_x = event.pos[0] / Render.display_width * 1920
-            mouse_y = 1080 - event.pos[1] / Render.display_height * 1080
-            last_focus = Mouse.focus
-            for item in Mouse.items:
-                if not item.enabled:
-                    continue
-                if item.x <= mouse_x <= item.x + item.w and \
-                        item.y <= mouse_y <= item.y + item.h:
-                    Mouse.focus = item
-                    break
-            else:
-                Mouse.focus = None
-            if last_focus != Mouse.focus:
-                Render.dirty = True
-
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if State.mouse_visible:
-                if Mouse.focus:
-                    Mouse.focus.activate(State.current_menu)
-                    Render.dirty = True
-
-        if event.type == pygame.QUIT:
-            #command = pyapp.user.ini.get("Command/Shutdown", "").strip()
-            #if command:
-            #    # Do not allow ESC to quit if this causes a shutdown
-            #    pass
-            #else:
-            print("State.quit = True")
-            State.quit = True
+        # if event.type != IDLE_EVENT:
+        #     idle_events_only = False
+        #
+        # if event.type == pygame.MOUSEMOTION:
+        #     if State.time - State.start_time < 1.0:
+        #         # ignore initial events
+        #         pass
+        #     elif not State.mouse_visible:
+        #         Mouse.set_visible(True)
+        #     State.hide_mouse_time = State.time + 0.250
+        #     mouse_x = event.pos[0] / Render.display_width * 1920
+        #     mouse_y = 1080 - event.pos[1] / Render.display_height * 1080
+        #     last_focus = Mouse.focus
+        #     for item in Mouse.items:
+        #         if not item.enabled:
+        #             continue
+        #         if item.x <= mouse_x <= item.x + item.w and \
+        #                 item.y <= mouse_y <= item.y + item.h:
+        #             Mouse.focus = item
+        #             break
+        #     else:
+        #         Mouse.focus = None
+        #     if last_focus != Mouse.focus:
+        #         Render.dirty = True
+        #
+        # elif event.type == pygame.MOUSEBUTTONDOWN:
+        #     if State.mouse_visible:
+        #         if Mouse.focus:
+        #             Mouse.focus.activate(State.current_menu)
+        #             Render.dirty = True
+        #
+        # if event.type == pygame.QUIT:
+        #     #command = pyapp.user.ini.get("Command/Shutdown", "").strip()
+        #     #if command:
+        #     #    # Do not allow ESC to quit if this causes a shutdown
+        #     #    pass
+        #     #else:
+        #     print("State.quit = True")
+        #     State.quit = True
 
         InputHandler.handle_event(event)
 
-        if event.type == pygame.VIDEORESIZE:
-            handle_videoresize_event(event)
-        elif event.type == pygame.VIDEOEXPOSE:
-            Render.dirty = True
+        # if event.type == pygame.VIDEORESIZE:
+        #     handle_videoresize_event(event)
+        # elif event.type == pygame.VIDEOEXPOSE:
+        #     Render.dirty = True
+        #
+        # if event["type"] == "key-down":
+        #     # hack to make this work only when using the default
+        #     # input func
+        #     if input_func == default_input_func:
+        #         if event.key == pygame.K_F10:
+        #             if event.mod & pygame.KMOD_LCTRL:
+        #                 open_terminal()
+        #         if event.key == pygame.K_F5:
+        #             rescan_games()
+        #         if event.key == pygame.K_F6:
+        #             Render.display_fps = not Render.display_fps
+        #             Render.dirty = True
+        #             Notification("Display FPS:\n" + (
+        #                 "Enabled" if Render.display_fps else "Disabled"))
+        #         #         #elif char_buffer and event.key == pygame.K_RETURN:
+        #         #    if character_press("RETURN"):
+        #         #        # was handled
+        #         #        InputHandler.get_button() # clear OK status
+        #         #elif current_game is None and char_buffer and event.key == pygame.K_SPACE:
+        #         #    InputHandler.get_button() # clear OK status
+        #         #    character_press(" ")
+        #         #elif current_game is None and char_buffer and event.key == pygame.K_BACKSPACE:
+        #         #    InputHandler.get_button() # clear OK status
+        #         #    character_press("BACKSPACE")
+        #         elif event.unicode and event.unicode in SEARCH_CHARS:
+        #         #elif event.unicode:
+        #             #if event.key < pygame.K_KP0 or event.key > pygame.K_KP9:
+        #             #    #InputHandler.get_button() # clear SHIFT/button status
+        #             #    character_press(event.unicode)
 
-        if event.type == pygame.KEYDOWN:
-            # hack to make this work only when using the default
-            # input func
-            if input_func == default_input_func:
-                if event.key == pygame.K_F10:
-                    if event.mod & pygame.KMOD_LCTRL:
-                        open_terminal()
-                if event.key == pygame.K_F5:
-                    rescan_games()
-                if event.key == pygame.K_F6:
-                    Render.display_fps = not Render.display_fps
-                    Render.dirty = True
-                    Notification("Display FPS:\n" + (
-                        "Enabled" if Render.display_fps else "Disabled"))
+        if event["type"] == "text":
+            # if key was handled as a virtual button, only allow this
+            # character if already started typing something, or else
+            # navigating with X-Arcade may start searching for games
+            if InputHandler.peek_button():
+                if len(current_menu.search_text) > 0:
+                    character_press(event["text"])
+                    # reset InputHandler so that virtual button
+                    # is not processed, since we handled this press
+                    # as a char
+                    InputHandler.get_button()
+            else:
+                character_press(event["text"])
 
-                #elif char_buffer and event.key == pygame.K_RETURN:
-                #    if character_press("RETURN"):
-                #        # was handled
-                #        InputHandler.get_button() # clear OK status
-                #elif current_game is None and char_buffer and event.key == pygame.K_SPACE:
-                #    InputHandler.get_button() # clear OK status
-                #    character_press(" ")
-                #elif current_game is None and char_buffer and event.key == pygame.K_BACKSPACE:
-                #    InputHandler.get_button() # clear OK status
-                #    character_press("BACKSPACE")
-                #elif barcode_scanner and event.key == pygame.K_LSHIFT:
-                #    InputHandler.get_button() # clear SHIFT status
-                elif event.unicode and event.unicode in SEARCH_CHARS:
-                #elif event.unicode:
-                    #if event.key < pygame.K_KP0 or event.key > pygame.K_KP9:
-                    #    #InputHandler.get_button() # clear SHIFT/button status
-                    #    character_press(event.unicode)
-
-                    # key was handled as a virtual button, only allow this
-                    # character if already started typing something, or else
-                    # navigating with X-Arcade may start searching for games
-                    #print(InputHandler.peek_button())
-                    if InputHandler.peek_button():
-                        if len(current_menu.search_text) > 0:
-                            character_press(event.unicode)
-                            # reset InputHandler so that virtual button
-                            # is not processed, since we handled this press
-                            # as a char
-                            InputHandler.get_button()
-                    else:
-                        character_press(event.unicode)
-
-    InputHandler.update()
     AnimationSystem.update()
     NotificationRender.update()
+    #
+    # if idle_events_only:
+    #     # do not update State.idle_from
+    #     pass
+    # elif len(events) > 0:
+    #     #print(events)
+    #     if IDLE:
+    #         State.idle_from = State.time + IDLE
+    #         #print(State.idle_from)
 
-    if idle_events_only:
-        # do not update State.idle_from
-        pass
-    elif len(events) > 0:
-        #print(events)
-        if IDLE:
-            State.idle_from = State.time + IDLE
-            #print(State.idle_from)
-
-    if Render.dirty:
+    if Render.dirty or ALWAYS_RENDER:
         if Render.non_dirty_state:
             print("must start rendering again...")
         Render.non_dirty_state = False
         render_func()
     else:
-        if not Render.non_dirty_state:
-            print("pause rendering!")
-        Render.non_dirty_state = True
+        # if not Render.non_dirty_state:
+        #     print("pause rendering!")
+        # Render.non_dirty_state = True
+        Render.dirty = True
 
     button = InputHandler.get_button()
     if button:
-        #print("InputHandler.get_button", button, "input_func", input_func)
+        print("InputHandler.get_button", button, InputHandler.last_device)
         GameCenter.register_user_activity()
         if input_func:
             input_func(button)
         Render.dirty = True
     if InputHandler.repeat_info:
         Render.dirty = True
-    
-    #if IDLE:
+
+    # if IDLE:
     if AnimationSystem.is_active():
-        #State.idle_from = None
+        # State.idle_from = None
         Render.dirty = True
-        #elif State.idle_from is None:
-        #    State.idle_from = State.time + IDLE
+        # elif State.idle_from is None:
+        #     State.idle_from = State.time + IDLE
     if not IDLE:
         Render.dirty = True
-    #except KeyboardInterrupt:
-    #    print "KeyboardInterrupt"
-    #    return
-    #return stop_loop
+    # except KeyboardInterrupt:
+    #     print "KeyboardInterrupt"
+    #     return
+    # return stop_loop
 
     if not Render.display_sync:
         t = time.time()
         diff = t - Render.display_last_iteration
-        #print(diff)
+        # print(diff)
         frame_time = 1 / 60.0
         if diff < frame_time:
             # FIXME: use real refresh rate / frame time
@@ -2485,8 +1609,3 @@ def main_loop_iteration(input_func=default_input_func,
         Render.display_last_iteration = t
 
     return State.quit
-
-
-def the_main_loop():
-    while not State.quit:
-        main_loop_iteration()

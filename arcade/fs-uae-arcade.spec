@@ -1,6 +1,6 @@
 %define name fs-uae-arcade
-%define version 2.4.1
-%define unmangled_version 2.4.1
+%define version 2.6.1
+%define unmangled_version 2.6.1
 %define release 1%{?dist}
 
 Summary: Fullscreen game browser for FS-UAE
@@ -15,17 +15,16 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Frode Solheim <frode@fs-uae.net>
-Requires: fs-uae python-setuptools python-imaging pygame python-opengl
-BuildRequires: python-devel python-setuptools
-
-%define is_mandrake %(test -e /etc/mandrake-release && echo 1 || echo 0)
-%define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
-%define is_fedora %(test -e /etc/fedora-release && echo 1 || echo 0)
+Requires: python3-qt5 fs-uae python3-setuptools
+BuildRequires: python3-devel python3-setuptools
 
 %if 0%{?suse_version}
+%global __python  /usr/bin/python3
+%global __python3  /usr/bin/python3
 %else
 %if 0%{?mandriva_version}
 %else
+%global __python %{__python3}
 %endif
 %endif
 
@@ -40,15 +39,7 @@ FS-UAE Arcade is a fullscreen Amiga game browser for FS-UAE.
 make
 
 %install
-%{__python} setup.py install \
---prefix=%{_prefix} \
---root=%{buildroot} \
---install-lib=%{_prefix}/share/fs-uae-arcade \
---install-scripts=%{_prefix}/share/fs-uae-arcade
-make install DESTDIR=$RPM_BUILD_ROOT
-mkdir %{buildroot}/%{_prefix}/bin
-ln -s %{_prefix}/share/fs-uae-arcade/fs-uae-arcade \
-%{buildroot}/%{_prefix}/bin/fs-uae-arcade
+make install DESTDIR=%{buildroot} prefix=%{_prefix}
 
 %if 0%{?suse_version}
 # when building for openSUSE, a lint checker refuses to accept Game;Emulator;
@@ -57,7 +48,7 @@ sed -i "s/Categories=Game;Emulator;/Categories=System;Emulator;/g" \
 %endif
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
@@ -66,7 +57,6 @@ rm -rf $RPM_BUILD_ROOT
 %_datadir/doc/%{name}/
 %_datadir/applications/*.desktop
 %_datadir/icons/*/*/*/*.png
-# %_datadir/locale/*/*/*.mo
 
 %dir %_datadir/icons/hicolor
 %dir %_datadir/icons/hicolor/128x128

@@ -1,59 +1,33 @@
-#ifndef LIBAMIGA_WINUAE_COMPAT_H_
-#define LIBAMIGA_WINUAE_COMPAT_H_
+#ifndef UAE_OD_FS_WINUAE_COMPAT_H
+#define UAE_OD_FS_WINUAE_COMPAT_H
 
 #ifdef WINDOWS
-// including windef.h now to get RECT and DWORD defined (and not collide with
+
+// Include windef.h now to get RECT and DWORD defined (and not collide with
 // later includes of windows.h
+
 #include "windef.h"
 #include "windows.h"
-#undef _WIN32
-#undef WIN32
+
 #endif
 
-// use custom versions of these functions for platform-specific behaviour
+// Use custom versions of these functions for platform-specific behaviour,
+// for example uae_tfopen may perform charset conversion before opening the
+// file.
 
-#define _tfopen uae_fopen
+// #define _tfopen uae_tfopen
 #define _ftelli64 uae_ftello64
 #define _fseeki64 uae_fseeko64
 
-// convert windows libc names to standard libc function names
+// convert windows libc names to standard libc function names, and also
+// use char functions instead of wchar string functions.
 
-#define _stprintf sprintf
-#define _wunlink unlink
-#define _tcscspn strcspn
-#define _tcscmp strcmp
-#define _tcsncmp strncmp
-#define _tcslen strlen
-#define _tcscpy strcpy
-#define _tcsncpy strncpy
-#define _tcsdup strdup
-#define _tcscat strcat
-#define _tcsncat strncat
-#define _tcsspn strspn
-#define _tcsicmp strcasecmp
-#define _tcsnicmp strncasecmp
+#include "uae/string.h"
+
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
-#define _tcsrchr strrchr
-#define _tcschr strchr
-#define _istdigit isdigit
-#define _istspace isspace
-#define _istupper isupper
-#define _tcsstr strstr
-#define _tcsftime strftime
-#define _tcsftime strftime
-#define _tstol atol
-#define _tstof atof
-#define _tcstod strtod
-#define _tcstol strtol
-#define _strtoui64 strtoll
-#define _totupper toupper
-#define _totlower tolower
-#define _tcstok strtok
-#define _tstoi atoi
-#define _vsntprintf vsnprintf
-#define _vsnprintf vsnprintf
-#define _tprintf printf
+
+#define _wunlink unlink
 
 //#define _timezone timezone
 //#define _daylight daylight
@@ -70,7 +44,7 @@ extern int _daylight;
 
 // needed by e.g drawing.cpp
 
-#define NOINLINE
+// #define NOINLINE
 
 #ifndef WINDOWS
 
@@ -99,8 +73,6 @@ typedef struct tagRECT {
 //#endif
 #endif
 
-// needed by e.g. include/commpipe.h
+// #define STATIC_INLINE static inline
 
-#define STATIC_INLINE static inline
-
-#endif // LIBAMIGA_WINUAE_COMPAT_H_
+#endif // UAE_OD_FS_WINUAE_COMPAT_H

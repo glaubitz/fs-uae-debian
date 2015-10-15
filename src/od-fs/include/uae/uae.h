@@ -2,10 +2,15 @@
 #define LIBAMIGA_LIBAMIGA_H_
 
 #include <stdint.h>
+#include "uae/string.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Sets uaem metadata write flags based on chars in flags. You only need
+ * to call this function to set non-default behavior. */
+void uae_set_uaem_write_flags_from_string(const char *flags);
 
 int amiga_get_vsync_counter();
 void amiga_set_vsync_counter(int vsync_counter);
@@ -61,6 +66,7 @@ void amiga_set_save_state_compression(int compress);
 int amiga_enable_serial_port(const char *serial_name);
 
 void amiga_set_save_image_dir(const char *path);
+void amiga_set_module_ripper_dir(const char *path);
 
 int amiga_set_min_first_line(int line, int ntsc);
 
@@ -83,6 +89,8 @@ int amiga_floppy_set_file(int index, const char *file);
 
 int amiga_get_num_cdrom_drives();
 int amiga_get_num_floppy_drives();
+
+void amiga_cdrom_eject(int drive);
 const char *amiga_cdrom_get_file(int index);
 int amiga_cdrom_set_file(int index, const char *file);
 
@@ -138,37 +146,48 @@ typedef struct _RenderData {
     char line[AMIGA_MAX_LINES];
     int flags;
     void *(*grow)(int width, int height);
-    int refresh_rate;
+    double refresh_rate;
     int bpp;
 } RenderData;
 
 typedef void (*event_function)(int);
-typedef void (*init_function)(void);
-typedef void (*render_function)(RenderData *rd);
-typedef void (*display_function)();
-typedef void (*log_function)(const char *msg);
-typedef void (*amiga_led_function)(int led, int on);
-typedef void (*amiga_media_function)(int drive, const char *path);
-
 void amiga_set_event_function(event_function function);
+
+typedef void (*init_function)(void);
 void amiga_set_init_function(init_function function);
+
+typedef void (*render_function)(RenderData *rd);
 void amiga_set_render_function(render_function function);
+
+typedef void (*display_function)();
 void amiga_set_display_function(display_function function);
+
+typedef void (*log_function)(const char *msg);
 void amiga_set_log_function(log_function function);
 void amiga_set_gui_message_function(log_function function);
+
+typedef void (*amiga_led_function)(int led, int on);
 void amiga_set_led_function(amiga_led_function function);
+
+typedef void (*amiga_media_function)(int drive, const char *path);
 void amiga_set_media_function(amiga_media_function function);
+
+typedef const char * (*amiga_plugin_lookup_function)(const char *name);
+void amiga_set_plugin_lookup_function(amiga_plugin_lookup_function function);
 
 typedef int (*audio_callback)(int type, int16_t *buffer, int size);
 int amiga_set_audio_callback(audio_callback func);
 int amiga_set_cd_audio_callback(audio_callback func);
+
 int amiga_set_audio_buffer_size(int size);
 int amiga_set_audio_frequency(int frequency);
 
 int amiga_set_option(const char *option, const char *value);
+
 typedef void (*amiga_free_function)(void* data);
 int amiga_set_option_and_free(const char *option, char *value,
     amiga_free_function free_function);
+
 int amiga_set_hardware_option(const char *option, const char *value);
 int amiga_set_int_option(const char *option, int value);
 
@@ -199,6 +218,7 @@ int amiga_get_joystick_port_mode(int port);
 */
 void amiga_set_joystick_port_mode(int port, int mode);
 void amiga_set_joystick_port_autofire(int port, int autofire);
+void amiga_enable_auto_mouse_mode(bool enable);
 
 int amiga_send_input_event(int input_event, int state);
 
@@ -209,12 +229,16 @@ int amiga_add_rom_file(const char *path, const char *cache_path);
 
 void amiga_set_paths(const char **rom_paths, const char **floppy_paths,
         const char **cd_paths, const char **hd_paths);
+void amiga_set_native_library_dirs(const char **library_dirs);
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#ifndef LIBAMIGA_INTERNAL_H_
+#ifndef UAE_FS_H
+
+// This section must only be included by external code and cannot be used
+// by od-fs code.
 
 #define DEFEVENT(A, B, C, D, E, F) INPUTEVENT_ ## A,
 enum inputevents {

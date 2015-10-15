@@ -1,9 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import six
 from fsgs.ogd.refresh import DatabaseRefreshTask
 import fsui
 from fsui.extra.iconheader import IconHeader
@@ -11,11 +5,10 @@ from fs_uae_workspace.shell import SimpleApplication
 from fs_uae_launcher.res import gettext
 
 
-class RefreshWindow(fsui.Window):
+class RefreshWindow(fsui.Dialog):
 
     def __init__(self):
-        fsui.Window.__init__(
-            self, None, gettext("Updating Database"))
+        super().__init__(None, gettext("Updating Database"))
         self.set_icon(fsui.Icon("refresh", "pkg:fs_uae_workspace"))
 
         self.layout = fsui.VerticalLayout()
@@ -65,7 +58,7 @@ class RefreshWindow(fsui.Window):
         fsui.show_error(message, parent=self.get_window())
 
     def on_progress(self, message):
-        if not isinstance(message, six.string_types):
+        if not isinstance(message, str):
             message = message[0]
         # print("on_progress", status)
         self.icon_header.subtitle_label.set_text(message)

@@ -1,20 +1,21 @@
-#include <fs/eventlog.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
+#include <fs/eventlog.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <fs/base.h>
 #include <fs/filesys.h>
+#include <fs/glib.h>
 #include <fs/init.h>
-#include <fs/list.h>
 #include <fs/thread.h>
 
-//#define THREADED_LOGGING
+#ifdef NOT_USED
 
 static int g_log_events = 0;
 static fs_mutex *g_mutex = NULL;
-static fs_list *g_event_list = NULL;
-//static int64_t g_epoch = 0;
+static GList *g_event_list = NULL;
 static volatile int g_event = 0;
 static volatile int g_event_count = 0;
 static FILE *g_event_file;
@@ -24,7 +25,7 @@ FS_INIT_FUNCTION(module) {
             getenv("FS_DEBUG_EVENTS")[0] == '1';
     if (g_log_events) {
         g_mutex = fs_mutex_create();
-        g_event_file = fs_fopen("events.dat", "wb");
+        g_event_file = g_fopen("events.dat", "wb");
         if (g_event_file == NULL) {
             printf("error opening events.dat for writing\n");
             g_log_events = 0;
@@ -32,12 +33,13 @@ FS_INIT_FUNCTION(module) {
     }
 }
 
-static void flush_events() {
-    fs_list *link = g_event_list;
+static void flush_events()
+{
+    GList *link = g_event_list;
     while (link) {
         fwrite(link->data, 13, 1, g_event_file);
         free(link->data);
-        fs_list *temp = link;
+        GList *temp = link;
         link = link->next;
         free(temp);
     }
@@ -45,8 +47,9 @@ static void flush_events() {
     g_event_count = 0;
 }
 
-void fs_eventlog_new_event(int64_t *event_time, int *event,
-        uint8_t event_type) {
+static void fs_eventlog_new_event(
+        int64_t *event_time, int *event, uint8_t event_type)
+{
     FS_INIT(module);
     if (!g_log_events) {
         return;
@@ -70,7 +73,7 @@ void fs_eventlog_new_event(int64_t *event_time, int *event,
     fs_mutex_lock(g_mutex);
     int e = ++g_event;
     *((int32_t *) data + 1) = e;
-    g_event_list = fs_list_append(g_event_list, data);
+    g_event_list = g_list_append(g_event_list, data);
     g_event_count++;
     if (g_event_count > 1000000) {
         flush_events();
@@ -81,8 +84,9 @@ void fs_eventlog_new_event(int64_t *event_time, int *event,
     }
 }
 
-void fs_eventlog_update_event(int64_t event_time, int event,
-            int64_t t1, int64_t t2) {
+static void fs_eventlog_update_event(
+        int64_t event_time, int event, int64_t t1, int64_t t2)
+{
     FS_INIT(module);
     if (!g_log_events) {
         return;
@@ -104,7 +108,9 @@ void fs_eventlog_update_event(int64_t event_time, int event,
     *((uint32_t *) data + 9) = t2;
 
     fs_mutex_lock(g_mutex);
-    g_event_list = fs_list_append(g_event_list, data);
+    g_event_list = g_list_append(g_event_list, data);
     g_event_count++;
     fs_mutex_unlock(g_mutex);
 }
+
+#endif

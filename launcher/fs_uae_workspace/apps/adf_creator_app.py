@@ -1,13 +1,8 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
-import pkg_resources
 import shutil
 import traceback
 import zlib
+from fsbc.Resources import Resources
 import fsui
 from fsgs.FSGSDirectories import FSGSDirectories
 from fs_uae_workspace.shell import SimpleApplication
@@ -15,25 +10,29 @@ from fs_uae_launcher.res import gettext
 from fsui.extra.iconheader import IconHeader
 
 
-class ADFCreatorWindow(fsui.Window):
+class ADFCreatorWindow(fsui.Dialog):
 
-    def __init__(self):
-        fsui.Window.__init__(self, None, gettext("ADF Disk Image Creator"))
+    def __init__(self, parent=None):
+        super().__init__(parent, gettext("ADF Disk Image Creator"))
+        buttons, layout = fsui.DialogButtons.create_with_layout(self)
+        buttons.create_close_button()
+
+        self.dialog = None
+        self.path = ""
+
         self.set_icon(fsui.Icon("floppy", "pkg:fs_uae_workspace"))
 
-        self.layout = fsui.VerticalLayout()
-        self.layout.min_width = 500
-        self.layout.set_padding(20, 20, 20, 20)
+        layout.min_width = 500
 
         self.icon_header = IconHeader(
             self, fsui.Icon("floppy", "pkg:fs_uae_workspace"),
             gettext("ADF Disk Image Creator"),
             gettext("Create a blank or formatted ADF floppy disk image"))
-        self.layout.add(self.icon_header, fill=True, margin_bottom=20)
+        layout.add(self.icon_header, fill=True, margin_bottom=20)
 
         label = fsui.Label(self, gettext("Create disk image of type:"))
-        self.layout.add(label)
-        self.layout.add_spacer(6)
+        layout.add(label)
+        layout.add_spacer(6)
         self.list_view = fsui.ListView(self)
         self.list_view.set_min_width(560)
         self.list_view.set_min_height(60)
@@ -42,16 +41,16 @@ class ADFCreatorWindow(fsui.Window):
             gettext("ADF - Standard Floppy Disk Image"), icon)
         self.list_view.add_item(
             gettext("ADF - Extended Floppy Disk Image (MFM Encoded)"), icon)
-        self.layout.add(self.list_view, expand=True, fill=True)
+        layout.add(self.list_view, expand=True, fill=True)
         # self.list_view.on_select_item = self.on_select_item
         self.list_view.item_selected.connect(self.on_item_selected)
 
-        self.layout.add_spacer(20)
+        layout.add_spacer(20)
         label = fsui.Label(self, gettext("Filename for the new disk image:"))
-        self.layout.add(label)
-        self.layout.add_spacer(6)
+        layout.add(label)
+        layout.add_spacer(6)
         hori_layout = fsui.HorizontalLayout()
-        self.layout.add(hori_layout, fill=True)
+        layout.add(hori_layout, fill=True)
         self.name_field = fsui.TextField(
             self, "", read_only=False)
         hori_layout.add(self.name_field, expand=True)
@@ -65,35 +64,39 @@ class ADFCreatorWindow(fsui.Window):
         label = fsui.Label(self, text)
         hori_layout.add(label, margin_left=10)
 
-        self.layout.add_spacer(20)
+        layout.add_spacer(20)
         label = fsui.Label(self, gettext("Save to directory:"))
-        self.layout.add(label)
-        self.layout.add_spacer(6)
+        layout.add(label)
+        layout.add_spacer(6)
         hori_layout = fsui.HorizontalLayout()
-        self.layout.add(hori_layout, fill=True)
+        layout.add(hori_layout, fill=True)
         self.dir_field = fsui.TextField(self, "", read_only=True)
         hori_layout.add(self.dir_field, expand=True)
         self.browse_button = fsui.Button(self, gettext("Browse"))
         self.browse_button.clicked.connect(self.on_browse_clicked)
         hori_layout.add(self.browse_button, margin_left=10)
 
-        self.layout.add_spacer(20)
-        self.layout.add_spacer(20)
-        hori_layout = fsui.HorizontalLayout()
-        self.layout.add(hori_layout, fill=True)
         self.created_label = fsui.Label(self, "")
-        hori_layout.add(self.created_label, expand=True)
-        hori_layout.add_spacer(20)
-        self.create_button = fsui.Button(self, gettext("Create"))
+        layout.add(self.created_label, fill=True)
+
+        # layout.add_spacer(20)
+        # layout.add_spacer(20)
+        # hori_layout = fsui.HorizontalLayout()
+        # layout.add(hori_layout, fill=True)
+        # self.created_label = fsui.Label(self, "")
+        # hori_layout.add(self.created_label, expand=True)
+        # hori_layout.add_spacer(20)
+        self.create_button = fsui.Button(buttons, gettext("Create"))
         # self.create_button.activated.connect(self.on_create_clicked)
         self.create_button.clicked.connect(self.on_create_clicked)
-        hori_layout.add(self.create_button)
+        # hori_layout.add(self.create_button)
+        buttons.add_button(self.create_button)
 
         self.list_view.select_item(0)
         self.update_name_suggestion()
 
-        self.set_size(self.layout.get_min_size())
-        self.center_on_parent()
+        # self.set_size(layout.get_min_size())
+        # self.center_on_parent()
 
     def __del__(self):
         print("ADFCreator.__del__")
@@ -186,10 +189,10 @@ class ADFCreatorWindow(fsui.Window):
             name += ext
         path = os.path.join(path, name)
 
-        if disk_type == 0:
-            size = 901120
-        elif disk_type == 1:
-            size = 2104892
+        # if disk_type == 0:
+        #     size = 901120
+        # elif disk_type == 1:
+        #     size = 2104892
 
         if os.path.exists(path):
             return self.show_error(gettext("File already exists"))
@@ -226,11 +229,11 @@ class ADFCreatorWindow(fsui.Window):
                 print("error moving", path_partial, path)
                 traceback.print_exc()
                 return self.show_error(gettext("Error moving file into place"))
+
         self.show_success(gettext("Disk image created") + ": " + name)
 
     def create_adf(self, f):
-        s = pkg_resources.resource_stream(
-            str("fs_uae_launcher"), str("res/adf.dat"))
+        s = Resources("fsgs").stream("res/amiga/adf.dat")
         data = s.read()
         data = zlib.decompress(data)
         f.write(data)
@@ -238,10 +241,7 @@ class ADFCreatorWindow(fsui.Window):
     def create_extended_adf(self, f):
         # Workbench 3.1 does not like the adf_extended file, created by
         # WinUAE (must check why)
-        #s = pkg_resources.resource_stream(str("fs_uae_launcher"),
-        #        str("res/adf_extended.dat"))
-        s = pkg_resources.resource_stream(
-            str("fsgs.res"), str("adf_save_disk.dat"))
+        s = Resources("fsgs").stream("res/amiga/adf_save_disk.dat")
         data = s.read()
         data = zlib.decompress(data)
         f.write(data)

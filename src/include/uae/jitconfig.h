@@ -1,27 +1,12 @@
-#ifndef _UAE_JITCONFIG_H_
-#define _UAE_JITCONFIG_H_
+#ifndef UAE_JITCONFIG_H
+#define UAE_JITCONFIG_H
 
-#if defined(__i386__) && !defined(OPENBSD) && !defined(FREEBSD)
-#define JIT
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 // #define JIT_DEBUG
-#endif
 
-#if defined(__i386__)
-// set up correct REGPARAMS for JIT
-// using __fastcall / __attribute__((fastcall)) on non-Windows as well
-#ifdef WINDOWS
-#define REGPARAM
-#define REGPARAM2 __attribute__((fastcall))
-#define REGPARAM3 __attribute__((fastcall))
-#else
-#define REGPARAM
-#define REGPARAM2 __attribute__((regparm(3)))
-#define REGPARAM3 __attribute__((regparm(3)))
-#endif
-#else
-#define REGPARAM
-#define REGPARAM2
-#define REGPARAM3
-#endif
+#include "uae/regparam.h"
 
-#endif // _UAE_JITCONFIG_H_
+#endif // UAE_JITCONFIG_H

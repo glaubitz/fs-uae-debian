@@ -1,13 +1,13 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from game_center.glui.opengl import *
 from game_center.glui.render import Render
+from .state import State
 
 
 class Dialog(object):
+
+    @classmethod
+    def get_current(cls):
+        return State.dialog
 
     def __init__(self):
         self.width = 1.6
@@ -16,8 +16,12 @@ class Dialog(object):
         self.background_texture_offset = [0, 0]
         self.background_color = (0.4, 0.4, 0.4, 1.0)
         # make sure that the dialog is rendered at least once
-        # after beeing created
+        # after being created
         Render.dirty = True
+
+    def show(self):
+        State.dialog = self
+        State.dialog_time = State.time
 
     def render(self):
         Render.ortho_perspective()
@@ -37,7 +41,7 @@ class Dialog(object):
             glColor3f(1.0, 1.0, 1.0)
         else:
             glBindTexture(GL_TEXTURE_2D, 0)
-            #r, g, b a = self.background_color
+            # r, g, b a = self.background_color
             glColor4f(*self.background_color)
         glBegin(GL_QUADS)
         bgx, bgy = self.background_texture_offset
@@ -56,3 +60,10 @@ class Dialog(object):
 
     def destroy(self):
         pass
+
+    def close(self):
+        if self == State.dialog:
+            self.destroy()
+            State.dialog = None
+        else:
+            print("WARNING: close called on non-active dialog")

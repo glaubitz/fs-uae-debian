@@ -2,7 +2,9 @@
 #include "sysdeps.h"
 
 #include "cda_play.h"
-#include "uae_fs.h"
+#include "audio.h"
+#include "options.h"
+#include "uae/fs.h"
 
 static int (*g_audio_callback)(int type, int16_t *buffer, int size) = NULL;
 
@@ -64,7 +66,8 @@ static void *audio_thread(void *cda_pointer) {
 }
 #endif
 
-cda_audio::cda_audio(int num_sectors) {
+cda_audio::cda_audio(int num_sectors, int sectorsize, int samplerate)
+{
     write_log("cda_audio::cda_audio(num_sectors=%d)\n", num_sectors);
 #if 0
     mStopThread = 0;
@@ -72,15 +75,18 @@ cda_audio::cda_audio(int num_sectors) {
     mBufferDone[1] = 1;
     uae_start_thread("cdda", audio_thread, this, &mThread);
 #endif
+    // FIXME: handle samplerate
+    write_log("WARNING: ignoring samplerate\n");
 
     active = false;
     playing = false;
     volume[0] = volume[1] = 0;
 
-    bufsize = num_sectors * 2352;
+    bufsize = num_sectors * sectorsize;
+    this->sectorsize = sectorsize;
     for (int i = 0; i < 2; i++) {
         buffer_ids[i] = 0;
-        buffers[i] = xcalloc (uae_u8, num_sectors * 4096);
+        buffers[i] = xcalloc (uae_u8, num_sectors * ((bufsize + 4095) & ~4095));
     }
     this->num_sectors = num_sectors;
     active = true;
@@ -88,12 +94,13 @@ cda_audio::cda_audio(int num_sectors) {
 
 }
 
-void cda_audio::setvolume(int master, int left, int right) {
+void cda_audio::setvolume(int left, int right) {
     for (int j = 0; j < 2; j++) {
         volume[j] = j == 0 ? left : right;
-        volume[j] = (100 - master) * volume[j] / 100;
+        volume[j] = sound_cd_volume[j] * volume[j] / 32768;
         if (volume[j])
             volume[j]++;
+        volume[j] = volume[j] * (100 - currprefs.sound_volume_master) / 100;
         if (volume[j] >= 32768)
             volume[j] = 32768;
     }
@@ -105,13 +112,23 @@ bool cda_audio::play(int bufnum) {
     }
 
     uae_s16 *p = (uae_s16*)(buffers[bufnum]);
-    for (int i = 0; i < num_sectors * 2352 / 4; i++) {
+    for (int i = 0; i < num_sectors * sectorsize / 4; i++) {
         p[i * 2 + 0] = p[i * 2 + 0] * volume[0] / 32768;
         p[i * 2 + 1] = p[i * 2 + 1] * volume[1] / 32768;
     }
 
     if (g_audio_callback) {
-        buffer_ids[bufnum] = g_audio_callback(3, p, num_sectors * 2352);
+        int len = num_sectors * sectorsize;
+#ifdef WORDS_BIGENDIAN
+        int8_t *d = (int8_t *) p;
+        int8_t temp = 0;
+        for (int i = 0; i < len; i += 2) {
+            temp = d[i + 1];
+            d[i + 1] = d[i];
+            d[i] = temp;
+        }
+#endif
+        buffer_ids[bufnum] = g_audio_callback(3, p, len);
     }
     else {
         buffer_ids[bufnum] = 0;
@@ -143,4 +160,14 @@ void cda_audio::wait(int bufnum) {
         Sleep (10);
     }
 #endif
+}
+
+bool cda_audio::isplaying(int bufnum)
+{
+	if (!active || !playing)
+		return false;
+	if (buffer_ids[bufnum] == 0) {
+		return false;
+	}
+	return g_audio_callback(3, NULL, buffer_ids[bufnum]);
 }

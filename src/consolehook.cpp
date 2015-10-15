@@ -18,6 +18,7 @@ static uaecptr beginio;
 
 void consolehook_config (struct uae_prefs *p)
 {
+	struct uaedev_config_info ci = { 0 };
 	int roms[] = { 15, 31, 16, 46, -1 };
 
 	default_prefs (p, 0);
@@ -25,7 +26,8 @@ void consolehook_config (struct uae_prefs *p)
 	p->produce_sound = 0;
 	p->gfx_resolution = 0;
 	p->gfx_vresolution = 0;
-	p->gfx_scanlines = false;
+	p->gfx_iscanlines = 0;
+	p->gfx_pscanlines = 0;
 	p->gfx_framerate = 10;
 	p->immediate_blits = 1;
 	p->collision_level = 0;
@@ -49,7 +51,12 @@ void consolehook_config (struct uae_prefs *p)
 	//p->win32_automount_drives = 2;
 	//p->win32_automount_cddrives = 2;
 
-	add_filesys_config (p, -1, _T("DH0"), _T("CLIBOOT"), _T("."), 1, 0, 0, 0, 0, 0, 15, NULL, 0, 0, 0, 0, 0);
+	_tcscpy (ci.rootdir, _T("."));
+	_tcscpy (ci.volname, _T("CLIBOOT"));
+	_tcscpy (ci.devname, _T("DH0"));
+	ci.bootpri = 15;
+	ci.type = UAEDEV_DIR;
+	add_filesys_config (p, -1, &ci);
 }
 
 static void *console_thread (void *v)
@@ -99,11 +106,7 @@ uaecptr consolehook_beginio (uaecptr request)
 		buf = xmalloc (TCHAR, len + 1);
 		au_copy (buf, len, src);
 		buf[len] = 0;
-#ifdef FSUAE
-		// FIXME: missing a parameter to f_out below
-#else
-		f_out (_T("%s"), buf);
-#endif
+		f_out (stdout, _T("%s"), buf);
 		xfree (buf);
 	} else if (cmd == CMD_READ) {
 

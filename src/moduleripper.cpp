@@ -12,10 +12,24 @@
 #ifdef PROWIZARD
 
 #include "options.h"
+#include "uae/io.h"
 #include "uae/memory.h"
+#include "uae/seh.h"
 #include "moduleripper.h"
 #include "gui.h"
 #include "uae.h"
+
+#ifdef FSUAE // NL
+
+typedef unsigned char Uchar;
+typedef unsigned long Ulong;
+
+extern "C" {
+#include "../prowizard/include/globals.h"
+#include "../prowizard/include/extern.h"
+}
+
+#endif
 
 static int got, canceled;
 
@@ -49,31 +63,41 @@ void moduleripper (void)
 	buf = p = xmalloc (uae_u8, size);
 	if (!buf)
 		return;
-	memcpy (p, chipmemory, currprefs.chipmem_size);
+	memcpy (p, chipmem_bank.baseaddr, currprefs.chipmem_size);
 	p += currprefs.chipmem_size;
-	mc (p, fastmem_start, currprefs.fastmem_size);
+	mc (p, fastmem_bank.start, currprefs.fastmem_size);
 	p += currprefs.fastmem_size;
-	mc (p, bogomem_start, currprefs.bogomem_size);
+	mc (p, fastmem2_bank.start, currprefs.fastmem2_size);
+	p += currprefs.fastmem2_size;
+	mc (p, bogomem_bank.start, currprefs.bogomem_size);
 	p += currprefs.bogomem_size;
-	mc (p, a3000lmem_start, currprefs.mbresmem_low_size);
+	mc (p, a3000lmem_bank.start, currprefs.mbresmem_low_size);
 	p += currprefs.mbresmem_low_size;
-	mc (p, a3000hmem_start, currprefs.mbresmem_high_size);
+	mc (p, a3000hmem_bank.start, currprefs.mbresmem_high_size);
 	p += currprefs.mbresmem_high_size;
-	mc (p, z3fastmem_start, currprefs.z3fastmem_size);
+	mc (p, z3fastmem_bank.start, currprefs.z3fastmem_size);
 	p += currprefs.z3fastmem_size;
-	mc (p, z3fastmem_start + currprefs.z3fastmem_size, currprefs.z3fastmem2_size);
+	mc (p, z3fastmem_bank.start + currprefs.z3fastmem_size, currprefs.z3fastmem2_size);
 	p += currprefs.z3fastmem2_size;
 
 	got = 0;
 	canceled = 0;
 #ifdef _WIN32
+#ifdef FSUAE
+
+#else
 	__try {
+#endif
 #endif
 		prowizard_search (buf, size);
 #ifdef _WIN32
+#ifdef FSUAE
+
+#else
 	} __except(ExceptionFilter (GetExceptionInformation (), GetExceptionCode ())) {
 		write_log (_T("prowizard scan crashed\n"));
 	}
+#endif
 #endif
 	if (!got)
 		notify_user (NUMSG_MODRIP_NOTFOUND);
@@ -96,7 +120,7 @@ FILE *moduleripper_fopen (const char *aname, const char *amode)
 	name = au (aname);
 	mode = au (amode);
 	_stprintf (tmp2, _T("%s%s"), tmp, name);
-	f = _tfopen (tmp2, mode);
+	f = uae_tfopen (tmp2, mode);
 	xfree (mode);
 	xfree (name);
 	return f;
@@ -114,7 +138,11 @@ FILE *moduleripper2_fopen (const char *name, const char *mode, const char *aid, 
 	translate_message (NUMSG_MODRIP_SAVE, msg);
 	id = au (aid);
 	_stprintf (msg2, msg, id, addr, size);
+#ifdef FSUAE
+	ret = 1;
+#else
 	ret = gui_message_multibutton (2, msg2);
+#endif
 	xfree (id);
 	if (ret < 0)
 		canceled = 1;
@@ -126,7 +154,6 @@ FILE *moduleripper2_fopen (const char *name, const char *mode, const char *aid, 
 void pw_write_log (const char *format,...)
 {
 }
-
 }
 
 #else

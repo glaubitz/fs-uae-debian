@@ -1,13 +1,13 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import time
 from .base import SynchronizerBase
 from ..LockerDatabase import LockerDatabase
 from fsgs.FileDatabase import FileDatabase
 from fsgs.res import gettext
+import fsbc.Settings
+
+
+def is_locker_enabled():
+    return fsbc.Settings.get("database_locker") != "0"
 
 
 class LockerSynchronizer(SynchronizerBase):
@@ -16,7 +16,10 @@ class LockerSynchronizer(SynchronizerBase):
         SynchronizerBase.__init__(self, *args, **kwargs)
 
     def synchronize(self):
-        if not "locker-sync" in self.context.meta:
+        if not is_locker_enabled():
+            return
+
+        if "locker-sync" not in self.context.meta:
             # we haven't looked up synchronization information from the server,
             # that probably means we didn't want to synchronize with the
             # server now, therefore we just return
@@ -40,13 +43,13 @@ class LockerSynchronizer(SynchronizerBase):
 
         k = 0
         while k < len(data):
-            sha1_bytes = data[k:k+20]
+            sha1_bytes = data[k:k + 20]
             database.add_sha1_binary(sha1_bytes)
             k += 20
 
         database.set_sync_version(self.context.meta["locker-sync"])
 
-        self.set_status(gettext("Commiting locker data..."))
+        self.set_status(gettext("Committing locker data..."))
 
         # This isn't very elegant, but in order to force the game scanner to
         # refresh the game list based on files, we update the stamps in the

@@ -6,6 +6,14 @@
   * Copyright 1996 Bernd Schmidt
   */
 
+#ifndef MACHDEP_X86_MACCESS_H
+#define MACHDEP_X86_MACCESS_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#include "uae/inline.h"
+#endif
+
 STATIC_INLINE uae_u32 do_get_mem_long (uae_u32 *a)
 {
     uae_u32 retval;
@@ -135,7 +143,7 @@ STATIC_INLINE void byteput_1 (uae_cptr addr, uae_u32 b)
 
 #endif
 
-#define ALIGN_POINTER_TO32(p) ((~(unsigned long)(p)) & 3)
+#define ALIGN_POINTER_TO32(p) ((~(uintptr_t)(p)) & 3)
 
 /* Not the best place for this, but then there's no good place for a kludge
  * like this... */
@@ -148,3 +156,5 @@ STATIC_INLINE uae_u24 uae24_convert (uae_u32 v)
 {
     return *(uae_u24 *)&v;
 }
+
+#endif // MACHDEP_X86_MACCESS_H

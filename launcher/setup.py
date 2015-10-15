@@ -1,40 +1,66 @@
 import os
 import sys
-if sys.platform == "darwin":
-    from setuptools import setup
+if sys.argv[1] == "build_exe":
+    from cx_Freeze import setup, Executable
 else:
     from distutils.core import setup
 
+if "install" in sys.argv:
+    for arg in sys.argv:
+        if arg.startswith("--install-lib="):
+            break
+    else:
+        print("ERROR: You should not install FS-UAE Launcher to the default ")
+        print("python library location. Instead, use --install-lib to ")
+        print("install to a custom location, e.g.:")
+        print("python3 setup.py --install-lib=/usr/share/fs-uae-launcher install")
+        sys.exit(1)
 
-import sys
 title = "FS-UAE Launcher"
 name = "fs-uae-launcher"
 py_name = "fs_uae_launcher"
 tar_name = "fs-uae-launcher"
-version = "2.4.1"
+version = "2.6.1"
 author = "Frode Solheim"
 author_email = "frode@fs-uae.net"
 package_map = {
-    "fs_uae_launcher": "../python",
-    "fs_uae_workspace": "../python",
-    "fsbc": "../python",
-    "fsgs": "../python",
-    "fsui": "../python",
-    "game_center": "../python",
-    "lhafile": "../python-lhafile",
-    "six": "../python",
+    "fs_uae_launcher": ".",
+    "fs_uae_workspace": ".",
+    "fsbc": ".",
+    "fsgs": ".",
+    "fstd": ".",
+    "fsui": ".",
+    "game_center": ".",
+    "OpenGL": ".",
+    "oyoyo": ".",
+    "six": ".",
 }
 packages = sorted(package_map.keys())
-if sys.platform != "win32":
-    packages.remove("game_center")
 scripts = ["fs-uae-launcher"]
 
+
+# add unique parent directories to sys.path
+for p in set(package_map.values()):
+    sys.path.insert(0, p)
 
 setup_packages = set()
 package_dir = {}
 package_data = {}
 setup_options = {}
 setup_cmdclass = {}
+
+
+res_dirs = []
+res_dirs.append('OpenGL/res')
+res_dirs.append('fs_uae_launcher/res')
+res_dirs.append('fs_uae_workspace/res')
+res_dirs.append('fsbc/res')
+res_dirs.append('fsgs/res')
+res_dirs.append('fstd/res')
+res_dirs.append('fsui/res')
+res_dirs.append('game_center/res')
+res_dirs.append('oyoyo/res')
+res_dirs.append('six/res')
 
 
 def add_package(package_name, package_dir_name):
@@ -76,95 +102,6 @@ def add_packages():
                 add_package(sub_name, dir_name)
 
 
-if sys.platform == "win32":
-    import py2exe
-
-    try:
-        # py2exe 0.6.4 introduced a replacement modulefinder.
-        # This means we have to add package paths there, not to the built-in
-        # one.  If this new modulefinder gets integrated into Python, then
-        # we might be able to revert this some day.
-        # if this doesn't work, try import modulefinder
-        try:
-            import py2exe.mf as modulefinder
-        except ImportError:
-            import modulefinder
-        import win32com, sys
-        for p in win32com.__path__[1:]:
-            modulefinder.AddPackagePath("win32com", p)
-        for extra in ["win32com.shell"]:  # ,"win32com.mapi"
-            __import__(extra)
-            m = sys.modules[extra]
-            for p in m.__path__[1:]:
-                modulefinder.AddPackagePath(extra, p)
-    except ImportError:
-        # no build path setup, no worries.
-        pass
-
-    origIsSystemDLL = py2exe.build_exe.isSystemDLL
-
-    def isSystemDLL(pathname):
-        # checks if the freetype and ogg dll files are being included
-        if os.path.basename(pathname).lower() in [
-                "libfreetype-6.dll", "libogg-0.dll", "sdl_ttf.dll"]:
-            return 0
-        return origIsSystemDLL(pathname)
-
-    py2exe.build_exe.isSystemDLL = isSystemDLL
-
-    py2exe_options = {
-        "dll_excludes": ["MSVCP90.dll"],
-        "includes": [
-            "ctypes",
-            "logging",
-        ],
-        "excludes": [
-            "Tkconstants",
-            "Tkinter",
-            "tcl",
-        ],
-    }
-
-    from py2exe.build_exe import py2exe as build_exe
-
-    class BuildExe(build_exe):
-
-        def copy_extensions(self, extensions):
-            build_exe.copy_extensions(self, extensions)
-
-            res_dirs = []
-            res_dirs.append('fs_uae_launcher/res')
-            res_dirs.append('fs_uae_workspace/res')
-            res_dirs.append('fsbc/res')
-            res_dirs.append('fsgs/res')
-            res_dirs.append('fsui/res')
-            res_dirs.append('lhafile/res')
-            res_dirs.append('six/res')
-
-            for res_dir in res_dirs:
-                full = os.path.join(self.collect_dir, res_dir)
-                if not os.path.exists(full):
-                    self.mkpath(full)
-                for dir_path, dir_names, file_names in os.walk(res_dir):
-                    for name in file_names:
-                        src = os.path.join(dir_path, name)
-                        dst = os.path.join(full, src[len(res_dir) + 1:])
-                        print(src, dst)
-                        if not os.path.exists(os.path.dirname(dst)):
-                            os.makedirs(os.path.dirname(dst))
-                        self.copy_file(src, dst)
-                        self.compiled_files.append(src)
-
-    setup_options["py2exe"] = py2exe_options
-    setup_cmdclass["py2exe"] = BuildExe
-
-if sys.platform == "darwin":
-    py2app_options = {
-        "argv_emulation": True,
-    }
-
-    setup_options["py2app"] = py2app_options
-
 add_packages()
 
 setup_kwargs = {
@@ -179,16 +116,63 @@ setup_kwargs = {
     "cmdclass": setup_cmdclass,
 }
 
-if sys.platform == "win32":
+if sys.argv[1] == "build_exe":
+    if sys.platform == "win32":
+        setup_kwargs["executables"] = [
+            Executable(s, base="Win32GUI", icon="icon/" + s + ".ico") 
+                for s in scripts]
+    else:
+        setup_kwargs["executables"] = [Executable(s) for s in scripts]
+
+    setup_kwargs["version"] = "2.6.1"
+    build_exe_options = {
+        "includes": [
+        #    "ctypes",
+        #    "logging",
+        ],
+        "excludes": [
+            "tkconstants",
+            "tkinter",
+            "tk",
+            "tcl",
+        ],
+        "include_files": [],
+        "zip_includes": [],
+    }
+    #for res_dir in res_dirs:
+    #    print(res_dir)
+    #    build_exe_options["zip_includes"].append((res_dir, res_dir))
+
+    for name in sorted(package_map.keys()):
+        sp = os.path.join(name, "res")
+        if not os.path.exists(sp):
+            # setup with alternative source dir
+            sp = os.path.join(package_map[name], name, "res")
+        if not os.path.exists(sp):
+            continue
+        dp = os.path.join(name, "res")
+        # dp = os.path.join("share", tar_name, dp)
+        #build_exe_options["include_files"].append((sp, dp))
+        for dir_path, dir_names, file_names in os.walk(sp):
+            for name in file_names:
+                p = os.path.join(dir_path, name)
+                rp = p[len(sp) + 1:]
+                #build_exe_options["zip_includes"].append((p, os.path.join(dp, rp)))
+                build_exe_options["include_files"].append((p, os.path.join(dp, rp)))
+                #print(p, rp)
+    setup_options["build_exe"] = build_exe_options
+    if os.path.exists("extra_imports.py"):
+        build_exe_options["includes"].append("extra_imports")
+
+    build_exe_options["packages"] = setup_packages
+
+
+if sys.platform == "win32" and False:
     setup_kwargs["windows"] = scripts
 
 if sys.platform == "darwin":
-    # faking version right now because a simpler version format is needed,
-    # FIXME: retrieve major.minor.revision from actual version number
     setup_kwargs["name"] = title
-    setup_kwargs["version"] = "2.4.1"
-    setup_kwargs["app"] = [name]
-    py2app_options["packages"] = ",".join(packages)
+    setup_kwargs["version"] = "2.6.1"
 else:
     setup_kwargs["scripts"] = scripts
 

@@ -1,17 +1,8 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 from uuid import uuid4, uuid5, NAMESPACE_URL
 import shutil
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
+from urllib.request import urlopen
 import hashlib
-
 # FIXME: temporary package dependency cycle, must be fixed
 from fsgs.FSGSDirectories import FSGSDirectories
 
@@ -21,8 +12,7 @@ class Downloader(object):
     @classmethod
     def check_terms_accepted(cls, download_file, download_terms):
         print("check_terms_accepted", download_file, download_terms)
-        uuid = str(uuid5(
-            NAMESPACE_URL, (download_file + download_terms).encode("UTF-8")))
+        uuid = str(uuid5(NAMESPACE_URL, download_file + download_terms))
         path = cls.get_cache_path(uuid)
         print("check_terms_accepted", path)
         return os.path.exists(path)
@@ -30,8 +20,7 @@ class Downloader(object):
     @classmethod
     def set_terms_accepted(cls, download_file, download_terms):
         print("set_terms_accepted", repr(download_file), repr(download_terms))
-        uuid = str(uuid5(
-            NAMESPACE_URL, (download_file + download_terms).encode("UTF-8")))
+        uuid = str(uuid5(NAMESPACE_URL, download_file + download_terms))
         path = cls.get_cache_path(uuid)
         print("set_terms_accepted", path)
         with open(path, "wb") as _:
@@ -139,5 +128,10 @@ class Downloader(object):
 
     @classmethod
     def get_url_cache_path(cls, url):
-        return cls.get_cache_path(
-            str(uuid5(NAMESPACE_URL, url.encode("UTF-8"))))
+        if isinstance(url, str):
+            # Python 3
+            return cls.get_cache_path(str(uuid5(NAMESPACE_URL, url)))
+        else:
+            # Python 2 / unicode
+            return cls.get_cache_path(
+                str(uuid5(NAMESPACE_URL, url.encode("UTF-8"))))

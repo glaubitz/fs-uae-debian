@@ -1,26 +1,23 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-from fsui.qt import QPushButton
+import fsui.qt
 from .Widget import Widget
 
 
-class ImageButton(Widget):
+class ImageButton(fsui.qt.QPushButton, Widget):
+
+    activated = fsui.qt.QSignal()
 
     def __init__(self, parent, image):
-        self._widget = QPushButton("", parent.get_container())
-        #Widget.__init__(self, parent)
+        fsui.qt.QPushButton.__init__(self, parent.get_container())
         self.init_widget(parent)
-        self._widget.setIcon(image.qicon)
-        self._widget.clicked.connect(self.__clicked)
+        self.setIcon(image.qicon)
+        self.clicked.connect(self.__clicked)
 
     def set_image(self, image):
-        self._widget.setIcon(image.qicon)
+        self.setIcon(image.qicon)
 
     def __clicked(self):
         self.on_activate()
+        self.activated.emit()
 
     def on_activate(self):
         pass

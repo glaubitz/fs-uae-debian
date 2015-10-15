@@ -1,3 +1,6 @@
+#ifndef FS_UAE_FS_UAE_H
+#define FS_UAE_FS_UAE_H
+
 #include <fs/emu.h>
 
 #ifndef MAX_PATH
@@ -31,30 +34,11 @@ extern int g_fs_uae_video_zoom;
 char *fs_uae_encode_path(const char *path);
 char *fs_uae_decode_path(const char *path);
 
-typedef struct amiga_config {
-    const char *id;
-    const char *name;
-    int model;
-    int quickstart_model;
-    int quickstart_config;
-    int allow_z3_memory;
-    int z3mem_size;
-    const char *cpu_model;
-    int cpu_32bit_addressing;
-    int fast;
-    int fast_on_accuracy_level;
-    int no_accuracy_adjustment;
-    const char *warning;
-    int enhanced_audio_filter;
-} amiga_config;
-
 void fs_uae_init_configs();
 void fs_uae_configure_directories();
-void fs_uae_configure_floppies();
-void fs_uae_configure_hard_drives();
-void fs_uae_configure_cdrom();
 void fs_uae_configure_amiga_hardware();
 void fs_uae_configure_amiga_model();
+void fs_uae_configure_mouse(void);
 void fs_uae_load_rom_files(const char *path);
 
 char *fs_uae_expand_path(const char *path);
@@ -71,6 +55,7 @@ const char *fs_uae_state_dir();
 //const char *fs_uae_floppy_overlays_dir();
 const char *fs_uae_controllers_dir();
 const char *fs_uae_logs_dir();
+const char *fs_uae_module_ripper_dir();
 const char *fs_uae_exe_dir();
 const char *fs_uae_themes_dir();
 const char *fs_uae_cache_dir();
@@ -78,8 +63,6 @@ const char *fs_uae_kickstarts_cache_dir();
 
 #define FS_UAE_CONFIG_TYPE_JOYSTICK "amiga"
 #define FS_UAE_CONFIG_TYPE_MOUSE "amiga_mouse"
-
-#define FS_UAE_MAX_PORT_ACTIONS 16
 
 #define FS_UAE_NUM_INPUT_PORTS 5
 #define MAX_DEVICE_NAME_LEN 128
@@ -109,43 +92,7 @@ char *fs_uae_resolve_path(const char *name, int type);
 char *fs_uae_resolve_path_and_free(char *name, int type);
 void fs_uae_set_uae_paths();
 
-#define CONFIG_A500 0
-#define CONFIG_A500P 1
-#define CONFIG_A600 2
-#define CONFIG_CD32 3
-#define CONFIG_CDTV 4
-#define CONFIG_A1200 5
-#define CONFIG_A1200_020 6
-#define CONFIG_SUPER 7
-
-#define CONFIG_A4000 8
-#define CONFIG_A4000_040 9
-
-//#define CONFIG_A1200_030 7
-//#define CONFIG_A1200_040 8
-
-#define CONFIG_A1000 10
-#define CONFIG_A3000 11
-#define CONFIG_CD32_FMV 12
-#define CONFIG_LAST 13
-
-#define MODEL_A500 1
-#define MODEL_A1200 2
-#define MODEL_CD32 3
-#define MODEL_CDTV 4
-#define MODEL_A500P 5
-#define MODEL_A600 6
-#define MODEL_A4000 7
-#define MODEL_A1000 8
-#define MODEL_A3000 9
-
-extern amiga_config g_fs_uae_amiga_configs[];
-extern int g_fs_uae_amiga_config;
-extern int g_fs_uae_amiga_model;
-extern int g_fs_uae_ntsc_mode;
-extern const char *g_fs_uae_version;
 //extern char *g_fs_uae_default_dir;
-extern int g_fs_uae_fastest_possible;
 extern char *g_fs_uae_config_file_path;
 extern char *g_fs_uae_config_dir_path;
 
@@ -160,3 +107,5 @@ void fs_uae_init_lua_state(lua_State *L);
 #endif
 
 extern int g_fs_uae_frame;
+
+#endif /* FS_UAE_FS_UAE_H */

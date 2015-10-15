@@ -1,23 +1,23 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import re
 from fsbc.Application import app
 from fsgs.BaseDatabase import BaseDatabase
 from fsgs.FSGSDirectories import FSGSDirectories
-
 import threading
-thread_local = threading.local()
 
-VERSION = 23
-RESET_VERSION = 22
+
+thread_local = threading.local()
+VERSION = 30
+RESET_VERSION = 30
 QUOTED_TERMS_RE = re.compile("[\"].*?[\"]")
 
 
 class Database(BaseDatabase):
+
+    VERSION = VERSION
+    RESET_VERSION = RESET_VERSION
+    GAME_LIST_GAMES = "cbc209ef-c93d-4db7-be52-c159bfec43dc"
+    GAME_LIST_CONFIGS = "106409c1-dc49-4601-8e47-8cf6780ddb3b"
 
     @classmethod
     def get_path(cls):
@@ -135,9 +135,9 @@ class Database(BaseDatabase):
 
     def find_local_configurations(self):
         cursor = self.internal_cursor()
-        #query = "SELECT id, path FROM configuration WHERE path like ?"
-        #args = ["$BASE/Configurations/%"]
-        #self._cursor.execute(query, args)
+        # query = "SELECT id, path FROM configuration WHERE path like ?"
+        # args = ["$BASE/Configurations/%"]
+        # self._cursor.execute(query, args)
         a = "$/Configurations/"
         b = "$/Configurations" + "\u0030"  # one more than forward slash
         query = "SELECT id, path FROM game WHERE " \
@@ -214,12 +214,22 @@ class Database(BaseDatabase):
         cursor.execute(query, (game_uuid,))
         return cursor.fetchall()
 
+    def find_game_database_for_game_variant(self, uuid):
+        cursor = self.internal_cursor()
+        cursor.execute(
+            "SELECT database FROM game_variant WHERE "
+            "uuid = ?", (uuid,))
+        row = cursor.fetchone()
+        if row is None:
+            raise LookupError("game variant not found")
+        return row[0]
+
     def find_game_variants_new(self, game_uuid="", have=3):
         cursor = self.internal_cursor()
         print("FIXME: not looking up ratings yet!")
         cursor.execute(
             "SELECT uuid, name, game_uuid, 0 as like_rating, "
-            "0 as work_rating, have FROM game_variant WHERE "
+            "0 as work_rating, have, database FROM game_variant WHERE "
             "game_uuid = ? AND have >= ? ORDER BY like_rating DESC, "
             "work_rating DESC, name", (game_uuid, have))
 
@@ -282,35 +292,35 @@ class Database(BaseDatabase):
     def find_file(self, name="", sha1="", path="", result=None):
         cursor = self.internal_cursor()
         if sha1:
-            #print("xxx", repr(sha1))
-            #import traceback
-            #traceback.print_stack()
-            #print("check sha1")
+            # print("xxx", repr(sha1))
+            # import traceback
+            # traceback.print_stack()
+            # print("check sha1")
             cursor.execute(
                 "SELECT id, path, sha1, mtime, size FROM file "
                 "WHERE sha1 = ? LIMIT 1", (sha1,))
         elif name:
-            #print("check name")
+            # print("check name")
             cursor.execute(
                 "SELECT id, path, sha1, mtime, size FROM file "
                 "WHERE name = ? COLLATE NOCASE LIMIT 1", (name.lower(),))
         else:
             path = self.encode_path(path)
-            #print(path)
-            #path = six.text_type(path)
-            #print("SELECT path, sha1, mtime, size FROM file "
-            #        "WHERE path = '{0}' LIMIT 1".format(path))
-            #self._cursor.execute("SELECT count(*) FROM file "
-            #        "WHERE lower(path) = ?", (path.lower(),))
+            # print(path)
+            # path = six.text_type(path)
+            # print("SELECT path, sha1, mtime, size FROM file "
+            #         "WHERE path = '{0}' LIMIT 1".format(path))
+            # self._cursor.execute("SELECT count(*) FROM file "
+            #         "WHERE lower(path) = ?", (path.lower(),))
 
-            #self._cursor.execute("SELECT * FROM file LIMIT 1 OFFSET 100")
-            #print(self._cursor.fetchall())
+            # self._cursor.execute("SELECT * FROM file LIMIT 1 OFFSET 100")
+            # print(self._cursor.fetchall())
 
             cursor.execute(
                 "SELECT id, path, sha1, mtime, size FROM file "
                 "WHERE path = ? LIMIT 1", (path,))
         row = cursor.fetchone()
-        #print("---------", row)
+        # print("---------", row)
         if row:
             path = self.decode_path(row[1])
             if result is not None:
@@ -336,8 +346,8 @@ class Database(BaseDatabase):
             name = os.path.basename(path)
         path = self.encode_path(path)
 
-        #print("adding path", path)
-        #p, name = os.path.split(path)
+        # print("adding path", path)
+        # p, name = os.path.split(path)
         cursor.execute(
             "INSERT INTO file (path, sha1, mtime, size, "
             "md5, crc32, name, scan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -356,7 +366,7 @@ class Database(BaseDatabase):
             "work_rating, sort_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "
             "?, ?)",
             (path, name, scan, search, uuid, data, type, reference,
-            like_rating, work_rating, sort_key))
+             like_rating, work_rating, sort_key))
 
     # def ensure_game_configuration(self, uuid, name, sort_key, scan=0, type=1):
     #     cursor = self.internal_cursor()
@@ -416,10 +426,10 @@ class Database(BaseDatabase):
     #     cursor = self.internal_cursor()
     #     cursor.execute("DELETE FROM configuration WHERE scan != ?", (scan,))
 
-    #def remove_unscanned_games(self, scan):
-    #    self.init()
-    #    self._cursor.execute("DELETE FROM game WHERE scan != ?",
-    #            (scan,))
+    # def remove_unscanned_games(self, scan):
+    #     self.init()
+    #     self._cursor.execute("DELETE FROM game WHERE scan != ?",
+    #             (scan,))
 
     def get_variant_for_list_and_game(self, list_uuid, game_uuid):
         cursor = self.internal_cursor()
@@ -434,11 +444,21 @@ class Database(BaseDatabase):
     def find_games_new(self, search="", have=3, list_uuid="",
                        database_only=False):
         print("Database.find_games_new search = {0}".format(repr(search)))
+        non_database_only = False
+        if list_uuid == self.GAME_LIST_GAMES:
+            database_only = True
+            list_uuid = ""
+        elif list_uuid == self.GAME_LIST_CONFIGS:
+            non_database_only = True
+            list_uuid = ""
+        elif list_uuid:
+            have = 0
+
         cursor = self.internal_cursor()
         query = "SELECT DISTINCT uuid, name, platform, year, publisher, " \
                 "front_image, title_image, screen1_image, screen2_image, " \
                 "screen3_image, screen4_image, screen5_image, have, path, " \
-                "sort_key FROM game"
+                "sort_key, subtitle, thumb_image, backdrop_image FROM game"
 
         args = []
         if list_uuid:
@@ -493,9 +513,9 @@ class Database(BaseDatabase):
                 continue
             if term:
                 # searching for quoted terms with space won't generally work
-                #if " " in term:
-                #    #additional_clauses.append(" AND search like ?")
-                #    #additional_args.append("%" + term + "%")
+                # if " " in term:
+                #     #additional_clauses.append(" AND search like ?")
+                #     #additional_args.append("%" + term + "%")
                 if exact_term:
                     query += (" INNER JOIN search_term as st{0} ON "
                               "game.id = st{0}.game AND "
@@ -520,6 +540,8 @@ class Database(BaseDatabase):
             args.append(list_uuid)
         if database_only:
             query += " AND path is NULL"
+        elif non_database_only:
+            query += " AND path is NOT NULL"
         query += " ORDER BY"
         if list_uuid:
             query += " game_list_game.position,"
@@ -530,43 +552,43 @@ class Database(BaseDatabase):
         cursor.execute(query, args)
         return cursor.fetchall()
 
-    #def add_game_new(self, uuid, name, platform, year, publisher, front_image,
-    #                 title_image, screen1_image, screen2_image, screen3_image,
-    #                 screen4_image, screen5_image, sort_key, scanned=0):
-    #    cursor = self.internal_cursor()
-    #    cursor.execute(
-    #        "SELECT * FROM game WHERE uuid = ? "
-    #        "AND name = ? AND platform = ? AND year = ? "
-    #        "AND publisher = ? AND front_image = ? AND title_image = ? "
-    #        "AND screen1_image = ? AND screen2_image = ? "
-    #        "AND screen3_image = ? AND screen4_image = ? "
-    #        "AND screen5_image = ? AND sort_key = ? AND scanned = ?",
-    #        (uuid, name, platform, year, publisher, front_image,
-    #        title_image, screen1_image, screen2_image, screen3_image,
-    #        screen4_image, screen5_image, sort_key, scanned))
-    #    row = cursor.fetchone()
-    #    if row is None:
-    #        cursor.execute("DELETE from game WHERE uuid = ?", (uuid,))
-    #        cursor.execute(
-    #            "INSERT INTO game(uuid, name, "
-    #            "platform, year, publisher, front_image, title_image, "
-    #            "screen1_image, screen2_image, screen3_image, "
-    #            "screen4_image, screen5_image, sort_key, scanned) "
-    #            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    #            (uuid, name, platform, year, publisher, front_image,
-    #            title_image, screen1_image, screen2_image, screen3_image,
-    #            screen4_image, screen5_image, sort_key, scanned))
+    # def add_game_new(self, uuid, name, platform, year, publisher, front_image,
+    #                  title_image, screen1_image, screen2_image, screen3_image,
+    #                  screen4_image, screen5_image, sort_key, scanned=0):
+    #     cursor = self.internal_cursor()
+    #     cursor.execute(
+    #         "SELECT * FROM game WHERE uuid = ? "
+    #         "AND name = ? AND platform = ? AND year = ? "
+    #         "AND publisher = ? AND front_image = ? AND title_image = ? "
+    #         "AND screen1_image = ? AND screen2_image = ? "
+    #         "AND screen3_image = ? AND screen4_image = ? "
+    #         "AND screen5_image = ? AND sort_key = ? AND scanned = ?",
+    #         (uuid, name, platform, year, publisher, front_image,
+    #         title_image, screen1_image, screen2_image, screen3_image,
+    #         screen4_image, screen5_image, sort_key, scanned))
+    #     row = cursor.fetchone()
+    #     if row is None:
+    #         cursor.execute("DELETE from game WHERE uuid = ?", (uuid,))
+    #         cursor.execute(
+    #             "INSERT INTO game(uuid, name, "
+    #             "platform, year, publisher, front_image, title_image, "
+    #             "screen1_image, screen2_image, screen3_image, "
+    #             "screen4_image, screen5_image, sort_key, scanned) "
+    #             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    #             (uuid, name, platform, year, publisher, front_image,
+    #             title_image, screen1_image, screen2_image, screen3_image,
+    #             screen4_image, screen5_image, sort_key, scanned))
 
-    #def add_game_variant_new(
-    #        self, uuid="", name="", game_uuid="", like_rating=0,
-    #        work_rating=0, scanned=0):
-    #    cursor = self.internal_cursor()
-    #    query = "INSERT INTO game_variant(uuid, name, game_uuid, " \
-    #            "like_rating, work_rating, scanned) VALUES " \
-    #            "(?, ?, ?, ?, ?, ?)"
-    #    args = (uuid, name, game_uuid, like_rating, work_rating, scanned)
-    #    cursor.execute(query, args)
-    #    return cursor.fetchall()
+    # def add_game_variant_new(
+    #         self, uuid="", name="", game_uuid="", like_rating=0,
+    #         work_rating=0, scanned=0):
+    #     cursor = self.internal_cursor()
+    #     query = "INSERT INTO game_variant(uuid, name, game_uuid, " \
+    #             "like_rating, work_rating, scanned) VALUES " \
+    #             "(?, ?, ?, ?, ?, ?)"
+    #     args = (uuid, name, game_uuid, like_rating, work_rating, scanned)
+    #     cursor.execute(query, args)
+    #     return cursor.fetchall()
 
     def get_ratings_for_game(self, game_uuid):
         cursor = self.internal_cursor()
@@ -607,12 +629,13 @@ class Database(BaseDatabase):
         cursor.execute("SELECT uuid, name FROM game_list")
         return cursor.fetchall()
 
-    def update_database_to_version_22(self):
+    def update_database_to_version_30(self):
         cursor = self.internal_cursor()
         cursor.execute("""CREATE TABLE game (
                 id INTEGER PRIMARY KEY,
                 uuid TEXT,
                 name TEXT,
+                subtitle TEXT,
                 platform TEXT,
                 year INTEGER,
                 publisher TEXT,
@@ -623,15 +646,19 @@ class Database(BaseDatabase):
                 screen3_image TEXT,
                 screen4_image TEXT,
                 screen5_image TEXT,
+                thumb_image TEXT,
+                backdrop_image TEXT,
                 sort_key TEXT,
                 have INTEGER,
                 path TEXT,
+                adult INT,
                 update_stamp INTEGER
         )""")
         cursor.execute("CREATE INDEX game_uuid ON game(uuid)")
         cursor.execute("CREATE INDEX game_sort_key ON game(sort_key)")
         cursor.execute("""CREATE TABLE game_variant (
                 id INTEGER PRIMARY KEY,
+                database TEXT,
                 uuid TEXT,
                 name TEXT,
                 game_uuid TEXT,
@@ -678,10 +705,3 @@ class Database(BaseDatabase):
             )""")
         cursor.execute("""CREATE INDEX game_list_game_list_uuid
             ON  game_list_game(list_uuid)""")
-
-    def update_database_to_version_23(self):
-        cursor = self.internal_cursor()
-        cursor.execute("ALTER TABLE game ADD COLUMN adult INT")
-        cursor.execute("UPDATE game SET adult = 1 WHERE id in "
-                       "(SELECT game FROM search_term "
-                       "WHERE term = 't:adult')")

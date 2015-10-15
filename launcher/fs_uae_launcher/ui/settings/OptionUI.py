@@ -1,14 +1,9 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import fsui as fsui
 from ...I18N import gettext
 from ...Settings import Settings
-from ...Signal import Signal
 from ...Options import Options
 from ..HelpButton import HelpButton
+from .overridewarning import OverrideWarning
 
 
 class OptionUI(object):
@@ -19,24 +14,25 @@ class OptionUI(object):
         group.layout = fsui.HorizontalLayout()
         option = Options.get(name)
         group.label = fsui.Label(group, gettext(option["description"]) + ":")
-        group.layout.add(group.label, margin_right=20)
+        group.layout.add(group.label, margin_right=10)
+        group.layout.add(OverrideWarning(group, name), margin_right=10)
         choice_values = []
 
-        if option["type"] == "boolean":
+        if option["type"].lower() == "boolean":
             if option["default"] == "1":
-                default_desc = gettext("Default ({0})").format(gettext("On"))
+                default_desc = gettext("Default - {0}").format(gettext("On"))
             elif option["default"] == "0":
-                default_desc = gettext("Default ({0})").format(gettext("Off"))
+                default_desc = gettext("Default - {0}").format(gettext("Off"))
             else:
                 default_desc = gettext("Default")
             choice_values.append(("", default_desc))
             choice_values.append(("1", gettext("On")))
             choice_values.append(("0", gettext("Off")))
 
-        elif option["type"] == "choice":
+        elif option["type"].lower() == "choice":
             for i, value in enumerate(option["values"]):
                 if option["default"] == value[0]:
-                    default_desc = gettext("Default ({0})").format(
+                    default_desc = gettext("Default - {0}").format(
                         gettext(value[1]))
                     break
             else:
@@ -45,17 +41,19 @@ class OptionUI(object):
             for option in option["values"]:
                 choice_values.append((option[0], gettext(option[1])))
 
-        elif option["type"] == "string":
+        elif option["type"].lower() == "string":
+
             def on_change():
-                value = text_field.get_text()
-                Settings.set(name, value.strip())
+                val = text_field.get_text()
+                Settings.set(name, val.strip())
+
             text_field = fsui.TextField(group)
-            #text_field.set_min_width(400)
+            # text_field.set_min_width(400)
             text_field.set_text(Settings.get(name))
             text_field.on_change = on_change
             group.layout.add(text_field, expand=True)
 
-        elif option["type"] == "integer" and "min" in option \
+        elif option["type"].lower() == "integer" and "min" in option \
                 and "max" in option:
             current = Settings.get(name)
             current_int = int(option["default"])
@@ -67,7 +65,7 @@ class OptionUI(object):
             current_int = max(option["min"], min(option["max"], current_int))
             check_box = fsui.CheckBox(group, gettext("Default"))
             spin_ctrl = fsui.SpinCtrl(group, option["min"],
-                    option["max"], current_int)
+                                      option["max"], current_int)
             if current == "":
                 check_box.check()
                 spin_ctrl.disable()
@@ -83,9 +81,9 @@ class OptionUI(object):
             check_box.on_change = on_checkbox
 
             def on_spin():
-                value = spin_ctrl.get_value()
-                value = max(option["min"], min(option["max"], value))
-                Settings.set(name, str(value))
+                val = spin_ctrl.get_value()
+                val = max(option["min"], min(option["max"], val))
+                Settings.set(name, str(val))
 
             spin_ctrl.on_change = on_spin
             group.layout.add_spacer(0, expand=True)

@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef WINDOWS
 #define _WIN32_WINNT 0x0501
 #include <Windows.h>
@@ -8,6 +12,7 @@
 #include <stddef.h>
 #include <glib.h>
 
+#include <fs/lazyness.h>
 #include <fs/log.h>
 #include "fs/ml.h"
 #include "ml_internal.h"
@@ -31,10 +36,8 @@ static char g_is_modifier_key[FS_ML_KEY_LAST] = {};
 //static int16_t g_key_mapping[3 * NUM_VKEYS] = {};
 
 static HWND g_window = 0;
-static HGLRC g_hglrc = 0;
+//static HGLRC g_hglrc = 0;
 static HKL g_keyboard_layout = 0;
-
-static int g_debug_keys = 0;
 
 static int g_mod_lalt = 0;
 static int g_mod_ralt = 0;
@@ -67,7 +70,7 @@ static void process_keyboard_input(LPRAWINPUT raw_input) {
     int vkey = raw_input->data.keyboard.VKey;
     int flags = raw_input->data.keyboard.Flags;
     int make_code = raw_input->data.keyboard.MakeCode;
-    if (g_debug_keys) {
+    if (g_fs_log_input) {
         fs_log("vkey...: %d (0x%x) make %d extra %d flags %d E0 %d E1 %d\n",
                 vkey, vkey, raw_input->data.keyboard.MakeCode,
                 raw_input->data.keyboard.ExtraInformation, flags,
@@ -528,19 +531,24 @@ static void init_key_mapping() {
 void fs_ml_init_raw_input() {
     fs_log("fs_ml_init_raw_input\n");
 
-    g_debug_keys = getenv("FS_DEBUG_INPUT") && \
-            getenv("FS_DEBUG_INPUT")[0] == '1';
-
     //list_input_devices();
     init_key_mapping();
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version); // this is important!
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+    if (SDL_GetWindowWMInfo(g_fs_ml_window, &info)) {
+#else
     if (SDL_GetWMInfo(&info)) {
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+        g_window = info.info.win.window;
+#else
         g_window = info.window;
-        g_hglrc = info.hglrc;
+#endif
+        //g_hglrc = info.hglrc;
     }
-
+ 
     g_wndproc = (WNDPROC) GetWindowLongPtr(g_window, GWLP_WNDPROC);
     SetWindowLongPtr(g_window, GWLP_WNDPROC, (LONG_PTR) WndProc);
     fs_log("old window proc: %p new window proc: %p\n", g_wndproc, WndProc);
@@ -565,5 +573,9 @@ void fs_ml_init_raw_input() {
 
     g_keyboard_layout = GetKeyboardLayout(0);
 }
+
+#else
+
+int libfsemu_ml_rawinput_dummy;
 
 #endif

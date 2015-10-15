@@ -1,7 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-
 from fsgs.mednafen.mednafen import MednafenRunner
 
 
@@ -22,6 +18,9 @@ class TurboGrafx16Runner(MednafenRunner):
             "types": [CONTROLLER]
         },
     ]
+
+    def __init__(self, fsgs):
+        super().__init__(fsgs)
 
     def mednafen_input_mapping(self, port):
         if port == 0:
@@ -50,6 +49,6 @@ class TurboGrafx16Runner(MednafenRunner):
     def mednafen_system_prefix(self):
         return "pce"
 
-    #def medmafen_video_size(self):
-    #    # FIXME
-    #    return 256, 240
+    # def medmafen_video_size(self):
+    #     # FIXME
+    #     return 256, 240

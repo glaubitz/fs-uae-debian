@@ -1,31 +1,40 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define _GNU_SOURCE 1
 #include <fs/filesys.h>
 
 #ifdef WINDOWS
 #include <windows.h>
-#else
+#endif
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#ifdef HAVE_UTIME_H
 #include <utime.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/stat.h>
+
 #include <fs/base.h>
-#include <fs/string.h>
+#include <fs/log.h>
 
 #ifdef USE_GLIB
 #include <glib.h>
 #include <glib/gstdio.h>
-#else
-
+#else /* NOT USE_GLIB */
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
 #include <libgen.h>
-
 #ifdef WINDOWS
 #define FS_IS_DIR_SEPARATOR(x) ((x) == '/' || (x) == '\\')
 #define FS_DIR_SEPARATOR '\\'
@@ -33,7 +42,16 @@
 #define FS_IS_DIR_SEPARATOR(x) ((x) == '/')
 #define FS_DIR_SEPARATOR '/'
 #endif
+#endif
 
+#ifdef WINDOWS
+typedef struct _stati64 stat_type;
+#define wstat_function _wstati64
+#define fstat_function _fstati64
+#else
+typedef struct stat stat_type;
+#define stat_function stat
+#define fstat_function fstat
 #endif
 
 #ifdef WINDOWS
@@ -126,23 +144,54 @@ static void file_time_to_time_val(FILETIME *ft, struct timeval *tv) {
 
 #endif
 
-#if defined(WINDOWS)
-
-#elif defined(MACOSX)
-#define HAVE_STAT_TV_NSEC2
-#else
-#define HAVE_STAT_TV_NSEC
-#endif
-
 // some code adapted from glib
 
+/*
+ * This function is copied from Glib because of an bug(?) in Mingw-w32 4.6.3
+ * which causes _wstat to not be defined as _wstati64 (while stat is defined
+ * as _stati64). This causes g_stat from glib to "fail" (garbage in stat
+ * buffer due to mistmatch of stat struct).
+ */
+static int g_stat_reimpl (const gchar *filename, stat_type *buf) {
+#if defined (USE_GLIB) && defined(G_OS_WIN32)
+  wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
+  int retval;
+  int save_errno;
+  int len;
+
+  if (wfilename == NULL)
+    {
+      errno = EINVAL;
+      return -1;
+    }
+
+  len = wcslen (wfilename);
+  while (len > 0 && G_IS_DIR_SEPARATOR (wfilename[len-1]))
+    len--;
+  if (len > 0 &&
+      (!g_path_is_absolute (filename) || len > g_path_skip_root (filename) - filename))
+    wfilename[len] = '\0';
+
+  // use explicit stat function (see define further up) to work around bug
+  retval = wstat_function (wfilename, buf);
+  save_errno = errno;
+
+  g_free (wfilename);
+
+  errno = save_errno;
+  return retval;
+#else
+  return stat_function (filename, buf);
+#endif
+}
+
 int fs_stat(const char *path, struct fs_stat *buf) {
-    struct stat st;
+    stat_type st;
 #ifdef USE_GLIB
     // g_stat handles unicode file names on Windows
-    int result = g_stat(path, &st);
+    int result = g_stat_reimpl(path, &st);
 #else
-    int result = stat(path, &st);
+    int result = stat_function(path, &st);
 #endif
 
     if (result == 0) {
@@ -152,15 +201,19 @@ int fs_stat(const char *path, struct fs_stat *buf) {
         buf->size = st.st_size;
         buf->mode = st.st_mode;
 
-#if defined(HAVE_STAT_TV_NSEC)
+#ifdef HAVE_STRUCT_STAT_ST_BLOCKS
+        buf->blocks = st.st_blocks;
+#endif
+
+#if defined(HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC)
         buf->atime_nsec = st.st_atim.tv_nsec;
         buf->mtime_nsec = st.st_mtim.tv_nsec;
         buf->ctime_nsec = st.st_ctim.tv_nsec;
-#elif defined(HAVE_STAT_TV_NSEC2)
+#elif defined(HAVE_STRUCT_STAT_ST_MTIMESPEC_TV_NSEC)
         buf->atime_nsec = st.st_atimespec.tv_nsec;
         buf->mtime_nsec = st.st_mtimespec.tv_nsec;
         buf->ctime_nsec = st.st_ctimespec.tv_nsec;
-#elif defined(HAVE_STAT_NSEC)
+#elif defined(HAVE_STRUCT_STAT_ST_MTIME_NSEC)
         buf->atime_nsec = st.st_atime_nsec;
         buf->mtime_nsec = st.st_mtime_nsec;
         buf->ctime_nsec = st.st_ctime_nsec;
@@ -199,7 +252,7 @@ int fs_stat(const char *path, struct fs_stat *buf) {
         }
         free(upath);
 #else
-#error no sub-second mtime
+    #error no sub-second mtime found in struct stat
 #endif
     }
     return result;
@@ -253,19 +306,177 @@ int64_t fs_path_get_size(const char *path) {
 }
 
 int fs_fstat(int fd, struct fs_stat *buf) {
-    struct stat st;
-    int result = fstat(fd, &st);
+    stat_type st;
+    int result = fstat_function(fd, &st);
     if (result == 0) {
         buf->atime = st.st_atime;
         buf->mtime = st.st_mtime;
         buf->ctime = st.st_ctime;
         buf->size = st.st_size;
         buf->mode = st.st_mode;
+#ifdef HAVE_STRUCT_STAT_ST_BLOCKS
+        buf->blocks = st.st_blocks;
+#endif
     }
     return result;
 }
 
-//#define USE_GLIB
+const char *fs_get_home_dir(void) {
+#ifdef USE_GLIB
+    return g_get_home_dir();
+#else
+    const char *result = getenv("HOME");
+    if (!result) {
+        result = "";
+    }
+    return result;
+#endif
+}
+
+const char *fs_get_documents_dir(void) {
+#ifdef USE_GLIB
+    return g_get_user_special_dir(G_USER_DIRECTORY_DOCUMENTS);
+#else
+    static const char *dir = NULL;
+    // FIXME: not MT safe
+    // FIXME: support XDG spec, Windows
+    if (dir == NULL) {
+        dir = g_build_filename(fs_get_home_dir(), "Documents", NULL);
+    }
+    return dir;
+#endif
+}
+
+const char *fs_get_desktop_dir(void) {
+#ifdef USE_GLIB
+    return g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP);
+#else
+    static const char *dir = NULL;
+    // FIXME: not MT safe
+    // FIXME: support XDG spec, Windows
+    if (dir == NULL) {
+        dir = g_build_filename(fs_get_home_dir(), "Desktop", NULL);
+    }
+    return dir;
+#endif
+}
+
+#ifdef USE_GLIB
+
+#else
+
+char *fs_get_current_dir(void) {
+#ifdef USE_GLIB
+    return g_get_current_dir();
+#else
+    //return get_current_dir_name();
+    char *buf = malloc(PATH_MAX);
+    char *result = getcwd(buf, PATH_MAX);
+    if (result == NULL) {
+        free(buf);
+        return fs_strdup("");
+    }
+    return buf;
+#endif
+}
+
+int fs_path_is_absolute(const char *path) {
+#ifdef USE_GLIB
+    return g_path_is_absolute(path);
+#else
+#ifdef WINDOWS
+    // simple check, only checking that it starts with x:
+    return path[0] != '\0' && path[1] == ':';
+#else
+    return path && path[0] == '/';
+#endif
+#endif
+}
+
+#define MAX_JOINED_PATH 1024
+
+char *fs_path_join(const char *first_element, ...) {
+    // MAX_JOINED_PATH 1024 + 1 terminating null character + 1 to
+    // be able to skip some checks
+    char *result = malloc(MAX_JOINED_PATH + 1 + 1);
+    int index = 0;
+    result[index] = '\0';
+    va_list args;
+    va_start(args, first_element);
+
+    const char *next_element = first_element;
+    while (1) {
+        const char *element;
+        //const gchar *start;
+        //const gchar *end;
+
+        if (!next_element) {
+            break;
+        }
+        element = next_element;
+        next_element = va_arg(args, const char*);
+
+        if (element[0] == '\0') {
+            // skip blank component
+            continue;
+        }
+
+        if (index > 0 && (result[index - 1] != '/'
+#ifdef WINDOWS
+                && result[index - 1] != '\\'
+#endif
+            )) {
+#ifdef WINDOWS
+            result[index] = '\\';
+#else
+            result[index] = '/';
+#endif
+            ++index;
+        }
+
+        //printf("%p %s\n", element, element);
+        int len = strlen(element);
+        if (index + len > MAX_JOINED_PATH) {
+            strcpy(result, "ERROR_MAX_JOINED_PATH");
+            break;
+        }
+
+        strcpy(result + index, element);
+        index += len;
+    }
+
+    va_end(args);
+    //printf(">>>>%s<\n", result);
+    return result;
+
+#if 0
+    gchar *str;
+    va_list args;
+    va_start(args, first_element);
+#ifndef WINDOWS
+    str = g_build_path_va("/", first_element, &args, NULL);
+#else
+    str = g_build_pathname_va(first_element, &args, NULL);
+#endif
+    va_end(args);
+    return str;
+#endif
+}
+
+static const char *path_skip_root(const char *fn) {
+    const char *p = fn;
+#ifdef WINDOWS
+    if (p[0] != '\0' && p[1] == ':') {
+        p += 2;
+        while (*p == '/' || *p == '\\') {
+            ++p;
+        }
+    }
+#else
+    while (*p++ == '/') {}
+#endif
+    return p;
+}
 
 struct fs_dir {
 #ifdef USE_GLIB
@@ -281,7 +492,7 @@ fs_dir* fs_dir_open(const char *path, int flags) {
     if (!gdir) {
         return NULL;
     }
-    fs_dir *dir = fs_new(fs_dir, 1);
+    fs_dir *dir = g_new(fs_dir, 1);
     dir->gdir = gdir;
     return dir;
 #else
@@ -373,23 +584,6 @@ int fs_mkdir(const char *path, int mode) {
 #endif
 }
 
-#ifndef USE_GLIB
-static const char *path_skip_root(const char *fn) {
-    const char *p = fn;
-#ifdef WINDOWS
-    if (p[0] != '\0' && p[1] == ':') {
-        p += 2;
-        while (*p == '/' || *p == '\\') {
-            ++p;
-        }
-    }
-#else
-    while (*p++ == '/') {}
-#endif
-    return p;
-}
-#endif
-
 int fs_mkdir_with_parents(const char *pathname, int mode) {
 #ifdef USE_GLIB
     return g_mkdir_with_parents(pathname, mode);
@@ -458,176 +652,4 @@ char *fs_path_get_basename(const char *path) {
 #endif
 }
 
-const char *fs_get_home_dir(void) {
-#ifdef USE_GLIB
-    return g_get_home_dir();
-#else
-    const char *result = getenv("HOME");
-    if (!result) {
-        result = "";
-    }
-    return result;
 #endif
-}
-
-const char *fs_get_documents_dir(void) {
-#ifdef USE_GLIB
-    return g_get_user_special_dir(G_USER_DIRECTORY_DOCUMENTS);
-#else
-    static const char *dir = NULL;
-    // FIXME: not MT safe
-    // FIXME: support XDG spec, Windows
-    if (dir == NULL) {
-        dir = fs_path_join(fs_get_home_dir(), "Documents", NULL);
-    }
-    return dir;
-#endif
-}
-
-const char *fs_get_desktop_dir(void) {
-#ifdef USE_GLIB
-    return g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP);
-#else
-    static const char *dir = NULL;
-    // FIXME: not MT safe
-    // FIXME: support XDG spec, Windows
-    if (dir == NULL) {
-        dir = fs_path_join(fs_get_home_dir(), "Desktop", NULL);
-    }
-    return dir;
-#endif
-}
-
-char *fs_get_current_dir(void) {
-#ifdef USE_GLIB
-    return g_get_current_dir();
-#else
-    //return get_current_dir_name();
-    char *buf = malloc(PATH_MAX);
-    char *result = getcwd(buf, PATH_MAX);
-    if (result == NULL) {
-        free(buf);
-        return fs_strdup("");
-    }
-    return buf;
-#endif
-}
-
-int fs_path_exists(const char *path) {
-#ifdef USE_GLIB
-    return g_file_test(path, G_FILE_TEST_EXISTS);
-#else
-    struct stat buf;
-    if (stat(path, &buf) != 0) {
-        return 0;
-    }
-    return 1;
-#endif
-}
-
-int fs_path_is_file(const char *path) {
-#ifdef USE_GLIB
-    return g_file_test(path, G_FILE_TEST_IS_REGULAR);
-#else
-    struct stat buf;
-    if (stat(path, &buf) != 0) {
-        return 0;
-    }
-    return S_ISREG(buf.st_mode);
-#endif
-}
-
-int fs_path_is_dir(const char *path) {
-#ifdef USE_GLIB
-    return g_file_test(path, G_FILE_TEST_IS_DIR);
-#else
-    struct stat buf;
-    if (stat(path, &buf) != 0) {
-        return 0;
-    }
-    return S_ISDIR(buf.st_mode);
-#endif
-}
-
-int fs_path_is_absolute(const char *path) {
-#ifdef USE_GLIB
-    return g_path_is_absolute(path);
-#else
-#ifdef WINDOWS
-    // simple check, only checking that it starts with x:
-    return path[0] != '\0' && path[1] == ':';
-#else
-    return path && path[0] == '/';
-#endif
-#endif
-}
-
-#define MAX_JOINED_PATH 1024
-
-char *fs_path_join(const char *first_element, ...) {
-    // MAX_JOINED_PATH 1024 + 1 terminating null character + 1 to
-    // be able to skip some checks
-    char *result = malloc(MAX_JOINED_PATH + 1 + 1);
-    int index = 0;
-    result[index] = '\0';
-    va_list args;
-    va_start(args, first_element);
-
-    const char *next_element = first_element;
-    while (1) {
-        const char *element;
-        //const gchar *start;
-        //const gchar *end;
-
-        if (!next_element) {
-            break;
-        }
-        element = next_element;
-        next_element = va_arg(args, const char*);
-
-        if (element[0] == '\0') {
-            // skip blank component
-            continue;
-        }
-
-        if (index > 0 && (result[index - 1] != '/'
-#ifdef WINDOWS
-                && result[index - 1] != '\\'
-#endif
-            )) {
-#ifdef WINDOWS
-            result[index] = '\\';
-#else
-            result[index] = '/';
-#endif
-            ++index;
-        }
-
-        //printf("%p %s\n", element, element);
-        int len = strlen(element);
-        if (index + len > MAX_JOINED_PATH) {
-            strcpy(result, "ERROR_MAX_JOINED_PATH");
-            break;
-        }
-
-        strcpy(result + index, element);
-        index += len;
-    }
-
-    va_end(args);
-    //printf(">>>>%s<\n", result);
-    return result;
-
-#if 0
-    gchar *str;
-    va_list args;
-    va_start(args, first_element);
-#ifndef WINDOWS
-    str = g_build_path_va("/", first_element, &args, NULL);
-#else
-    str = g_build_pathname_va(first_element, &args, NULL);
-#endif
-    va_end(args);
-    return str;
-#endif
-}

@@ -14,14 +14,23 @@
   *
   * Copyright 1996, 1997 Bernd Schmidt
   */
+#ifdef __cplusplus
 #include <string>
 using namespace std;
+#else
+#include <string.h>
+#include <ctype.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
 #include <limits.h>
+#ifdef FSUAE
+#include "uae/types.h"
+#else
 #include <tchar.h>
+#endif
 
 #ifndef __STDC__
 #ifndef _MSC_VER
@@ -111,7 +120,7 @@ struct utimbuf
 #endif
 
 #ifdef FSUAE
-// REGPARAM2 is declared in defines.h
+#include "uae/regparam.h"
 #else
 #if defined(__GNUC__) && defined(AMIGA)
 /* gcc on the amiga need that __attribute((regparm)) must */
@@ -188,21 +197,8 @@ typedef char uae_char;
 typedef struct { uae_u8 RGB[3]; } RGB;
 
 #ifdef FSUAE
-typedef int8_t uae_s8;
-typedef int16_t uae_s16;
-typedef int32_t uae_s32;
-typedef uint8_t uae_u8;
-typedef uint16_t uae_u16;
-typedef uint32_t uae_u32;
-
-// this only works when long long is 64 bit, of course, but it is better
-// that uae_s64 is long long than long since %lld can be used on both
-// 32 and 64-bit.
-typedef signed long long uae_s64;
-typedef unsigned long long  uae_u64;
-
-// FIXME: check exactly what this is used for
-typedef uae_u32 uaecptr;
+#define VAL64(a) (a ## LL)
+#define UVAL64(a) (a ## uLL)
 
 #else
 #if SIZEOF_SHORT == 2
@@ -305,8 +301,11 @@ extern void to_upper (TCHAR *s, int len);
 #define DONT_HAVE_POSIX
 #endif
 
-#if defined _WIN32
+#if !defined(FSUAE) && defined _WIN32
 
+//#ifdef FSUAE
+//#error _WIN32 should not be defined here
+//#endif
 #if defined __WATCOMC__
 
 #define O_NDELAY 0
@@ -317,8 +316,21 @@ extern void to_upper (TCHAR *s, int len);
 
 #elif defined __MINGW32__
 
+#include <winsock.h>
+
 #define O_NDELAY 0
+
+#define FILEFLAG_DIR     0x1
+#define FILEFLAG_ARCHIVE 0x2
+#define FILEFLAG_WRITE   0x4
+#define FILEFLAG_READ    0x8
+#define FILEFLAG_EXECUTE 0x10
+#define FILEFLAG_SCRIPT  0x20
+#define FILEFLAG_PURE    0x40
+
 #define mkdir(a,b) mkdir(a)
+
+#include "uae/regparam.h"
 
 #elif defined _MSC_VER
 
@@ -452,10 +464,14 @@ extern void mallocemu_free (void *ptr);
 
 #endif
 
+#ifdef FSUAE
+#include "uae/asm.h"
+#else
 #ifdef X86_ASSEMBLY
 #define ASM_SYM_FOR_FUNC(a) __asm__(a)
 #else
 #define ASM_SYM_FOR_FUNC(a)
+#endif
 #endif
 
 #include "target.h"
@@ -465,17 +481,25 @@ extern void mallocemu_free (void *ptr);
 #define write_log write_log_standard
 #endif
 
+#ifdef FSUAE
+#include "uae/log.h"
+#else
 #if __GNUC__ - 1 > 1 || __GNUC_MINOR__ - 1 > 6
-extern void write_log (const TCHAR *, ...) __attribute__ ((format (printf, 1, 2)));
+extern void write_log (const TCHAR *, ...);
+extern void write_log (const char *, ...) __attribute__ ((format (printf, 1, 2)));
 #else
 extern void write_log (const TCHAR *, ...);
+extern void write_log (const char *, ...);
+#endif
 #endif
 extern void write_dlog (const TCHAR *, ...);
+extern int read_log(void);
 
 extern void flush_log (void);
 extern TCHAR *setconsolemode (TCHAR *buffer, int maxlen);
 extern void close_console (void);
 extern void reopen_console (void);
+extern void activate_console (void);
 extern void console_out (const TCHAR *);
 extern void console_out_f (const TCHAR *, ...);
 extern void console_flush (void);
@@ -496,6 +520,9 @@ extern void log_close (FILE *f);
 #define O_BINARY 0
 #endif
 
+#ifdef FSUAE
+#include "uae/inline.h"
+#else
 #ifndef STATIC_INLINE
 #if __GNUC__ - 1 > 1 && __GNUC_MINOR__ - 1 >= 0
 #define STATIC_INLINE static __inline__ __attribute__ ((always_inline))
@@ -511,7 +538,11 @@ extern void log_close (FILE *f);
 #define NORETURN
 #endif
 #endif
+#endif
 
+#ifdef FSUAE // NL
+#include "uae/cycleunit.h"
+#else
 /* Every Amiga hardware clock cycle takes this many "virtual" cycles.  This
    used to be hardcoded as 1, but using higher values allows us to time some
    stuff more precisely.
@@ -525,6 +556,7 @@ extern void log_close (FILE *f);
 /* This one is used by cfgfile.c.  We could reduce the CYCLE_UNIT back to 1,
    I'm not 100% sure this code is bug free yet.  */
 #define OFFICIAL_CYCLE_UNIT 512
+#endif
 
 /*
  * You can specify numbers from 0 to 5 here. It is possible that higher
@@ -583,3 +615,8 @@ extern void xfree (const void*);
 
 #define DBLEQU(f, i) (abs ((f) - (i)) < 0.000001)
 
+#ifdef HAVE_VAR_ATTRIBUTE_UNUSED
+#define NOWARN_UNUSED(x) __attribute__((unused)) x
+#else
+#define NOWARN_UNUSED(x) x
+#endif

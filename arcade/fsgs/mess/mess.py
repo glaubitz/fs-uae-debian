@@ -1,9 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-
 from fsgs.mame.mame import MAMERunner
 
 
@@ -31,29 +25,29 @@ class MESSRunner(MAMERunner):
     def mess_romset(self):
         pass
 
-    #def mess_get_firmware_name(self):
-    #    return self.context.game.platform + ' Firmware'
+    # def mess_get_firmware_name(self):
+    #     return self.context.game.platform + ' Firmware'
 
     def mame_prepare(self):
         pass
-        #firmware_name = self.mess_get_firmware_name()
-        #if firmware_name:
-        #    self.mess_firmware_dir = self.prepare_firmware(firmware_name)
-        #else:
-        #    self.mess_firmware_dir = None
+        # firmware_name = self.mess_get_firmware_name()
+        # if firmware_name:
+        #     self.mess_firmware_dir = self.prepare_firmware(firmware_name)
+        # else:
+        #     self.mess_firmware_dir = None
 
     def mame_configure(self):
         self.add_arg(self.mess_romset()[0])
-        #self.configure_mame()
-        #with open(self.mednafen_cfg_path(), 'wb') as f:
-        #    self._configure_emulator(f)
-        #bios_dir = self.get_bios_dir()
-        #if bios_dir:
-        #    self.args.extend(['-rompath', bios_dir])
-        #self.args.extend(['-joystick_deadzone', '0.15'])
+        # self.configure_mame()
+        # with open(self.mednafen_cfg_path(), 'wb') as f:
+        #     self._configure_emulator(f)
+        # bios_dir = self.get_bios_dir()
+        # if bios_dir:
+        #     self.args.extend(['-rompath', bios_dir])
+        # self.args.extend(['-joystick_deadzone', '0.15'])
 
         self.mess_configure()
-        #self.mess_configure_media()
+        # self.mess_configure_media()
 
         if not self.mess_full_keyboard():
             # start mess with UI keyboard keys enabled by default,
@@ -68,7 +62,8 @@ class MESSRunner(MAMERunner):
         pass
 
     def run(self):
-        return self.start_emulator("fs-mess/mess")
+        # return self.start_emulator("fs-mess/mess")
+        return self.start_emulator_from_plugin_resource("mess")
 
     def mame_input_mapping(self, port):
         return self.mess_input_mapping(port)
@@ -87,7 +82,7 @@ class MESSRunner(MAMERunner):
         try:
             return self.mess_offset_and_scale()
         except NotImplementedError:
-            return MAMERunner.mame_offset_and_scale(self)
+            return super().mame_offset_and_scale()
 
 #    def mess_configure_media(self):
 #        pass
@@ -99,17 +94,21 @@ class MESSRunner(MAMERunner):
         # FIXME: this is a quick hack only..
         self.add_arg("-{0}".format(slots[0]), self.get_game_file())
 
-    def inject_fake_input_string(self, delay, inject_string):
+    def inject_fake_input_string_list(self, delay, inject_string):
         self.set_env("FSGS_FAKE_INPUT_DELAY", str(delay))
-        s = []
+        self.set_env("FSGS_FAKE_INPUT", "".join(inject_string))
 
-        def inject(code):
-            s.append("1{0:03d}".format(code))
-            s.append("0{0:03d}".format(code))
+    def inject_fake_input_string(self, delay, inject_string):
+
+        def inject(inject_key_code):
+            s.append("1{0:03d}".format(inject_key_code))
+            s.append("0{0:03d}".format(inject_key_code))
             # we add some dummy events to slow down the keyboard entry
-            #s.append("1000")
+
+            # s.append("1000")
             s.append("0000")
 
+        s = []
         for c in inject_string:
             if c == '"':
                 s.append("1304105000500304")
@@ -128,4 +127,5 @@ class MESSRunner(MAMERunner):
             else:
                 raise Exception("inject_fake_input_string cannot "
                                 "handle '{0}' yet".format(c))
-        self.set_env("FSGS_FAKE_INPUT", "".join(s))
+
+        self.inject_fake_input_string_list(delay, s)

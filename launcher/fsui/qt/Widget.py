@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import weakref
 from fsui.qt import Qt, QPoint
 from fsui.qt import QFontMetrics, QPalette, QWidget
@@ -11,11 +6,46 @@ from .DrawingContext import Font
 from .Color import Color
 
 
-class Widget(object):
+class MixinBase(object):
+
+    def __init__(self):
+        # self._timer_started = False
+        pass
+
+    def init_mixin_base(self):
+        pass
+
+    #     self._timer_started = False
+    # def set_timer(self, interval):
+    #     assert not self._timer_started
+    #     # noinspection PyUnresolvedReferences
+    #     self.startTimer(interval)
+    #     self._timer_started = True
+    #
+    # def on_timer(self):
+    #     pass
+    #
+    # # noinspection PyPep8Naming
+    # def timerEvent(self, _):
+    #     # import traceback
+    #     # traceback.print_stack()
+    #     print(self, _)
+    #     self.on_timer()
+
+
+# noinspection PyPep8Naming
+class Widget(MixinBase):
+
+    def __init__(self, *_):
+        # MixinBase.__init__(self)
+        self._parent = None
+        self._window = None
 
     def init_widget(self, parent):
+        self.init_mixin_base()
         # self.layout = None
         self._parent = weakref.ref(parent)
+        # noinspection PyProtectedMember
         self._window = parent._window
         # widget = getattr(self, "_widget", self)
         # widget.move(10000, 10000)
@@ -25,12 +55,18 @@ class Widget(object):
         assert isinstance(widget, QWidget)
         widget.installEventFilter(self.get_window())
 
+        widget.destroyed.connect(self.on_destroy)
+
+    def on_destroy(self):
+        print("on_destroy")
+
     def eventFilter(self, obj, event):
         return False
 
     def get_parent(self):
         if self._parent is None:
             return None
+        # noinspection PyCallingNonCallable
         return self._parent()
 
     def get_container(self):
@@ -87,9 +123,11 @@ class Widget(object):
         return widget.update()
 
     def set_min_width(self, width):
+        # noinspection PyAttributeOutsideInit
         self.min_width = width
     
     def set_min_height(self, height):
+        # noinspection PyAttributeOutsideInit
         self.min_height = height
     
     def get_min_width(self):
@@ -99,11 +137,16 @@ class Widget(object):
             if self.min_width:
                 width = max(self.min_width, width)
         if hasattr(self, "layout") and isinstance(self.layout, Layout):
-            #return self.layout.get_min_width()
-            #print(self.layout)
             width = max(self.layout.get_min_width(), width)
             return width
-        return max(width, widget.minimumSizeHint().width())
+        # result = max(width, widget.minimumSizeHint().width())
+        # if widget.maximumWidth():
+        #     print(widget.maximumWidth())
+        #     return min(result, widget.maximumWidth())
+        # return min(result, widget.maximumWidth())
+        # return result
+        result = max(width, widget.minimumSizeHint().width())
+        return min(result, widget.maximumWidth())
         # return max(width, widget.minimumWidth())
     
     def get_min_height(self):
@@ -119,9 +162,12 @@ class Widget(object):
         return max(height, widget.minimumSizeHint().height())
         # return max(height, widget.minimumHeight())
 
-    def set_position(self, position):
+    def set_position(self, position, y=None):
         widget = getattr(self, "_widget", self)
-        widget.move(*position)
+        if y is None:
+            widget.move(*position)
+        else:
+            widget.move(position, y)
 
     def set_size(self, size):
         widget = getattr(self, "_widget", self)
@@ -133,6 +179,7 @@ class Widget(object):
         widget.resize(*size)
 
     def get_window(self):
+        # noinspection PyCallingNonCallable
         return self._window()
         # # widget = getattr(self, "_widget", self)
         # parent = self
@@ -175,8 +222,11 @@ class Widget(object):
             self.layout.update()
 
     def set_background_color(self, color):
+        # noinspection PyUnresolvedReferences
+        self.setAutoFillBackground(True)
         widget = getattr(self, "_widget", self)
         p = widget.palette()
+        # noinspection PyUnresolvedReferences
         p.setColor(self.backgroundRole(), color)
         # p.setColor(self.backgroundRole(), QColor(0xff, 0xaa, 0xaa))
         widget.setPalette(p)
@@ -190,5 +240,5 @@ class Widget(object):
         menu.qmenu.popup(global_pos)
 
     def get_background_color(self):
+        # noinspection PyUnresolvedReferences
         return Color(self.palette().color(QPalette.Window))
-

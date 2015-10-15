@@ -8,6 +8,13 @@
   * (c) 2001-2005 Toni Wilen
   */
 
+#ifndef UAE_SCSIDEV_H
+#define UAE_SCSIDEV_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#endif
+
 uaecptr scsidev_startup (uaecptr resaddr);
 void scsidev_install (void);
 void scsidev_reset (void);
@@ -16,6 +23,7 @@ int scsi_do_disk_change (int unitnum, int insert, int *pollmode);
 int scsi_do_disk_device_change (void);
 uae_u32 scsi_get_cd_drive_mask (void);
 uae_u32 scsi_get_cd_drive_media_mask (void);
+int scsi_add_tape (struct uaedev_config_info *uci);
 
 extern int log_scsi;
 
@@ -25,3 +33,5 @@ extern int log_scsi;
 #define UAESCSI_SPTISCAN 2
 #define UAESCSI_LAST 2
 #endif
+
+#endif // UAE_SCSIDEV_H

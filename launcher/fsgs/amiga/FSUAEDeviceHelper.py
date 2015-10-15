@@ -1,12 +1,6 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
 import subprocess
-from fsbc.system import windows, macosx
-from fsbc.Application import Application
+from .FSUAE import FSUAE
 
 try:
     getcwd = os.getcwdu
@@ -24,54 +18,13 @@ class FSUAEDeviceHelper(object):
         print("using fs-uae executable:", exe)
         args = [exe] + args
         print(args)
-
-        proc = subprocess.Popen(args, **kwargs)
-        return proc
+        env = os.environ.copy()
+        FSUAE.add_environment_from_settings(env)
+        process = subprocess.Popen(
+            args, env=env, stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE, **kwargs)
+        return process
 
     @classmethod
     def find_executable(cls):
-        application = Application.instance()
-
-        if os.path.isdir("../fs-uae/src"):
-            # running FS-UAE Launcher from source directory, we
-            # then want to run the locally compiled fs-uae binary
-            path = "../fs-uae/fs-uae-device-helper"
-            if windows:
-                path += ".exe"
-            if os.path.isfile(path):
-                return path
-            raise Exception("Could not find development FS-UAE "
-                            "device helper executable")
-
-        if windows:
-            exe = os.path.join(
-                application.executable_dir(),
-                "fs-uae/fs-uae-device-helper.exe")
-            if not os.path.exists(exe):
-                exe = os.path.join(
-                    application.executable_dir(),
-                    "../fs-uae-device-helper.exe")
-        elif macosx:
-            exe = os.path.join(
-                application.executable_dir(),
-                "../FS-UAE.app/Contents/MacOS/fs-uae-device-helper")
-            if not os.path.exists(exe):
-                exe = os.path.join(
-                    application.executable_dir(),
-                    "../../../FS-UAE.app/Contents/MacOS/fs-uae-device-helper")
-            if not os.path.exists(exe):
-                exe = os.path.join(
-                    application.executable_dir(),
-                    "../../../Programs/Mac OS X/FS-UAE"
-                    ".app/Contents/MacOS/fs-uae-device-helper")
-            if not os.path.exists(exe):
-                exe = os.path.join(
-                    application.executable_dir(),
-                    "../../../FS-UAE Launcher.app/Contents/Resources/"
-                    "FS-UAE.app/Contents/MacOS/fs-uae-device-helper")
-        else:
-            return "fs-uae-device-helper"
-
-        if not os.path.exists(exe):
-            raise Exception("Could not find fs-uae-device-helper executable")
-        return exe
+        return FSUAE.find_executable("fs-uae-device-helper")

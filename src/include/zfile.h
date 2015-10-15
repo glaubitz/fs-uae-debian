@@ -6,6 +6,15 @@
   * (c) 1996 Samuel Devulder
   */
 
+#ifndef UAE_ZFILE_H
+#define UAE_ZFILE_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#include "zfile.h"
+#include <stddef.h>
+#endif
+
 struct zfile;
 struct zvolume;
 struct zdirectory;
@@ -43,6 +52,7 @@ extern struct zfile *zfile_fopen_empty (struct zfile*, const TCHAR *name);
 extern struct zfile *zfile_fopen_data (const TCHAR *name, uae_u64 size, const uae_u8 *data);
 extern struct zfile *zfile_fopen_load_zfile (struct zfile *f);
 extern uae_u8 *zfile_load_data (const TCHAR *name, const uae_u8 *data,int datalen, int *outlen);
+extern uae_u8 *zfile_load_file(const TCHAR *name, int *outlen);
 extern struct zfile *zfile_fopen_parent (struct zfile*, const TCHAR*, uae_u64 offset, uae_u64 size);
 
 extern int zfile_exists (const TCHAR *name);
@@ -67,6 +77,7 @@ extern int zfile_zuncompress (void *dst, int dstsize, struct zfile *src, int src
 extern int zfile_gettype (struct zfile *z);
 extern int zfile_zopen (const TCHAR *name, zfile_callback zc, void *user);
 extern TCHAR *zfile_getname (struct zfile *f);
+extern TCHAR *zfile_getoriginalname (struct zfile *f);
 extern TCHAR *zfile_getfilename (struct zfile *f);
 extern uae_u32 zfile_crc32 (struct zfile *f);
 extern struct zfile *zfile_dup (struct zfile *f);
@@ -122,6 +133,7 @@ extern struct zdirectory *zfile_opendir_archive (const TCHAR *path, int flags);
 extern void zfile_closedir_archive (struct zdirectory *);
 extern int zfile_readdir_archive (struct zdirectory *, TCHAR*);
 extern int zfile_readdir_archive (struct zdirectory *, TCHAR*, bool fullpath);
+extern struct zfile *zfile_readdir_archive_open (struct zdirectory *zd, const TCHAR *mode);
 extern void zfile_resetdir_archive (struct zdirectory *);
 extern int zfile_fill_file_attrs_archive (const TCHAR *path, int *isdir, int *flags, TCHAR **comment);
 extern uae_s64 zfile_lseek_archive (struct zfile *d, uae_s64 offset, int whence);
@@ -143,6 +155,11 @@ struct mystat
 	uae_s64 size;
 	uae_u32 mode;
 	struct mytimeval mtime;
+#ifdef FSUAE
+	uae_s64 st_blocks;
+#endif
 };
-extern void timeval_to_amiga (struct mytimeval *tv, int* days, int* mins, int* ticks);
-extern void amiga_to_timeval (struct mytimeval *tv, int days, int mins, int ticks);
+extern void timeval_to_amiga (struct mytimeval *tv, int* days, int* mins, int* ticks, int tickcount);
+extern void amiga_to_timeval (struct mytimeval *tv, int days, int mins, int ticks, int tickcount);
+
+#endif // UAE_ZFILE_H

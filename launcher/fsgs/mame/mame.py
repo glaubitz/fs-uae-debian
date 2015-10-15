@@ -1,19 +1,11 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-
 import os
-import shutil
 from fsbc.system import windows
 from fsbc.task import current_task
-from fsgs.GameChangeHandler import GameChangeHandler
 from fsgs.input.mapper import InputMapper
 from fsgs.runner import GameRunner
 
 
-#noinspection PyAttributeOutsideInit
+# noinspection PyAttributeOutsideInit
 class MAMERunner(GameRunner):
 
     def init(self):
@@ -73,7 +65,7 @@ class MAMERunner(GameRunner):
         system_rom_path = os.path.join(rom_path, self.romset)
         os.makedirs(system_rom_path)
 
-        for sha1, name in self.romset_files.items():
+        for sha1, name in self.romset_files:
             file_uri = self.fsgs.file.find_by_sha1(sha1)
             current_task.set_progress("Preparing ROM {name}".format(name=name))
             input_stream = self.fsgs.file.open(file_uri)
@@ -88,19 +80,19 @@ class MAMERunner(GameRunner):
 
         # MAME uses ; as path separator on all systems, apparently
         try:
-            #self.args.extend(["-rompath", self.bios_dir()])
-            rom_path = rom_path + u';' + self.mame_get_bios_dir()
+            # self.args.extend(["-rompath", self.bios_dir()])
+            rom_path = rom_path + ";" + self.mame_get_bios_dir()
         except:
             pass
-        # rom_path = rom_path + u';' + os.path.dirname(self.get_game_file())
+        # rom_path = rom_path + ";" + os.path.dirname(self.get_game_file())
 
-        #rom_path = rom_path + os.pathsep + os.path.dirname(
+        # rom_path = rom_path + os.pathsep + os.path.dirname(
         #        self.get_game_file())
         self.add_arg("-rompath", rom_path)
 
         # copy initial nvram disk, if any, to nvram dir
         # p, e = os.path.splitext(self.get_game_file())
-        # initram = p + u'.nv'
+        # initram = p + ".nv"
         # if os.path.exists(initram):
         #    shutil.copy(initram, os.path.join(state_dir, self.romset + '.nv'))
 
@@ -108,17 +100,17 @@ class MAMERunner(GameRunner):
             self.cfg_dir.path, "{romset}.cfg".format(romset=self.romset))
         self.add_arg("-cfg_directory", self.cfg_dir.path)
         self.add_arg("-nvram_directory", state_dir)
-        self.add_arg("-memcard_directory", state_dir)
-        #self.add_arg("-hiscore_directory", state_dir)
+        # self.add_arg("-memcard_directory", state_dir)
+        # self.add_arg("-hiscore_directory", state_dir)
         self.add_arg("-state_directory", state_dir)
         self.add_arg("-diff_directory", state_dir)
 
         self.add_arg("-snapshot_directory", self.screenshots_dir())
         self.add_arg("-snapname", "{0}-%i".format(self.screenshots_name()))
 
-        #self.change_handler = GameChangeHandler(self.cfg_dir.path)
-        #self.change_handler.init(
-        #    os.path.join(self.get_state_dir(), "cfg"))
+        # self.change_handler = GameChangeHandler(self.cfg_dir.path)
+        # self.change_handler.init(
+        #     os.path.join(self.get_state_dir(), "cfg"))
 
         self.configure_input()
         self.configure_video()
@@ -163,6 +155,13 @@ class MAMERunner(GameRunner):
 
     def configure_romset(self):
         self.romset, self.romset_files = self.mame_romset()
+        try:
+            # convert from dict to list
+            # noinspection PyUnresolvedReferences
+            self.romset_files = list(self.romset_files.items())
+        except AttributeError:
+            # already a list
+            pass
 
     def configure_input(self):
         # return
@@ -170,7 +169,7 @@ class MAMERunner(GameRunner):
         self.default_xml.append("        <input>\n")
         self.game_xml.append("        <input>\n")
         ports = {}
-        #for i, input in enumerate(self.inputs):
+        # for i, input in enumerate(self.inputs):
         for i, port in enumerate(self.ports):
             input_mapping = self.mame_input_mapping(i)
 
@@ -181,17 +180,17 @@ class MAMERunner(GameRunner):
                     key, type = key
                 else:
                     type = 'standard'
-                if not 'type=' in key:
+                if 'type=' not in key:
                     key = 'type="{0}"'.format(key)
                 key = key.replace("#", str(i + 1))
-                #if '/' in key:
-                #    key, tag = key.split('/')
-                #else:
-                #    tag = None
-                #if ':' in key:
-                #    key, type = key.split(':')
-                #else:
-                #    type = 'standard'
+                # if '/' in key:
+                #     key, tag = key.split('/')
+                # else:
+                #     tag = None
+                # if ':' in key:
+                #     key, type = key.split(':')
+                # else:
+                #     type = 'standard'
                 if 'AD_STICK' in key: # and type == 'standard':
                     analog_axis = True
                 else:
@@ -201,24 +200,23 @@ class MAMERunner(GameRunner):
                     # remove increment / decrement type, set type
                     # to standard since this is an analog axis
                     type = 'standard'
-                ports.setdefault(key, {}).setdefault(
-                        type, set()).add(value)
+                ports.setdefault(key, {}).setdefault(type, set()).add(value)
         for key, port in ports.items():
-            #key, tag = key
+            # key, tag = key
             if 'tag=' in key:
                 xml = self.game_xml
-                #xml.append(
-                #        '            <port tag="{tag}" '
-                #        'type="{key}" mask="1" default="0">'
-                #        '\n'.format(tag=tag, key=key))
-                #xml.append(
-                #        '            <port {key}>\n'.format(key=key))
+                # xml.append(
+                #         '            <port tag="{tag}" '
+                #         'type="{key}" mask="1" default="0">'
+                #         '\n'.format(tag=tag, key=key))
+                # xml.append(
+                #         '            <port {key}>\n'.format(key=key))
             else:
                 xml = self.default_xml
-                #xml.append(
-                #        '            <port type="{key}">\n'.format(key=key))
-                #xml.append(
-                #        '            <port {key}>\n'.format(key=key))
+                # xml.append(
+                #         '            <port type="{key}">\n'.format(key=key))
+                # xml.append(
+                #         '            <port {key}>\n'.format(key=key))
             xml.append('            <port {key}>\n'.format(key=key))
             for type, values in port.items():
                 xml.append('                <newseq type="{type}">\n'.format(
@@ -259,18 +257,18 @@ class MAMERunner(GameRunner):
         self.game_xml.append('/>\n')
         self.game_xml.append('        </video>\n')
 
-        #effect = 'none'
-        #filter_mapping = {
-        #    'auto': 'aperture1x2rb',
-        #    'rgb': 'aperture1x2rb',
-        #}
-        #for filter in self.context.config.filters:
-        #    try:
-        #        effect = filter_mapping[filter]
-        #    except KeyError:
-        #        continue
-        #    break
-        #self.args.extend(['-effect', effect])
+        # effect = 'none'
+        # filter_mapping = {
+        #     'auto': 'aperture1x2rb',
+        #     'rgb': 'aperture1x2rb',
+        # }
+        # for filter in self.context.config.filters:
+        #     try:
+        #         effect = filter_mapping[filter]
+        #     except KeyError:
+        #         continue
+        #     break
+        # self.args.extend(['-effect', effect])
 
         video_args = []
         if self.configure_vsync():
@@ -284,10 +282,10 @@ class MAMERunner(GameRunner):
             else:
                 video_args.append("-nothrottle")
                 pass
-            #if self.get_game_refresh_rate():
-            #    # should always be true since vsync was enabled...
-            #    self.args.extend(
-            #        ["-override_fps", str(self.get_game_refresh_rate())])
+            # if self.get_game_refresh_rate():
+            #     # should always be true since vsync was enabled...
+            #     self.args.extend(
+            #         ["-override_fps", str(self.get_game_refresh_rate())])
             if windows and False:
                 video_args.append('-notriplebuffer')
         else:
@@ -317,7 +315,7 @@ class MAMERunner(GameRunner):
             dst_x, dst_y, dst_w, dst_h = [int(v) for v in dst.split(" ")]
             sx = src_w / dst_w
             sy = src_h / dst_h
-            ox = -(((src_x + src_w / 2) - (dst_x + dst_w / 2)) / dst_w)
+            ox = (((src_x + src_w / 2) - (dst_x + dst_w / 2)) / dst_w)
             oy = ((src_y + src_h / 2) - (dst_y + dst_h / 2)) / dst_h
         return ox, oy, sx, sy
 
@@ -330,13 +328,14 @@ class MAMERunner(GameRunner):
 
     def run(self):
         self.add_arg(self.romset)
-        return self.start_emulator("fs-mame/mame")
+        # return self.start_emulator("fs-mame/mame")
+        return self.start_emulator_from_plugin_resource("fs-mame")
 
     def finish(self):
-        #if os.path.exists(os.path.join(self.cfg_dir.path, "default.cfg")):
-        #    os.unlink(os.path.join(self.cfg_dir.path, "default.cfg"))
-        #self.change_handler.update(
-        #    os.path.join(self.get_state_dir(), "cfg"))
+        # if os.path.exists(os.path.join(self.cfg_dir.path, "default.cfg")):
+        #     os.unlink(os.path.join(self.cfg_dir.path, "default.cfg"))
+        # self.change_handler.update(
+        #     os.path.join(self.get_state_dir(), "cfg"))
         pass
 
 

@@ -1,3 +1,10 @@
+#ifndef UAE_BLKDEV_H
+#define UAE_BLKDEV_H
+
+#ifdef FSUAE // NL
+#include "uae/types.h"
+#include "uae/limits.h"
+#endif
 
 #define DEVICE_SCSI_BUFSIZE (65536 - 1024)
 
@@ -79,8 +86,10 @@ struct device_info {
 	TCHAR vendorid[10];
 	TCHAR productid[18];
 	TCHAR revision[6];
-	TCHAR *backend;
+	const TCHAR *backend;
 	struct cd_toc_head toc;
+	TCHAR system_id[33];
+	TCHAR volume_id[33];
 };
 
 struct amigascsi
@@ -155,6 +164,7 @@ struct device_functions {
 extern int device_func_init(int flags);
 extern void device_func_reset(void);
 extern int sys_command_open (int unitnum);
+extern int sys_command_open_tape (int unitnum, const TCHAR *tape_directory, bool readonly);
 extern void sys_command_close (int unitnum);
 extern int sys_command_isopen (int unitnum);
 extern struct device_info *sys_command_info (int unitnum, struct device_info *di, int);
@@ -167,13 +177,14 @@ extern int sys_command_cd_qcode (int unitnum, uae_u8*);
 extern int sys_command_cd_toc (int unitnum, struct cd_toc_head*);
 extern int sys_command_cd_read (int unitnum, uae_u8 *data, int block, int size);
 extern int sys_command_cd_rawread (int unitnum, uae_u8 *data, int sector, int size, int sectorsize);
-extern int sys_command_cd_rawread (int unitnum, uae_u8 *data, int sector, int size, int sectorsize, uae_u8 scsicmd9, uae_u8 subs);
+int sys_command_cd_rawread (int unitnum, uae_u8 *data, int sector, int size, int sectorsize, uae_u8 sectortype, uae_u8 scsicmd9, uae_u8 subs);
 extern int sys_command_read (int unitnum, uae_u8 *data, int block, int size);
 extern int sys_command_write (int unitnum, uae_u8 *data, int block, int size);
-extern int sys_command_scsi_direct_native (int unitnum, struct amigascsi *as);
-extern int sys_command_scsi_direct (int unitnum, uaecptr request);
+extern int sys_command_scsi_direct_native (int unitnum, int type, struct amigascsi *as);
+extern int sys_command_scsi_direct (int unitnum, int type, uaecptr request);
 extern int sys_command_ismedia (int unitnum, int quick);
 extern struct device_info *sys_command_info_session (int unitnum, struct device_info *di, int, int);
+extern bool blkdev_get_info (struct uae_prefs *p, int unitnum, struct device_info *di);
 
 extern void scsi_atapi_fixup_pre (uae_u8 *scsi_cmd, int *len, uae_u8 **data, int *datalen, int *parm);
 extern void scsi_atapi_fixup_post (uae_u8 *scsi_cmd, int len, uae_u8 *olddata, uae_u8 *data, int *datalen, int parm);
@@ -181,7 +192,11 @@ extern void scsi_atapi_fixup_post (uae_u8 *scsi_cmd, int len, uae_u8 *olddata, u
 extern void scsi_log_before (uae_u8 *cdb, int cdblen, uae_u8 *data, int datalen);
 extern void scsi_log_after (uae_u8 *data, int datalen, uae_u8 *sense, int senselen);
 
+extern int scsi_cd_emulate (int unitnum, uae_u8 *cmdbuf, int scsi_cmd_len,
+	uae_u8 *scsi_data, int *data_len, uae_u8 *r, int *reply_len, uae_u8 *s, int *sense_len, bool atapi);
+
 extern void blkdev_vsync (void);
+extern void restore_blkdev_start(void);
 
 extern int msf2lsn (int msf);
 extern int lsn2msf (int lsn);
@@ -207,3 +222,9 @@ extern void blkdev_entergui (void);
 extern void blkdev_exitgui (void);
 
 bool filesys_do_disk_change (int, bool);
+
+extern struct device_functions devicefunc_scsi_ioctl;
+extern struct device_functions devicefunc_scsi_spti;
+extern struct device_functions devicefunc_cdimage;
+
+#endif /* UAE_BLKDEV_H */

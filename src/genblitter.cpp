@@ -6,18 +6,12 @@
   * Copyright 1995,1996 Bernd Schmidt
   * Copyright 1996 Alessandro Bissacco
   */
-#ifdef FSUAE
-#define UAE_CONSOLE
-#endif
 
 #include "sysconfig.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "genblitter.h"
-#ifdef FSUAE
-#define write_log_standard printf
-#endif
 
 /* Here is the minterm table used in blitter function generation */
 
@@ -101,7 +95,7 @@ static void generate_func(void)
 	if (c_is_on) printf("uae_u32 srcc = b->bltcdat;\n");
 	printf("uae_u32 dstd=0;\n");
 	printf("uaecptr dstp = 0;\n");
-#ifdef FSUAE
+#ifdef FSUAE_XXX
 	printf("for (j = b->vblitsize; j--; ) {\n");
 	if (a_is_on) {
 		printf("\tfor (i = 0; i < b->hblitsize; i++) {\n\t\tuae_u32 bltadat, srca;\n\n");
@@ -187,7 +181,7 @@ static void generate_func(void)
 	if (c_is_on) printf("uae_u32 srcc = b->bltcdat;\n");
 	printf("uae_u32 dstd = 0;\n");
 	printf("uaecptr dstp = 0;\n");
-#ifdef FSUAE
+#ifdef FSUAE_XXX
 	printf("for (j = b->vblitsize; j--; ) {\n");
 	if (a_is_on) {
 		printf("\tfor (i = 0; i < b->hblitsize; i++) {\n\t\tuae_u32 bltadat, srca;\n");

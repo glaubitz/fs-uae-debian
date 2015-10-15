@@ -1,17 +1,12 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os
-from fsgs import fsgs
+from fsgs.context import fsgs
 from fsgs.ChecksumTool import ChecksumTool
 import fsui as fsui
 from fsgs.amiga.Amiga import Amiga
 from ..CDManager import CDManager
 from ..Config import Config
 from ..FloppyManager import FloppyManager
-from ..I18N import _ as gettext
+from ..I18N import gettext
 from fsbc.Paths import Paths
 from fsgs.FSGSDirectories import FSGSDirectories
 from .IconButton import IconButton
@@ -60,17 +55,17 @@ class MediaListGroup(fsui.Group):
 
         add_button = IconButton(self, "add_button.png")
         add_button.set_tooltip(gettext("Add Files to List"))
-        add_button.on_activate = self.on_add_button
+        add_button.activated.connect(self.on_add_button)
         vert_layout.add(add_button, margin=10)
 
         remove_button = IconButton(self, "remove_button.png")
         remove_button.set_tooltip(gettext("Remove Selected Files"))
-        remove_button.on_activate = self.on_remove_button
+        remove_button.activated.connect(self.on_remove_button)
         vert_layout.add(remove_button, margin=10)
 
         clear_button = IconButton(self, "clear_button.png")
         clear_button.set_tooltip(gettext("Clear List"))
-        clear_button.on_activate = self.on_clear_list
+        clear_button.activated.connect(self.on_clear_list)
         vert_layout.add(clear_button, margin=10)
 
         self.update_list()
