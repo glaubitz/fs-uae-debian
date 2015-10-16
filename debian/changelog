@@ -1,3 +1,15 @@
+fs-uae (2.6.1+dfsg-2) unstable; urgency=medium
+
+  * Add debian/patches/0001-use-debian-libmpeg2-library.patch to
+    make sure to always use Debian's own libmpeg2 library during build.
+  * Add debian/fs-uae-netplay-server.lintian-overrides which overrides a
+    lintian error regarding calling 'adduser' in the preinst script of
+    fs-uae-netplayer-server as the homedir is actually created using 'usermod'.
+  * Add debian/fs-uae-netplay-server.postrm to remove unowned directories
+    after purging fs-uae-netplay-server. (Closes: #769774)
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 16 Oct 2015 22:54:04 +0200
+
 fs-uae (2.6.1+dfsg-1) unstable; urgency=medium
 
   * New upstream release.
