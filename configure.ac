@@ -112,8 +112,8 @@ AM_CONDITIONAL([BUILTIN_GLEE], [false])
 PKG_CHECK_MODULES([GLEW], [glew])
 
 # Todo: make configurable
-# PKG_CHECK_MODULES([LIBMPEG2], [libmpeg2 libmpeg2convert])
-AM_CONDITIONAL([BUILTIN_LIBMPEG2], [true])
+PKG_CHECK_MODULES([LIBMPEG2], [libmpeg2 libmpeg2convert])
+AM_CONDITIONAL([BUILTIN_LIBMPEG2], [false])
 
 AM_CONDITIONAL([BUILTIN_MANYMOUSE], [true])
 
@@ -627,7 +627,7 @@ OPT_FEATURE([FS_EMU_DRIVERS], [fs_emu_drivers], [fs-emu-drivers],
 
 AC_DEFINE([FPU_UAE], [1], [Define to 1])
 
-AC_CONFIG_SUBDIRS([libmpeg2])
+# AC_CONFIG_SUBDIRS([libmpeg2])
 
 # Write Makefile
 
