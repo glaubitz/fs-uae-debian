@@ -1,3 +1,14 @@
+fs-uae (2.6.2+dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop debian/patches/0001-use-debian-libmpeg2-library.patch,
+    upstream now always use the libmpeg2 library provided by
+    the distribution.
+  * Don't call 'dh' command with 'python2' in debian/rules to
+    avoid Python issues when backporting fs-uae to Jessie.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Wed, 28 Oct 2015 10:41:31 +0100
+
 fs-uae (2.6.1+dfsg-2) unstable; urgency=medium
 
   * Add debian/patches/0001-use-debian-libmpeg2-library.patch to
