@@ -1,3 +1,12 @@
+fs-uae (2.6.2+dfsg-2) unstable; urgency=medium
+
+  * Add debian/patches/0001-exclude-internal-libmpeg2-from-build.patch
+    which prevents the internal version of libmpeg2 from being built at
+    any time, even when fs-uae is not actually linked against the internal
+    version.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Wed, 28 Oct 2015 15:04:20 +0100
+
 fs-uae (2.6.2+dfsg-1) unstable; urgency=medium
 
   * New upstream release.
