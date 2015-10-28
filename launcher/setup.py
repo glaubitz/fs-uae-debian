@@ -20,7 +20,7 @@ title = "FS-UAE Launcher"
 name = "fs-uae-launcher"
 py_name = "fs_uae_launcher"
 tar_name = "fs-uae-launcher"
-version = "2.6.1"
+version = "2.6.2"
 author = "Frode Solheim"
 author_email = "frode@fs-uae.net"
 package_map = {
@@ -124,7 +124,7 @@ if sys.argv[1] == "build_exe":
     else:
         setup_kwargs["executables"] = [Executable(s) for s in scripts]
 
-    setup_kwargs["version"] = "2.6.1"
+    setup_kwargs["version"] = "2.6.2"
     build_exe_options = {
         "includes": [
         #    "ctypes",
@@ -172,7 +172,7 @@ if sys.platform == "win32" and False:
 
 if sys.platform == "darwin":
     setup_kwargs["name"] = title
-    setup_kwargs["version"] = "2.6.1"
+    setup_kwargs["version"] = "2.6.2"
 else:
     setup_kwargs["scripts"] = scripts
 
