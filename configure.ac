@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([FS-UAE], [2.6.1],
+AC_INIT([FS-UAE], [2.6.2],
         [frode@fs-uae.net], [fs-uae], [http://fs-uae.net])
 AC_CONFIG_AUX_DIR([.])
 AC_CANONICAL_HOST
@@ -150,8 +150,9 @@ PKG_CHECK_MODULES([OPENAL], [openal], [
         AS_CASE([$host_os],
 	[darwin*], [
 		AC_MSG_NOTICE([Using OpenAL.framework])
-		OPENAL_CFLAGS="-I/System/Library/Frameworks/OpenAL.framework/Headers"
+		# OPENAL_CFLAGS="-I/System/Library/Frameworks/OpenAL.framework/Headers"
 		# OPENAL_CFLAGS="-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/OpenAL.framework/Headers"
+		OPENAL_CFLAGS="-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenAL.framework/Headers"
 		OPENAL_LIBS="-framework OpenAL"
 
 	],
@@ -627,7 +628,7 @@ OPT_FEATURE([FS_EMU_DRIVERS], [fs_emu_drivers], [fs-emu-drivers],
 
 AC_DEFINE([FPU_UAE], [1], [Define to 1])
 
-# AC_CONFIG_SUBDIRS([libmpeg2])
+AC_CONFIG_SUBDIRS([libmpeg2])
 
 # Write Makefile
 

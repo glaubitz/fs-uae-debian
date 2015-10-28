@@ -1,6 +1,6 @@
 # Makefile.am for FS-UAE
 
-# SUBDIRS = libmpeg2
+SUBDIRS = libmpeg2
 
 WARNINGS =
 
