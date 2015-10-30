@@ -1,3 +1,16 @@
+fs-uae (2.6.2+dfsg-3) unstable; urgency=medium
+
+  * Add missing #DEBHELPER# token to debian/fs-uae-netplay-server.postrm
+    to ensure dh_installinit is called upon exit to clean up the rc.d
+    links installed for fs-uae-netplay-server (Closes: 803447).
+  * Always run debian/fs-uae-netplay-server.postrm with "set -e" so
+    that the script aborts upon any errors during execution.
+  * Add missing zero exit code at the end of
+    debian/fs-uae-netplay-server.postrm.
+  * Drop debian/menu file in compliance with CTTE decision (see #741573).
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 30 Oct 2015 12:42:51 +0100
+
 fs-uae (2.6.2+dfsg-2) unstable; urgency=medium
 
   * Add debian/patches/0001-exclude-internal-libmpeg2-from-build.patch
