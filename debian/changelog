@@ -1,3 +1,12 @@
+fs-uae (2.6.2+dfsg-4) unstable; urgency=medium
+
+  * Add debian/patches/0002-fix-sign-declarations.h which fixes the
+    sign declarations of multiple integer types. (Closes: #811779).
+  * Update years in debian/copyright.
+  * Update standards version to 3.9.8 in debian/control.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Mon, 16 May 2016 13:29:30 +0200
+
 fs-uae (2.6.2+dfsg-3) unstable; urgency=medium
 
   * Add missing #DEBHELPER# token to debian/fs-uae-netplay-server.postrm
