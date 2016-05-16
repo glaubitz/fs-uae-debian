@@ -1,1 +1,2 @@
 0001-exclude-internal-libmpeg2-from-build.patch
+0002-fix-sign-declarations.h
