@@ -12,10 +12,22 @@ else
 	OpenGL_dir := "."
 endif
 
+ifeq ($(wildcard arcade),)
+	arcade_dir := "../fs-uae-launcher"
+else
+	arcade_dir := "."
+endif
+
 ifeq ($(wildcard fsbc),)
 	fsbc_dir := "../fs-uae-launcher"
 else
 	fsbc_dir := "."
+endif
+
+ifeq ($(wildcard fsboot),)
+	fsboot_dir := "../fs-uae-launcher"
+else
+	fsboot_dir := "."
 endif
 
 ifeq ($(wildcard fsgs),)
@@ -34,12 +46,6 @@ ifeq ($(wildcard fsui),)
 	fsui_dir := "../fs-uae-launcher"
 else
 	fsui_dir := "."
-endif
-
-ifeq ($(wildcard game_center),)
-	game_center_dir := "../fs-uae-launcher"
-else
-	game_center_dir := "."
 endif
 
 ifeq ($(wildcard oyoyo),)
@@ -95,11 +101,12 @@ distdir:
 	mkdir -p $(dist_dir)
 
 	cp -a $(OpenGL_dir)/OpenGL $(dist_dir)/
+	cp -a $(arcade_dir)/arcade $(dist_dir)/
 	cp -a $(fsbc_dir)/fsbc $(dist_dir)/
+	cp -a $(fsboot_dir)/fsboot $(dist_dir)/
 	cp -a $(fsgs_dir)/fsgs $(dist_dir)/
 	cp -a $(fstd_dir)/fstd $(dist_dir)/
 	cp -a $(fsui_dir)/fsui $(dist_dir)/
-	cp -a $(game_center_dir)/game_center $(dist_dir)/
 	cp -a $(oyoyo_dir)/oyoyo $(dist_dir)/
 	cp -a $(six_dir)/six $(dist_dir)/
 	cp -a share $(dist_dir)/
@@ -124,6 +131,8 @@ distdir:
 	cp debian/rules $(dist_dir)/debian
 	mkdir -p $(dist_dir)/debian/source
 	cp debian/source/format $(dist_dir)/debian/source
+	mkdir -p $(dist_dir)/dist
+	cp dist/arch.py $(dist_dir)/dist
 	mkdir -p $(dist_dir)/dist/macosx
 	cp dist/macosx/Info.plist $(dist_dir)/dist/macosx
 	cp dist/macosx/Makefile $(dist_dir)/dist/macosx
@@ -140,7 +149,7 @@ distdir:
 	cd $(dist_dir) && ./update-version setup.py --strict
 	cd $(dist_dir) && ./update-version debian/changelog --deb
 	cd $(dist_dir) && ./update-version dist/macosx/Info.plist --strict
-	cd $(dist_dir) && ./update-version fs_uae_launcher/main.py
+	cd $(dist_dir) && ./update-version launcher/version.py
 	cd $(dist_dir) && ./update-version fs-uae-arcade
 	cd $(dist_dir) && ./update-version fs-uae-arcade.spec --rpm
 

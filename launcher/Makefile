@@ -12,22 +12,22 @@ else
 	OpenGL_dir := "."
 endif
 
-ifeq ($(wildcard fs_uae_launcher),)
-	fs_uae_launcher_dir := "."
+ifeq ($(wildcard arcade),)
+	arcade_dir := "."
 else
-	fs_uae_launcher_dir := "."
-endif
-
-ifeq ($(wildcard fs_uae_workspace),)
-	fs_uae_workspace_dir := "."
-else
-	fs_uae_workspace_dir := "."
+	arcade_dir := "."
 endif
 
 ifeq ($(wildcard fsbc),)
 	fsbc_dir := "."
 else
 	fsbc_dir := "."
+endif
+
+ifeq ($(wildcard fsboot),)
+	fsboot_dir := "."
+else
+	fsboot_dir := "."
 endif
 
 ifeq ($(wildcard fsgs),)
@@ -48,10 +48,10 @@ else
 	fsui_dir := "."
 endif
 
-ifeq ($(wildcard game_center),)
-	game_center_dir := "."
+ifeq ($(wildcard launcher),)
+	launcher_dir := "."
 else
-	game_center_dir := "."
+	launcher_dir := "."
 endif
 
 ifeq ($(wildcard oyoyo),)
@@ -66,6 +66,12 @@ else
 	six_dir := "."
 endif
 
+ifeq ($(wildcard workspace),)
+	workspace_dir := "."
+else
+	workspace_dir := "."
+endif
+
 all: mo
 
 share/locale/%/LC_MESSAGES/fs-uae-launcher.mo: po/%.po
@@ -77,11 +83,14 @@ catalogs = \
 	share/locale/da/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/de/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/el/LC_MESSAGES/fs-uae-launcher.mo \
+	share/locale/eo/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/es/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/fi/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/fr/LC_MESSAGES/fs-uae-launcher.mo \
+	share/locale/hu/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/it/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/nb/LC_MESSAGES/fs-uae-launcher.mo \
+	share/locale/nl/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/pl/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/pt/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/pt_BR/LC_MESSAGES/fs-uae-launcher.mo \
@@ -121,15 +130,16 @@ distdir:
 	mkdir -p $(dist_dir)
 
 	cp -a $(OpenGL_dir)/OpenGL $(dist_dir)/
-	cp -a $(fs_uae_launcher_dir)/fs_uae_launcher $(dist_dir)/
-	cp -a $(fs_uae_workspace_dir)/fs_uae_workspace $(dist_dir)/
+	cp -a $(arcade_dir)/arcade $(dist_dir)/
 	cp -a $(fsbc_dir)/fsbc $(dist_dir)/
+	cp -a $(fsboot_dir)/fsboot $(dist_dir)/
 	cp -a $(fsgs_dir)/fsgs $(dist_dir)/
 	cp -a $(fstd_dir)/fstd $(dist_dir)/
 	cp -a $(fsui_dir)/fsui $(dist_dir)/
-	cp -a $(game_center_dir)/game_center $(dist_dir)/
+	cp -a $(launcher_dir)/launcher $(dist_dir)/
 	cp -a $(oyoyo_dir)/oyoyo $(dist_dir)/
 	cp -a $(six_dir)/six $(dist_dir)/
+	cp -a $(workspace_dir)/workspace $(dist_dir)/
 	cp -a share $(dist_dir)/
 	mkdir $(dist_dir)/po/
 
@@ -152,15 +162,19 @@ distdir:
 	cp debian/rules $(dist_dir)/debian
 	mkdir -p $(dist_dir)/debian/source
 	cp debian/source/format $(dist_dir)/debian/source
+	mkdir -p $(dist_dir)/dist
+	cp dist/arch.py $(dist_dir)/dist
 	mkdir -p $(dist_dir)/dist/linux
 	cp dist/linux/Makefile $(dist_dir)/dist/linux
 	cp dist/linux/build.py $(dist_dir)/dist/linux
-	cp dist/linux/standalone.py $(dist_dir)/dist/linux
+	cp dist/linux/standalone-linux.py $(dist_dir)/dist/linux
 	mkdir -p $(dist_dir)/dist/macosx
 	cp dist/macosx/Info.plist $(dist_dir)/dist/macosx
 	cp dist/macosx/Makefile $(dist_dir)/dist/macosx
 	cp dist/macosx/fs-make-standalone-app.py $(dist_dir)/dist/macosx
 	cp dist/macosx/sign.py $(dist_dir)/dist/macosx
+	mkdir -p $(dist_dir)/dist/python
+	cp dist/python/Makefile $(dist_dir)/dist/python
 	mkdir -p $(dist_dir)/dist/steamos
 	cp dist/steamos/Makefile $(dist_dir)/dist/steamos
 	mkdir -p $(dist_dir)/dist/windows
@@ -181,11 +195,14 @@ distdir:
 	cp po/da.po $(dist_dir)/po
 	cp po/de.po $(dist_dir)/po
 	cp po/el.po $(dist_dir)/po
+	cp po/eo.po $(dist_dir)/po
 	cp po/es.po $(dist_dir)/po
 	cp po/fi.po $(dist_dir)/po
 	cp po/fr.po $(dist_dir)/po
+	cp po/hu.po $(dist_dir)/po
 	cp po/it.po $(dist_dir)/po
 	cp po/nb.po $(dist_dir)/po
+	cp po/nl.po $(dist_dir)/po
 	cp po/pl.po $(dist_dir)/po
 	cp po/pt.po $(dist_dir)/po
 	cp po/pt_BR.po $(dist_dir)/po
@@ -197,7 +214,7 @@ distdir:
 	cd $(dist_dir) && ./update-version setup.py --strict
 	cd $(dist_dir) && ./update-version debian/changelog --deb
 	cd $(dist_dir) && ./update-version dist/macosx/Info.plist --strict
-	cd $(dist_dir) && ./update-version fs_uae_launcher/main.py
+	cd $(dist_dir) && ./update-version launcher/version.py
 	cd $(dist_dir) && ./update-version fs-uae-launcher
 	cd $(dist_dir) && ./update-version fs-uae-launcher.spec --rpm
 

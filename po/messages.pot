@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Frode Solheim
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the fs-uae package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: frode@fs-uae.net\n"
-"POT-Creation-Date: 2015-09-21 00:42+0200\n"
+"POT-Creation-Date: 2016-05-03 22:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,7 +50,7 @@ msgid "CD32 Pad Mode"
 msgstr ""
 
 #. / TRANSLATORS: This is a menu entry and must not be too long
-msgid "Custom Joystick Port"
+msgid "Custom Joystick Ports"
 msgstr ""
 
 msgid "Custom Mode"
@@ -71,6 +71,10 @@ msgid "Empty"
 msgstr ""
 
 msgid "Emulator Control"
+msgstr ""
+
+#, c-format
+msgid "Expected FS-UAE version %s, got %s"
 msgstr ""
 
 #. / TRANSLATORS: In context "Zoom: Full Frame"
@@ -119,15 +123,6 @@ msgstr ""
 msgid "Joystick Port %d Mode"
 msgstr ""
 
-msgid "Joystick Port 2"
-msgstr ""
-
-msgid "Joystick Port 3"
-msgstr ""
-
-msgid "Joystick Port 4"
-msgstr ""
-
 msgid "Keyboard"
 msgstr ""
 
@@ -154,11 +149,14 @@ msgstr ""
 
 #. / TRANSLATORS: This is a menu entry and must not be too long: If you struggle
 #. / to get in short enough, just translate "No Device" instead.
+#. / The context is that nothing (no emulated device) is inserted into the
+#. / joystick port.
 msgid "No Amiga Device"
 msgstr ""
 
 #. / TRANSLATORS: This is a menu entry and must not be too long: If you struggle
 #. / to get in short enough, just translate "No Device" instead.
+#. / The context is that no host device is inserted into the joystick port.
 msgid "No Host Device"
 msgstr ""
 
