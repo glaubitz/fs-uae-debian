@@ -11,6 +11,13 @@ override_dh_auto_build:
 	dh_auto_build --sourcedirectory=launcher
 	make -C launcher
 
+override_dh_auto_configure:
+ifneq ($(filter $(DEB_BUILD_ARCH), amd64 i386 kfreebsd-amd64 kfreebsd-i386 x32),)
+	dh_auto_configure -- --enable-jit
+else
+	dh_auto_configure -- --disable-jit
+endif
+
 override_dh_auto_install:
 	make install prefix=$$(pwd)/debian/fs-uae/usr
 	make -C arcade install prefix=$$(pwd)/debian/fs-uae-arcade/usr
