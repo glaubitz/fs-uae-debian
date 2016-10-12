@@ -1,3 +1,12 @@
+fs-uae (2.8.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop debian/patches/0002-fix-sign-declarations.h, fixed upstream.
+  * Drop debian/patches/0001-exclude-internal-libmpeg2-from-build.patch,
+    upstream now disables their embedded version of libmpeg2 by default.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Wed, 12 Oct 2016 11:25:35 +0200
+
 fs-uae (2.6.2+dfsg-4) unstable; urgency=medium
 
   * Add debian/patches/0002-fix-sign-declarations.h which fixes the
