@@ -50,7 +50,7 @@ using namespace std;
 #elif defined(__powerpc__) || defined(__ppc__) || defined(_M_PPC)
 #define CPU_powerpc 1
 #else
-#define CPU_unknown 1
+#error unrecognized CPU type
 #endif
 
 #ifdef _WIN32
