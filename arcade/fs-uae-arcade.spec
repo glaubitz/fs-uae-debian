@@ -1,6 +1,6 @@
 %define name fs-uae-arcade
-%define version 2.6.2
-%define unmangled_version 2.6.2
+%define version 2.8.0
+%define unmangled_version 2.8.0
 %define release 1%{?dist}
 
 Summary: Fullscreen game browser for FS-UAE

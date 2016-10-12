@@ -1,7 +1,12 @@
 version = $(strip $(shell cat ../../VERSION))
-macos = fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"/Contents/MacOS/
-frameworks = fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"/Contents/Frameworks/
-resources = fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"/Contents/Resources/
+arch = $(strip $(shell python3 ../arch.py))
+
+ver_os_arch = $(version)_macosx_$(arch)
+dname = fs-uae-arcade_$(ver_os_arch)
+app = $(dname)/"FS-UAE Arcade.app"
+macos =  $(app)/Contents/MacOS/
+frameworks = $(app)/Contents/Frameworks/
+resources = $(app)/Contents/Resources/
 
 all: bindist-arcade
 
@@ -10,24 +15,24 @@ clean:
 
 arcade:
 	make -C ../..
-	rm -Rf fs-uae-arcade_$(version)_macosx	
-	mkdir -p fs-uae-arcade_$(version)_macosx
+	rm -Rf $(dname)
+	mkdir -p $(dname)
 	cd ../.. && python3 setup.py build_exe
 
-	#mv ../dist/"FS-UAE Arcade.app" fs-uae-arcade_$(version)_macosx/
+	#mv ../dist/"FS-UAE Arcade.app" $(dname)/
 	#cp -pPR ../share $(resources)/
-	# cp -pPR fs-uae_$(version)_macosx/FS-UAE.app fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"/Contents/Resources/
+	# cp -pPR fs-uae_$(version)_macosx/FS-UAE.app $(dname)/"FS-UAE Arcade.app"/Contents/Resources/
 
 	mkdir -p $(macos)
 	mkdir -p $(resources)
 	mv ../../build/*/* $(macos)
-	find fs-uae-arcade_$(version)_macosx/ -name *_debug.dylib -delete
-	mv fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app" fs-uae-arcade_$(version)_macosx/temp.app
-	python3 fs-make-standalone-app.py fs-uae-arcade_$(version)_macosx/temp.app
-	mv fs-uae-arcade_$(version)_macosx/temp.app fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"
-	cp Info.plist fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"/Contents/
+	find $(dname)/ -name *_debug.dylib -delete
+	mv $(dname)/"FS-UAE Arcade.app" $(dname)/temp.app
+	python3 fs-make-standalone-app.py $(dname)/temp.app
+	mv $(dname)/temp.app $(dname)/"FS-UAE Arcade.app"
+	cp Info.plist $(dname)/"FS-UAE Arcade.app"/Contents/
 	cp ../../icon/fs-uae-arcade.icns $(resources)/fs-uae-arcade.icns
-	# python3 sign.py fs-uae-arcade_$(version)_macosx/"FS-UAE Arcade.app"
+	# python3 sign.py $(dname)/"FS-UAE Arcade.app"
 
 bindist-arcade: arcade
-	cd fs-uae-arcade_$(version)_macosx && GZIP=-9 tar zcfv ../../../fs-uae-arcade_$(version)_macosx.tar.gz *
+	cd $(dname) && GZIP=-9 tar zcfv ../../../$(dname).tar.gz *

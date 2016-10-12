@@ -1,7 +1,9 @@
 %define name fs-uae
-%define version 2.6.2
-%define unmangled_version 2.6.2
+%define version 2.8.0
+%define unmangled_version 2.8.0
 %define release 1%{?dist}
+
+%undefine _hardened_build
 
 Summary: Amiga emulator with on-screen GUI and online play support
 Name: %{name}
@@ -18,6 +20,7 @@ BuildRequires: gcc-c++
 BuildRequires: hicolor-icon-theme
 BuildRequires: libpng-devel
 BuildRequires: libXi-devel
+BuildRequires: libXtst-devel
 BuildRequires: pkgconfig(gl)
 BuildRequires: pkgconfig(glew)
 BuildRequires: pkgconfig(glib-2.0)
@@ -28,8 +31,6 @@ BuildRequires: pkgconfig(sdl2)
 BuildRequires: pkgconfig(x11)
 BuildRequires: pkgconfig(zlib)
 BuildRequires: pkgconfig(freetype2)
-BuildRequires: pkgconfig(libmpeg2)
-BuildRequires: pkgconfig(libmpeg2convert)
 BuildRequires: zip
 
 %description
@@ -57,14 +58,7 @@ using the cursor keys and right ctrl/alt keys).
 %setup -n %{name}-%{unmangled_version}
 
 %build
-%configure
-# CFLAGS='%{optflags}'
-# CXXFLAGS='%{optflags}'
-# %if 0%{?mandriva_version}
-# CFLAGS="${CFLAGS} -Wno-error=format-security"
-# CXXFLAGS="${CXXFLAGS} -Wno-error=format-security"
-# %endif
-# export CFLAGS; export CXXFLAGS
+%configure --with-libmpeg2=builtin
 make %{?_smp_mflags}
 
 %install

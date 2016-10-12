@@ -1,34 +1,91 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 to enable A2065 ethernet card */
+/* A2065 ethernet card */
 #undef A2065
 
-/* Define to 1 to enable A590/A2091 SCSI */
+/* A590/A2091 SCSI */
 #undef A2091
 
-/* Define to 1 to enable Action Replay 1/2/3 support */
+/* Action Replay 1/2/3 support */
 #undef ACTION_REPLAY
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* Define to 1 to builtin AHI device */
+/* AGA chipset emulation */
+#undef AGA
+
+/* builtin AHI device (unsupported) */
 #undef AHI
 
-/* Define to 1 to enable DMS support */
+/* Arcadia arcade system */
+#undef ARCADIA
+
+/* autoconfig support, fast ram, harddrives etc... */
+#undef AUTOCONFIG
+
+/* DMS support */
 #undef A_DMS
 
-/* Define to 1 to enable ZIP archive support */
+/* ZIP archive support */
 #undef A_ZIP
 
-/* Define to 1 to enable IPF support via libcapsimage */
+/* built-in bsdsocket.library */
+#undef BSDSOCKET
+
+/* IPF support via libcapsimage */
 #undef CAPS
 
-/* Define to 1 to enable CD32 emulation */
+/* CD32 emulation */
 #undef CD32
 
-/* Define to 1 to enable CDTV emulation */
+/* CDTV emulation */
 #undef CDTV
+
+/* Code generation (disable for cross-compilation) */
+#undef CODEGEN
+
+/* generic 680x0 emulation */
+#undef CPUEMU_0
+
+/* 68000/68010 prefetch emulation */
+#undef CPUEMU_11
+
+/* 68000/68010 cycle-exact cpu&blitter */
+#undef CPUEMU_13
+
+/* 68020 prefetch */
+#undef CPUEMU_20
+
+/* 68020 "cycle-exact" + blitter */
+#undef CPUEMU_21
+
+/* 68030 prefetch */
+#undef CPUEMU_22
+
+/* 68030 "cycle-exact" + blitter */
+#undef CPUEMU_23
+
+/* 68060 "cycle-exact" + blitter */
+#undef CPUEMU_24
+
+/* 68040 "cycle-exact" + blitter (needs cpuemu-24) */
+#undef CPUEMU_25
+
+/* Aranym 68040 MMU */
+#undef CPUEMU_31
+
+/* Previous 68030 MMU */
+#undef CPUEMU_32
+
+/* 68060 MMU */
+#undef CPUEMU_33
+
+/* generic 680x0 with JIT direct memory access */
+#undef CPUEMU_40
+
+/* generic 680x0 with indirect memory access */
+#undef CPUEMU_50
 
 /* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
    systems. This function is required for `alloca.c' support on those systems.
@@ -38,19 +95,28 @@
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
-/* Define to 1 to enable drive sound emulation */
+/* debugger support (cannot be disabled right now) */
+#undef DEBUGGER
+
+/* drive sound emulation */
 #undef DRIVESOUND
 
-/* Define to 1 to enable FPU emulation */
+/* FDI 1.0 and 2.x image support */
+#undef FDI2RAW
+
+/* directory hard drives */
+#undef FILESYS
+
+/* FPU emulation */
 #undef FPUEMU
 
 /* Define to 1 */
 #undef FPU_UAE
 
-/* Define to 1 to enable multiple driver backends in libfsemu */
+/* multiple driver backends (experimental) */
 #undef FS_EMU_DRIVERS
 
-/* Define to 1 to enable GFX hardware boards */
+/* GFX hardware boards */
 #undef GFXBOARD
 
 /* Define to 1 if you have the `alarm' function. */
@@ -205,12 +271,6 @@
 /* Define to 1 if you have the `GL' library (-lGL). */
 #undef HAVE_LIBGL
 
-/* Define to 1 if you have the `GLU' library (-lGLU). */
-#undef HAVE_LIBGLU
-
-/* Define to 1 if you have the `GLU32' library (-lGLU32). */
-#undef HAVE_LIBGLU32
-
 /* Define to 1 if you have the `Iphlpapi' library (-lIphlpapi). */
 #undef HAVE_LIBIPHLPAPI
 
@@ -219,9 +279,6 @@
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
-
-/* Define to 1 if you have the `OpenGL32' library (-lOpenGL32). */
-#undef HAVE_LIBOPENGL32
 
 /* Define to 1 if you have the `Winmm' library (-lWinmm). */
 #undef HAVE_LIBWINMM
@@ -246,10 +303,6 @@
 
 /* Define to 1 if the system has the type 'long long int'. */
 #undef HAVE_LONG_LONG_INT
-
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
-   to 0 otherwise. */
-#undef HAVE_MALLOC
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
@@ -280,6 +333,12 @@
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
+
+/* Define to 1 if you have the <OpenAL/alc.h> header file. */
+#undef HAVE_OPENAL_ALC_H
+
+/* Define to 1 if you have the <OpenAL/al.h> header file. */
+#undef HAVE_OPENAL_AL_H
 
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
@@ -497,11 +556,20 @@
 /* Define to the extension used for runtime loadable modules, say, ".so". */
 #undef LT_MODULE_EXT
 
-/* Define to 1 to enable 53C9X SCSI */
+/* A4000T/A4091, 53C710/53C770 SCSI */
+#undef NCR
+
+/* 53C9X SCSI */
 #undef NCR9X
 
 /* Define to a name identifier for the operating system, "linux". */
 #undef OS_NAME
+
+/* Define to a nicely formatted name for the operating system, "Linux". */
+#undef OS_NAME_2
+
+/* New name identifier for the operating system, "Linux". */
+#undef OS_NAME_3
 
 /* Name of package */
 #undef PACKAGE
@@ -533,19 +601,31 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 to enable Picasso 96 (uaegfx.card) */
+/* parallell port (printer) emulation */
+#undef PARALLEL_PORT
+
+/* Picasso 96 (uaegfx.card) */
 #undef PICASSO96
 
 /* Define to 1 if you have POSIX serial support */
 #undef POSIX_SERIAL
 
-/* Define to 1 to enable prowizard request */
+/* prowizard */
 #undef PROWIZARD
 
-/* Define to 1 to enable uaenet.device */
+/* uaenet.device */
 #undef SANA2
 
-/* Define to 1 to enable serial port emulation */
+/* save state support */
+#undef SAVESTATE
+
+/* SuperCardPro floppy image support */
+#undef SCP
+
+/* uaescsi.device */
+#undef SCSIEMU
+
+/* serial port emulation */
 #undef SERIAL_PORT
 
 /* The size of `int', as computed by sizeof. */
@@ -574,20 +654,26 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
+/* static build (works on Windows) */
+#undef STATIC_BUILD
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME
 
+/* uaeserial.device */
+#undef UAESERIAL
+
 /* Which UAE core this version is based on. */
 #undef UAE_BASE_VERSION
 
-/* Define to 1 to use FreeType */
-#undef USE_FREETYPE
-
 /* Define to 1 to use GLib */
 #undef USE_GLIB
+
+/* JIT compilation of FPU instructions */
+#undef USE_JIT_FPU
 
 /* Define to 1 to use OpenAL */
 #undef USE_OPENAL
@@ -616,46 +702,67 @@
 /* Version number of package */
 #undef VERSION
 
-/* Define to 1 to enable builtin SLIRP implementation */
+/* built-in SLIRP implementation (unsupported) */
 #undef WITH_BUILTIN_SLIRP
 
-/* Define to 1 to enable cpu board emulation */
+/* Define to 1 to use CEF */
+#undef WITH_CEF
+
+/* cpu board emulation */
 #undef WITH_CPUBOARD
 
-/* Define to 1 to enable LUA scripting */
+/* Define to 1 to use GLAD */
+#undef WITH_GLAD
+
+/* Define to 1 to use GLEW */
+#undef WITH_GLEW
+
+/* Define to 1 to use libmpeg2 */
+#undef WITH_LIBMPEG2
+
+/* LUA scripting (unfinished) */
 #undef WITH_LUA
 
-/* Define to 1 to enable netplay support */
+/* netplay support */
 #undef WITH_NETPLAY
 
-/* Define to 1 to use PearPC for PPC emulation */
+/* use PearPC for PPC emulation (deprecated) */
 #undef WITH_PEARPC_CPU
 
-/* Define to 1 to enable PPC (requires cpu board) */
+/* PPC (requires cpu board) */
 #undef WITH_PPC
 
-/* Define to 1 to use QEmu for PPC emulation */
+/* use QEMU plugin for PPC emulation */
 #undef WITH_QEMU_CPU
 
-/* Define to 1 to enable QEMU SLIRP implementation */
+/* use QEMU plugin for SLIRP implementation */
 #undef WITH_QEMU_SLIRP
 
-/* Define to 1 to enable SLIRP (user mode NAT) */
+/* Define to 1 to use QT */
+#undef WITH_QT
+
+/* segtracker support in debugger */
+#undef WITH_SEGTRACKER
+
+/* SLIRP (user mode NAT) */
 #undef WITH_SLIRP
 
-/* Define to 1 to enable use of softfloat library */
+/* use softfloat library */
 #undef WITH_SOFTFLOAT
 
-/* Define to 1 to enable Toccata sound card emulation */
+/* Toccata sound card emulation */
 #undef WITH_TOCCATA
 
-/* Define to 1 to enable uaenative.library */
+/* uaenative.library */
 #undef WITH_UAENATIVE
 
-/* Define to 1 to enable UDIS86 x86/x86-64 disassembler */
+/* UDIS86 x86/x86-64 disassembler */
 #undef WITH_UDIS86
 
-/* Define to 1 to enable XML shader support */
+/* vpar virtual parallel port */
+#undef WITH_VPAR
+
+/* XML shader support */
 #undef WITH_XML_SHADER
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
@@ -726,9 +833,6 @@
 /* Define to the type of a signed integer type of width exactly 8 bits if such
    a type exists and the standard includes do not define it. */
 #undef int8_t
-
-/* Define to rpl_malloc if the replacement function should be used. */
-#undef malloc
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef mode_t

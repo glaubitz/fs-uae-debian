@@ -93,65 +93,80 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @F_NO_STRICT_OVERFLOW_TRUE@am__append_1 = -fno-strict-overflow
-@W_MISSING_DECLARATIONS_TRUE@am__append_2 = -Wmissing-declarations
-@W_ADDRESS_TRUE@am__append_3 = -Waddress
+@F_NO_STRICT_ALIASING_TRUE@am__append_2 = -fno-strict-aliasing
+@W_MISSING_DECLARATIONS_TRUE@am__append_3 = -Wmissing-declarations
+@W_ADDRESS_TRUE@am__append_4 = -Waddress
+@JIT_TRUE@@NO_PIE_TRUE@am__append_5 = -no-pie
+@STATIC_BUILD_TRUE@am__append_6 = -static
+@STATIC_BUILD_TRUE@am__append_7 = -DGLEW_STATIC -DAL_LIBTYPE_STATIC
+# Hack for OpenAL static missing libcommon.a
+# One or more .pc files are missing -liconv
+@STATIC_BUILD_TRUE@am__append_8 = ../openal-soft/libcommon.a -liconv
 bin_PROGRAMS = fs-uae$(EXEEXT) fs-uae-device-helper$(EXEEXT)
 noinst_PROGRAMS = gen/build68k$(EXEEXT) gen/genblitter$(EXEEXT) \
 	gen/gencomp$(EXEEXT) gen/gencpu$(EXEEXT) \
 	gen/genlinetoscr$(EXEEXT)
-@WINDOWS_TRUE@am__append_4 = src/fs-uae/fs-uae.rc
-@BUILTIN_GLEE_TRUE@am__append_5 = libglee.a
-@BUILTIN_GLEE_TRUE@am__append_6 = -I$(s)/glee
-@BUILTIN_GLEE_TRUE@am__append_7 = libglee.a
-@BUILTIN_GLEE_TRUE@am__append_8 = libglee.a
-@BUILTIN_MANYMOUSE_TRUE@am__append_9 = libmanymouse.a
-@BUILTIN_MANYMOUSE_TRUE@am__append_10 = -I$(s)/manymouse
-@BUILTIN_MANYMOUSE_TRUE@am__append_11 = libmanymouse.a
-@BUILTIN_MANYMOUSE_TRUE@am__append_12 = libmanymouse.a
-@WITH_PEARPC_CPU_TRUE@am__append_13 = libpearpc.a
-@WITH_PEARPC_CPU_TRUE@am__append_14 = -I$(s)/src/ppc/pearpc
-@WITH_PEARPC_CPU_TRUE@am__append_15 = libpearpc.a
-@WITH_PPC_TRUE@am__append_16 = \
+@WINDOWS_TRUE@am__append_9 = src/fs-uae/fs-uae.rc
+@BUILTIN_CEF_TRUE@am__append_10 = -I$(s)/cef
+@BUILTIN_CEF_TRUE@am__append_11 = cef/libcef_dll/libcef_dll_wrapper.a -L $(s)/cef/Release -lcef
+@BUILTIN_GLEE_TRUE@am__append_12 = libglee.a
+@BUILTIN_GLEE_TRUE@am__append_13 = -I$(s)/glee
+@BUILTIN_GLEE_TRUE@am__append_14 = libglee.a
+@BUILTIN_GLEE_TRUE@am__append_15 = libglee.a
+@BUILTIN_MANYMOUSE_TRUE@am__append_16 = libmanymouse.a
+@BUILTIN_MANYMOUSE_TRUE@am__append_17 = -I$(s)/manymouse
+@BUILTIN_MANYMOUSE_TRUE@am__append_18 = libmanymouse.a
+@BUILTIN_MANYMOUSE_TRUE@am__append_19 = libmanymouse.a
+@WITH_GLAD_TRUE@am__append_20 = libglad.a
+@WITH_GLAD_TRUE@am__append_21 = -I$(s)/glad/include
+@WITH_GLAD_TRUE@am__append_22 = libglad.a
+@WITH_GLAD_TRUE@am__append_23 = libglad.a
+@WITH_PEARPC_CPU_TRUE@am__append_24 = libpearpc.a
+@WITH_PEARPC_CPU_TRUE@am__append_25 = -I$(s)/src/ppc/pearpc
+@WITH_PEARPC_CPU_TRUE@am__append_26 = libpearpc.a
+@WITH_PPC_TRUE@am__append_27 = \
 @WITH_PPC_TRUE@	src/ppc/ppcd.cpp \
 @WITH_PPC_TRUE@	src/ppc/ppcd.h
 
-@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_17 = libslirp.a
-@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_18 = -I$(s)/src/slirp/include
-@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_19 = libslirp.a
-@WITH_TOCCATA_TRUE@am__append_20 = \
+@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_28 = libslirp.a
+@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_29 = -I$(s)/src/slirp/include
+@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_30 = libslirp.a
+@WITH_TOCCATA_TRUE@am__append_31 = \
 @WITH_TOCCATA_TRUE@	src/sndboard.cpp
 
-@WITH_UDIS86_TRUE@am__append_21 = libudis86.a
-@WITH_UDIS86_TRUE@am__append_22 = -I$(s)/libudis86/include
-@WITH_UDIS86_TRUE@am__append_23 = libudis86.a
-@WITH_LUA_TRUE@am__append_24 = liblua.a
-@WITH_LUA_TRUE@am__append_25 = -I$(s)/lua/src
-@WITH_LUA_TRUE@am__append_26 = liblua.a
-@WITH_LUA_TRUE@am__append_27 = \
+@WITH_UDIS86_TRUE@am__append_32 = libudis86.a
+@WITH_UDIS86_TRUE@am__append_33 = -I$(s)/libudis86/include
+@WITH_UDIS86_TRUE@am__append_34 = libudis86.a
+@WITH_LUA_TRUE@am__append_35 = liblua.a
+@WITH_LUA_TRUE@am__append_36 = -I$(s)/lua/src
+@WITH_LUA_TRUE@am__append_37 = liblua.a
+@WITH_LUA_TRUE@am__append_38 = \
 @WITH_LUA_TRUE@	src/fs-uae/luascript.c \
 @WITH_LUA_TRUE@	src/luascript.cpp
 
-@WITH_LUA_TRUE@am__append_28 = \
+@WITH_LUA_TRUE@am__append_39 = \
 @WITH_LUA_TRUE@	libfsemu/src/emu/emu_lua.c
 
-@PROWIZARD_TRUE@am__append_29 = libprowizard.a
-@PROWIZARD_TRUE@am__append_30 = -I$(s)/prowizard/include
-@PROWIZARD_TRUE@am__append_31 = libprowizard.a
-@PROWIZARD_TRUE@am__append_32 = src/moduleripper.cpp
-@WITH_SOFTFLOAT_TRUE@am__append_33 = libsoftfloat.a
-@WITH_SOFTFLOAT_TRUE@am__append_34 = -I$(s)/softfloat
-@WITH_SOFTFLOAT_TRUE@am__append_35 = libsoftfloat.a
-@BUILTIN_LIBMPEG2_TRUE@am__append_36 = -I$(s)/libmpeg2/include
-@BUILTIN_LIBMPEG2_TRUE@am__append_37 = \
+@PROWIZARD_TRUE@am__append_40 = libprowizard.a
+@PROWIZARD_TRUE@am__append_41 = -I$(s)/prowizard/include
+@PROWIZARD_TRUE@am__append_42 = libprowizard.a
+@PROWIZARD_TRUE@am__append_43 = src/moduleripper.cpp
+@WITH_SOFTFLOAT_TRUE@am__append_44 = libsoftfloat.a
+@WITH_SOFTFLOAT_TRUE@am__append_45 = -I$(s)/softfloat
+@WITH_SOFTFLOAT_TRUE@am__append_46 = libsoftfloat.a
+@BUILTIN_LIBMPEG2_TRUE@am__append_47 = libmpeg2
+@BUILTIN_LIBMPEG2_TRUE@am__append_48 = -I$(s)/libmpeg2/include
+@BUILTIN_LIBMPEG2_TRUE@am__append_49 = \
 @BUILTIN_LIBMPEG2_TRUE@	libmpeg2/libmpeg2/.libs/libmpeg2.a \
 @BUILTIN_LIBMPEG2_TRUE@	libmpeg2/libmpeg2/convert/.libs/libmpeg2convert.a
 
-@BUILTIN_LIBMPEG2_FALSE@am__append_38 = @LIBMPEG2_CFLAGS@
-@BUILTIN_LIBMPEG2_FALSE@am__append_39 = @LIBMPEG2_LIBS@
+@BUILTIN_LIBMPEG2_FALSE@am__append_50 = @LIBMPEG2_CFLAGS@
+@BUILTIN_LIBMPEG2_FALSE@am__append_51 = @LIBMPEG2_LIBS@
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_c___builtin_expect.m4 \
 	$(top_srcdir)/m4/ax_check_compile_flag.m4 \
+	$(top_srcdir)/m4/ax_check_link_flag.m4 \
 	$(top_srcdir)/m4/ax_gcc_var_attribute.m4 \
 	$(top_srcdir)/m4/ax_gcc_func_attribute.m4 \
 	$(top_srcdir)/configure.ac
@@ -184,7 +199,7 @@ nodist_libcpuemu_a_OBJECTS = gen/cpuemu_0.$(OBJEXT) \
 	gen/cpuemu_22.$(OBJEXT) gen/cpuemu_23.$(OBJEXT) \
 	gen/cpuemu_24.$(OBJEXT) gen/cpuemu_31.$(OBJEXT) \
 	gen/cpuemu_32.$(OBJEXT) gen/cpuemu_33.$(OBJEXT) \
-	gen/cpuemu_40.$(OBJEXT)
+	gen/cpuemu_40.$(OBJEXT) gen/cpuemu_50.$(OBJEXT)
 libcpuemu_a_OBJECTS = $(nodist_libcpuemu_a_OBJECTS)
 libdummy_a_AR = $(AR) $(ARFLAGS)
 libdummy_a_LIBADD =
@@ -199,7 +214,7 @@ am__libfsemu_a_SOURCES_DIST = libfsemu/include/fs/base.h \
 	libfsemu/include/fs/emu/actions.h \
 	libfsemu/include/fs/emu/audio.h \
 	libfsemu/include/fs/emu/benchmark.h \
-	libfsemu/include/fs/emu/buffer.h \
+	libfsemu/include/fs/emu/buffer.h libfsemu/include/fs/emu/cef.h \
 	libfsemu/include/fs/emu/dialog.h \
 	libfsemu/include/fs/emu/hacks.h \
 	libfsemu/include/fs/emu/input.h \
@@ -208,12 +223,12 @@ am__libfsemu_a_SOURCES_DIST = libfsemu/include/fs/base.h \
 	libfsemu/include/fs/emu/path.h libfsemu/include/fs/emu/video.h \
 	libfsemu/include/fs/endian.h libfsemu/include/fs/eventlog.h \
 	libfsemu/include/fs/filesys.h libfsemu/include/fs/fs.h \
-	libfsemu/include/fs/glib.h libfsemu/include/fs/glu.h \
-	libfsemu/include/fs/i18n.h libfsemu/include/fs/image.h \
-	libfsemu/include/fs/inifile.h libfsemu/include/fs/init.h \
-	libfsemu/include/fs/lazyness.h libfsemu/include/fs/log.h \
-	libfsemu/include/fs/main.h libfsemu/include/fs/malloc.h \
-	libfsemu/include/fs/ml.h libfsemu/include/fs/ml/opengl.h \
+	libfsemu/include/fs/glib.h libfsemu/include/fs/i18n.h \
+	libfsemu/include/fs/image.h libfsemu/include/fs/inifile.h \
+	libfsemu/include/fs/init.h libfsemu/include/fs/lazyness.h \
+	libfsemu/include/fs/log.h libfsemu/include/fs/main.h \
+	libfsemu/include/fs/malloc.h libfsemu/include/fs/ml.h \
+	libfsemu/include/fs/ml/opengl.h \
 	libfsemu/include/fs/ml/options.h libfsemu/include/fs/ref.h \
 	libfsemu/include/fs/thread.h libfsemu/include/fs/time.h \
 	libfsemu/include/fs/util.h libfsemu/src/audio/audio-common.c \
@@ -225,21 +240,22 @@ am__libfsemu_a_SOURCES_DIST = libfsemu/include/fs/base.h \
 	libfsemu/src/emu/actions.c libfsemu/src/emu/audio.h \
 	libfsemu/src/emu/audio_common.c libfsemu/src/emu/audio_debug.c \
 	libfsemu/src/emu/audio_dummy.c libfsemu/src/emu/audio_openal.c \
-	libfsemu/src/emu/audio_sdl.c libfsemu/src/emu/dialog.c \
-	libfsemu/src/emu/dialog.h libfsemu/src/emu/emu.c \
-	libfsemu/src/emu/emu_lua.h libfsemu/src/emu/font.c \
-	libfsemu/src/emu/font.h libfsemu/src/emu/hud.c \
-	libfsemu/src/emu/hud.h libfsemu/src/emu/input.c \
-	libfsemu/src/emu/input.h libfsemu/src/emu/keynames.c \
-	libfsemu/src/emu/libfsemu.h libfsemu/src/emu/menu.c \
-	libfsemu/src/emu/menu.h libfsemu/src/emu/netplay.c \
-	libfsemu/src/emu/netplay.h libfsemu/src/emu/render.c \
-	libfsemu/src/emu/render.h libfsemu/src/emu/scanlines.c \
-	libfsemu/src/emu/scanlines.h libfsemu/src/emu/texture.c \
-	libfsemu/src/emu/texture.h libfsemu/src/emu/theme.c \
-	libfsemu/src/emu/theme.h libfsemu/src/emu/util.c \
-	libfsemu/src/emu/util.h libfsemu/src/emu/video.c \
-	libfsemu/src/emu/video.h libfsemu/src/emu/video_buffer.c \
+	libfsemu/src/emu/audio_sdl.c libfsemu/src/emu/cef.cpp \
+	libfsemu/src/emu/dialog.c libfsemu/src/emu/dialog.h \
+	libfsemu/src/emu/emu.c libfsemu/src/emu/emu_lua.h \
+	libfsemu/src/emu/font.c libfsemu/src/emu/font.h \
+	libfsemu/src/emu/hud.c libfsemu/src/emu/hud.h \
+	libfsemu/src/emu/input.c libfsemu/src/emu/input.h \
+	libfsemu/src/emu/keynames.c libfsemu/src/emu/libfsemu.h \
+	libfsemu/src/emu/menu.c libfsemu/src/emu/menu.h \
+	libfsemu/src/emu/netplay.c libfsemu/src/emu/netplay.h \
+	libfsemu/src/emu/render.c libfsemu/src/emu/render.h \
+	libfsemu/src/emu/scanlines.c libfsemu/src/emu/scanlines.h \
+	libfsemu/src/emu/texture.c libfsemu/src/emu/texture.h \
+	libfsemu/src/emu/theme.c libfsemu/src/emu/theme.h \
+	libfsemu/src/emu/util.c libfsemu/src/emu/util.h \
+	libfsemu/src/emu/video.c libfsemu/src/emu/video.h \
+	libfsemu/src/emu/video_buffer.c \
 	libfsemu/src/emu/video_buffer.h \
 	libfsemu/src/emu/video_options.c libfsemu/src/emu/xml_shader.c \
 	libfsemu/src/emu/xml_shader.h libfsemu/src/eventlog.c \
@@ -265,6 +281,7 @@ am__libfsemu_a_SOURCES_DIST = libfsemu/include/fs/base.h \
 	libfsemu/src/video/video-common-sdl.c \
 	libfsemu/src/video/video-driver-dummy.c \
 	libfsemu/src/video/video-driver-sdl.c \
+	libfsemu/src/video/video-driver-sdl-software.c \
 	libfsemu/src/video/video-init.c libfsemu/src/emu/emu_lua.c
 @WITH_LUA_TRUE@am__objects_1 = libfsemu/src/emu/emu_lua.$(OBJEXT)
 am_libfsemu_a_OBJECTS = libfsemu/src/audio/audio-common.$(OBJEXT) \
@@ -280,6 +297,7 @@ am_libfsemu_a_OBJECTS = libfsemu/src/audio/audio-common.$(OBJEXT) \
 	libfsemu/src/emu/audio_dummy.$(OBJEXT) \
 	libfsemu/src/emu/audio_openal.$(OBJEXT) \
 	libfsemu/src/emu/audio_sdl.$(OBJEXT) \
+	libfsemu/src/emu/cef.$(OBJEXT) \
 	libfsemu/src/emu/dialog.$(OBJEXT) \
 	libfsemu/src/emu/emu.$(OBJEXT) libfsemu/src/emu/font.$(OBJEXT) \
 	libfsemu/src/emu/hud.$(OBJEXT) \
@@ -326,8 +344,14 @@ am_libfsemu_a_OBJECTS = libfsemu/src/audio/audio-common.$(OBJEXT) \
 	libfsemu/src/video/video-common-sdl.$(OBJEXT) \
 	libfsemu/src/video/video-driver-dummy.$(OBJEXT) \
 	libfsemu/src/video/video-driver-sdl.$(OBJEXT) \
+	libfsemu/src/video/video-driver-sdl-software.$(OBJEXT) \
 	libfsemu/src/video/video-init.$(OBJEXT) $(am__objects_1)
 libfsemu_a_OBJECTS = $(am_libfsemu_a_OBJECTS)
+libglad_a_AR = $(AR) $(ARFLAGS)
+libglad_a_LIBADD =
+am__libglad_a_SOURCES_DIST = glad/src/glad.c
+@WITH_GLAD_TRUE@am_libglad_a_OBJECTS = glad/src/glad.$(OBJEXT)
+libglad_a_OBJECTS = $(am_libglad_a_OBJECTS)
 libglee_a_AR = $(AR) $(ARFLAGS)
 libglee_a_LIBADD =
 am__libglee_a_SOURCES_DIST = glee/GLee.c glee/GLee.h
@@ -448,61 +472,40 @@ am__libprowizard_a_SOURCES_DIST = prowizard/include/extern.h \
 	prowizard/include/tuning.h prowizard/include/vars.h \
 	prowizard/misc/misc.c prowizard/misc/testbag.c \
 	prowizard/prowiz.c prowizard/r/AC1D_packer.c \
-	prowizard/r/AMOS-MusicBank.c \
-	prowizard/r/AMOS-PowerPackerBank.c \
-	prowizard/r/BP-Soundmonitor.c prowizard/r/BSI-FutureComposer.c \
-	prowizard/r/Bytekiller.c prowizard/r/ChipTracker.c \
-	prowizard/r/Crunchmania-Address.c \
-	prowizard/r/Crunchmania-Simple.c prowizard/r/datacrunchers.c \
-	prowizard/r/DefjamCruncher32-pro.c prowizard/r/DigiBooster17.c \
-	prowizard/r/DigitalIllusion.c prowizard/r/DoubleAction.c \
-	prowizard/r/Dragpack100.c prowizard/r/Dragpack252.c \
+	prowizard/r/AMOS-MusicBank.c prowizard/r/BP-Soundmonitor.c \
+	prowizard/r/BSI-FutureComposer.c prowizard/r/ChipTracker.c \
+	prowizard/r/DigiBooster17.c prowizard/r/DigitalIllusion.c \
 	prowizard/r/EurekaPacker.c prowizard/r/FastTracker2.c \
 	prowizard/r/FC-M-Packer.c prowizard/r/FuchsTracker.c \
 	prowizard/r/FutureComposer13.c prowizard/r/FutureComposer14.c \
 	prowizard/r/FuzzacPacker.c prowizard/r/GMC.c \
-	prowizard/r/GNUPacker12.c prowizard/r/GnuPlayer.c \
-	prowizard/r/GPMO.c prowizard/r/HeatseekerMC10.c \
-	prowizard/r/HornetPacker.c prowizard/r/HQC2.c \
+	prowizard/r/GnuPlayer.c prowizard/r/GPMO.c \
+	prowizard/r/HeatseekerMC10.c prowizard/r/HornetPacker.c \
 	prowizard/r/JamCracker.c prowizard/r/KefrensSoundMachine.c \
-	prowizard/r/MasterCruncher30-Address.c \
-	prowizard/r/MaxPacker12.c prowizard/r/MED-Octamed.c \
-	prowizard/r/MegaCruncher.c prowizard/r/MegaCruncher-Object.c \
-	prowizard/r/MOD-compatible.c prowizard/r/ModuleProtector.c \
-	prowizard/r/Mugician.c prowizard/r/Newtron.c \
-	prowizard/r/NewtronOld.c prowizard/r/NoiseFromHeaven.c \
-	prowizard/r/NoisePacker1.c prowizard/r/NoisePacker2.c \
-	prowizard/r/NoiseRunner.c prowizard/r/NovoTrade.c \
-	prowizard/r/NP3.c prowizard/r/PhaPacker.c \
-	prowizard/r/PolkaPacker.c prowizard/r/PowerMusic.c \
-	prowizard/r/PowerPacker23.c prowizard/r/PowerPacker30.c \
-	prowizard/r/PowerPacker40.c \
-	prowizard/r/PowerPacker40-library.c prowizard/r/Promizer01.c \
+	prowizard/r/MED-Octamed.c prowizard/r/MOD-compatible.c \
+	prowizard/r/ModuleProtector.c prowizard/r/Mugician.c \
+	prowizard/r/Newtron.c prowizard/r/NewtronOld.c \
+	prowizard/r/NoiseFromHeaven.c prowizard/r/NoisePacker1.c \
+	prowizard/r/NoisePacker2.c prowizard/r/NoiseRunner.c \
+	prowizard/r/NovoTrade.c prowizard/r/NP3.c \
+	prowizard/r/PhaPacker.c prowizard/r/PolkaPacker.c \
+	prowizard/r/PowerMusic.c prowizard/r/Promizer01.c \
 	prowizard/r/Promizer10c.c prowizard/r/Promizer18a.c \
 	prowizard/r/Promizer20.c prowizard/r/Promizer40.c \
 	prowizard/r/ProPacker10.c prowizard/r/ProPacker21.c \
 	prowizard/r/ProPacker30.c prowizard/r/Prorunner10.c \
 	prowizard/r/Prorunner20.c prowizard/r/QuadraComposer.c \
-	prowizard/r/RelokIt10.c prowizard/r/SGT-Packer.c \
-	prowizard/r/skizzo.c prowizard/r/SkytPacker.c \
-	prowizard/r/SoundFX.c prowizard/r/SoundTracker26.c \
-	prowizard/r/SoundTracker.c prowizard/r/SpikeCruncher.c \
+	prowizard/r/SGT-Packer.c prowizard/r/skizzo.c \
+	prowizard/r/SkytPacker.c prowizard/r/SoundFX.c \
+	prowizard/r/SoundTracker26.c prowizard/r/SoundTracker.c \
 	prowizard/r/StartrekkerPack.c prowizard/r/StimPacker.c \
-	prowizard/r/StoneArtsPlayer.c prowizard/r/StoneCracker270.c \
-	prowizard/r/StoneCracker299b.c prowizard/r/StoneCracker299.c \
-	prowizard/r/StoneCracker299d.c prowizard/r/StoneCracker300.c \
-	prowizard/r/StoneCracker310.c prowizard/r/SuperCruncher27.c \
-	prowizard/r/SyncroPacker46.c prowizard/r/TetraPack102.c \
-	prowizard/r/TetraPack21.c prowizard/r/TetraPack22.c \
-	prowizard/r/TheDarkDemon.c prowizard/r/ThePlayer22a.c \
-	prowizard/r/ThePlayer30a.c prowizard/r/ThePlayer40.c \
-	prowizard/r/ThePlayer41a.c prowizard/r/ThePlayer50a.c \
-	prowizard/r/ThePlayer60a.c prowizard/r/ThePlayer61a.c \
-	prowizard/r/TimeCruncher17.c prowizard/r/TitanicsPlayer.c \
-	prowizard/r/TMK.c prowizard/r/TNMCruncher.c \
-	prowizard/r/TrackerPacker1.c prowizard/r/TrackerPacker2.c \
-	prowizard/r/TrackerPacker3.c prowizard/r/TreasurePattern.c \
-	prowizard/r/TryItCruncher101.c prowizard/r/TurboSqueezer61.c \
+	prowizard/r/StoneArtsPlayer.c prowizard/r/TheDarkDemon.c \
+	prowizard/r/ThePlayer22a.c prowizard/r/ThePlayer30a.c \
+	prowizard/r/ThePlayer40.c prowizard/r/ThePlayer41a.c \
+	prowizard/r/ThePlayer50a.c prowizard/r/ThePlayer60a.c \
+	prowizard/r/ThePlayer61a.c prowizard/r/TitanicsPlayer.c \
+	prowizard/r/TMK.c prowizard/r/TrackerPacker1.c \
+	prowizard/r/TrackerPacker2.c prowizard/r/TrackerPacker3.c \
 	prowizard/r/UnicTracker2.c prowizard/r/UnicTracker.c \
 	prowizard/r/Viruz2.c prowizard/r/WantonPacker.c \
 	prowizard/r/XannPlayer.c prowizard/r/ZenPacker.c
@@ -512,20 +515,11 @@ am__libprowizard_a_SOURCES_DIST = prowizard/include/extern.h \
 @PROWIZARD_TRUE@	prowizard/prowiz.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/AC1D_packer.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/AMOS-MusicBank.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/AMOS-PowerPackerBank.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/BP-Soundmonitor.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/BSI-FutureComposer.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/Bytekiller.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/ChipTracker.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/Crunchmania-Address.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/Crunchmania-Simple.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/datacrunchers.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/DefjamCruncher32-pro.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/DigiBooster17.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/DigitalIllusion.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/DoubleAction.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/Dragpack100.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/Dragpack252.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/EurekaPacker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/FastTracker2.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/FC-M-Packer.$(OBJEXT) \
@@ -534,19 +528,13 @@ am__libprowizard_a_SOURCES_DIST = prowizard/include/extern.h \
 @PROWIZARD_TRUE@	prowizard/r/FutureComposer14.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/FuzzacPacker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/GMC.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/GNUPacker12.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/GnuPlayer.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/GPMO.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/HeatseekerMC10.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/HornetPacker.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/HQC2.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/JamCracker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/KefrensSoundMachine.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/MasterCruncher30-Address.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/MaxPacker12.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/MED-Octamed.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/MegaCruncher.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/MegaCruncher-Object.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/MOD-compatible.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/ModuleProtector.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/Mugician.$(OBJEXT) \
@@ -561,10 +549,6 @@ am__libprowizard_a_SOURCES_DIST = prowizard/include/extern.h \
 @PROWIZARD_TRUE@	prowizard/r/PhaPacker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/PolkaPacker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/PowerMusic.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker23.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker30.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker40.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker40-library.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/Promizer01.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/Promizer10c.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/Promizer18a.$(OBJEXT) \
@@ -576,28 +560,15 @@ am__libprowizard_a_SOURCES_DIST = prowizard/include/extern.h \
 @PROWIZARD_TRUE@	prowizard/r/Prorunner10.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/Prorunner20.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/QuadraComposer.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/RelokIt10.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/SGT-Packer.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/skizzo.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/SkytPacker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/SoundFX.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/SoundTracker26.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/SoundTracker.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/SpikeCruncher.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/StartrekkerPack.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/StimPacker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/StoneArtsPlayer.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker270.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker299b.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker299.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker299d.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker300.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker310.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/SuperCruncher27.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/SyncroPacker46.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TetraPack102.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TetraPack21.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TetraPack22.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/TheDarkDemon.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer22a.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer30a.$(OBJEXT) \
@@ -606,16 +577,11 @@ am__libprowizard_a_SOURCES_DIST = prowizard/include/extern.h \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer50a.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer60a.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer61a.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TimeCruncher17.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/TitanicsPlayer.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/TMK.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TNMCruncher.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/TrackerPacker1.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/TrackerPacker2.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/TrackerPacker3.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TreasurePattern.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TryItCruncher101.$(OBJEXT) \
-@PROWIZARD_TRUE@	prowizard/r/TurboSqueezer61.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/UnicTracker2.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/UnicTracker.$(OBJEXT) \
 @PROWIZARD_TRUE@	prowizard/r/Viruz2.$(OBJEXT) \
@@ -709,12 +675,21 @@ am_libuae_a_OBJECTS = src/a2065.$(OBJEXT) src/a2091.$(OBJEXT) \
 	src/consolehook.$(OBJEXT) src/cpuboard.$(OBJEXT) \
 	src/cpummu.$(OBJEXT) src/cpummu30.$(OBJEXT) \
 	src/crc32.$(OBJEXT) src/custom.$(OBJEXT) src/debug.$(OBJEXT) \
-	src/def_icons.$(OBJEXT) src/devices.$(OBJEXT) \
-	src/disk.$(OBJEXT) src/diskutil.$(OBJEXT) src/dlopen.$(OBJEXT) \
-	src/dongle.$(OBJEXT) src/drawing.$(OBJEXT) \
-	src/driveclick.$(OBJEXT) src/enforcer.$(OBJEXT) \
-	src/ethernet.$(OBJEXT) src/events.$(OBJEXT) \
-	src/expansion.$(OBJEXT) src/fdi2raw.$(OBJEXT) \
+	src/debuginfo.$(OBJEXT) src/def_icons.$(OBJEXT) \
+	src/devices.$(OBJEXT) src/disk.$(OBJEXT) \
+	src/diskutil.$(OBJEXT) src/dlopen.$(OBJEXT) \
+	src/dongle.$(OBJEXT) src/dosbox/cmos.$(OBJEXT) \
+	src/dosbox/core_full.$(OBJEXT) \
+	src/dosbox/core_normal.$(OBJEXT) \
+	src/dosbox/core_simple.$(OBJEXT) src/dosbox/cpu.$(OBJEXT) \
+	src/dosbox/db_memory.$(OBJEXT) src/dosbox/flags.$(OBJEXT) \
+	src/dosbox/fpu.$(OBJEXT) src/dosbox/keyboard.$(OBJEXT) \
+	src/dosbox/modrm.$(OBJEXT) src/dosbox/paging.$(OBJEXT) \
+	src/dosbox/pic.$(OBJEXT) src/dosbox/timer.$(OBJEXT) \
+	src/drawing.$(OBJEXT) src/driveclick.$(OBJEXT) \
+	src/enforcer.$(OBJEXT) src/ethernet.$(OBJEXT) \
+	src/events.$(OBJEXT) src/expansion.$(OBJEXT) \
+	src/fake86_cpu.$(OBJEXT) src/fdi2raw.$(OBJEXT) \
 	src/filesys.$(OBJEXT) src/flashrom.$(OBJEXT) src/fpp.$(OBJEXT) \
 	src/fsdb.$(OBJEXT) src/fsusage.$(OBJEXT) src/gayle.$(OBJEXT) \
 	src/gfxboard.$(OBJEXT) src/gfxutil.$(OBJEXT) \
@@ -723,10 +698,12 @@ am_libuae_a_OBJECTS = src/a2065.$(OBJEXT) src/a2091.$(OBJEXT) \
 	src/identify.$(OBJEXT) src/inputdevice.$(OBJEXT) \
 	src/isofs.$(OBJEXT) src/jit/compemu_fpp.$(OBJEXT) \
 	src/jit/compemu_support.$(OBJEXT) src/keybuf.$(OBJEXT) \
-	src/logging.$(OBJEXT) src/main.$(OBJEXT) src/memory.$(OBJEXT) \
-	src/native2amiga.$(OBJEXT) src/ncr9x_scsi.$(OBJEXT) \
-	src/ncr_scsi.$(OBJEXT) src/newcpu.$(OBJEXT) \
-	src/newcpu_common.$(OBJEXT) src/od-fs/ahi_winuae.$(OBJEXT) \
+	src/logging.$(OBJEXT) src/main.$(OBJEXT) \
+	src/mame/a2410.$(OBJEXT) src/mame/tm34010/tms34010.$(OBJEXT) \
+	src/memory.$(OBJEXT) src/native2amiga.$(OBJEXT) \
+	src/ncr9x_scsi.$(OBJEXT) src/ncr_scsi.$(OBJEXT) \
+	src/newcpu.$(OBJEXT) src/newcpu_common.$(OBJEXT) \
+	src/od-fs/ahi_winuae.$(OBJEXT) \
 	src/od-fs/ahidsound_new.$(OBJEXT) src/od-fs/audio.$(OBJEXT) \
 	src/od-fs/blkdev-linux.$(OBJEXT) \
 	src/od-fs/bsdsocket_host.$(OBJEXT) \
@@ -736,33 +713,37 @@ am_libuae_a_OBJECTS = src/a2065.$(OBJEXT) src/a2091.$(OBJEXT) \
 	src/od-fs/filesys_host.$(OBJEXT) src/od-fs/fsdb_host.$(OBJEXT) \
 	src/od-fs/gui.$(OBJEXT) src/od-fs/hardfile_host.$(OBJEXT) \
 	src/od-fs/input.$(OBJEXT) src/od-fs/inputrecord.$(OBJEXT) \
-	src/od-fs/joystick.$(OBJEXT) src/od-fs/keyboard.$(OBJEXT) \
-	src/od-fs/libamiga.$(OBJEXT) src/od-fs/logging.$(OBJEXT) \
-	src/od-fs/mman.$(OBJEXT) src/od-fs/mouse.$(OBJEXT) \
-	src/od-fs/parser.$(OBJEXT) src/od-fs/paths.$(OBJEXT) \
-	src/od-fs/roms.$(OBJEXT) src/od-fs/statusline.$(OBJEXT) \
-	src/od-fs/stubs.$(OBJEXT) src/od-fs/support.$(OBJEXT) \
-	src/od-fs/threading.$(OBJEXT) src/od-fs/uae_host.$(OBJEXT) \
-	src/od-fs/uaemisc.$(OBJEXT) src/od-fs/video.$(OBJEXT) \
+	src/od-fs/ioport.$(OBJEXT) src/od-fs/joystick.$(OBJEXT) \
+	src/od-fs/keyboard.$(OBJEXT) src/od-fs/libamiga.$(OBJEXT) \
+	src/od-fs/logging.$(OBJEXT) src/od-fs/mman.$(OBJEXT) \
+	src/od-fs/mouse.$(OBJEXT) src/od-fs/parser.$(OBJEXT) \
+	src/od-fs/paths.$(OBJEXT) src/od-fs/roms.$(OBJEXT) \
+	src/od-fs/statusline.$(OBJEXT) src/od-fs/stubs.$(OBJEXT) \
+	src/od-fs/support.$(OBJEXT) src/od-fs/threading.$(OBJEXT) \
+	src/od-fs/uae_host.$(OBJEXT) src/od-fs/uaemisc.$(OBJEXT) \
+	src/od-fs/video.$(OBJEXT) src/od-fs/vpar.$(OBJEXT) \
 	src/od-win32/caps/caps_win32.$(OBJEXT) \
 	src/od-win32/picasso96_win.$(OBJEXT) \
 	src/od-win32/serial_win32.$(OBJEXT) \
-	src/od-win32/win32_uaenet.$(OBJEXT) \
-	src/ppc/pixman-stubs.$(OBJEXT) src/ppc/ppc.$(OBJEXT) \
-	src/qemu.$(OBJEXT) src/qemuvga/cirrus_vga.$(OBJEXT) \
+	src/od-win32/win32_uaenet.$(OBJEXT) src/patch.$(OBJEXT) \
+	src/pci.$(OBJEXT) src/ppc/pixman-stubs.$(OBJEXT) \
+	src/ppc/ppc.$(OBJEXT) src/qemu.$(OBJEXT) \
+	src/qemuvga/cirrus_vga.$(OBJEXT) src/qemuvga/es1370.$(OBJEXT) \
 	src/qemuvga/esp.$(OBJEXT) src/qemuvga/lsi53c710.$(OBJEXT) \
-	src/qemuvga/lsi53c895a.$(OBJEXT) \
+	src/qemuvga/lsi53c895a.$(OBJEXT) src/qemuvga/ne2000.$(OBJEXT) \
 	src/qemuvga/qemuuaeglue.$(OBJEXT) src/qemuvga/vga.$(OBJEXT) \
 	src/random.$(OBJEXT) src/readcpu.$(OBJEXT) \
 	src/rommgr.$(OBJEXT) src/sana2.$(OBJEXT) \
 	src/savestate.$(OBJEXT) src/scp.$(OBJEXT) src/scsi.$(OBJEXT) \
 	src/scsiemul.$(OBJEXT) src/scsitape.$(OBJEXT) \
-	src/slirp.$(OBJEXT) src/specialmonitors.$(OBJEXT) \
-	src/statusline.$(OBJEXT) src/traps.$(OBJEXT) \
+	src/segtracker.$(OBJEXT) src/slirp_uae.$(OBJEXT) \
+	src/specialmonitors.$(OBJEXT) src/statusline.$(OBJEXT) \
+	src/support/socket.$(OBJEXT) src/support/time.$(OBJEXT) \
+	src/test_card.$(OBJEXT) src/traps.$(OBJEXT) \
 	src/uaeexe.$(OBJEXT) src/uaelib.$(OBJEXT) \
 	src/uaenative.$(OBJEXT) src/uaeresource.$(OBJEXT) \
-	src/uaeserial.$(OBJEXT) src/zfile.$(OBJEXT) \
-	src/zfile_archive.$(OBJEXT)
+	src/uaeserial.$(OBJEXT) src/vm.$(OBJEXT) src/x86.$(OBJEXT) \
+	src/zfile.$(OBJEXT) src/zfile_archive.$(OBJEXT)
 nodist_libuae_a_OBJECTS = gen/blitfunc.$(OBJEXT) \
 	gen/blittable.$(OBJEXT) gen/compemu.$(OBJEXT) \
 	gen/compstbl.$(OBJEXT) gen/cpudefs.$(OBJEXT) \
@@ -794,12 +775,12 @@ am__fs_uae_SOURCES_DIST = src/fs-uae/config.c \
 	src/fs-uae/config-drives.h src/fs-uae/config-graphics.c \
 	src/fs-uae/config-graphics.h src/fs-uae/config-hardware.c \
 	src/fs-uae/config-hardware.h src/fs-uae/config-model.c \
-	src/fs-uae/config-model.h src/fs-uae/config-sound.c \
-	src/fs-uae/config-sound.h src/fs-uae/fs-uae.h \
-	src/fs-uae/input.c src/fs-uae/joystick.c src/fs-uae/keyboard.c \
-	src/fs-uae/main.c src/fs-uae/menu.c src/fs-uae/mouse.c \
-	src/fs-uae/options.h src/fs-uae/paths.c src/fs-uae/paths.h \
-	src/fs-uae/plugins.c src/fs-uae/plugins.h \
+	src/fs-uae/config-model.h src/fs-uae/config-paths.c \
+	src/fs-uae/config-sound.c src/fs-uae/config-sound.h \
+	src/fs-uae/fs-uae.h src/fs-uae/input.c src/fs-uae/joystick.c \
+	src/fs-uae/keyboard.c src/fs-uae/main.c src/fs-uae/menu.c \
+	src/fs-uae/mouse.c src/fs-uae/options.h src/fs-uae/paths.c \
+	src/fs-uae/paths.h src/fs-uae/plugins.c src/fs-uae/plugins.h \
 	src/fs-uae/recording.c src/fs-uae/recording.h \
 	src/fs-uae/uae_config.c src/fs-uae/video.c src/ppc/ppcd.cpp \
 	src/ppc/ppcd.h src/sndboard.cpp src/fs-uae/luascript.c \
@@ -816,6 +797,7 @@ am_fs_uae_OBJECTS = src/fs-uae/config.$(OBJEXT) \
 	src/fs-uae/config-graphics.$(OBJEXT) \
 	src/fs-uae/config-hardware.$(OBJEXT) \
 	src/fs-uae/config-model.$(OBJEXT) \
+	src/fs-uae/config-paths.$(OBJEXT) \
 	src/fs-uae/config-sound.$(OBJEXT) src/fs-uae/input.$(OBJEXT) \
 	src/fs-uae/joystick.$(OBJEXT) src/fs-uae/keyboard.$(OBJEXT) \
 	src/fs-uae/main.$(OBJEXT) src/fs-uae/menu.$(OBJEXT) \
@@ -827,14 +809,19 @@ am_fs_uae_OBJECTS = src/fs-uae/config.$(OBJEXT) \
 @WINDOWS_TRUE@am__objects_6 = src/fs-uae/fs-uae.$(OBJEXT)
 nodist_fs_uae_OBJECTS = $(am__objects_6)
 fs_uae_OBJECTS = $(am_fs_uae_OBJECTS) $(nodist_fs_uae_OBJECTS)
-fs_uae_DEPENDENCIES = libuae.a libcpuemu.a libfsemu.a $(am__append_7) \
-	$(am__append_11) $(am__append_15) $(am__append_19) \
-	$(am__append_23) $(am__append_26) $(am__append_31) \
-	$(am__append_35) $(am__append_37)
-am_fs_uae_device_helper_OBJECTS = src/fs-uae/device-helper.$(OBJEXT)
+@BUILTIN_CEF_TRUE@am__DEPENDENCIES_1 =  \
+@BUILTIN_CEF_TRUE@	cef/libcef_dll/libcef_dll_wrapper.a \
+@BUILTIN_CEF_TRUE@	$(s)/cef/Release
+fs_uae_DEPENDENCIES = libuae.a libcpuemu.a libfsemu.a \
+	$(am__DEPENDENCIES_1) $(am__append_14) $(am__append_18) \
+	$(am__append_22) $(am__append_26) $(am__append_30) \
+	$(am__append_34) $(am__append_37) $(am__append_42) \
+	$(am__append_46) $(am__append_49)
+am_fs_uae_device_helper_OBJECTS = src/fs-uae/device-helper.$(OBJEXT) \
+	src/fs-uae/paths.$(OBJEXT)
 fs_uae_device_helper_OBJECTS = $(am_fs_uae_device_helper_OBJECTS)
-fs_uae_device_helper_DEPENDENCIES = libfsemu.a $(am__append_8) \
-	$(am__append_12)
+fs_uae_device_helper_DEPENDENCIES = libfsemu.a $(am__append_15) \
+	$(am__append_19) $(am__append_23)
 am_gen_build68k_OBJECTS = src/build68k.$(OBJEXT) \
 	src/writelog.$(OBJEXT)
 gen_build68k_OBJECTS = $(am_gen_build68k_OBJECTS)
@@ -900,7 +887,8 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES) \
-	$(libfsemu_a_SOURCES) $(libglee_a_SOURCES) $(liblua_a_SOURCES) \
+	$(libfsemu_a_SOURCES) $(libglad_a_SOURCES) \
+	$(libglee_a_SOURCES) $(liblua_a_SOURCES) \
 	$(libmanymouse_a_SOURCES) $(libpearpc_a_SOURCES) \
 	$(libprowizard_a_SOURCES) $(libslirp_a_SOURCES) \
 	$(libsoftfloat_a_SOURCES) $(libuae_a_SOURCES) \
@@ -911,7 +899,8 @@ SOURCES = $(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES) \
 	$(nodist_gen_gencomp_SOURCES) $(gen_gencpu_SOURCES) \
 	$(nodist_gen_gencpu_SOURCES) $(gen_genlinetoscr_SOURCES)
 DIST_SOURCES = $(am__libfsemu_a_SOURCES_DIST) \
-	$(am__libglee_a_SOURCES_DIST) $(am__liblua_a_SOURCES_DIST) \
+	$(am__libglad_a_SOURCES_DIST) $(am__libglee_a_SOURCES_DIST) \
+	$(am__liblua_a_SOURCES_DIST) \
 	$(am__libmanymouse_a_SOURCES_DIST) \
 	$(am__libpearpc_a_SOURCES_DIST) \
 	$(am__libprowizard_a_SOURCES_DIST) \
@@ -1167,7 +1156,7 @@ TEST_LOGS = $(am__test_logs2:.test.log=.log)
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
 TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
 	$(TEST_LOG_FLAGS)
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = libmpeg2
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/dist/linux/Makefile.in \
 	$(top_srcdir)/dist/macosx/Info.plist.in \
@@ -1265,8 +1254,9 @@ LIBOBJS = @LIBOBJS@
 # LIBS += @MIR_LIBS@
 # LIBS += @OS_LIBS@
 LIBS = @LIBS@ @CARBON_LIBS@ @FREETYPE_LIBS@ @GLEW_LIBS@ @GLIB_LIBS@ \
-	@IOKIT_LIBS@ @OPENAL_LIBS@ @OPENGL_LIBS@ @PNG_LIBS@ \
-	@SDL2_LIBS@ @X11_LIBS@ @ZLIB_LIBS@ $(am__append_39)
+	@IOKIT_LIBS@ @OPENAL_LIBS@ @OPENGL_LIBS@ @PNG_LIBS@ @QT_LIBS@ \
+	@SDL2_LIBS@ @X11_LIBS@ @ZLIB_LIBS@ $(am__append_8) \
+	$(am__append_51)
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LUA_CFLAGS = @LUA_CFLAGS@
@@ -1283,7 +1273,10 @@ OPENGL_LIBS = @OPENGL_LIBS@
 OS_CPPFLAGS = @OS_CPPFLAGS@
 OS_LDFLAGS = @OS_LDFLAGS@
 OS_NAME = @OS_NAME@
+OS_NAME_2 = @OS_NAME_2@
+OS_NAME_3 = @OS_NAME_3@
 PACKAGE = @PACKAGE@
+PACKAGE_ARCH = @PACKAGE_ARCH@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_MAJOR = @PACKAGE_MAJOR@
 PACKAGE_MINOR = @PACKAGE_MINOR@
@@ -1301,6 +1294,8 @@ PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 PNG_CFLAGS = @PNG_CFLAGS@
 PNG_LIBS = @PNG_LIBS@
 POW_LIB = @POW_LIB@
+QT_CFLAGS = @QT_CFLAGS@
+QT_LIBS = @QT_LIBS@
 RANLIB = @RANLIB@
 SDL2_CFLAGS = @SDL2_CFLAGS@
 SDL2_LIBS = @SDL2_LIBS@
@@ -1355,6 +1350,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -1364,64 +1360,66 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = libmpeg2
+SUBDIRS = $(am__append_47)
 WARNINGS = 
 # CM_CFLAGS += @OS_CFLAGS@
 # CM_CFLAGS += @X11_CFLAGS@
-
 #if W_MISSING_FORMAT_ATTRIBUTE
 #CM_CFLAGS += -Wmissing-format-attribute
 #endif
 CM_CFLAGS = @FREETYPE_CFLAGS@ @GLEW_CFLAGS@ @GLIB_CFLAGS@ @LUA_CFLAGS@ \
 	@MIR_CFLAGS@ @OPENAL_CFLAGS@ @OPENGL_CFLAGS@ @PNG_CFLAGS@ \
-	@SDL2_CFLAGS@ @ZLIB_CFLAGS@ $(WARNINGS) $(am__append_1) \
-	$(am__append_2) $(am__append_3) -fvisibility=hidden \
-	$(am__append_38)
+	@QT_CFLAGS@ @SDL2_CFLAGS@ @ZLIB_CFLAGS@ $(WARNINGS) \
+	$(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4) -fvisibility=hidden $(am__append_50)
 AM_CFLAGS = $(CM_CFLAGS) -std=gnu99
 AM_CXXFLAGS = $(CM_CFLAGS)
-AM_CPPFLAGS = @OS_CPPFLAGS@ -DUAE -DFSUAE -I$(s)/flac/include \
-	-I$(b)/gen -I$(s)/src -I$(s)/src/jit -I$(s)/src/include \
-	-I$(s)/src/od-fs -I$(s)/src/od-fs/include -I$(s)/src/od-win32 \
-	-I$(s)/src/od-win32/caps -I$(s)/libfsemu/include \
-	$(am__append_6) $(am__append_10) $(am__append_14) \
-	$(am__append_18) $(am__append_22) $(am__append_25) \
-	$(am__append_30) $(am__append_34) $(am__append_36)
+AM_CPPFLAGS = @OS_CPPFLAGS@ -DUAE -DFSUAE $(am__append_7) \
+	-I$(s)/flac/include -I$(b)/gen -I$(s)/src -I$(s)/src/jit \
+	-I$(s)/src/include -I$(s)/src/od-fs -I$(s)/src/od-fs/include \
+	-I$(s)/src/od-win32 -I$(s)/src/od-win32/caps \
+	-I$(s)/libfsemu/include $(am__append_10) $(am__append_13) \
+	$(am__append_17) $(am__append_21) $(am__append_25) \
+	$(am__append_29) $(am__append_33) $(am__append_36) \
+	$(am__append_41) $(am__append_45) $(am__append_48)
 # AM_LDFLAGS += -rdynamic
-AM_LDFLAGS = @OS_LDFLAGS@
+AM_LDFLAGS = @OS_LDFLAGS@ $(am__append_5) $(am__append_6)
 s = $(srcdir)
 b = $(builddir)
 dist_doc_DATA = README COPYING
-noinst_LIBRARIES = libuae.a libcpuemu.a libfsemu.a $(am__append_5) \
-	$(am__append_9) $(am__append_13) $(am__append_17) \
-	$(am__append_21) $(am__append_24) $(am__append_29) \
-	$(am__append_33) libdummy.a
+noinst_LIBRARIES = libuae.a libcpuemu.a libfsemu.a $(am__append_12) \
+	$(am__append_16) $(am__append_20) $(am__append_24) \
+	$(am__append_28) $(am__append_32) $(am__append_35) \
+	$(am__append_40) $(am__append_44) libdummy.a
 BUILT_SOURCES = gen/linetoscr.cpp $(nodist_libuae_a_SOURCES) \
 	$(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES)
-nodist_fs_uae_SOURCES = $(am__append_4)
+nodist_fs_uae_SOURCES = $(am__append_9)
 fs_uae_SOURCES = src/fs-uae/config.c src/fs-uae/config-accelerator.c \
 	src/fs-uae/config-accelerator.h src/fs-uae/config-common.c \
 	src/fs-uae/config-common.h src/fs-uae/config-drives.c \
 	src/fs-uae/config-drives.h src/fs-uae/config-graphics.c \
 	src/fs-uae/config-graphics.h src/fs-uae/config-hardware.c \
 	src/fs-uae/config-hardware.h src/fs-uae/config-model.c \
-	src/fs-uae/config-model.h src/fs-uae/config-sound.c \
-	src/fs-uae/config-sound.h src/fs-uae/fs-uae.h \
-	src/fs-uae/input.c src/fs-uae/joystick.c src/fs-uae/keyboard.c \
-	src/fs-uae/main.c src/fs-uae/menu.c src/fs-uae/mouse.c \
-	src/fs-uae/options.h src/fs-uae/paths.c src/fs-uae/paths.h \
-	src/fs-uae/plugins.c src/fs-uae/plugins.h \
+	src/fs-uae/config-model.h src/fs-uae/config-paths.c \
+	src/fs-uae/config-sound.c src/fs-uae/config-sound.h \
+	src/fs-uae/fs-uae.h src/fs-uae/input.c src/fs-uae/joystick.c \
+	src/fs-uae/keyboard.c src/fs-uae/main.c src/fs-uae/menu.c \
+	src/fs-uae/mouse.c src/fs-uae/options.h src/fs-uae/paths.c \
+	src/fs-uae/paths.h src/fs-uae/plugins.c src/fs-uae/plugins.h \
 	src/fs-uae/recording.c src/fs-uae/recording.h \
-	src/fs-uae/uae_config.c src/fs-uae/video.c $(am__append_16) \
-	$(am__append_20) $(am__append_27) $(am__append_32)
-fs_uae_LDADD = libuae.a libcpuemu.a libfsemu.a $(am__append_7) \
-	$(am__append_11) $(am__append_15) $(am__append_19) \
-	$(am__append_23) $(am__append_26) $(am__append_31) \
-	$(am__append_35) $(am__append_37)
+	src/fs-uae/uae_config.c src/fs-uae/video.c $(am__append_27) \
+	$(am__append_31) $(am__append_38) $(am__append_43)
+fs_uae_LDADD = libuae.a libcpuemu.a libfsemu.a $(am__append_11) \
+	$(am__append_14) $(am__append_18) $(am__append_22) \
+	$(am__append_26) $(am__append_30) $(am__append_34) \
+	$(am__append_37) $(am__append_42) $(am__append_46) \
+	$(am__append_49)
 fs_uae_device_helper_SOURCES = \
-	src/fs-uae/device-helper.c
+	src/fs-uae/device-helper.c \
+	src/fs-uae/paths.c
 
-fs_uae_device_helper_LDADD = libfsemu.a $(am__append_8) \
-	$(am__append_12)
+fs_uae_device_helper_LDADD = libfsemu.a $(am__append_15) \
+	$(am__append_19) $(am__append_23)
 # libuae_a_CXXFLAGS = $(CM_CFLAGS) -fpermissive
 libuae_a_SOURCES = \
 	src/a2065.cpp \
@@ -1494,18 +1492,67 @@ libuae_a_SOURCES = \
 	src/crc32.cpp \
 	src/custom.cpp \
 	src/debug.cpp \
+	src/debuginfo.cpp \
 	src/def_icons.cpp \
 	src/devices.cpp \
 	src/disk.cpp \
 	src/diskutil.cpp \
 	src/dlopen.cpp \
 	src/dongle.cpp \
+	src/dosbox/callback.h \
+	src/dosbox/cmos.cpp \
+	src/dosbox/core_full/ea_lookup.h \
+	src/dosbox/core_full/load.h \
+	src/dosbox/core_full/loadwrite.h \
+	src/dosbox/core_full/op.h \
+	src/dosbox/core_full/optable.h \
+	src/dosbox/core_full/save.h \
+	src/dosbox/core_full/string.h \
+	src/dosbox/core_full/support.h \
+	src/dosbox/core_full.cpp \
+	src/dosbox/core_normal/helpers.h \
+	src/dosbox/core_normal/prefix_0f.h \
+	src/dosbox/core_normal/prefix_66_0f.h \
+	src/dosbox/core_normal/prefix_66.h \
+	src/dosbox/core_normal/prefix_none.h \
+	src/dosbox/core_normal/string.h \
+	src/dosbox/core_normal/support.h \
+	src/dosbox/core_normal/table_ea.h \
+	src/dosbox/core_normal.cpp \
+	src/dosbox/core_simple.cpp \
+	src/dosbox/cpu.cpp \
+	src/dosbox/cpu.h \
+	src/dosbox/db_memory.cpp \
+	src/dosbox/dosbox.h \
+	src/dosbox/flags.cpp \
+	src/dosbox/fpu.cpp \
+	src/dosbox/fpu.h \
+	src/dosbox/fpu_instructions.h \
+	src/dosbox/fpu_instructions_x86.h \
+	src/dosbox/inout.h \
+	src/dosbox/instructions.h \
+	src/dosbox/keyboard.cpp \
+	src/dosbox/lazyflags.h \
+	src/dosbox/logging.h \
+	src/dosbox/mem.h \
+	src/dosbox/modrm.cpp \
+	src/dosbox/modrm.h \
+	src/dosbox/paging.cpp \
+	src/dosbox/paging.h \
+	src/dosbox/pic.cpp \
+	src/dosbox/pic.h \
+	src/dosbox/regs.h \
+	src/dosbox/setup.h \
+	src/dosbox/support.h \
+	src/dosbox/timer.cpp \
+	src/dosbox/timer.h \
 	src/drawing.cpp \
 	src/driveclick.cpp \
 	src/enforcer.cpp \
 	src/ethernet.cpp \
 	src/events.cpp \
 	src/expansion.cpp \
+	src/fake86_cpu.cpp \
 	src/fdi2raw.cpp \
 	src/filesys.cpp \
 	src/flashrom.cpp \
@@ -1560,9 +1607,9 @@ libuae_a_SOURCES = \
 	src/include/events.h \
 	src/include/execio.h \
 	src/include/execlib.h \
+	src/include/fake86_cpu.h \
 	src/include/fdi2raw.h \
 	src/include/filesys.h \
-	src/include/flags_x86.h \
 	src/include/flashrom.h \
 	src/include/fpp-ieee-be.h \
 	src/include/fpp-unknown.h \
@@ -1596,6 +1643,8 @@ libuae_a_SOURCES = \
 	src/include/osemu.h \
 	src/include/packed.h \
 	src/include/parallel.h \
+	src/include/pci.h \
+	src/include/pci_hw.h \
 	src/include/picasso96.h \
 	src/include/readcpu.h \
 	src/include/rommgr.h \
@@ -1622,6 +1671,7 @@ libuae_a_SOURCES = \
 	src/include/uae/caps.h \
 	src/include/uae/cdrom.h \
 	src/include/uae/cycleunit.h \
+	src/include/uae/debuginfo.h \
 	src/include/uae/dlopen.h \
 	src/include/uae/endian.h \
 	src/include/uae/enum.h \
@@ -1637,14 +1687,17 @@ libuae_a_SOURCES = \
 	src/include/uae/memory.h \
 	src/include/uae/mman.h \
 	src/include/uae/parser.h \
+	src/include/uae/patch.h \
 	src/include/uae/ppc.h \
 	src/include/uae/qemu.h \
-	src/include/uae/regparam.h \
+	src/include/uae/segtracker.h \
 	src/include/uae/seh.h \
 	src/include/uae/slirp.h \
-	src/include/uae/specialmonitors.h \
+	src/include/uae/socket.h \
 	src/include/uae/string.h \
+	src/include/uae/time.h \
 	src/include/uae/types.h \
+	src/include/uae/vm.h \
 	src/include/uaeexe.h \
 	src/include/uaeipc.h \
 	src/include/uaenative.h \
@@ -1652,6 +1705,7 @@ libuae_a_SOURCES = \
 	src/include/uaeserial.h \
 	src/include/uni_common.h \
 	src/include/unpacked.h \
+	src/include/x86.h \
 	src/include/xwin.h \
 	src/include/zarchive.h \
 	src/include/zfile.h \
@@ -1660,12 +1714,18 @@ libuae_a_SOURCES = \
 	src/jit/codegen_udis86.h \
 	src/jit/codegen_x86.h \
 	src/jit/compemu.h \
-	src/jit/compemu_codegen.h \
 	src/jit/compemu_fpp.cpp \
+	src/jit/compemu_midfunc_arm.h \
+	src/jit/compemu_midfunc_x86.h \
 	src/jit/compemu_support.cpp \
+	src/jit/flags_x86.h \
 	src/keybuf.cpp \
 	src/logging.cpp \
 	src/main.cpp \
+	src/mame/a2410.cpp \
+	src/mame/mameglue.h \
+	src/mame/tm34010/tms34010.cpp \
+	src/mame/tm34010/tms34010.h \
 	src/memory.cpp \
 	src/native2amiga.cpp \
 	src/ncr9x_scsi.cpp \
@@ -1702,6 +1762,8 @@ libuae_a_SOURCES = \
 	src/od-fs/include/win32gui.h \
 	src/od-fs/input.cpp \
 	src/od-fs/inputrecord.cpp \
+	src/od-fs/ioport.cpp \
+	src/od-fs/ioport.h \
 	src/od-fs/joystick.cpp \
 	src/od-fs/keyboard.cpp \
 	src/od-fs/libamiga.cpp \
@@ -1733,6 +1795,8 @@ libuae_a_SOURCES = \
 	src/od-fs/uae_host.cpp \
 	src/od-fs/uaemisc.cpp \
 	src/od-fs/video.cpp \
+	src/od-fs/vpar.cpp \
+	src/od-fs/vpar.h \
 	src/od-fs/winuae_compat.h \
 	src/od-win32/caps/CapsAPI.h \
 	src/od-win32/caps/Comtype.h \
@@ -1746,6 +1810,8 @@ libuae_a_SOURCES = \
 	src/od-win32/picasso96_win.h \
 	src/od-win32/serial_win32.cpp \
 	src/od-win32/win32_uaenet.cpp \
+	src/patch.cpp \
+	src/pci.cpp \
 	src/ppc/pixman-stubs.cpp \
 	src/ppc/ppc.cpp \
 	src/qemu.cpp \
@@ -1753,10 +1819,14 @@ libuae_a_SOURCES = \
 	src/qemuvga/cirrus_vga_rop.h \
 	src/qemuvga/cirrus_vga_rop2.h \
 	src/qemuvga/cirrus_vga_template.h \
+	src/qemuvga/es1370.cpp \
 	src/qemuvga/esp.cpp \
 	src/qemuvga/lsi53c710.cpp \
 	src/qemuvga/lsi53c895a.cpp \
+	src/qemuvga/ne2000.cpp \
+	src/qemuvga/ne2000.h \
 	src/qemuvga/pixel_ops.h \
+	src/qemuvga/qemuaudio.h \
 	src/qemuvga/qemumemory.h \
 	src/qemuvga/qemuuaeglue.cpp \
 	src/qemuvga/qemuuaeglue.h \
@@ -1776,15 +1846,21 @@ libuae_a_SOURCES = \
 	src/scsi.cpp \
 	src/scsiemul.cpp \
 	src/scsitape.cpp \
-	src/slirp.cpp \
+	src/segtracker.cpp \
+	src/slirp_uae.cpp \
 	src/specialmonitors.cpp \
 	src/statusline.cpp \
+	src/support/socket.cpp \
+	src/support/time.cpp \
+	src/test_card.cpp \
 	src/traps.cpp \
 	src/uaeexe.cpp \
 	src/uaelib.cpp \
 	src/uaenative.cpp \
 	src/uaeresource.cpp \
 	src/uaeserial.cpp \
+	src/vm.cpp \
+	src/x86.cpp \
 	src/zfile.cpp \
 	src/zfile_archive.cpp
 
@@ -1801,18 +1877,19 @@ nodist_libuae_a_SOURCES = \
 	gen/cputbl.h
 
 nodist_libcpuemu_a_SOURCES = \
-	gen/cpuemu_0.cpp \
-	gen/cpuemu_11.cpp \
-	gen/cpuemu_13.cpp \
-	gen/cpuemu_20.cpp \
-	gen/cpuemu_21.cpp \
-	gen/cpuemu_22.cpp \
-	gen/cpuemu_23.cpp \
-	gen/cpuemu_24.cpp \
-	gen/cpuemu_31.cpp \
-	gen/cpuemu_32.cpp \
-	gen/cpuemu_33.cpp \
-	gen/cpuemu_40.cpp
+        gen/cpuemu_0.cpp \
+        gen/cpuemu_11.cpp \
+        gen/cpuemu_13.cpp \
+        gen/cpuemu_20.cpp \
+        gen/cpuemu_21.cpp \
+        gen/cpuemu_22.cpp \
+        gen/cpuemu_23.cpp \
+        gen/cpuemu_24.cpp \
+        gen/cpuemu_31.cpp \
+        gen/cpuemu_32.cpp \
+        gen/cpuemu_33.cpp \
+        gen/cpuemu_40.cpp \
+        gen/cpuemu_50.cpp
 
 libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 	libfsemu/include/fs/conf.h libfsemu/include/fs/data.h \
@@ -1820,7 +1897,7 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 	libfsemu/include/fs/emu/actions.h \
 	libfsemu/include/fs/emu/audio.h \
 	libfsemu/include/fs/emu/benchmark.h \
-	libfsemu/include/fs/emu/buffer.h \
+	libfsemu/include/fs/emu/buffer.h libfsemu/include/fs/emu/cef.h \
 	libfsemu/include/fs/emu/dialog.h \
 	libfsemu/include/fs/emu/hacks.h \
 	libfsemu/include/fs/emu/input.h \
@@ -1829,12 +1906,12 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 	libfsemu/include/fs/emu/path.h libfsemu/include/fs/emu/video.h \
 	libfsemu/include/fs/endian.h libfsemu/include/fs/eventlog.h \
 	libfsemu/include/fs/filesys.h libfsemu/include/fs/fs.h \
-	libfsemu/include/fs/glib.h libfsemu/include/fs/glu.h \
-	libfsemu/include/fs/i18n.h libfsemu/include/fs/image.h \
-	libfsemu/include/fs/inifile.h libfsemu/include/fs/init.h \
-	libfsemu/include/fs/lazyness.h libfsemu/include/fs/log.h \
-	libfsemu/include/fs/main.h libfsemu/include/fs/malloc.h \
-	libfsemu/include/fs/ml.h libfsemu/include/fs/ml/opengl.h \
+	libfsemu/include/fs/glib.h libfsemu/include/fs/i18n.h \
+	libfsemu/include/fs/image.h libfsemu/include/fs/inifile.h \
+	libfsemu/include/fs/init.h libfsemu/include/fs/lazyness.h \
+	libfsemu/include/fs/log.h libfsemu/include/fs/main.h \
+	libfsemu/include/fs/malloc.h libfsemu/include/fs/ml.h \
+	libfsemu/include/fs/ml/opengl.h \
 	libfsemu/include/fs/ml/options.h libfsemu/include/fs/ref.h \
 	libfsemu/include/fs/thread.h libfsemu/include/fs/time.h \
 	libfsemu/include/fs/util.h libfsemu/src/audio/audio-common.c \
@@ -1847,21 +1924,21 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 	libfsemu/src/emu/audio_common.c libfsemu/src/emu/audio_debug.c \
 	libfsemu/src/emu/audio_dummy.c libfsemu/src/emu/audio_dummy.c \
 	libfsemu/src/emu/audio_openal.c libfsemu/src/emu/audio_sdl.c \
-	libfsemu/src/emu/dialog.c libfsemu/src/emu/dialog.h \
-	libfsemu/src/emu/emu.c libfsemu/src/emu/emu_lua.h \
-	libfsemu/src/emu/font.c libfsemu/src/emu/font.h \
-	libfsemu/src/emu/hud.c libfsemu/src/emu/hud.h \
-	libfsemu/src/emu/input.c libfsemu/src/emu/input.h \
-	libfsemu/src/emu/keynames.c libfsemu/src/emu/libfsemu.h \
-	libfsemu/src/emu/menu.c libfsemu/src/emu/menu.h \
-	libfsemu/src/emu/netplay.c libfsemu/src/emu/netplay.h \
-	libfsemu/src/emu/render.c libfsemu/src/emu/render.h \
-	libfsemu/src/emu/scanlines.c libfsemu/src/emu/scanlines.h \
-	libfsemu/src/emu/texture.c libfsemu/src/emu/texture.h \
-	libfsemu/src/emu/theme.c libfsemu/src/emu/theme.h \
-	libfsemu/src/emu/util.c libfsemu/src/emu/util.h \
-	libfsemu/src/emu/video.c libfsemu/src/emu/video.h \
-	libfsemu/src/emu/video_buffer.c \
+	libfsemu/src/emu/cef.cpp libfsemu/src/emu/dialog.c \
+	libfsemu/src/emu/dialog.h libfsemu/src/emu/emu.c \
+	libfsemu/src/emu/emu_lua.h libfsemu/src/emu/font.c \
+	libfsemu/src/emu/font.h libfsemu/src/emu/hud.c \
+	libfsemu/src/emu/hud.h libfsemu/src/emu/input.c \
+	libfsemu/src/emu/input.h libfsemu/src/emu/keynames.c \
+	libfsemu/src/emu/libfsemu.h libfsemu/src/emu/menu.c \
+	libfsemu/src/emu/menu.h libfsemu/src/emu/netplay.c \
+	libfsemu/src/emu/netplay.h libfsemu/src/emu/render.c \
+	libfsemu/src/emu/render.h libfsemu/src/emu/scanlines.c \
+	libfsemu/src/emu/scanlines.h libfsemu/src/emu/texture.c \
+	libfsemu/src/emu/texture.h libfsemu/src/emu/theme.c \
+	libfsemu/src/emu/theme.h libfsemu/src/emu/util.c \
+	libfsemu/src/emu/util.h libfsemu/src/emu/video.c \
+	libfsemu/src/emu/video.h libfsemu/src/emu/video_buffer.c \
 	libfsemu/src/emu/video_buffer.h \
 	libfsemu/src/emu/video_options.c libfsemu/src/emu/xml_shader.c \
 	libfsemu/src/emu/xml_shader.h libfsemu/src/eventlog.c \
@@ -1888,7 +1965,8 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 	libfsemu/src/video/video-common-sdl.c \
 	libfsemu/src/video/video-driver-dummy.c \
 	libfsemu/src/video/video-driver-sdl.c \
-	libfsemu/src/video/video-init.c $(am__append_28)
+	libfsemu/src/video/video-driver-sdl-software.c \
+	libfsemu/src/video/video-init.c $(am__append_39)
 @BUILTIN_GLEE_TRUE@libglee_a_SOURCES = \
 @BUILTIN_GLEE_TRUE@	glee/GLee.c \
 @BUILTIN_GLEE_TRUE@	glee/GLee.h
@@ -1901,6 +1979,9 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @BUILTIN_MANYMOUSE_TRUE@	manymouse/manymouse.h \
 @BUILTIN_MANYMOUSE_TRUE@	manymouse/windows_wminput.c \
 @BUILTIN_MANYMOUSE_TRUE@	manymouse/x11_xinput2.c
+
+@WITH_GLAD_TRUE@libglad_a_SOURCES = \
+@WITH_GLAD_TRUE@	glad/src/glad.c
 
 @WITH_PEARPC_CPU_TRUE@libpearpc_a_SOURCES = \
 @WITH_PEARPC_CPU_TRUE@	src/ppc/pearpc/cpu/common.h \
@@ -2068,20 +2149,11 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @PROWIZARD_TRUE@	prowizard/prowiz.c \
 @PROWIZARD_TRUE@	prowizard/r/AC1D_packer.c \
 @PROWIZARD_TRUE@	prowizard/r/AMOS-MusicBank.c \
-@PROWIZARD_TRUE@	prowizard/r/AMOS-PowerPackerBank.c \
 @PROWIZARD_TRUE@	prowizard/r/BP-Soundmonitor.c \
 @PROWIZARD_TRUE@	prowizard/r/BSI-FutureComposer.c \
-@PROWIZARD_TRUE@	prowizard/r/Bytekiller.c \
 @PROWIZARD_TRUE@	prowizard/r/ChipTracker.c \
-@PROWIZARD_TRUE@	prowizard/r/Crunchmania-Address.c \
-@PROWIZARD_TRUE@	prowizard/r/Crunchmania-Simple.c \
-@PROWIZARD_TRUE@	prowizard/r/datacrunchers.c \
-@PROWIZARD_TRUE@	prowizard/r/DefjamCruncher32-pro.c \
 @PROWIZARD_TRUE@	prowizard/r/DigiBooster17.c \
 @PROWIZARD_TRUE@	prowizard/r/DigitalIllusion.c \
-@PROWIZARD_TRUE@	prowizard/r/DoubleAction.c \
-@PROWIZARD_TRUE@	prowizard/r/Dragpack100.c \
-@PROWIZARD_TRUE@	prowizard/r/Dragpack252.c \
 @PROWIZARD_TRUE@	prowizard/r/EurekaPacker.c \
 @PROWIZARD_TRUE@	prowizard/r/FastTracker2.c \
 @PROWIZARD_TRUE@	prowizard/r/FC-M-Packer.c \
@@ -2090,19 +2162,13 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @PROWIZARD_TRUE@	prowizard/r/FutureComposer14.c \
 @PROWIZARD_TRUE@	prowizard/r/FuzzacPacker.c \
 @PROWIZARD_TRUE@	prowizard/r/GMC.c \
-@PROWIZARD_TRUE@	prowizard/r/GNUPacker12.c \
 @PROWIZARD_TRUE@	prowizard/r/GnuPlayer.c \
 @PROWIZARD_TRUE@	prowizard/r/GPMO.c \
 @PROWIZARD_TRUE@	prowizard/r/HeatseekerMC10.c \
 @PROWIZARD_TRUE@	prowizard/r/HornetPacker.c \
-@PROWIZARD_TRUE@	prowizard/r/HQC2.c \
 @PROWIZARD_TRUE@	prowizard/r/JamCracker.c \
 @PROWIZARD_TRUE@	prowizard/r/KefrensSoundMachine.c \
-@PROWIZARD_TRUE@	prowizard/r/MasterCruncher30-Address.c \
-@PROWIZARD_TRUE@	prowizard/r/MaxPacker12.c \
 @PROWIZARD_TRUE@	prowizard/r/MED-Octamed.c \
-@PROWIZARD_TRUE@	prowizard/r/MegaCruncher.c \
-@PROWIZARD_TRUE@	prowizard/r/MegaCruncher-Object.c \
 @PROWIZARD_TRUE@	prowizard/r/MOD-compatible.c \
 @PROWIZARD_TRUE@	prowizard/r/ModuleProtector.c \
 @PROWIZARD_TRUE@	prowizard/r/Mugician.c \
@@ -2117,10 +2183,6 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @PROWIZARD_TRUE@	prowizard/r/PhaPacker.c \
 @PROWIZARD_TRUE@	prowizard/r/PolkaPacker.c \
 @PROWIZARD_TRUE@	prowizard/r/PowerMusic.c \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker23.c \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker30.c \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker40.c \
-@PROWIZARD_TRUE@	prowizard/r/PowerPacker40-library.c \
 @PROWIZARD_TRUE@	prowizard/r/Promizer01.c \
 @PROWIZARD_TRUE@	prowizard/r/Promizer10c.c \
 @PROWIZARD_TRUE@	prowizard/r/Promizer18a.c \
@@ -2132,28 +2194,15 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @PROWIZARD_TRUE@	prowizard/r/Prorunner10.c \
 @PROWIZARD_TRUE@	prowizard/r/Prorunner20.c \
 @PROWIZARD_TRUE@	prowizard/r/QuadraComposer.c \
-@PROWIZARD_TRUE@	prowizard/r/RelokIt10.c \
 @PROWIZARD_TRUE@	prowizard/r/SGT-Packer.c \
 @PROWIZARD_TRUE@	prowizard/r/skizzo.c \
 @PROWIZARD_TRUE@	prowizard/r/SkytPacker.c \
 @PROWIZARD_TRUE@	prowizard/r/SoundFX.c \
 @PROWIZARD_TRUE@	prowizard/r/SoundTracker26.c \
 @PROWIZARD_TRUE@	prowizard/r/SoundTracker.c \
-@PROWIZARD_TRUE@	prowizard/r/SpikeCruncher.c \
 @PROWIZARD_TRUE@	prowizard/r/StartrekkerPack.c \
 @PROWIZARD_TRUE@	prowizard/r/StimPacker.c \
 @PROWIZARD_TRUE@	prowizard/r/StoneArtsPlayer.c \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker270.c \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker299b.c \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker299.c \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker299d.c \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker300.c \
-@PROWIZARD_TRUE@	prowizard/r/StoneCracker310.c \
-@PROWIZARD_TRUE@	prowizard/r/SuperCruncher27.c \
-@PROWIZARD_TRUE@	prowizard/r/SyncroPacker46.c \
-@PROWIZARD_TRUE@	prowizard/r/TetraPack102.c \
-@PROWIZARD_TRUE@	prowizard/r/TetraPack21.c \
-@PROWIZARD_TRUE@	prowizard/r/TetraPack22.c \
 @PROWIZARD_TRUE@	prowizard/r/TheDarkDemon.c \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer22a.c \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer30a.c \
@@ -2162,16 +2211,11 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer50a.c \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer60a.c \
 @PROWIZARD_TRUE@	prowizard/r/ThePlayer61a.c \
-@PROWIZARD_TRUE@	prowizard/r/TimeCruncher17.c \
 @PROWIZARD_TRUE@	prowizard/r/TitanicsPlayer.c \
 @PROWIZARD_TRUE@	prowizard/r/TMK.c \
-@PROWIZARD_TRUE@	prowizard/r/TNMCruncher.c \
 @PROWIZARD_TRUE@	prowizard/r/TrackerPacker1.c \
 @PROWIZARD_TRUE@	prowizard/r/TrackerPacker2.c \
 @PROWIZARD_TRUE@	prowizard/r/TrackerPacker3.c \
-@PROWIZARD_TRUE@	prowizard/r/TreasurePattern.c \
-@PROWIZARD_TRUE@	prowizard/r/TryItCruncher101.c \
-@PROWIZARD_TRUE@	prowizard/r/TurboSqueezer61.c \
 @PROWIZARD_TRUE@	prowizard/r/UnicTracker2.c \
 @PROWIZARD_TRUE@	prowizard/r/UnicTracker.c \
 @PROWIZARD_TRUE@	prowizard/r/Viruz2.c \
@@ -2254,7 +2298,8 @@ EXTRA_DIST = $(TESTS) $(EXTRA_TESTS) \
 	debian/source \
 	debian/source/format \
 	dist/linux/build.py \
-	dist/linux/standalone.py \
+	dist/arch.py \
+	dist/linux/standalone-linux.py \
 	dist/macosx/fs-uae-config.icns \
 	dist/macosx/fs-uae.icns \
 	dist/macosx/PkgInfo \
@@ -2274,6 +2319,9 @@ EXTRA_DIST = $(TESTS) $(EXTRA_TESTS) \
 	flac/include/FLAC/stream_encoder.h \
 	fs-uae.spec \
 	icon/fs-uae.ico \
+	glad/include/glad/glad.h \
+	glad/include/KHR/khrplatform.h \
+	glad/LICENSE \
 	libinih/ini.c \
 	libinih/ini.h \
 	libinih/LICENSE.txt \
@@ -2291,9 +2339,15 @@ EXTRA_DIST = $(TESTS) $(EXTRA_TESTS) \
 	src/filesys_bootrom.cpp \
 	src/fs-uae/fs-uae.rc.in \
 	src/inputevents.def \
-	src/jit/compemu_optimizer_x86.cpp \
-	src/jit/compemu_raw_x86.cpp \
+	src/jit/codegen_x86.cpp \
+	src/jit/compemu_midfunc_x86.cpp \
+	src/jit/compemu_prefs.cpp \
 	src/jit/exception_handler.cpp \
+	src/mame/tm34010/34010fld.c \
+	src/mame/tm34010/34010tbl.c \
+	src/mame/tm34010/34010ops.c \
+	src/mame/tm34010/34010ops.h \
+	src/mame/tm34010/34010gfx.c \
 	src/od-fs/bsdsocket_posix.cpp \
 	src/od-win32/bsdsock.cpp \
         src/od-win32/mman.cpp \
@@ -2310,12 +2364,14 @@ catalogs = \
 	share/locale/cs/LC_MESSAGES/fs-uae.mo \
 	share/locale/da/LC_MESSAGES/fs-uae.mo \
 	share/locale/de/LC_MESSAGES/fs-uae.mo \
-	share/locale/el/LC_MESSAGES/fs-uae.mo \
+	share/locale/eo/LC_MESSAGES/fs-uae.mo \
 	share/locale/es/LC_MESSAGES/fs-uae.mo \
 	share/locale/fi/LC_MESSAGES/fs-uae.mo \
 	share/locale/fr/LC_MESSAGES/fs-uae.mo \
+	share/locale/hu/LC_MESSAGES/fs-uae.mo \
 	share/locale/it/LC_MESSAGES/fs-uae.mo \
 	share/locale/nb/LC_MESSAGES/fs-uae.mo \
+	share/locale/nl/LC_MESSAGES/fs-uae.mo \
 	share/locale/pl/LC_MESSAGES/fs-uae.mo \
 	share/locale/pt/LC_MESSAGES/fs-uae.mo \
 	share/locale/pt_BR/LC_MESSAGES/fs-uae.mo \
@@ -2423,6 +2479,8 @@ gen/cpuemu_33.$(OBJEXT): gen/$(am__dirstamp) \
 	gen/$(DEPDIR)/$(am__dirstamp)
 gen/cpuemu_40.$(OBJEXT): gen/$(am__dirstamp) \
 	gen/$(DEPDIR)/$(am__dirstamp)
+gen/cpuemu_50.$(OBJEXT): gen/$(am__dirstamp) \
+	gen/$(DEPDIR)/$(am__dirstamp)
 
 libcpuemu.a: $(libcpuemu_a_OBJECTS) $(libcpuemu_a_DEPENDENCIES) $(EXTRA_libcpuemu_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libcpuemu.a
@@ -2492,6 +2550,8 @@ libfsemu/src/emu/audio_openal.$(OBJEXT):  \
 	libfsemu/src/emu/$(DEPDIR)/$(am__dirstamp)
 libfsemu/src/emu/audio_sdl.$(OBJEXT):  \
 	libfsemu/src/emu/$(am__dirstamp) \
+	libfsemu/src/emu/$(DEPDIR)/$(am__dirstamp)
+libfsemu/src/emu/cef.$(OBJEXT): libfsemu/src/emu/$(am__dirstamp) \
 	libfsemu/src/emu/$(DEPDIR)/$(am__dirstamp)
 libfsemu/src/emu/dialog.$(OBJEXT): libfsemu/src/emu/$(am__dirstamp) \
 	libfsemu/src/emu/$(DEPDIR)/$(am__dirstamp)
@@ -2634,6 +2694,9 @@ libfsemu/src/video/video-driver-dummy.$(OBJEXT):  \
 libfsemu/src/video/video-driver-sdl.$(OBJEXT):  \
 	libfsemu/src/video/$(am__dirstamp) \
 	libfsemu/src/video/$(DEPDIR)/$(am__dirstamp)
+libfsemu/src/video/video-driver-sdl-software.$(OBJEXT):  \
+	libfsemu/src/video/$(am__dirstamp) \
+	libfsemu/src/video/$(DEPDIR)/$(am__dirstamp)
 libfsemu/src/video/video-init.$(OBJEXT):  \
 	libfsemu/src/video/$(am__dirstamp) \
 	libfsemu/src/video/$(DEPDIR)/$(am__dirstamp)
@@ -2644,6 +2707,19 @@ libfsemu.a: $(libfsemu_a_OBJECTS) $(libfsemu_a_DEPENDENCIES) $(EXTRA_libfsemu_a_
 	$(AM_V_at)-rm -f libfsemu.a
 	$(AM_V_AR)$(libfsemu_a_AR) libfsemu.a $(libfsemu_a_OBJECTS) $(libfsemu_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libfsemu.a
+glad/src/$(am__dirstamp):
+	@$(MKDIR_P) glad/src
+	@: > glad/src/$(am__dirstamp)
+glad/src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) glad/src/$(DEPDIR)
+	@: > glad/src/$(DEPDIR)/$(am__dirstamp)
+glad/src/glad.$(OBJEXT): glad/src/$(am__dirstamp) \
+	glad/src/$(DEPDIR)/$(am__dirstamp)
+
+libglad.a: $(libglad_a_OBJECTS) $(libglad_a_DEPENDENCIES) $(EXTRA_libglad_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libglad.a
+	$(AM_V_AR)$(libglad_a_AR) libglad.a $(libglad_a_OBJECTS) $(libglad_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libglad.a
 glee/$(am__dirstamp):
 	@$(MKDIR_P) glee
 	@: > glee/$(am__dirstamp)
@@ -2826,36 +2902,15 @@ prowizard/r/AC1D_packer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/AMOS-MusicBank.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/AMOS-PowerPackerBank.$(OBJEXT):  \
-	prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/BP-Soundmonitor.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/BSI-FutureComposer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/Bytekiller.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/ChipTracker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/Crunchmania-Address.$(OBJEXT):  \
-	prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/Crunchmania-Simple.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/datacrunchers.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/DefjamCruncher32-pro.$(OBJEXT):  \
-	prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/DigiBooster17.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/DigitalIllusion.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/DoubleAction.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/Dragpack100.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/Dragpack252.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/EurekaPacker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
@@ -2873,8 +2928,6 @@ prowizard/r/FuzzacPacker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/GMC.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/GNUPacker12.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/GnuPlayer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/GPMO.$(OBJEXT): prowizard/r/$(am__dirstamp) \
@@ -2883,24 +2936,12 @@ prowizard/r/HeatseekerMC10.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/HornetPacker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/HQC2.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/JamCracker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/KefrensSoundMachine.$(OBJEXT):  \
 	prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/MasterCruncher30-Address.$(OBJEXT):  \
-	prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/MaxPacker12.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/MED-Octamed.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/MegaCruncher.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/MegaCruncher-Object.$(OBJEXT):  \
-	prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/MOD-compatible.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
@@ -2930,15 +2971,6 @@ prowizard/r/PolkaPacker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/PowerMusic.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/PowerPacker23.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/PowerPacker30.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/PowerPacker40.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/PowerPacker40-library.$(OBJEXT):  \
-	prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/Promizer01.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/Promizer10c.$(OBJEXT): prowizard/r/$(am__dirstamp) \
@@ -2961,8 +2993,6 @@ prowizard/r/Prorunner20.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/QuadraComposer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/RelokIt10.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/SGT-Packer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/skizzo.$(OBJEXT): prowizard/r/$(am__dirstamp) \
@@ -2975,35 +3005,11 @@ prowizard/r/SoundTracker26.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/SoundTracker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/SpikeCruncher.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/StartrekkerPack.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/StimPacker.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/StoneArtsPlayer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/StoneCracker270.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/StoneCracker299b.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/StoneCracker299.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/StoneCracker299d.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/StoneCracker300.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/StoneCracker310.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/SuperCruncher27.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/SyncroPacker46.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TetraPack102.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TetraPack21.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TetraPack22.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/TheDarkDemon.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
@@ -3021,25 +3027,15 @@ prowizard/r/ThePlayer60a.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/ThePlayer61a.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TimeCruncher17.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/TitanicsPlayer.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/TMK.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TNMCruncher.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/TrackerPacker1.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/TrackerPacker2.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/TrackerPacker3.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TreasurePattern.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TryItCruncher101.$(OBJEXT): prowizard/r/$(am__dirstamp) \
-	prowizard/r/$(DEPDIR)/$(am__dirstamp)
-prowizard/r/TurboSqueezer61.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
 prowizard/r/UnicTracker2.$(OBJEXT): prowizard/r/$(am__dirstamp) \
 	prowizard/r/$(DEPDIR)/$(am__dirstamp)
@@ -3232,6 +3228,8 @@ src/crc32.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/custom.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/debug.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/debuginfo.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/def_icons.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/devices.$(OBJEXT): src/$(am__dirstamp) \
@@ -3243,6 +3241,38 @@ src/dlopen.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/dongle.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/$(am__dirstamp):
+	@$(MKDIR_P) src/dosbox
+	@: > src/dosbox/$(am__dirstamp)
+src/dosbox/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/dosbox/$(DEPDIR)
+	@: > src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/cmos.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/core_full.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/core_normal.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/core_simple.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/cpu.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/db_memory.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/flags.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/fpu.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/keyboard.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/modrm.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/paging.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/pic.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
+src/dosbox/timer.$(OBJEXT): src/dosbox/$(am__dirstamp) \
+	src/dosbox/$(DEPDIR)/$(am__dirstamp)
 src/drawing.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/driveclick.$(OBJEXT): src/$(am__dirstamp) \
@@ -3254,6 +3284,8 @@ src/ethernet.$(OBJEXT): src/$(am__dirstamp) \
 src/events.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/expansion.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/fake86_cpu.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/fdi2raw.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -3297,6 +3329,22 @@ src/keybuf.$(OBJEXT): src/$(am__dirstamp) \
 src/logging.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/main.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/mame/$(am__dirstamp):
+	@$(MKDIR_P) src/mame
+	@: > src/mame/$(am__dirstamp)
+src/mame/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/mame/$(DEPDIR)
+	@: > src/mame/$(DEPDIR)/$(am__dirstamp)
+src/mame/a2410.$(OBJEXT): src/mame/$(am__dirstamp) \
+	src/mame/$(DEPDIR)/$(am__dirstamp)
+src/mame/tm34010/$(am__dirstamp):
+	@$(MKDIR_P) src/mame/tm34010
+	@: > src/mame/tm34010/$(am__dirstamp)
+src/mame/tm34010/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/mame/tm34010/$(DEPDIR)
+	@: > src/mame/tm34010/$(DEPDIR)/$(am__dirstamp)
+src/mame/tm34010/tms34010.$(OBJEXT): src/mame/tm34010/$(am__dirstamp) \
+	src/mame/tm34010/$(DEPDIR)/$(am__dirstamp)
 src/memory.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/native2amiga.$(OBJEXT): src/$(am__dirstamp) \
@@ -3349,6 +3397,8 @@ src/od-fs/input.$(OBJEXT): src/od-fs/$(am__dirstamp) \
 	src/od-fs/$(DEPDIR)/$(am__dirstamp)
 src/od-fs/inputrecord.$(OBJEXT): src/od-fs/$(am__dirstamp) \
 	src/od-fs/$(DEPDIR)/$(am__dirstamp)
+src/od-fs/ioport.$(OBJEXT): src/od-fs/$(am__dirstamp) \
+	src/od-fs/$(DEPDIR)/$(am__dirstamp)
 src/od-fs/joystick.$(OBJEXT): src/od-fs/$(am__dirstamp) \
 	src/od-fs/$(DEPDIR)/$(am__dirstamp)
 src/od-fs/keyboard.$(OBJEXT): src/od-fs/$(am__dirstamp) \
@@ -3381,6 +3431,8 @@ src/od-fs/uaemisc.$(OBJEXT): src/od-fs/$(am__dirstamp) \
 	src/od-fs/$(DEPDIR)/$(am__dirstamp)
 src/od-fs/video.$(OBJEXT): src/od-fs/$(am__dirstamp) \
 	src/od-fs/$(DEPDIR)/$(am__dirstamp)
+src/od-fs/vpar.$(OBJEXT): src/od-fs/$(am__dirstamp) \
+	src/od-fs/$(DEPDIR)/$(am__dirstamp)
 src/od-win32/caps/$(am__dirstamp):
 	@$(MKDIR_P) src/od-win32/caps
 	@: > src/od-win32/caps/$(am__dirstamp)
@@ -3402,6 +3454,8 @@ src/od-win32/serial_win32.$(OBJEXT): src/od-win32/$(am__dirstamp) \
 	src/od-win32/$(DEPDIR)/$(am__dirstamp)
 src/od-win32/win32_uaenet.$(OBJEXT): src/od-win32/$(am__dirstamp) \
 	src/od-win32/$(DEPDIR)/$(am__dirstamp)
+src/patch.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pci.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/ppc/$(am__dirstamp):
 	@$(MKDIR_P) src/ppc
 	@: > src/ppc/$(am__dirstamp)
@@ -3421,11 +3475,15 @@ src/qemuvga/$(DEPDIR)/$(am__dirstamp):
 	@: > src/qemuvga/$(DEPDIR)/$(am__dirstamp)
 src/qemuvga/cirrus_vga.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
 	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
+src/qemuvga/es1370.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
+	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
 src/qemuvga/esp.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
 	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
 src/qemuvga/lsi53c710.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
 	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
 src/qemuvga/lsi53c895a.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
+	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
+src/qemuvga/ne2000.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
 	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
 src/qemuvga/qemuuaeglue.$(OBJEXT): src/qemuvga/$(am__dirstamp) \
 	src/qemuvga/$(DEPDIR)/$(am__dirstamp)
@@ -3446,10 +3504,25 @@ src/scsiemul.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/scsitape.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/slirp.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/segtracker.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/slirp_uae.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/specialmonitors.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/statusline.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/support/$(am__dirstamp):
+	@$(MKDIR_P) src/support
+	@: > src/support/$(am__dirstamp)
+src/support/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/support/$(DEPDIR)
+	@: > src/support/$(DEPDIR)/$(am__dirstamp)
+src/support/socket.$(OBJEXT): src/support/$(am__dirstamp) \
+	src/support/$(DEPDIR)/$(am__dirstamp)
+src/support/time.$(OBJEXT): src/support/$(am__dirstamp) \
+	src/support/$(DEPDIR)/$(am__dirstamp)
+src/test_card.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/traps.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/uaeexe.$(OBJEXT): src/$(am__dirstamp) \
@@ -3462,6 +3535,8 @@ src/uaeresource.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/uaeserial.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/vm.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/x86.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/zfile.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/zfile_archive.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -3570,6 +3645,8 @@ src/fs-uae/config-hardware.$(OBJEXT): src/fs-uae/$(am__dirstamp) \
 	src/fs-uae/$(DEPDIR)/$(am__dirstamp)
 src/fs-uae/config-model.$(OBJEXT): src/fs-uae/$(am__dirstamp) \
 	src/fs-uae/$(DEPDIR)/$(am__dirstamp)
+src/fs-uae/config-paths.$(OBJEXT): src/fs-uae/$(am__dirstamp) \
+	src/fs-uae/$(DEPDIR)/$(am__dirstamp)
 src/fs-uae/config-sound.$(OBJEXT): src/fs-uae/$(am__dirstamp) \
 	src/fs-uae/$(DEPDIR)/$(am__dirstamp)
 src/fs-uae/input.$(OBJEXT): src/fs-uae/$(am__dirstamp) \
@@ -3656,6 +3733,7 @@ gen/genlinetoscr$(EXEEXT): $(gen_genlinetoscr_OBJECTS) $(gen_genlinetoscr_DEPEND
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f gen/*.$(OBJEXT)
+	-rm -f glad/src/*.$(OBJEXT)
 	-rm -f glee/*.$(OBJEXT)
 	-rm -f libfsemu/src/*.$(OBJEXT)
 	-rm -f libfsemu/src/audio/*.$(OBJEXT)
@@ -3674,8 +3752,11 @@ mostlyclean-compile:
 	-rm -f src/archivers/dms/*.$(OBJEXT)
 	-rm -f src/archivers/mp2/*.$(OBJEXT)
 	-rm -f src/archivers/zip/*.$(OBJEXT)
+	-rm -f src/dosbox/*.$(OBJEXT)
 	-rm -f src/fs-uae/*.$(OBJEXT)
 	-rm -f src/jit/*.$(OBJEXT)
+	-rm -f src/mame/*.$(OBJEXT)
+	-rm -f src/mame/tm34010/*.$(OBJEXT)
 	-rm -f src/od-fs/*.$(OBJEXT)
 	-rm -f src/od-win32/*.$(OBJEXT)
 	-rm -f src/od-win32/caps/*.$(OBJEXT)
@@ -3684,6 +3765,7 @@ mostlyclean-compile:
 	-rm -f src/ppc/pearpc/cpu/cpu_generic/*.$(OBJEXT)
 	-rm -f src/qemuvga/*.$(OBJEXT)
 	-rm -f src/slirp/*.$(OBJEXT)
+	-rm -f src/support/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -3707,7 +3789,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_32.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_33.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_40.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_50.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpustbl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@glad/src/$(DEPDIR)/glad.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@glee/$(DEPDIR)/GLee.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/$(DEPDIR)/base.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/$(DEPDIR)/conf.Po@am__quote@
@@ -3735,6 +3819,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/audio_dummy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/audio_openal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/audio_sdl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/cef.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/dialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/emu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/emu/$(DEPDIR)/emu_lua.Po@am__quote@
@@ -3778,6 +3863,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/video/$(DEPDIR)/video-common-sdl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/video/$(DEPDIR)/video-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/video/$(DEPDIR)/video-driver-dummy.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/video/$(DEPDIR)/video-driver-sdl-software.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/video/$(DEPDIR)/video-driver-sdl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/video/$(DEPDIR)/video-init.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libudis86/src/$(DEPDIR)/decode.Po@am__quote@
@@ -3829,19 +3915,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/misc/$(DEPDIR)/testbag.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/AC1D_packer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/AMOS-MusicBank.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/AMOS-PowerPackerBank.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/BP-Soundmonitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/BSI-FutureComposer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Bytekiller.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ChipTracker.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Crunchmania-Address.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Crunchmania-Simple.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/DefjamCruncher32-pro.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/DigiBooster17.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/DigitalIllusion.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/DoubleAction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Dragpack100.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Dragpack252.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/EurekaPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/FC-M-Packer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/FastTracker2.Po@am__quote@
@@ -3850,20 +3928,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/FutureComposer14.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/FuzzacPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/GMC.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/GNUPacker12.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/GPMO.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/GnuPlayer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/HQC2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/HeatseekerMC10.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/HornetPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/JamCracker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/KefrensSoundMachine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/MED-Octamed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/MOD-compatible.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/MasterCruncher30-Address.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/MaxPacker12.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/MegaCruncher-Object.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/MegaCruncher.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ModuleProtector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Mugician.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/NP3.Po@am__quote@
@@ -3877,10 +3949,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PhaPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PolkaPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PowerMusic.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PowerPacker23.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PowerPacker30.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PowerPacker40-library.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/PowerPacker40.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ProPacker10.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ProPacker21.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ProPacker30.Po@am__quote@
@@ -3892,29 +3960,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Prorunner10.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Prorunner20.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/QuadraComposer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/RelokIt10.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SGT-Packer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SkytPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SoundFX.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SoundTracker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SoundTracker26.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SpikeCruncher.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StartrekkerPack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StimPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneArtsPlayer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneCracker270.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneCracker299.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneCracker299b.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneCracker299d.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneCracker300.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/StoneCracker310.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SuperCruncher27.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/SyncroPacker46.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TMK.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TNMCruncher.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TetraPack102.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TetraPack21.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TetraPack22.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TheDarkDemon.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ThePlayer22a.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ThePlayer30a.Po@am__quote@
@@ -3923,21 +3977,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ThePlayer50a.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ThePlayer60a.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ThePlayer61a.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TimeCruncher17.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TitanicsPlayer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TrackerPacker1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TrackerPacker2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TrackerPacker3.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TreasurePattern.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TryItCruncher101.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/TurboSqueezer61.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/UnicTracker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/UnicTracker2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/Viruz2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/WantonPacker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/XannPlayer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/ZenPacker.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/datacrunchers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@prowizard/r/$(DEPDIR)/skizzo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@softfloat/$(DEPDIR)/fprem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@softfloat/$(DEPDIR)/fsincos.Po@am__quote@
@@ -3977,6 +4026,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/crc32.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/custom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/debuginfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/def_icons.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/devices.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/disk.Po@am__quote@
@@ -3989,6 +4039,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ethernet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/events.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/expansion.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/fake86_cpu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/fdi2raw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/filesys.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/flashrom.Po@am__quote@
@@ -4020,6 +4071,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ncr_scsi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/newcpu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/newcpu_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/patch.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pci.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/qemu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/readcpu.Po@am__quote@
@@ -4030,17 +4083,21 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scsi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scsiemul.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scsitape.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/slirp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/segtracker.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/slirp_uae.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sndboard.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/specialmonitors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/statusline.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_card.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/traps.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/uaeexe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/uaelib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/uaenative.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/uaeresource.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/uaeserial.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/writelog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/x86.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/zfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/zfile_archive.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/archivers/dms/$(DEPDIR)/crc_csum.Po@am__quote@
@@ -4056,12 +4113,26 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/archivers/dms/$(DEPDIR)/u_rle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/archivers/mp2/$(DEPDIR)/kjmp2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/archivers/zip/$(DEPDIR)/unzip.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/cmos.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/core_full.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/core_normal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/core_simple.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/cpu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/db_memory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/flags.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/fpu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/keyboard.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/modrm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/paging.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/pic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/dosbox/$(DEPDIR)/timer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-accelerator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-drives.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-graphics.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-hardware.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-model.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-paths.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config-sound.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/config.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/fs-uae/$(DEPDIR)/device-helper.Po@am__quote@
@@ -4080,6 +4151,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/jit/$(DEPDIR)/compemu_fpp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/jit/$(DEPDIR)/compemu_support.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/jit/$(DEPDIR)/gencomp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/mame/$(DEPDIR)/a2410.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/mame/tm34010/$(DEPDIR)/tms34010.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/ahi_winuae.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/ahidsound_new.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/audio.Po@am__quote@
@@ -4097,6 +4170,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/hardfile_host.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/input.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/inputrecord.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/ioport.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/joystick.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/keyboard.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/libamiga.Po@am__quote@
@@ -4113,6 +4187,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/uae_host.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/uaemisc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/video.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/od-fs/$(DEPDIR)/vpar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-win32/$(DEPDIR)/picasso96_win.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-win32/$(DEPDIR)/serial_win32.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/od-win32/$(DEPDIR)/win32_uaenet.Po@am__quote@
@@ -4130,9 +4205,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR)/ppc_opc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR)/ppc_vec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/cirrus_vga.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/es1370.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/esp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/lsi53c710.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/lsi53c895a.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/ne2000.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/qemuuaeglue.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/qemuvga/$(DEPDIR)/vga.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/slirp/$(DEPDIR)/bootp.Po@am__quote@
@@ -4153,6 +4230,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/slirp/$(DEPDIR)/tcp_timer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/slirp/$(DEPDIR)/tftp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/slirp/$(DEPDIR)/udp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/support/$(DEPDIR)/socket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/support/$(DEPDIR)/time.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -4723,6 +4802,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f gen/$(DEPDIR)/$(am__dirstamp)
 	-rm -f gen/$(am__dirstamp)
+	-rm -f glad/src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f glad/src/$(am__dirstamp)
 	-rm -f glee/$(DEPDIR)/$(am__dirstamp)
 	-rm -f glee/$(am__dirstamp)
 	-rm -f libfsemu/src/$(DEPDIR)/$(am__dirstamp)
@@ -4759,10 +4840,16 @@ distclean-generic:
 	-rm -f src/archivers/mp2/$(am__dirstamp)
 	-rm -f src/archivers/zip/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/archivers/zip/$(am__dirstamp)
+	-rm -f src/dosbox/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/dosbox/$(am__dirstamp)
 	-rm -f src/fs-uae/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/fs-uae/$(am__dirstamp)
 	-rm -f src/jit/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/jit/$(am__dirstamp)
+	-rm -f src/mame/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/mame/$(am__dirstamp)
+	-rm -f src/mame/tm34010/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/mame/tm34010/$(am__dirstamp)
 	-rm -f src/od-fs/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/od-fs/$(am__dirstamp)
 	-rm -f src/od-win32/$(DEPDIR)/$(am__dirstamp)
@@ -4779,6 +4866,8 @@ distclean-generic:
 	-rm -f src/qemuvga/$(am__dirstamp)
 	-rm -f src/slirp/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/slirp/$(am__dirstamp)
+	-rm -f src/support/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/support/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -4791,7 +4880,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-local \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf gen/$(DEPDIR) glee/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR)
+	-rm -rf gen/$(DEPDIR) glad/src/$(DEPDIR) glee/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/dosbox/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/mame/$(DEPDIR) src/mame/tm34010/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR) src/support/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -4840,7 +4929,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf gen/$(DEPDIR) glee/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR)
+	-rm -rf gen/$(DEPDIR) glad/src/$(DEPDIR) glee/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/dosbox/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/mame/$(DEPDIR) src/mame/tm34010/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR) src/support/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -4893,59 +4982,61 @@ gen/cdummy.c:
 gen/cppdummy.cpp:
 	echo "int cppdummy;" > $(b)/gen/cppdummy.cpp
 
-gen/blit.h: gen/genblitter$(EXEEXT)
-	$(b)/gen/genblitter$(EXEEXT) i > $(b)/gen/blit.h
+@CODEGEN_TRUE@gen/blit.h: gen/genblitter$(EXEEXT)
+@CODEGEN_TRUE@	$(b)/gen/genblitter$(EXEEXT) i > $(b)/gen/blit.h
 
-gen/blitfunc.cpp: gen/genblitter$(EXEEXT) gen/blitfunc.h
-	$(b)/gen/genblitter$(EXEEXT) f > $(b)/gen/blitfunc.cpp
+@CODEGEN_TRUE@gen/blitfunc.cpp: gen/genblitter$(EXEEXT) gen/blitfunc.h
+@CODEGEN_TRUE@	$(b)/gen/genblitter$(EXEEXT) f > $(b)/gen/blitfunc.cpp
 
-gen/blitfunc.h: gen/genblitter$(EXEEXT)
-	$(b)/gen/genblitter$(EXEEXT) h > $(b)/gen/blitfunc.h
+@CODEGEN_TRUE@gen/blitfunc.h: gen/genblitter$(EXEEXT)
+@CODEGEN_TRUE@	$(b)/gen/genblitter$(EXEEXT) h > $(b)/gen/blitfunc.h
 
-gen/blittable.cpp: gen/genblitter$(EXEEXT) gen/blitfunc.h
-	$(b)/gen/genblitter$(EXEEXT) t > $(b)/gen/blittable.cpp
+@CODEGEN_TRUE@gen/blittable.cpp: gen/genblitter$(EXEEXT) gen/blitfunc.h
+@CODEGEN_TRUE@	$(b)/gen/genblitter$(EXEEXT) t > $(b)/gen/blittable.cpp
 
-gen/compemu.cpp: gen/gencomp$(EXEEXT)
-	$(b)/gen/gencomp$(EXEEXT)
+@CODEGEN_TRUE@gen/compemu.cpp: gen/gencomp$(EXEEXT)
+@CODEGEN_TRUE@	$(b)/gen/gencomp$(EXEEXT)
 
-gen/compstbl.cpp: gen/compemu.cpp
+@CODEGEN_TRUE@gen/compstbl.cpp: gen/compemu.cpp
 
-gen/comptbl.h: gen/compemu.cpp
+@CODEGEN_TRUE@gen/comptbl.h: gen/compemu.cpp
 
-gen/cpudefs.cpp: gen/build68k$(EXEEXT) src/table68k
-	$(b)/gen/build68k$(EXEEXT) < $(s)/src/table68k > $(b)/gen/cpudefs.cpp
+@CODEGEN_TRUE@gen/cpudefs.cpp: gen/build68k$(EXEEXT) src/table68k
+@CODEGEN_TRUE@	$(b)/gen/build68k$(EXEEXT) < $(s)/src/table68k > $(b)/gen/cpudefs.cpp
 
-gen/cpuemu_0.cpp: gen/gencpu$(EXEEXT)
-	cd $(b)/gen && ./gencpu$(EXEEXT) --optimized-flags
+@CODEGEN_TRUE@gen/cpuemu_0.cpp: gen/gencpu$(EXEEXT)
+@CODEGEN_TRUE@	cd $(b)/gen && ./gencpu$(EXEEXT) --optimized-flags
 
-gen/cpuemu_11.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_11.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_13.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_13.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_20.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_20.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_21.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_21.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_22.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_22.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_23.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_23.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_24.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_24.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_31.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_31.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_32.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_32.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_33.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_33.cpp: gen/cpuemu_0.cpp
 
-gen/cpuemu_40.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_40.cpp: gen/cpuemu_0.cpp
 
-gen/cpustbl.cpp: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpuemu_50.cpp: gen/cpuemu_0.cpp
 
-gen/cputbl.h: gen/cpuemu_0.cpp
+@CODEGEN_TRUE@gen/cpustbl.cpp: gen/cpuemu_0.cpp
 
-gen/linetoscr.cpp: gen/genlinetoscr$(EXEEXT)
-	$(b)/gen/genlinetoscr$(EXEEXT) > $(b)/gen/linetoscr.cpp
+@CODEGEN_TRUE@gen/cputbl.h: gen/cpuemu_0.cpp
+
+@CODEGEN_TRUE@gen/linetoscr.cpp: gen/genlinetoscr$(EXEEXT)
+@CODEGEN_TRUE@	$(b)/gen/genlinetoscr$(EXEEXT) > $(b)/gen/linetoscr.cpp
 
 share/locale/cs/LC_MESSAGES/fs-uae.mo: po/cs.po
 	mkdir -p share/locale/cs/LC_MESSAGES
@@ -4959,9 +5050,9 @@ share/locale/de/LC_MESSAGES/fs-uae.mo: po/de.po
 	mkdir -p share/locale/de/LC_MESSAGES
 	$(MSGFMT) --verbose $(s)/po/de.po -o $@
 
-share/locale/el/LC_MESSAGES/fs-uae.mo: po/el.po
-	mkdir -p share/locale/el/LC_MESSAGES
-	$(MSGFMT) --verbose $(s)/po/el.po -o $@
+share/locale/eo/LC_MESSAGES/fs-uae.mo: po/eo.po
+	mkdir -p share/locale/eo/LC_MESSAGES
+	$(MSGFMT) --verbose $(s)/po/eo.po -o $@
 
 share/locale/es/LC_MESSAGES/fs-uae.mo: po/es.po
 	mkdir -p share/locale/es/LC_MESSAGES
@@ -4975,6 +5066,10 @@ share/locale/fr/LC_MESSAGES/fs-uae.mo: po/fr.po
 	mkdir -p share/locale/fr/LC_MESSAGES
 	$(MSGFMT) --verbose $(s)/po/fr.po -o $@
 
+share/locale/hu/LC_MESSAGES/fs-uae.mo: po/hu.po
+	mkdir -p share/locale/hu/LC_MESSAGES
+	$(MSGFMT) --verbose $(s)/po/hu.po -o $@
+
 share/locale/it/LC_MESSAGES/fs-uae.mo: po/it.po
 	mkdir -p share/locale/it/LC_MESSAGES
 	$(MSGFMT) --verbose $(s)/po/it.po -o $@
@@ -4982,6 +5077,10 @@ share/locale/it/LC_MESSAGES/fs-uae.mo: po/it.po
 share/locale/nb/LC_MESSAGES/fs-uae.mo: po/nb.po
 	mkdir -p share/locale/nb/LC_MESSAGES
 	$(MSGFMT) --verbose $(s)/po/nb.po -o $@
+
+share/locale/nl/LC_MESSAGES/fs-uae.mo: po/nl.po
+	mkdir -p share/locale/nl/LC_MESSAGES
+	$(MSGFMT) --verbose $(s)/po/nl.po -o $@
 
 share/locale/pl/LC_MESSAGES/fs-uae.mo: po/pl.po
 	mkdir -p share/locale/pl/LC_MESSAGES
@@ -5011,8 +5110,8 @@ mo: $(catalogs)
 
 fs-uae.dat: $(catalogs)
 	rm -f fs-uae.dat
-	cd $(s) && $(ZIP) -r -Z store $(abs_builddir)/fs-uae.dat share
-	cd $(b) && $(ZIP) -r -Z store $(abs_builddir)/fs-uae.dat share
+	cd $(s) && $(ZIP) -r $(abs_builddir)/fs-uae.dat share
+	cd $(b) && $(ZIP) -r $(abs_builddir)/fs-uae.dat share
 
 all-local: mo fs-uae.dat
 
@@ -5021,14 +5120,14 @@ install-data-hook: mo fs-uae.dat
 	mkdir -p $(DESTDIR)$(datadir)/applications
 	cp -R $(s)/share/applications/* $(DESTDIR)$(datadir)/applications
 	mkdir -p $(DESTDIR)$(datadir)/fs-uae
-	cp -R $(s)/share/fs-uae/* $(DESTDIR)$(datadir)/fs-uae
+	touch $(DESTDIR)$(datadir)/fs-uae/share-dir
+	cp fs-uae.dat $(DESTDIR)$(datadir)/fs-uae
 	mkdir -p $(DESTDIR)$(datadir)/icons
 	cp -R $(s)/share/icons/* $(DESTDIR)$(datadir)/icons
 	mkdir -p $(DESTDIR)$(datadir)/locale
 	cp -R $(b)/share/locale/* $(DESTDIR)$(datadir)/locale
 	mkdir -p $(DESTDIR)$(datadir)/mime
 	cp -R $(s)/share/mime/* $(DESTDIR)$(datadir)/mime
-	cp fs-uae.dat $(DESTDIR)$(datadir)/fs-uae
 
 uninstall-local:
 	rm -f $(DESTDIR)$(datadir)/applications/fs-uae.desktop
@@ -5043,6 +5142,14 @@ clean-local:
 
 fs-uae-dist:
 	$(MAKE) -C dist/@OS_NAME@
+
+standalone: fs-uae$(EXEEXT) fs-uae.dat
+	@echo "Stripping fs-uae$(EXEEXT)"
+	strip fs-uae$(EXEEXT)
+	@echo "Appending fs-uae.dat"
+	cat fs-uae.dat >> fs-uae$(EXEEXT)
+	@echo "Correcting zip offsets"
+	zip -A fs-uae$(EXEEXT)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

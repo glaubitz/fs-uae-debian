@@ -20,15 +20,16 @@ title = "FS-UAE Arcade"
 name = "fs-uae-arcade"
 py_name = "fs_uae_arcade"
 tar_name = "fs-uae-arcade"
-version = "2.6.2"
+version = "2.8.0"
 author = "Frode Solheim"
 author_email = "frode@fs-uae.net"
 package_map = {
+    "arcade": "../fs-uae-launcher",
     "fsbc": "../fs-uae-launcher",
+    "fsboot": "../fs-uae-launcher",
     "fsgs": "../fs-uae-launcher",
     "fstd": "../fs-uae-launcher",
     "fsui": "../fs-uae-launcher",
-    "game_center": "../fs-uae-launcher",
     "OpenGL": "../fs-uae-launcher",
     "oyoyo": "../fs-uae-launcher",
     "six": "../fs-uae-launcher",
@@ -50,11 +51,12 @@ setup_cmdclass = {}
 
 res_dirs = []
 res_dirs.append('OpenGL/res')
+res_dirs.append('arcade/res')
 res_dirs.append('fsbc/res')
+res_dirs.append('fsboot/res')
 res_dirs.append('fsgs/res')
 res_dirs.append('fstd/res')
 res_dirs.append('fsui/res')
-res_dirs.append('game_center/res')
 res_dirs.append('oyoyo/res')
 res_dirs.append('six/res')
 
@@ -87,12 +89,12 @@ def add_packages():
             for n in file_names:
                 if n != "__init__.py":
                     continue
-                pname_rev = []
+                p_name_rev = []
                 path = dir_path
                 while os.path.exists(os.path.join(path, "__init__.py")):
-                    pname_rev.append(os.path.basename(path))
+                    p_name_rev.append(os.path.basename(path))
                     path = os.path.dirname(path)
-                sub_name = ".".join(reversed(pname_rev))
+                sub_name = ".".join(reversed(p_name_rev))
                 package_dir[sub_name] = (package_dir[name] + "/" +
                                          sub_name.replace(".", "/"))
                 add_package(sub_name, dir_name)
@@ -120,7 +122,7 @@ if sys.argv[1] == "build_exe":
     else:
         setup_kwargs["executables"] = [Executable(s) for s in scripts]
 
-    setup_kwargs["version"] = "2.6.2"
+    setup_kwargs["version"] = "2.8.0"
     build_exe_options = {
         "includes": [
         #    "ctypes",
@@ -148,14 +150,16 @@ if sys.argv[1] == "build_exe":
             continue
         dp = os.path.join(name, "res")
         # dp = os.path.join("share", tar_name, dp)
-        #build_exe_options["include_files"].append((sp, dp))
+        # build_exe_options["include_files"].append((sp, dp))
         for dir_path, dir_names, file_names in os.walk(sp):
             for name in file_names:
                 p = os.path.join(dir_path, name)
                 rp = p[len(sp) + 1:]
-                #build_exe_options["zip_includes"].append((p, os.path.join(dp, rp)))
-                build_exe_options["include_files"].append((p, os.path.join(dp, rp)))
-                #print(p, rp)
+                # build_exe_options["zip_includes"].append(
+                #     (p, os.path.join(dp, rp)))
+                build_exe_options["include_files"].append(
+                    (p, os.path.join(dp, rp)))
+                # print(p, rp)
     setup_options["build_exe"] = build_exe_options
     if os.path.exists("extra_imports.py"):
         build_exe_options["includes"].append("extra_imports")
@@ -168,7 +172,7 @@ if sys.platform == "win32" and False:
 
 if sys.platform == "darwin":
     setup_kwargs["name"] = title
-    setup_kwargs["version"] = "2.6.2"
+    setup_kwargs["version"] = "2.8.0"
 else:
     setup_kwargs["scripts"] = scripts
 
