@@ -19,7 +19,7 @@ from fsbc.init import initialize_application
 
 
 socket.setdefaulttimeout(30.0)
-initialize_application("fs-uae-arcade", version="2.8.0")
+initialize_application("fs-uae-arcade", version="2.8.3")
 os.environ["SDL_VIDEO_MAC_FULLSCREEN_SPACES"] = "0"
 
 try:
@@ -37,3 +37,11 @@ finally:
     from fsbc.signal import Signal
     print("sending quit signal")
     Signal("quit").notify()
+
+# Dummy imports for cx_Freeze
+sys.exit(0)
+import pkg_resources._vendor.packaging.requirements
+import pkg_resources._vendor.packaging.specifiers
+import pkg_resources._vendor.packaging.version
+import pkg_resources._vendor.pyparsing
+import pkg_resources._vendor.six

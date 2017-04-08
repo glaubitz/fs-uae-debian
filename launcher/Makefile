@@ -229,7 +229,7 @@ windows-dist: distdir
 
 macosx-dist: distdir
 	cd $(dist_dir)/dist/macosx && make
-	mv $(dist_dir)/fs-uae-launcher_*macosx* .
+	mv $(dist_dir)/fs-uae-launcher_*macos* .
 	rm -Rf $(dist_dir)
 
 clean-dist:

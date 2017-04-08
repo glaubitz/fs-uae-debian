@@ -1,7 +1,7 @@
 version = $(strip $(shell cat ../../VERSION))
 arch = $(strip $(shell python3 ../arch.py))
 
-ver_os_arch = $(version)_macosx_$(arch)
+ver_os_arch = $(version)_macos_$(arch)
 dname = fs-uae-arcade_$(ver_os_arch)
 app = $(dname)/"FS-UAE Arcade.app"
 macos =  $(app)/Contents/MacOS/
