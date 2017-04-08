@@ -1,3 +1,9 @@
+fs-uae (2.8.3+dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sat, 08 Apr 2017 12:02:39 +0200
+
 fs-uae (2.8.0+dfsg-2) unstable; urgency=medium
 
   * Override dh_auto_configure in debian/rules to
@@ -6,7 +12,7 @@ fs-uae (2.8.0+dfsg-2) unstable; urgency=medium
     CPU_unknown.patch which will define unknown host
     CPUs as CPU_unknown instead of failing the build.
 
- -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Wed, 12 Oct 2016 15:19:43 +0200
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sat, 08 Apr 2017 12:01:50 +0200
 
 fs-uae (2.8.0+dfsg-1) unstable; urgency=medium
 
