@@ -1,6 +1,6 @@
 [fs-uae-controller]
 name = P880
-platform = macosx
+platform = macos
 
 [device]
 make = Saitek
