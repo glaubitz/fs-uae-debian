@@ -48,6 +48,12 @@ else
 	fsui_dir := "."
 endif
 
+ifeq ($(wildcard launcher),)
+	launcher_dir := "../fs-uae-launcher"
+else
+	launcher_dir := "."
+endif
+
 ifeq ($(wildcard oyoyo),)
 	oyoyo_dir := "../fs-uae-launcher"
 else
@@ -107,6 +113,7 @@ distdir:
 	cp -a $(fsgs_dir)/fsgs $(dist_dir)/
 	cp -a $(fstd_dir)/fstd $(dist_dir)/
 	cp -a $(fsui_dir)/fsui $(dist_dir)/
+	cp -a $(launcher_dir)/launcher $(dist_dir)/
 	cp -a $(oyoyo_dir)/oyoyo $(dist_dir)/
 	cp -a $(six_dir)/six $(dist_dir)/
 	cp -a share $(dist_dir)/
@@ -164,7 +171,7 @@ windows-dist: distdir
 
 macosx-dist: distdir
 	cd $(dist_dir)/dist/macosx && make
-	mv $(dist_dir)/fs-uae-arcade_*macosx* .
+	mv $(dist_dir)/fs-uae-arcade_*macos* .
 	rm -Rf $(dist_dir)
 
 clean-dist:

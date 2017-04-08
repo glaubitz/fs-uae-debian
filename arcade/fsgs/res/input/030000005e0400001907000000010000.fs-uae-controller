@@ -10,7 +10,7 @@ type = gamepad
 [sdl]
 guid = 030000005e0400001907000000010000
 buttons = 15
-hats = 0
+hats = 1
 axes = 6
 balls = 0
 

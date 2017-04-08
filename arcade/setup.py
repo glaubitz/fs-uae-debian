@@ -20,7 +20,7 @@ title = "FS-UAE Arcade"
 name = "fs-uae-arcade"
 py_name = "fs_uae_arcade"
 tar_name = "fs-uae-arcade"
-version = "2.8.0"
+version = "2.8.3"
 author = "Frode Solheim"
 author_email = "frode@fs-uae.net"
 package_map = {
@@ -30,6 +30,7 @@ package_map = {
     "fsgs": "../fs-uae-launcher",
     "fstd": "../fs-uae-launcher",
     "fsui": "../fs-uae-launcher",
+    "launcher": "../fs-uae-launcher",
     "OpenGL": "../fs-uae-launcher",
     "oyoyo": "../fs-uae-launcher",
     "six": "../fs-uae-launcher",
@@ -57,6 +58,7 @@ res_dirs.append('fsboot/res')
 res_dirs.append('fsgs/res')
 res_dirs.append('fstd/res')
 res_dirs.append('fsui/res')
+res_dirs.append('launcher/res')
 res_dirs.append('oyoyo/res')
 res_dirs.append('six/res')
 
@@ -122,7 +124,7 @@ if sys.argv[1] == "build_exe":
     else:
         setup_kwargs["executables"] = [Executable(s) for s in scripts]
 
-    setup_kwargs["version"] = "2.8.0"
+    setup_kwargs["version"] = "2.8.3"
     build_exe_options = {
         "includes": [
         #    "ctypes",
@@ -172,7 +174,7 @@ if sys.platform == "win32" and False:
 
 if sys.platform == "darwin":
     setup_kwargs["name"] = title
-    setup_kwargs["version"] = "2.8.0"
+    setup_kwargs["version"] = "2.8.3"
 else:
     setup_kwargs["scripts"] = scripts
 

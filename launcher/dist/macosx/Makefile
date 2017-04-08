@@ -1,7 +1,7 @@
 version = $(strip $(shell cat ../../VERSION))
 arch = $(strip $(shell python3 ../arch.py))
 
-ver_os_arch = $(version)_macosx_$(arch)
+ver_os_arch = $(version)_macos_$(arch)
 dname = fs-uae-launcher_$(ver_os_arch)
 app = $(dname)/"FS-UAE Launcher.app"
 macos =  $(app)/Contents/MacOS/
@@ -31,17 +31,17 @@ launcher:
 	find $(dname)/ -name *_debug.dylib -delete
 	mv $(app) $(dname)/temp.app
 
-	rm $(dname)/temp.app/Contents/MacOS/platforms/libqminimal.dylib
-	rm $(dname)/temp.app/Contents/MacOS/platforms/libqoffscreen.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/platforms/libqminimal.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/platforms/libqoffscreen.dylib
 
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqdds.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqjp2.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqmng.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqsvg.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqtga.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqtiff.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqwbmp.dylib
-	rm $(dname)/temp.app/Contents/MacOS/imageformats/libqwebp.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqdds.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqjp2.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqmng.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqsvg.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqtga.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqtiff.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqwbmp.dylib
+	rm -f $(dname)/temp.app/Contents/MacOS/imageformats/libqwebp.dylib
 
 	# mv $(dname)/temp.app/Contents/MacOS/platforms/* \
 	# 	$(dname)/temp.app/Contents/MacOS
