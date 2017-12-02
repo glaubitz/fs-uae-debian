@@ -109,59 +109,55 @@ noinst_PROGRAMS = gen/build68k$(EXEEXT) gen/genblitter$(EXEEXT) \
 @WINDOWS_TRUE@am__append_9 = src/fs-uae/fs-uae.rc
 @BUILTIN_CEF_TRUE@am__append_10 = -I$(s)/cef
 @BUILTIN_CEF_TRUE@am__append_11 = cef/libcef_dll/libcef_dll_wrapper.a -L $(s)/cef/Release -lcef
-@BUILTIN_GLEE_TRUE@am__append_12 = libglee.a
-@BUILTIN_GLEE_TRUE@am__append_13 = -I$(s)/glee
-@BUILTIN_GLEE_TRUE@am__append_14 = libglee.a
-@BUILTIN_GLEE_TRUE@am__append_15 = libglee.a
-@BUILTIN_MANYMOUSE_TRUE@am__append_16 = libmanymouse.a
-@BUILTIN_MANYMOUSE_TRUE@am__append_17 = -I$(s)/manymouse
-@BUILTIN_MANYMOUSE_TRUE@am__append_18 = libmanymouse.a
-@BUILTIN_MANYMOUSE_TRUE@am__append_19 = libmanymouse.a
-@WITH_GLAD_TRUE@am__append_20 = libglad.a
-@WITH_GLAD_TRUE@am__append_21 = -I$(s)/glad/include
-@WITH_GLAD_TRUE@am__append_22 = libglad.a
-@WITH_GLAD_TRUE@am__append_23 = libglad.a
-@WITH_PEARPC_CPU_TRUE@am__append_24 = libpearpc.a
-@WITH_PEARPC_CPU_TRUE@am__append_25 = -I$(s)/src/ppc/pearpc
-@WITH_PEARPC_CPU_TRUE@am__append_26 = libpearpc.a
-@WITH_PPC_TRUE@am__append_27 = \
+@BUILTIN_MANYMOUSE_TRUE@am__append_12 = libmanymouse.a
+@BUILTIN_MANYMOUSE_TRUE@am__append_13 = -I$(s)/manymouse
+@BUILTIN_MANYMOUSE_TRUE@am__append_14 = libmanymouse.a
+@BUILTIN_MANYMOUSE_TRUE@am__append_15 = libmanymouse.a
+@WITH_GLAD_TRUE@am__append_16 = libglad.a
+@WITH_GLAD_TRUE@am__append_17 = -I$(s)/glad/include
+@WITH_GLAD_TRUE@am__append_18 = libglad.a
+@WITH_GLAD_TRUE@am__append_19 = libglad.a
+@WITH_PEARPC_CPU_TRUE@am__append_20 = libpearpc.a
+@WITH_PEARPC_CPU_TRUE@am__append_21 = -I$(s)/src/ppc/pearpc
+@WITH_PEARPC_CPU_TRUE@am__append_22 = libpearpc.a
+@WITH_PPC_TRUE@am__append_23 = \
 @WITH_PPC_TRUE@	src/ppc/ppcd.cpp \
 @WITH_PPC_TRUE@	src/ppc/ppcd.h
 
-@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_28 = libslirp.a
-@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_29 = -I$(s)/src/slirp/include
-@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_30 = libslirp.a
-@WITH_TOCCATA_TRUE@am__append_31 = \
+@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_24 = libslirp.a
+@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_25 = -I$(s)/src/slirp/include
+@WITH_BUILTIN_SLIRP_TRUE@@WITH_SLIRP_TRUE@am__append_26 = libslirp.a
+@WITH_TOCCATA_TRUE@am__append_27 = \
 @WITH_TOCCATA_TRUE@	src/sndboard.cpp
 
-@WITH_UDIS86_TRUE@am__append_32 = libudis86.a
-@WITH_UDIS86_TRUE@am__append_33 = -I$(s)/libudis86/include
-@WITH_UDIS86_TRUE@am__append_34 = libudis86.a
-@WITH_LUA_TRUE@am__append_35 = liblua.a
-@WITH_LUA_TRUE@am__append_36 = -I$(s)/lua/src
-@WITH_LUA_TRUE@am__append_37 = liblua.a
-@WITH_LUA_TRUE@am__append_38 = \
+@WITH_UDIS86_TRUE@am__append_28 = libudis86.a
+@WITH_UDIS86_TRUE@am__append_29 = -I$(s)/libudis86/include
+@WITH_UDIS86_TRUE@am__append_30 = libudis86.a
+@WITH_LUA_TRUE@am__append_31 = liblua.a
+@WITH_LUA_TRUE@am__append_32 = -I$(s)/lua/src
+@WITH_LUA_TRUE@am__append_33 = liblua.a
+@WITH_LUA_TRUE@am__append_34 = \
 @WITH_LUA_TRUE@	src/fs-uae/luascript.c \
 @WITH_LUA_TRUE@	src/luascript.cpp
 
-@WITH_LUA_TRUE@am__append_39 = \
+@WITH_LUA_TRUE@am__append_35 = \
 @WITH_LUA_TRUE@	libfsemu/src/emu/emu_lua.c
 
-@PROWIZARD_TRUE@am__append_40 = libprowizard.a
-@PROWIZARD_TRUE@am__append_41 = -I$(s)/prowizard/include
-@PROWIZARD_TRUE@am__append_42 = libprowizard.a
-@PROWIZARD_TRUE@am__append_43 = src/moduleripper.cpp
-@WITH_SOFTFLOAT_TRUE@am__append_44 = libsoftfloat.a
-@WITH_SOFTFLOAT_TRUE@am__append_45 = -I$(s)/softfloat
-@WITH_SOFTFLOAT_TRUE@am__append_46 = libsoftfloat.a
-@BUILTIN_LIBMPEG2_TRUE@am__append_47 = libmpeg2
-@BUILTIN_LIBMPEG2_TRUE@am__append_48 = -I$(s)/libmpeg2/include
-@BUILTIN_LIBMPEG2_TRUE@am__append_49 = \
+@PROWIZARD_TRUE@am__append_36 = libprowizard.a
+@PROWIZARD_TRUE@am__append_37 = -I$(s)/prowizard/include
+@PROWIZARD_TRUE@am__append_38 = libprowizard.a
+@PROWIZARD_TRUE@am__append_39 = src/moduleripper.cpp
+@WITH_SOFTFLOAT_TRUE@am__append_40 = libsoftfloat.a
+@WITH_SOFTFLOAT_TRUE@am__append_41 = -I$(s)/softfloat
+@WITH_SOFTFLOAT_TRUE@am__append_42 = libsoftfloat.a
+@BUILTIN_LIBMPEG2_TRUE@am__append_43 = libmpeg2
+@BUILTIN_LIBMPEG2_TRUE@am__append_44 = -I$(s)/libmpeg2/include
+@BUILTIN_LIBMPEG2_TRUE@am__append_45 = \
 @BUILTIN_LIBMPEG2_TRUE@	libmpeg2/libmpeg2/.libs/libmpeg2.a \
 @BUILTIN_LIBMPEG2_TRUE@	libmpeg2/libmpeg2/convert/.libs/libmpeg2convert.a
 
-@BUILTIN_LIBMPEG2_FALSE@am__append_50 = @LIBMPEG2_CFLAGS@
-@BUILTIN_LIBMPEG2_FALSE@am__append_51 = @LIBMPEG2_LIBS@
+@BUILTIN_LIBMPEG2_FALSE@am__append_46 = @LIBMPEG2_CFLAGS@
+@BUILTIN_LIBMPEG2_FALSE@am__append_47 = @LIBMPEG2_LIBS@
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_c___builtin_expect.m4 \
@@ -352,11 +348,6 @@ libglad_a_LIBADD =
 am__libglad_a_SOURCES_DIST = glad/src/glad.c
 @WITH_GLAD_TRUE@am_libglad_a_OBJECTS = glad/src/glad.$(OBJEXT)
 libglad_a_OBJECTS = $(am_libglad_a_OBJECTS)
-libglee_a_AR = $(AR) $(ARFLAGS)
-libglee_a_LIBADD =
-am__libglee_a_SOURCES_DIST = glee/GLee.c glee/GLee.h
-@BUILTIN_GLEE_TRUE@am_libglee_a_OBJECTS = glee/GLee.$(OBJEXT)
-libglee_a_OBJECTS = $(am_libglee_a_OBJECTS)
 liblua_a_AR = $(AR) $(ARFLAGS)
 liblua_a_LIBADD =
 am__liblua_a_SOURCES_DIST = lua/src/lapi.c lua/src/lapi.h \
@@ -815,13 +806,13 @@ fs_uae_OBJECTS = $(am_fs_uae_OBJECTS) $(nodist_fs_uae_OBJECTS)
 fs_uae_DEPENDENCIES = libuae.a libcpuemu.a libfsemu.a \
 	$(am__DEPENDENCIES_1) $(am__append_14) $(am__append_18) \
 	$(am__append_22) $(am__append_26) $(am__append_30) \
-	$(am__append_34) $(am__append_37) $(am__append_42) \
-	$(am__append_46) $(am__append_49)
+	$(am__append_33) $(am__append_38) $(am__append_42) \
+	$(am__append_45)
 am_fs_uae_device_helper_OBJECTS = src/fs-uae/device-helper.$(OBJEXT) \
 	src/fs-uae/paths.$(OBJEXT)
 fs_uae_device_helper_OBJECTS = $(am_fs_uae_device_helper_OBJECTS)
 fs_uae_device_helper_DEPENDENCIES = libfsemu.a $(am__append_15) \
-	$(am__append_19) $(am__append_23)
+	$(am__append_19)
 am_gen_build68k_OBJECTS = src/build68k.$(OBJEXT) \
 	src/writelog.$(OBJEXT)
 gen_build68k_OBJECTS = $(am_gen_build68k_OBJECTS)
@@ -887,8 +878,7 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES) \
-	$(libfsemu_a_SOURCES) $(libglad_a_SOURCES) \
-	$(libglee_a_SOURCES) $(liblua_a_SOURCES) \
+	$(libfsemu_a_SOURCES) $(libglad_a_SOURCES) $(liblua_a_SOURCES) \
 	$(libmanymouse_a_SOURCES) $(libpearpc_a_SOURCES) \
 	$(libprowizard_a_SOURCES) $(libslirp_a_SOURCES) \
 	$(libsoftfloat_a_SOURCES) $(libuae_a_SOURCES) \
@@ -899,8 +889,7 @@ SOURCES = $(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES) \
 	$(nodist_gen_gencomp_SOURCES) $(gen_gencpu_SOURCES) \
 	$(nodist_gen_gencpu_SOURCES) $(gen_genlinetoscr_SOURCES)
 DIST_SOURCES = $(am__libfsemu_a_SOURCES_DIST) \
-	$(am__libglad_a_SOURCES_DIST) $(am__libglee_a_SOURCES_DIST) \
-	$(am__liblua_a_SOURCES_DIST) \
+	$(am__libglad_a_SOURCES_DIST) $(am__liblua_a_SOURCES_DIST) \
 	$(am__libmanymouse_a_SOURCES_DIST) \
 	$(am__libpearpc_a_SOURCES_DIST) \
 	$(am__libprowizard_a_SOURCES_DIST) \
@@ -1256,7 +1245,7 @@ LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@ @CARBON_LIBS@ @FREETYPE_LIBS@ @GLEW_LIBS@ @GLIB_LIBS@ \
 	@IOKIT_LIBS@ @OPENAL_LIBS@ @OPENGL_LIBS@ @PNG_LIBS@ @QT_LIBS@ \
 	@SDL2_LIBS@ @X11_LIBS@ @ZLIB_LIBS@ $(am__append_8) \
-	$(am__append_51)
+	$(am__append_47)
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LUA_CFLAGS = @LUA_CFLAGS@
@@ -1360,7 +1349,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = $(am__append_47)
+SUBDIRS = $(am__append_43)
 WARNINGS = 
 # CM_CFLAGS += @OS_CFLAGS@
 # CM_CFLAGS += @X11_CFLAGS@
@@ -1371,7 +1360,7 @@ CM_CFLAGS = @FREETYPE_CFLAGS@ @GLEW_CFLAGS@ @GLIB_CFLAGS@ @LUA_CFLAGS@ \
 	@MIR_CFLAGS@ @OPENAL_CFLAGS@ @OPENGL_CFLAGS@ @PNG_CFLAGS@ \
 	@QT_CFLAGS@ @SDL2_CFLAGS@ @ZLIB_CFLAGS@ $(WARNINGS) \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4) -fvisibility=hidden $(am__append_50)
+	$(am__append_4) -fvisibility=hidden $(am__append_46)
 AM_CFLAGS = $(CM_CFLAGS) -std=gnu99
 AM_CXXFLAGS = $(CM_CFLAGS)
 AM_CPPFLAGS = @OS_CPPFLAGS@ -DUAE -DFSUAE $(am__append_7) \
@@ -1380,8 +1369,8 @@ AM_CPPFLAGS = @OS_CPPFLAGS@ -DUAE -DFSUAE $(am__append_7) \
 	-I$(s)/src/od-win32 -I$(s)/src/od-win32/caps \
 	-I$(s)/libfsemu/include $(am__append_10) $(am__append_13) \
 	$(am__append_17) $(am__append_21) $(am__append_25) \
-	$(am__append_29) $(am__append_33) $(am__append_36) \
-	$(am__append_41) $(am__append_45) $(am__append_48)
+	$(am__append_29) $(am__append_32) $(am__append_37) \
+	$(am__append_41) $(am__append_44)
 # AM_LDFLAGS += -rdynamic
 AM_LDFLAGS = @OS_LDFLAGS@ $(am__append_5) $(am__append_6)
 s = $(srcdir)
@@ -1389,8 +1378,8 @@ b = $(builddir)
 dist_doc_DATA = README COPYING
 noinst_LIBRARIES = libuae.a libcpuemu.a libfsemu.a $(am__append_12) \
 	$(am__append_16) $(am__append_20) $(am__append_24) \
-	$(am__append_28) $(am__append_32) $(am__append_35) \
-	$(am__append_40) $(am__append_44) libdummy.a
+	$(am__append_28) $(am__append_31) $(am__append_36) \
+	$(am__append_40) libdummy.a
 BUILT_SOURCES = gen/linetoscr.cpp $(nodist_libuae_a_SOURCES) \
 	$(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES)
 nodist_fs_uae_SOURCES = $(am__append_9)
@@ -1407,19 +1396,18 @@ fs_uae_SOURCES = src/fs-uae/config.c src/fs-uae/config-accelerator.c \
 	src/fs-uae/mouse.c src/fs-uae/options.h src/fs-uae/paths.c \
 	src/fs-uae/paths.h src/fs-uae/plugins.c src/fs-uae/plugins.h \
 	src/fs-uae/recording.c src/fs-uae/recording.h \
-	src/fs-uae/uae_config.c src/fs-uae/video.c $(am__append_27) \
-	$(am__append_31) $(am__append_38) $(am__append_43)
+	src/fs-uae/uae_config.c src/fs-uae/video.c $(am__append_23) \
+	$(am__append_27) $(am__append_34) $(am__append_39)
 fs_uae_LDADD = libuae.a libcpuemu.a libfsemu.a $(am__append_11) \
 	$(am__append_14) $(am__append_18) $(am__append_22) \
-	$(am__append_26) $(am__append_30) $(am__append_34) \
-	$(am__append_37) $(am__append_42) $(am__append_46) \
-	$(am__append_49)
+	$(am__append_26) $(am__append_30) $(am__append_33) \
+	$(am__append_38) $(am__append_42) $(am__append_45)
 fs_uae_device_helper_SOURCES = \
 	src/fs-uae/device-helper.c \
 	src/fs-uae/paths.c
 
 fs_uae_device_helper_LDADD = libfsemu.a $(am__append_15) \
-	$(am__append_19) $(am__append_23)
+	$(am__append_19)
 # libuae_a_CXXFLAGS = $(CM_CFLAGS) -fpermissive
 libuae_a_SOURCES = \
 	src/a2065.cpp \
@@ -1966,11 +1954,7 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 	libfsemu/src/video/video-driver-dummy.c \
 	libfsemu/src/video/video-driver-sdl.c \
 	libfsemu/src/video/video-driver-sdl-software.c \
-	libfsemu/src/video/video-init.c $(am__append_39)
-@BUILTIN_GLEE_TRUE@libglee_a_SOURCES = \
-@BUILTIN_GLEE_TRUE@	glee/GLee.c \
-@BUILTIN_GLEE_TRUE@	glee/GLee.h
-
+	libfsemu/src/video/video-init.c $(am__append_35)
 @BUILTIN_MANYMOUSE_TRUE@libmanymouse_a_SOURCES = \
 @BUILTIN_MANYMOUSE_TRUE@	manymouse/linux_evdev.c \
 @BUILTIN_MANYMOUSE_TRUE@	manymouse/macosx_hidmanager.c \
@@ -2720,19 +2704,6 @@ libglad.a: $(libglad_a_OBJECTS) $(libglad_a_DEPENDENCIES) $(EXTRA_libglad_a_DEPE
 	$(AM_V_at)-rm -f libglad.a
 	$(AM_V_AR)$(libglad_a_AR) libglad.a $(libglad_a_OBJECTS) $(libglad_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libglad.a
-glee/$(am__dirstamp):
-	@$(MKDIR_P) glee
-	@: > glee/$(am__dirstamp)
-glee/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) glee/$(DEPDIR)
-	@: > glee/$(DEPDIR)/$(am__dirstamp)
-glee/GLee.$(OBJEXT): glee/$(am__dirstamp) \
-	glee/$(DEPDIR)/$(am__dirstamp)
-
-libglee.a: $(libglee_a_OBJECTS) $(libglee_a_DEPENDENCIES) $(EXTRA_libglee_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libglee.a
-	$(AM_V_AR)$(libglee_a_AR) libglee.a $(libglee_a_OBJECTS) $(libglee_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libglee.a
 lua/src/$(am__dirstamp):
 	@$(MKDIR_P) lua/src
 	@: > lua/src/$(am__dirstamp)
@@ -3734,7 +3705,6 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f gen/*.$(OBJEXT)
 	-rm -f glad/src/*.$(OBJEXT)
-	-rm -f glee/*.$(OBJEXT)
 	-rm -f libfsemu/src/*.$(OBJEXT)
 	-rm -f libfsemu/src/audio/*.$(OBJEXT)
 	-rm -f libfsemu/src/emu/*.$(OBJEXT)
@@ -3792,7 +3762,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_50.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpustbl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@glad/src/$(DEPDIR)/glad.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@glee/$(DEPDIR)/GLee.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/$(DEPDIR)/base.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/$(DEPDIR)/conf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libfsemu/src/$(DEPDIR)/data.Po@am__quote@
@@ -4804,8 +4773,6 @@ distclean-generic:
 	-rm -f gen/$(am__dirstamp)
 	-rm -f glad/src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f glad/src/$(am__dirstamp)
-	-rm -f glee/$(DEPDIR)/$(am__dirstamp)
-	-rm -f glee/$(am__dirstamp)
 	-rm -f libfsemu/src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f libfsemu/src/$(am__dirstamp)
 	-rm -f libfsemu/src/audio/$(DEPDIR)/$(am__dirstamp)
@@ -4880,7 +4847,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-local \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf gen/$(DEPDIR) glad/src/$(DEPDIR) glee/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/dosbox/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/mame/$(DEPDIR) src/mame/tm34010/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR) src/support/$(DEPDIR)
+	-rm -rf gen/$(DEPDIR) glad/src/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/dosbox/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/mame/$(DEPDIR) src/mame/tm34010/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR) src/support/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -4929,7 +4896,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf gen/$(DEPDIR) glad/src/$(DEPDIR) glee/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/dosbox/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/mame/$(DEPDIR) src/mame/tm34010/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR) src/support/$(DEPDIR)
+	-rm -rf gen/$(DEPDIR) glad/src/$(DEPDIR) libfsemu/src/$(DEPDIR) libfsemu/src/audio/$(DEPDIR) libfsemu/src/emu/$(DEPDIR) libfsemu/src/input/$(DEPDIR) libfsemu/src/ml/$(DEPDIR) libfsemu/src/video/$(DEPDIR) libudis86/src/$(DEPDIR) lua/src/$(DEPDIR) manymouse/$(DEPDIR) prowizard/$(DEPDIR) prowizard/misc/$(DEPDIR) prowizard/r/$(DEPDIR) softfloat/$(DEPDIR) src/$(DEPDIR) src/archivers/dms/$(DEPDIR) src/archivers/mp2/$(DEPDIR) src/archivers/zip/$(DEPDIR) src/dosbox/$(DEPDIR) src/fs-uae/$(DEPDIR) src/jit/$(DEPDIR) src/mame/$(DEPDIR) src/mame/tm34010/$(DEPDIR) src/od-fs/$(DEPDIR) src/od-win32/$(DEPDIR) src/od-win32/caps/$(DEPDIR) src/ppc/$(DEPDIR) src/ppc/pearpc/$(DEPDIR) src/ppc/pearpc/cpu/cpu_generic/$(DEPDIR) src/qemuvga/$(DEPDIR) src/slirp/$(DEPDIR) src/support/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
