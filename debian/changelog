@@ -1,3 +1,10 @@
+fs-uae (2.8.4+dfsg-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #880944)
+  * Remove glee-dev from Build-Depends in debian/control.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sat, 02 Dec 2017 19:14:24 +0100
+
 fs-uae (2.8.3+dfsg-1) unstable; urgency=medium
 
   * New upstream release.
