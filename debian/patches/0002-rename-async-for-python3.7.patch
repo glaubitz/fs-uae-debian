@@ -1,0 +1,33 @@
+Description: Rename pyopengl async module import to async_
+ Since "async" became a reserved keyword in Python 3.7, pyopengl
+ was patched to rename its "async" module to "_async" (#903218).
+ Thus, both fs-uae-arcade and fs-uae-launcher need to be patched
+ to account for this change.
+ .
+
+--- fs-uae-2.8.4+dfsg.orig/arcade/OpenGL/GL/SGIX/async.py
++++ fs-uae-2.8.4+dfsg/arcade/OpenGL/GL/SGIX/async.py
+@@ -55,8 +55,8 @@ from OpenGL import platform, constant, a
+ from OpenGL import extensions, wrapper
+ import ctypes
+ from OpenGL.raw.GL import _types, _glgets
+-from OpenGL.raw.GL.SGIX.async import *
+-from OpenGL.raw.GL.SGIX.async import _EXTENSION_NAME
++from OpenGL.raw.GL.SGIX.async_ import *
++from OpenGL.raw.GL.SGIX.async_ import _EXTENSION_NAME
+ 
+ def glInitAsyncSGIX():
+     '''Return boolean indicating whether this extension is available'''
+--- fs-uae-2.8.4+dfsg.orig/launcher/OpenGL/GL/SGIX/async.py
++++ fs-uae-2.8.4+dfsg/launcher/OpenGL/GL/SGIX/async.py
+@@ -55,8 +55,8 @@ from OpenGL import platform, constant, a
+ from OpenGL import extensions, wrapper
+ import ctypes
+ from OpenGL.raw.GL import _types, _glgets
+-from OpenGL.raw.GL.SGIX.async import *
+-from OpenGL.raw.GL.SGIX.async import _EXTENSION_NAME
++from OpenGL.raw.GL.SGIX.async_ import *
++from OpenGL.raw.GL.SGIX.async_ import _EXTENSION_NAME
+ 
+ def glInitAsyncSGIX():
+     '''Return boolean indicating whether this extension is available'''
