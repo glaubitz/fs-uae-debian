@@ -1,3 +1,11 @@
+fs-uae (2.8.4+dfsg-2) unstable; urgency=medium
+
+  * Add debian/patches/0002-rename-async-for-python3.7.patch
+    to account for the renaming of the "async" module in
+    pyopengl to "_async". (Closes: #914790)
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 02 Dec 2018 19:10:14 +0100
+
 fs-uae (2.8.4+dfsg-1) unstable; urgency=medium
 
   * New upstream release. (Closes: #880944)
