@@ -38,9 +38,10 @@
 #endif
 #include <fs/ml/options.h>
 
-#define FS_EMU_INTERNAL
+#define FSE_INTERNAL_API
 #include <fs/emu/input.h>
 #include <fs/emu/monitor.h>
+#include <fs/emu/video.h>
 #include "ml_internal.h"
 
 SDL_Window *g_fs_ml_window = NULL;
@@ -113,16 +114,16 @@ int fs_ml_get_windowed_height()
 
 static void post_video_event(int event)
 {
-#ifdef FS_EMU_DRIVERS
-    // printf("FS_EMU_DRIVERS: ignoring post_video_event\n");
-#else
-    fs_mutex_lock(g_video_event_mutex);
-    g_queue_push_head(g_video_event_queue, FS_INT_TO_POINTER(event));
-    fs_mutex_unlock(g_video_event_mutex);
-#endif
+    if (fse_drivers()) {
+        // printf("FSE_DRIVERS: ignoring post_video_event\n");
+    } else {
+        fs_mutex_lock(g_video_event_mutex);
+        g_queue_push_head(g_video_event_queue, FS_INT_TO_POINTER(event));
+        fs_mutex_unlock(g_video_event_mutex);
+    }
 }
 
-static void process_video_events()
+static void process_video_events(void)
 {
     fs_mutex_lock(g_video_event_mutex);
     int count = g_queue_get_length(g_video_event_queue);
@@ -167,6 +168,11 @@ void fs_ml_set_input_grab(bool grab)
         return;
     }
 
+    if (grab) {
+        fs_log("[INPUT] Grabbing input\n");
+    } else {
+        fs_log("[INPUT] Releasing input\n");
+    }
     SDL_SetWindowGrab(g_fs_ml_window, grab ? SDL_TRUE : SDL_FALSE);
     SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
     if (fs_ml_cursor_allowed())
@@ -205,7 +211,7 @@ void fs_ml_show_cursor(int show, int immediate)
     }
 }
 
-static void log_opengl_information()
+static void log_opengl_information(void)
 {
     static int written = 0;
     if (written) {
@@ -222,6 +228,8 @@ static void log_opengl_information()
     if (str) {
         fs_log("opengl renderer: %s\n", str);
         if (strstr(str, "GDI Generic") != NULL) {
+            software_renderer = g_strdup(str);
+        } else if (strstr(str, "llvmpipe") != NULL) {
             software_renderer = g_strdup(str);
         }
     }
@@ -242,7 +250,7 @@ static void log_opengl_information()
             g_max_texture_size);
 
     if (software_renderer) {
-        fs_emu_warning("No HW OpenGL driver (\"%s\")", software_renderer);
+        fs_emu_warning("No HW OpenGL driver: %s", software_renderer);
         g_free(software_renderer);
     }
 }
@@ -319,6 +327,16 @@ static void set_video_mode()
     if (fs_config_get_boolean("window_border") == 0) {
         fs_log("borderless window requested\n");
         flags |= SDL_WINDOW_BORDERLESS;
+    }
+
+    // special flags for command line usage
+    if (fs_config_get_boolean("window_hidden") == 1) {
+        fs_log("hidden window requested\n");
+        flags |= SDL_WINDOW_HIDDEN;
+    }
+    if (fs_config_get_boolean("window_minimized") == 1) {
+        fs_log("minimized window requested\n");
+        flags |= SDL_WINDOW_MINIMIZED;
     }
 
 #if 0
@@ -789,26 +807,36 @@ int fs_ml_video_create_window(const char *title)
         SDL_GL_SetSwapInterval(0);
     }
 
-    // we display a black frame as soon as possible (to reduce flickering on
-    // startup)
-    glClear(GL_COLOR_BUFFER_BIT);
-    SDL_GL_SwapWindow(g_fs_ml_window);
-    fs_gl_finish();
-
     fs_log("initial input grab: %d\n", g_initial_input_grab);
     if (g_initial_input_grab && !g_has_input_grab) {
         fs_ml_set_input_grab(true);
     }
     fs_ml_show_cursor(0, 1);
 
+    /* This looks a bit peculiar, but it helps to show the window in
+     * fullscreen mode as soon as possible to reduce flickering,
+       at least under GNOME 3. */
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SDL_GL_SwapWindow(g_fs_ml_window);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SDL_GL_SwapWindow(g_fs_ml_window);
+    int64_t start_time = fs_emu_monotonic_time();
+    SDL_Event event;
+    while (fs_emu_monotonic_time() - start_time < 100 * 1000) {
+        SDL_WaitEventTimeout(&event, 10);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        SDL_GL_SwapWindow(g_fs_ml_window);
+    }
+
     // this function must be called from the video thread
     fs_log("init_opengl\n");
-    fs_emu_video_init_opengl();
+    fse_init_video_opengl();
 
     SDL_StartTextInput();
 
 #ifdef WINDOWS
-    if (!fs_config_is_false(OPTION_RAW_INPUT)) {
+    if (!fs_config_false(OPTION_RAW_INPUT)) {
         fs_ml_init_raw_input();
     }
 #endif
@@ -864,14 +892,14 @@ int fs_ml_event_loop(void)
         switch(event.type) {
         case SDL_QUIT:
             fs_log("Received SDL_QUIT\n");
-            fs_ml_quit();
-#ifdef FS_EMU_DRIVERS
+            fs_ml_maybe_quit();
+#ifdef FSE_DRIVERS
             printf("returning 1 from fs_ml_event_loop\n");
             result = 1;
 #endif
             continue;
         case SDL_WINDOWEVENT:
-            if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
                 on_resize(event.window.data1, event.window.data2);
             } else if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
                 event.type = SDL_QUIT;
@@ -884,7 +912,7 @@ int fs_ml_event_loop(void)
 #ifdef MACOSX
                 } else if (fs_ml_input_grab()) {
                     /* Input grab could be "lost" due to Cmd+Tab */
-                    fs_log("Forcing re-grab of input on OS X\n");
+                    fs_log("[INPUT] Forcing re-grab of input on macOS\n");
                     fs_ml_set_input_grab(false);
                     fs_ml_set_input_grab(true);
 #endif
@@ -1062,7 +1090,7 @@ int fs_ml_event_loop(void)
             //printf("ISREL %d\n", SDL_GetRelativeMouseMode());
 
             if (g_fs_log_input) {
-                fs_log("SDL mouse event x: %4d y: %4d xrel: %4d yrel: %4d\n", 
+                fs_log("SDL mouse event x: %4d y: %4d xrel: %4d yrel: %4d\n",
                     event.motion.x, event.motion.y,
                     event.motion.xrel, event.motion.yrel);
             }
@@ -1175,7 +1203,7 @@ static void post_main_loop(void)
     }
 }
 
-int fs_ml_main_loop()
+int fs_ml_main_loop(void)
 {
     while (g_fs_ml_running) {
         fs_ml_event_loop();

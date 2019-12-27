@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: frode@fs-uae.net\n"
-"POT-Creation-Date: 2016-12-11 15:15+0100\n"
-"PO-Revision-Date: 2016-12-31 10:05-0500\n"
-"Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
+"POT-Creation-Date: 2019-05-27 23:21+0200\n"
+"PO-Revision-Date: 2019-06-21 16:09\n"
+"Last-Translator: Frode Solheim (FrodeSolheim)\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
@@ -30,7 +30,7 @@ msgid "Auto-Fire is Off"
 msgstr "Dauerfeuer ist aus"
 
 msgid "Auto-Fire is On"
-msgstr "Dauerfeuer ist eingeschaltet"
+msgstr "Dauerfeuer ist an"
 
 #, c-format
 msgid "Auto-fire disabled for port %d"
@@ -246,4 +246,11 @@ msgstr "[ Anschluss 0 ] Auf Joystick-Modus umgestellt"
 
 msgid "[ Port 0 ] Switched to mouse mode"
 msgstr "[ Anschluss 0 ] Auf Maus-Modus umgestellt"
+
+#, c-format
+msgid "CPU scaling governor is '%s', not '%s'"
+msgstr ""
+
+msgid "Emulation frame rate may suffer"
+msgstr ""
 

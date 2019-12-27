@@ -1,45 +1,45 @@
 from operator import itemgetter
 
-from fsgs.plugins.plugin_manager import PluginManager
-
-from launcher.launcher_config import LauncherConfig
-from launcher.device_manager import DeviceManager
+import fsui
+from fsgs.amiga.amiga import Amiga
+from fsgs.context import fsgs
+from fsgs.plugins.pluginmanager import PluginManager
+from fsui import Image
+from launcher.devicemanager import DeviceManager
 from launcher.i18n import gettext
+from launcher.launcher_config import LauncherConfig
 from launcher.launcher_settings import LauncherSettings
-from launcher.ui.config.ConfigDialog import ConfigDialog
-from launcher.ui.settings.settings_dialog import SettingsDialog
-from launcher.update_manager import UpdateManager
-from launcher.ui.setup import SetupDialog
+from launcher.settings.settings_dialog import SettingsDialog
 from launcher.ui.behaviors.configbehavior import ConfigBehavior
 from launcher.ui.behaviors.settingsbehavior import SettingsBehavior
+from launcher.ui.config.configdialog import ConfigDialog
 from launcher.ui.download import DownloadGameWindow
+from launcher.ui.kickstartimportdialog import KickstartImportDialog
 from launcher.ui.statusbar.StatusElement import StatusElement
-from fsgs.amiga.Amiga import Amiga
-from fsgs.context import fsgs
-from fsui import Image
-import fsui
+from launcher.update_manager import UpdateManager
 
 ERROR_LEVEL = 0
 WARNING_LEVEL = 1
 NOTICE_LEVEL = 2
-JOYSTICK_KEYS = ["joystick_port_0", "joystick_port_1", "joystick_port_2",
-                 "joystick_port_3", "joystick_port_0_mode",
-                 "joystick_port_1_mode", "joystick_port_2_mode",
-                 "joystick_port_3_mode"]
+JOYSTICK_KEYS = [
+    "joystick_port_0",
+    "joystick_port_1",
+    "joystick_port_2",
+    "joystick_port_3",
+    "joystick_port_0_mode",
+    "joystick_port_1_mode",
+    "joystick_port_2_mode",
+    "joystick_port_3_mode",
+]
 
 
 class WarningsElement(StatusElement):
-
     def __init__(self, parent):
         StatusElement.__init__(self, parent)
-        self.error_icon = Image("launcher:res/16/error.png")
-        self.warning_icon = Image("launcher:res/16/warning_3.png")
-        self.notice_icon = Image("launcher:res/16/information.png")
-        self.icons = [
-            self.error_icon,
-            self.warning_icon,
-            self.notice_icon,
-        ]
+        self.error_icon = Image("launcher:res/16x16/error.png")
+        self.warning_icon = Image("launcher:res/16x16/warning_3.png")
+        self.notice_icon = Image("launcher:res/16x16/information.png")
+        self.icons = [self.error_icon, self.warning_icon, self.notice_icon]
         self.coordinates = []
         self.warnings = []
         self.game_notice = ""
@@ -55,6 +55,7 @@ class WarningsElement(StatusElement):
         self.x_missing_files = ""
         self.download_page = ""
         self.download_file = ""
+        self.platform = ""
         self.amiga_model = ""
         self.amiga_model_calculated = ""
         self.chip_memory = ""
@@ -69,12 +70,26 @@ class WarningsElement(StatusElement):
             if plugin.outdated:
                 self.outdated_plugins.append(plugin.name)
 
-        ConfigBehavior(self, [
-            "x_game_notice", "x_variant_notice", "x_variant_warning",
-            "x_variant_error", "x_joy_emu_conflict", "amiga_model",
-            "x_kickstart_file_sha1", "kickstart_file", "download_page",
-            "download_file", "x_missing_files", "__error",
-            "chip_memory", "jit_compiler"])
+        ConfigBehavior(
+            self,
+            [
+                "x_game_notice",
+                "x_variant_notice",
+                "x_variant_warning",
+                "x_variant_error",
+                "x_joy_emu_conflict",
+                "amiga_model",
+                "x_kickstart_file_sha1",
+                "kickstart_file",
+                "download_page",
+                "download_file",
+                "x_missing_files",
+                "__error",
+                "chip_memory",
+                "jit_compiler",
+                "platform",
+            ],
+        )
         SettingsBehavior(self, ["__update_available"])
 
         LauncherConfig.add_listener(self)
@@ -94,6 +109,11 @@ class WarningsElement(StatusElement):
     def on_destroy(self):
         LauncherConfig.remove_listener(self)
         LauncherSettings.remove_listener(self)
+
+    def on_platform_config(self, value):
+        if value != self.platform:
+            self.platform = value
+            self.rebuild_warnings_and_refresh()
 
     def on_amiga_model_config(self, value):
         LauncherConfig.update_kickstart()
@@ -257,16 +277,23 @@ class WarningsElement(StatusElement):
 
         if self.update_available:
             text = gettext("Update available: {version}").format(
-                version=self.update_available)
+                version=self.update_available
+            )
             self.warnings.append((NOTICE_LEVEL, text, "on_update"))
 
         if self.outdated_plugins:
-            text = gettext("Outdated plugins: {0}".format(
-                ", ".join(self.outdated_plugins)))
+            text = gettext(
+                "Outdated plugins: {0}".format(
+                    ", ".join(self.outdated_plugins)
+                )
+            )
             self.warnings.append((ERROR_LEVEL, text, "on_outdated_plugins"))
 
-        if self.x_kickstart_file_sha1 == Amiga.INTERNAL_ROM_SHA1 and \
-                self.kickstart_file != "internal":
+        if (
+            self.platform in ["", "amiga", "cdtv", "cd32"]
+            and self.x_kickstart_file_sha1 == Amiga.INTERNAL_ROM_SHA1
+            and self.kickstart_file != "internal"
+        ):
             # text = gettext("Compatibility Issue")
             # self.warnings.append((ERROR_LEVEL, text, "on_kickstart_warning"))
             text = gettext("Using Kickstart ROM replacement")
@@ -283,36 +310,45 @@ class WarningsElement(StatusElement):
     def add_option_warnings(self):
         if len(self.settings_config_keys):
             if len(self.settings_config_keys) == 1:
-                text = gettext("Config in Settings: {name}".format(
-                    name=list(self.settings_config_keys)[0]))
+                text = gettext(
+                    "Config in settings: {name}".format(
+                        name=list(self.settings_config_keys)[0]
+                    )
+                )
             else:
-                text = gettext("Config Options in Settings")
+                text = gettext("Config options in settings")
             self.warnings.append((ERROR_LEVEL, text, "on_advanced_settings"))
         if len(self.custom_uae_config):
             if len(self.custom_uae_config) == 1:
-                text = gettext("Custom Option: {name}".format(
-                    name=list(self.custom_uae_config)[0]))
+                text = gettext(
+                    "Custom option: {name}".format(
+                        name=list(self.custom_uae_config)[0]
+                    )
+                )
             else:
                 text = gettext("Custom uae_ Options")
             self.warnings.append((WARNING_LEVEL, text, "on_uae_config"))
         if len(self.custom_config):
             if len(self.custom_config) == 1:
-                text = gettext("Custom Option: {name}".format(
-                    name=list(self.custom_config)[0]))
+                text = gettext(
+                    "Custom option: {name}".format(
+                        name=list(self.custom_config)[0]
+                    )
+                )
             else:
-                text = gettext("Custom Options")
+                text = gettext("Custom options")
             self.warnings.append((NOTICE_LEVEL, text, "on_uae_config"))
 
     def add_game_warnings(self):
         if is_warning(self.x_missing_files):
             if self.download_file:
-                text = gettext("Auto-Download")
+                text = gettext("Auto-download")
                 self.warnings.append((NOTICE_LEVEL, text, ""))
             elif self.download_page:
-                text = gettext("Download Game")
+                text = gettext("Download game")
                 self.warnings.append((WARNING_LEVEL, text, "on_download_page"))
             else:
-                text = gettext("Missing Game Files")
+                text = gettext("Missing game files")
                 self.warnings.append((ERROR_LEVEL, text, ""))
 
         for name in ["variant_notice", "game_notice"]:
@@ -333,16 +369,20 @@ class WarningsElement(StatusElement):
 
     def add_config_warnings(self):
         # FIXME: move such warnings to config model code instead
-        if self.chip_memory_calculated and \
-                        self.chip_memory_calculated < 2048 and \
-                        self.amiga_model_calculated in ["A1200", "A4000"]:
+        if (
+            self.chip_memory_calculated
+            and self.chip_memory_calculated < 2048
+            and self.amiga_model_calculated in ["A1200", "A4000"]
+        ):
             text = gettext("{amiga_model} with < 2 MB chip memory").format(
-                amiga_model=self.amiga_model)
+                amiga_model=self.amiga_model
+            )
             self.warnings.append((WARNING_LEVEL, text, ""))
         if LauncherConfig.get("amiga_model") == "A4000/OS4":
             if LauncherConfig.get("jit_compiler") == "1":
                 text = gettext(
-                    "JIT compiler with a PPC-only OS is not recommended")
+                    "JIT compiler with a PPC-only OS is not recommended"
+                )
                 self.warnings.append((WARNING_LEVEL, text, ""))
 
     def rebuild_warnings_and_refresh(self):
@@ -351,6 +391,7 @@ class WarningsElement(StatusElement):
 
     def on_left_down(self):
         from fsui.qt import QCursor
+
         # noinspection PyArgumentList
         # FIXME: Remove direct Qt dependency
         p = self._widget.mapFromGlobal(QCursor.pos())
@@ -370,23 +411,25 @@ class WarningsElement(StatusElement):
 
     # noinspection PyMethodMayBeStatic
     def on_kickstart_warning(self):
-        text = ("The Kickstart ROM for the chosen Amiga model was not found "
-                "on your system.\n\n"
-                "A replacement Kickstart ROM from the AROS project is used "
-                "instead. Compatibility will be lower than if you use an "
-                "original Kickstart ROM.\n\n"
-                "You can use the file database scan function or the import "
-                "wizards if you own the Kickstart ROM.\n\n"
-                "Original Kickstart ROMs can be purchased online as part "
-                "of Cloanto's Amiga Forever package, or you can extract "
-                "a Kickstart from a real Amiga.\n\n"
-                "If you want to use the replacement Kickstart, you can "
-                "ignore this warning, or explicitly change the Kickstart "
-                "to \"Internal\" to dismiss this warning.")
+        text = (
+            "The Kickstart ROM for the chosen Amiga model was not found "
+            "on your system.\n\n"
+            "A replacement Kickstart ROM from the AROS project is used "
+            "instead. Compatibility will be lower than if you use an "
+            "original Kickstart ROM.\n\n"
+            "You can use the file database scan function or the import "
+            "wizards if you own the Kickstart ROM.\n\n"
+            "Original Kickstart ROMs can be purchased online as part "
+            "of Cloanto's Amiga Forever package, or you can extract "
+            "a Kickstart from a real Amiga.\n\n"
+            "If you want to use the replacement Kickstart, you can "
+            "ignore this warning, or explicitly change the Kickstart "
+            'to "Internal" to dismiss this warning.'
+        )
         fsui.show_warning(text, gettext("Using Kickstart ROM Replacement"))
 
     def on_import_kickstarts(self):
-        SetupDialog(self.get_window()).show()
+        KickstartImportDialog(self.get_window()).show()
 
     def on_download_page(self):
         DownloadGameWindow(self.get_window(), fsgs).show()

@@ -20,7 +20,7 @@ title = "FS-UAE Arcade"
 name = "fs-uae-arcade"
 py_name = "fs_uae_arcade"
 tar_name = "fs-uae-arcade"
-version = "2.8.3"
+version = "3.0.2"
 author = "Frode Solheim"
 author_email = "frode@fs-uae.net"
 package_map = {
@@ -28,12 +28,13 @@ package_map = {
     "fsbc": "../fs-uae-launcher",
     "fsboot": "../fs-uae-launcher",
     "fsgs": "../fs-uae-launcher",
+    "fspy": "../fs-uae-launcher",
     "fstd": "../fs-uae-launcher",
     "fsui": "../fs-uae-launcher",
     "launcher": "../fs-uae-launcher",
     "OpenGL": "../fs-uae-launcher",
     "oyoyo": "../fs-uae-launcher",
-    "six": "../fs-uae-launcher",
+    "workspace": "../fs-uae-launcher",
 }
 packages = sorted(package_map.keys())
 scripts = ["fs-uae-arcade"]
@@ -56,11 +57,12 @@ res_dirs.append('arcade/res')
 res_dirs.append('fsbc/res')
 res_dirs.append('fsboot/res')
 res_dirs.append('fsgs/res')
+res_dirs.append('fspy/res')
 res_dirs.append('fstd/res')
 res_dirs.append('fsui/res')
 res_dirs.append('launcher/res')
 res_dirs.append('oyoyo/res')
-res_dirs.append('six/res')
+res_dirs.append('workspace/res')
 
 
 def add_package(package_name, package_dir_name):
@@ -117,14 +119,15 @@ setup_kwargs = {
 }
 
 if sys.argv[1] == "build_exe":
+    import cx_Freeze
     if sys.platform == "win32":
         setup_kwargs["executables"] = [
-            Executable(s, base="Win32GUI", icon="icon/" + s + ".ico") 
+            Executable(s, base="Win32GUI", icon="icon/" + s + ".ico")
                 for s in scripts]
     else:
         setup_kwargs["executables"] = [Executable(s) for s in scripts]
 
-    setup_kwargs["version"] = "2.8.3"
+    setup_kwargs["version"] = "3.0.2"
     build_exe_options = {
         "includes": [
         #    "ctypes",
@@ -139,6 +142,9 @@ if sys.argv[1] == "build_exe":
         "include_files": [],
         "zip_includes": [],
     }
+    if int(cx_Freeze.version.split(".")[0]) >= 5:
+        build_exe_options["zip_include_packages"] = "*"
+        build_exe_options["zip_exclude_packages"] = []
     #for res_dir in res_dirs:
     #    print(res_dir)
     #    build_exe_options["zip_includes"].append((res_dir, res_dir))
@@ -174,7 +180,7 @@ if sys.platform == "win32" and False:
 
 if sys.platform == "darwin":
     setup_kwargs["name"] = title
-    setup_kwargs["version"] = "2.8.3"
+    setup_kwargs["version"] = "3.0.2"
 else:
     setup_kwargs["scripts"] = scripts
 

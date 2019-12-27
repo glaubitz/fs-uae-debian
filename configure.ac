@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([FS-UAE], [2.8.4],
-        [frode@fs-uae.net], [fs-uae], [http://fs-uae.net])
+AC_INIT([FS-UAE], [3.0.2],
+        [frode@fs-uae.net], [fs-uae], [https://fs-uae.net])
 AC_CONFIG_AUX_DIR([.])
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR([src/main.cpp])
@@ -22,7 +22,7 @@ AM_INIT_AUTOMAKE([tar-ustar subdir-objects])
 
 AC_SUBST([PACKAGE_SERIES], [devel])
 
-AC_DEFINE_UNQUOTED([UAE_BASE_VERSION], ["WinUAE 3220"],
+AC_DEFINE_UNQUOTED([UAE_BASE_VERSION], ["WinUAE 3300b2"],
 [Which UAE core this version is based on.])
 
 PACKAGE_MAJOR=`echo ${PACKAGE_VERSION} | sed -e 's,\(\.*\)\..*\..*,\1,g'`
@@ -48,8 +48,14 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 # AC_PATH_TOOL(OBJCOPY, objcopy)
-AC_PATH_PROG([MSGFMT], [msgfmt])
-AC_PATH_PROG([ZIP], [zip])
+AC_PATH_PROG([MSGFMT], [msgfmt], [not found])
+if test "$MSGFMT" = "not found"; then
+  AC_MSG_ERROR([msgfmt not found on path])
+fi
+AC_PATH_PROG([ZIP], [zip], [not found])
+if test "$ZIP" = "not found"; then
+  AC_MSG_ERROR([zip not found on path])
+fi
 PKG_PROG_PKG_CONFIG
 
 
@@ -120,11 +126,29 @@ AX_CHECK_COMPILE_FLAG(-Wmissing-format-attribute,
 AM_CONDITIONAL([W_MISSING_FORMAT_ATTRIBUTE],
 [test x$w_missing_format_attribute = xyes])
 
+AX_CHECK_COMPILE_FLAG(-fno-pie,
+[fno_pie=yes],
+[fno_pie=no])
+AM_CONDITIONAL([FNO_PIE],
+[test x$fno_pie = xyes])
+
+AX_CHECK_COMPILE_FLAG(-fno-PIE,
+[fno_pie_cap=yes],
+[fno_pie_cap=no])
+AM_CONDITIONAL([FNO_PIE_CAP],
+[test x$fno_pie_cap = xyes])
+
 AX_CHECK_LINK_FLAG(-no-pie,
 [no_pie=yes],
 [no_pie=no])
 AM_CONDITIONAL([NO_PIE],
 [test x$no_pie = xyes])
+
+# AX_CHECK_LINK_FLAG([-Wl,-Tdata=0x10000000],
+# [wl_tdata=yes],
+# [wl_tdata=no])
+# AM_CONDITIONAL([WL_TDATA],
+# [test x$wl_tdata = xyes])
 
 AX_C___BUILTIN_EXPECT
 
@@ -176,7 +200,7 @@ AS_IF([test "x$with_glew" = xyes], [
 ])
 
 AC_ARG_WITH(libmpeg2, AS_HELP_STRING(
-    [--without-libmpeg2], [or --with-libmpeg=builtin to use included version]))
+    [--without-libmpeg2], [or --with-libmpeg2=builtin to use included version]))
 AM_CONDITIONAL([BUILTIN_LIBMPEG2], [test x$with_libmpeg2 = xbuiltin])
 AS_IF([test "x$with_libmpeg2" != xno], [
     AS_IF([test "x$with_libmpeg2" = xbuiltin], [
@@ -215,7 +239,7 @@ PKG_CHECK_MODULES([MIR], [mirclient], [
 ])
 
 # AC_SUBST([USE_OPENAL], [1])
-AC_DEFINE([USE_OPENAL], [1], [Define to 1 to use OpenAL])
+AC_DEFINE([WITH_OPENAL], [1], [Define to 1 to use OpenAL])
 PKG_CHECK_MODULES([OPENAL], [openal], [
 ], [
         AS_CASE([$host_os],
@@ -224,8 +248,11 @@ PKG_CHECK_MODULES([OPENAL], [openal], [
 		OPENAL_LIBS="-framework OpenAL"
 	],
 	[
-		AC_MSG_NOTICE([Assuming -lopenal works])
-		OPENAL_LIBS="-lopenal"
+		AC_CHECK_LIB([openal], [alcOpenDevice], [
+			OPENAL_LIBS="-lopenal"
+		], [
+			AC_MSG_FAILURE([OpenAL not found])
+		])
 	])
 	AC_SUBST([OPENAL_CFLAGS])
 	AC_SUBST([OPENAL_LIBS])
@@ -304,8 +331,8 @@ AS_CASE([$host_os],
     OS_NAME_2="Windows"
     OS_NAME_3="Windows"
     OS_CPPFLAGS="-DWINDOWS"
-    AS_CASE([$host_os],
-    [mingw64], [
+    AS_CASE([$host_cpu],
+    [x86_64], [
         OS_LDFLAGS="-mwindows"
         PACKAGE_ARCH="x86-64"
     ], [
@@ -357,6 +384,8 @@ AS_CASE([$host_os],
     LOADABLE_MODULE_EXT=".unknown"
 ])
 
+AM_CONDITIONAL([LINUX], [test x$OS_NAME = xlinux])
+AM_CONDITIONAL([MACOS], [test x$OS_NAME = xmacos])
 AM_CONDITIONAL([WINDOWS], [test x$OS_NAME = xwindows])
 
 # Not using libtool right now, but use name LT_MODULE_EXT anyway in case
@@ -446,6 +475,8 @@ AC_CHECK_MEMBERS([struct stat.st_mtimespec.tv_nsec])
 AC_CHECK_MEMBERS([struct stat.st_mtime_nsec])
 AC_CHECK_MEMBERS([struct in_addr.S_un])
 AC_CHECK_MEMBERS([struct ucontext.uc_mcontext.gregs],
+	[], [], [[#include <sys/ucontext.h>]])
+AC_CHECK_MEMBERS([struct ucontext_t.uc_mcontext.gregs],
 	[], [], [[#include <sys/ucontext.h>]])
 
 AC_CHECK_TYPES([ptrdiff_t])
@@ -665,7 +696,7 @@ REQ_FEATURE([FILESYS], [filesys], [filesys],
             [directory hard drives])
 REQ_FEATURE([FPUEMU], [fpuemu], [fpuemu],
             [FPU emulation])
-DIS_FEATURE([FS_EMU_DRIVERS], [drivers], [drivers],
+DIS_FEATURE([FSE_DRIVERS], [drivers], [drivers],
             [multiple driver backends (experimental)])
 OPT_FEATURE([GFXBOARD], [gfxboard], [gfxboard],
             [GFX hardware boards])
@@ -684,7 +715,7 @@ AS_IF([test "x$enable_jit" != xno], [
     ], [
         if test "x$enable_jit" != xyes; then
             AC_MSG_FAILURE(
-                [--enable-jit was given, but arch is not supported])
+                [JIT is not supported on $host])
         fi
     ])
 ])
@@ -754,8 +785,8 @@ AC_CONFIG_SUBDIRS([libmpeg2])
 
 AC_CONFIG_FILES([
     dist/linux/Makefile
-    dist/macosx/Info.plist
-    dist/macosx/Makefile
+    dist/macos/Info.plist
+    dist/macos/Makefile
     dist/steamos/Makefile
     dist/windows/fs-uae.iss
     dist/windows/Makefile

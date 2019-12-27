@@ -104,7 +104,7 @@ int fs_emu_theme_get_resource_data(const char *name, char **data, int *size)
             fclose(f);
             return 1;
         }
-        *data = malloc(*size);
+        *data = (char *) malloc(*size);
         if (fread(*data, *size, 1, f) != 1) {
             free(*data);
             fclose(f);
@@ -332,7 +332,7 @@ static void load_theme(void)
 #endif
 }
 
-void fs_emu_theme_init()
+void fse_init_theme()
 {
     fs_log("THEME: Init\n");
 

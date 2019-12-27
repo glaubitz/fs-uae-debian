@@ -82,13 +82,20 @@ void fs_ml_video_screenshot(const char *path) {
     fs_mutex_unlock(g_fs_ml_video_screenshot_mutex);
 }
 
+void fs_ml_maybe_quit() {
+    fs_log("fs_ml_maybe_quit\n");
+    // Breaking the abstraction here due to lazyness
+    fs_emu_quit();
+}
+
 void fs_ml_quit() {
+    fs_log("fs_ml_quit\n");
     if (g_quit) {
         fs_log("fs_ml_quit already called\n");
         return;
     }
-    fs_log("fs_ml_quit called\n");
     if (g_quit_function) {
+        fs_log("running g_quit_function\n");
         g_quit_function();
     }
     g_quit = 1;
@@ -153,19 +160,22 @@ int fs_ml_video_height() {
     return g_fs_ml_video_height;
 }
 
-void fs_ml_video_set_update_function(fs_ml_int_function function) {
+void fs_ml_video_set_update_function(fs_ml_int_function function)
+{
     g_fs_ml_video_update_function = function;
 }
 
-void fs_ml_video_set_render_function(fs_ml_void_function function) {
+void fs_ml_video_set_render_function(fs_ml_void_function function)
+{
     g_fs_ml_video_render_function = function;
 }
 
-void fs_ml_video_set_post_render_function(fs_ml_void_function function) {
+void fs_ml_video_set_post_render_function(fs_ml_void_function function)
+{
     g_fs_ml_video_post_render_function = function;
 }
 
-void fs_ml_init()
+void fs_ml_init(void)
 {
     fs_log("fs_ml_init (operating system: %s)\n", OS_NAME);
 
@@ -178,14 +188,12 @@ void fs_ml_init()
 #endif
     if (timeBeginPeriod(1) == TIMERR_NOERROR) {
         fs_log("successfully set timeBeginPeriod(1)\n");
-    }
-    else {
+    } else {
         fs_log("error setting timeBeginPeriod(1)\n");
     }
     if (SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS)) {
         fs_log("set process priority class to ABOVE_NORMAL_PRIORITY_CLASS\n");
-    }
-    else {
+    } else {
         int dwError = GetLastError();
         fs_log("Failed to set process priority class (%d)\n", dwError);
     }

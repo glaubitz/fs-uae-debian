@@ -1,78 +1,93 @@
 version = $(strip $(shell cat ../../VERSION))
-arch = $(strip $(shell python3 ../arch.py))
+library_zip = $(launcher_dir)/library.zip
+python_dir = $$LOCALAPPDATA/Programs/Python/Python36
+python = $(python_dir)/python.exe
+qt_dir = $(python_dir)/Lib/site-packages/PyQt5/Qt
+arch = $(strip $(shell $(python) ../arch.py))
+launcher_dir = Launcher/Windows/$(arch)
+launcher_zip = fs-uae-launcher_$(version)_windows_$(arch).zip
+launcher_txz = fs-uae-launcher_$(version)_windows_$(arch).tar.xz
 
-emulator_dir = fs-uae_$(version)_windows_$(arch)
-launcher_dir = fs-uae-launcher_$(version)_windows_$(arch)
 
-all: progdir zipfile setup
+all: clean progdir zip
 
 clean:
 	rm -Rf fs-uae-launcher-*_windows*
 	rm -Rf fs-uae-launcher_*_windows*
+	rm -Rf $(launcher_dir)
+	rm -Rf Launcher
+	rm -f *.tmp
 
 progdir:
-	rm -Rf $(launcher_dir)
+	rm -Rf Launcher
 
 	make -C ../..
-
 	rm -Rf ../build
-	cd ../.. && python3 setup.py build_exe
-	mv ../../build/exe.mingw-3.4 $(launcher_dir)
 
-	rm -f $(launcher_dir)/imageformats/qdds*.dll
-	rm -f $(launcher_dir)/imageformats/qicns*.dll
-	rm -f $(launcher_dir)/imageformats/qjp2*.dll
-	rm -f $(launcher_dir)/imageformats/qmng*.dll
-	rm -f $(launcher_dir)/imageformats/qsvg*.dll
-	rm -f $(launcher_dir)/imageformats/qtga*.dll
-	rm -f $(launcher_dir)/imageformats/qtiff*.dll
-	rm -f $(launcher_dir)/imageformats/qwbmp*.dll
-	rm -f $(launcher_dir)/imageformats/qwebp*.dll
-	rm -f $(launcher_dir)/imageformats/*d.dll
-	rm -f $(launcher_dir)/imageformats/*d4.dll
-	rm -f $(launcher_dir)/platforms/qminimal*.dll
-	rm -f $(launcher_dir)/platforms/*d.dll
+	cd ../.. && PYTHONHASHSEED=1 $(python) setup.py build_exe
+	mkdir -p $(launcher_dir)
+	mv ../../build/exe.win-amd64-3.6/* $(launcher_dir)
 
-	# mv $(launcher_dir)/imageformats/* $(launcher_dir)
-	# rm -Rf $(launcher_dir)/imageformats/
-	# mv $(launcher_dir)/platforms/* $(launcher_dir)
-	# rm -Rf $(launcher_dir)/platforms/
+	mkdir $(launcher_dir)/imageformats
+	cp $(qt_dir)/plugins/imageformats/qico.dll $(launcher_dir)/imageformats
+	cp $(qt_dir)/plugins/imageformats/qjpeg.dll $(launcher_dir)/imageformats
+	mkdir $(launcher_dir)/platforms
+	cp $(qt_dir)/plugins/platforms/qwindows.dll $(launcher_dir)/platforms
 
-	python3 clib.py libjpeg-8.dll $(launcher_dir)
-
-	cp -a ../../share $(launcher_dir)
+	mkdir -p Launcher/Data
+	cp -a ../../share/locale Launcher/Data/Locale
+	cp ../../cacert.pem Launcher/Data
 	rm -Rf $(launcher_dir)/share/applications
 	rm -Rf $(launcher_dir)/share/icons
 
-	rm -Rf $(launcher_dir)/OpenGL
+	rm -Rf $(launcher_dir)/amitools
 	rm -Rf $(launcher_dir)/arcade
 	rm -Rf $(launcher_dir)/fsbc
 	rm -Rf $(launcher_dir)/fsgs
+	rm -Rf $(launcher_dir)/fspy
 	rm -Rf $(launcher_dir)/fstd
 	rm -Rf $(launcher_dir)/fsui
 	rm -Rf $(launcher_dir)/launcher
+	rm -Rf $(launcher_dir)/OpenGL
 	rm -Rf $(launcher_dir)/oyoyo
-	rm -Rf $(launcher_dir)/six
 	rm -Rf $(launcher_dir)/workspace
 
-	zip -d $(launcher_dir)/library.zip OpenGL/\*
-	zip -d $(launcher_dir)/library.zip arcade/\*
-	zip -d $(launcher_dir)/library.zip fsbc/\*
-	zip -d $(launcher_dir)/library.zip fsgs/\*
-	zip -d $(launcher_dir)/library.zip fstd/\*
-	zip -d $(launcher_dir)/library.zip fsui/\*
-	zip -d $(launcher_dir)/library.zip launcher/\*
-	zip -d $(launcher_dir)/library.zip oyoyo/\*
-	zip -d $(launcher_dir)/library.zip six/\*
-	zip -d $(launcher_dir)/library.zip workspace/\*
+	zip -d $(library_zip) amitools/\*
+	zip -d $(library_zip) arcade/\*
+	zip -d $(library_zip) fsbc/\*
+	zip -d $(library_zip) fsgs/\*
+	zip -d $(library_zip) fspy/\*
+	zip -d $(library_zip) fstd/\*
+	zip -d $(library_zip) fsui/\*
+	zip -d $(library_zip) launcher/\*
+	zip -d $(library_zip) OpenGL/\*
+	zip -d $(library_zip) oyoyo/\*
+	zip -d $(library_zip) workspace/\*
+
+	# This file differs between each build
+	zip -d $(library_zip) BUILD_CONSTANTS.pyc
+	# Remove wrong-cased members from the archive
+	zip -d $(library_zip) ConfigParser.pyc || true
+	zip -d $(library_zip) Queue.pyc || true
+	PYTHONPATH=../.. python3 -m fspy.zipfile deterministic \
+		--fix-pyc-timestamps $(library_zip)
 
 	make -C ../python
-	cp -a ../python/*.zip $(launcher_dir)
+	mkdir -p Launcher/Python
+	cp -a ../python/*.zip Launcher/Python
+
+	echo $(ver) > Launcher/Version.txt
+	echo $(ver) > $(launcher_dir)/Version.txt
 
 	python3 sign.py $(launcher_dir)/fs-uae-launcher.exe
 
-zipfile:
-	cd $(launcher_dir) && zip -9 -r ../../../$(launcher_dir).zip *
+zip:
+	# cd $(launcher_dir) && zip -9 -r ../../../$(launcher_zip) *
+	zip -9 -r ../../$(launcher_zip) Launcher
+
+tar.xz: progdir
+	# cd $(launcher_dir) && tar cfvJ ../../../$(launcher_txz) *
+	tar cfvJ ../../$(launcher_txz) Launcher
 
 setup:
 	sed s/9.8.7/${version}/g fs-uae-launcher.iss > fs-uae-launcher.iss2.tmp

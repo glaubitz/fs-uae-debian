@@ -31,7 +31,7 @@ class ImplicitConfigHandler:
         if not self.dirty:
             return
         self.dirty = False
-        print("ImplicitConfigHandler.do_update")
+        # print("ImplicitConfigHandler.do_update")
         implicit = ImplicitConfig(ConfigProxy(), SettingsProxy())
         # failed = False
         try:
@@ -41,8 +41,10 @@ class ImplicitConfigHandler:
             print("expand_config failed")
             # failed = True
         implicit_config = {
-            key: "" for key in LauncherConfig.keys()
-            if key.startswith("__implicit_")}
+            key: ""
+            for key in LauncherConfig.keys()
+            if key.startswith("__implicit_")
+        }
         for key, value in implicit.items():
             implicit_config["__implicit_" + key] = value
         LauncherConfig.set_multiple(list(implicit_config.items()))

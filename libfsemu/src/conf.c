@@ -17,11 +17,19 @@ GHashTable *g_hash_table = NULL;
 #define LOG_LINE \
 "----------------------------------------------------------------------------\n"
 
-static void initialize()
+static void initialize(void)
 {
+    if (g_initialized) {
+        return;
+    }
+    g_initialized = 1;
     g_hash_table = g_hash_table_new_full(
         g_str_hash, g_str_equal, g_free, g_free);
-    g_initialized = 1;
+}
+
+void fse_init_conf(void)
+{
+    initialize();
 }
 
 bool fs_config_exists(const char *key)
@@ -124,6 +132,12 @@ void fs_config_set_string_if_unset(const char *key, const char *value)
     }
 }
 
+#ifdef FSUAE
+#define USE_INIFILE
+#endif
+
+#ifdef USE_INIFILE
+
 void fs_config_parse_ini_file(fs_ini_file *ini_file, int force)
 {
     char **groups = fs_ini_file_get_groups(ini_file, NULL);
@@ -146,6 +160,7 @@ void fs_config_parse_ini_file(fs_ini_file *ini_file, int force)
     g_strfreev(groups);
 }
 
+#endif
 
 int fs_config_read_file(const char *path, int force)
 {
@@ -167,6 +182,7 @@ int fs_config_read_file(const char *path, int force)
         return 0;
     }
 
+#ifdef USE_INIFILE
     fs_ini_file *ini_file = fs_ini_file_open(path);
     if (ini_file == NULL) {
         fs_log("error loading config file\n");
@@ -175,6 +191,9 @@ int fs_config_read_file(const char *path, int force)
     fs_config_parse_ini_file(ini_file, force);
     fs_ini_file_destroy(ini_file);
     return 1;
+#else
+    return 0;
+#endif
 }
 
 int fs_config_get_boolean(const char *key)

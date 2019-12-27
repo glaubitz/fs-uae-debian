@@ -10,16 +10,23 @@ from fsbc.settings import Settings
 
 # noinspection PyUnresolvedReferences, PyPackageRequirements
 from PyQt5.QtCore import *
+
 # noinspection PyUnresolvedReferences, PyPackageRequirements
 from PyQt5.QtGui import *
+
 # noinspection PyUnresolvedReferences, PyPackageRequirements
 from PyQt5.QtWidgets import *
+
 # noinspection PyUnresolvedReferences, PyPackageRequirements
 from PyQt5.QtCore import pyqtSignal as Signal
+
 # noinspection PyUnresolvedReferences, PyPackageRequirements
 from PyQt5.QtCore import pyqtSignal as QSignal
+
 # noinspection PyUnresolvedReferences, PyPackageRequirements
 from PyQt5.QtOpenGL import *
+
+from fsgs.option import Option
 
 try:
     # noinspection PyUnresolvedReferences, PyPackageRequirements
@@ -47,14 +54,23 @@ def init_qt():
         # print(qt_plugins_dir)
         # if os.path.exists(qt_plugins_dir):
         #     QApplication.setLibraryPaths([qt_plugins_dir])
-        if os.path.exists(os.path.join(fsboot.executable_dir(),
-                                       "platforms", "libqcocoa.dylib")):
+        if os.path.exists(
+            os.path.join(
+                fsboot.executable_dir(), "platforms", "libqcocoa.dylib"
+            )
+        ):
             # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
             QApplication.setLibraryPaths([fsboot.executable_dir()])
 
     if getattr(sys, "frozen", False):
-        # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
-        QApplication.setLibraryPaths([fsboot.executable_dir()])
+        if sys.platform == "darwin":
+            # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
+            QApplication.setLibraryPaths(
+                [os.path.join(fsboot.executable_dir(), "..", "PlugIns")]
+            )
+        else:
+            # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
+            QApplication.setLibraryPaths([fsboot.executable_dir()])
 
     # Should not be necessary with Qt 5.2.x:
     # fix_qt_for_maverick()
@@ -70,7 +86,7 @@ def initialize_qt_style(qapplication):
     # from fsui.qt import QStyleFactory, QPalette, QColor, Qt, QFont
     fusion_variant = ""
 
-    launcher_theme = Settings.instance().get("launcher_theme")
+    launcher_theme = Settings.instance().get(Option.LAUNCHER_THEME)
     if launcher_theme == "standard":
         use_fusion_theme = False
     elif launcher_theme == "native":
@@ -84,15 +100,21 @@ def initialize_qt_style(qapplication):
     elif launcher_theme == "fusion-dark":
         use_fusion_theme = True
         fusion_variant = "dark"
+    elif launcher_theme == "fusion-windows10":
+        use_fusion_theme = True
+        fusion_variant = "windows10"
     elif launcher_theme == "fws":
         use_fusion_theme = True
         fusion_variant = "fws"
         from fsui.qt.window import FwsWindow
+
         FwsWindow.set_default()
     else:
         use_fusion_theme = True
         if fstd.desktop.is_running_gnome_3():
             fusion_variant = "adwaita"
+        elif fstd.desktop.is_running_windows_10():
+            fusion_variant = "windows10"
 
     if "--launcher-theme=fusion-dark" in sys.argv:
         use_fusion_theme = True
@@ -106,11 +128,22 @@ def initialize_qt_style(qapplication):
         qapplication.setStyle(QStyleFactory.create("Fusion"))
         if fusion_variant == "adwaita":
             pa = QPalette()
-            pa.setColor(QPalette.Window, QColor(237, 237, 237))
-            pa.setColor(QPalette.AlternateBase, QColor(237, 237, 237))
-            pa.setColor(QPalette.Button, QColor(237, 237, 237))
+            # background = QColor("#f6f5f4")
+            background = QColor("#eae7e5")
+            pa.setColor(QPalette.Window, background)
+            pa.setColor(QPalette.AlternateBase, background)
+            pa.setColor(QPalette.Button, background)
+            # pa.setColor(QPalette.Base, QColor(255, 255, 255))
+            pa.setColor(
+                QPalette.Disabled, QPalette.Base, QColor(241, 241, 241)
+            )
+
+            # pa.setColor(QPalette.Window, QColor("#aeaeae"))
+            # pa.setColor(QPalette.AlternateBase, QColor("#aeaeae"))
+            # pa.setColor(QPalette.Button, QColor("#aeaeae"))
+
             qapplication.setPalette(pa)
-        elif fusion_variant == "fws":
+        elif fusion_variant == "fws" or fusion_variant == "windows10":
             pa = QPalette()
             pa.setColor(QPalette.Window, QColor(242, 242, 242))
             pa.setColor(QPalette.AlternateBase, QColor(242, 242, 242))
@@ -134,11 +167,13 @@ def initialize_qt_style(qapplication):
             qapplication.setPalette(pa)
             qapplication.setStyleSheet(
                 "QToolTip { color: #ffffff; background-color: #2a82da; "
-                "border: 1px solid white; }")
+                "border: 1px solid white; }"
+            )
 
         try:
             launcher_font_size = int(
-                Settings.instance().get("launcher_font_size"))
+                Settings.instance().get("launcher_font_size")
+            )
         except ValueError:
             if fusion_variant == "fws":
                 launcher_font_size = 13
@@ -152,3 +187,9 @@ def initialize_qt_style(qapplication):
                 font.setPointSizeF(10.5)
                 font.setHintingPreference(QFont.PreferNoHinting)
             qapplication.setFont(font)
+
+    import fsui
+
+    if use_fusion_theme:
+        fsui.theme = "fusion"
+        fsui.theme_variant = fusion_variant

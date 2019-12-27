@@ -36,6 +36,12 @@ else
 	fsgs_dir := "."
 endif
 
+ifeq ($(wildcard fspy),)
+	fspy_dir := "../fs-uae-launcher"
+else
+	fspy_dir := "."
+endif
+
 ifeq ($(wildcard fstd),)
 	fstd_dir := "../fs-uae-launcher"
 else
@@ -60,10 +66,10 @@ else
 	oyoyo_dir := "."
 endif
 
-ifeq ($(wildcard six),)
-	six_dir := "../fs-uae-launcher"
+ifeq ($(wildcard workspace),)
+	workspace_dir := "../fs-uae-launcher"
 else
-	six_dir := "."
+	workspace_dir := "."
 endif
 
 all: mo
@@ -111,11 +117,12 @@ distdir:
 	cp -a $(fsbc_dir)/fsbc $(dist_dir)/
 	cp -a $(fsboot_dir)/fsboot $(dist_dir)/
 	cp -a $(fsgs_dir)/fsgs $(dist_dir)/
+	cp -a $(fspy_dir)/fspy $(dist_dir)/
 	cp -a $(fstd_dir)/fstd $(dist_dir)/
 	cp -a $(fsui_dir)/fsui $(dist_dir)/
 	cp -a $(launcher_dir)/launcher $(dist_dir)/
 	cp -a $(oyoyo_dir)/oyoyo $(dist_dir)/
-	cp -a $(six_dir)/six $(dist_dir)/
+	cp -a $(workspace_dir)/workspace $(dist_dir)/
 	cp -a share $(dist_dir)/
 	mkdir $(dist_dir)/po/
 
@@ -129,6 +136,7 @@ distdir:
 	cp Makefile $(dist_dir)/
 	cp README $(dist_dir)/
 	cp VERSION $(dist_dir)/
+	cp cacert.pem $(dist_dir)/
 	mkdir -p $(dist_dir)/debian
 	cp debian/changelog $(dist_dir)/debian
 	cp debian/compat $(dist_dir)/debian
@@ -140,11 +148,13 @@ distdir:
 	cp debian/source/format $(dist_dir)/debian/source
 	mkdir -p $(dist_dir)/dist
 	cp dist/arch.py $(dist_dir)/dist
-	mkdir -p $(dist_dir)/dist/macosx
-	cp dist/macosx/Info.plist $(dist_dir)/dist/macosx
-	cp dist/macosx/Makefile $(dist_dir)/dist/macosx
-	cp dist/macosx/fs-make-standalone-app.py $(dist_dir)/dist/macosx
-	cp dist/macosx/sign.py $(dist_dir)/dist/macosx
+	mkdir -p $(dist_dir)/dist/macos
+	cp dist/macos/Info.plist $(dist_dir)/dist/macos
+	cp dist/macos/Makefile $(dist_dir)/dist/macos
+	cp dist/macos/sign.py $(dist_dir)/dist/macos
+	cp dist/macos/standalone.py $(dist_dir)/dist/macos
+	mkdir -p $(dist_dir)/dist/python
+	cp dist/python/Makefile $(dist_dir)/dist/python
 	cp fs-uae-arcade $(dist_dir)/
 	cp fs-uae-arcade.spec $(dist_dir)/
 	mkdir -p $(dist_dir)/icon
@@ -155,7 +165,7 @@ distdir:
 	cp update-version $(dist_dir)/
 	cd $(dist_dir) && ./update-version setup.py --strict
 	cd $(dist_dir) && ./update-version debian/changelog --deb
-	cd $(dist_dir) && ./update-version dist/macosx/Info.plist --strict
+	cd $(dist_dir) && ./update-version dist/macos/Info.plist --strict
 	cd $(dist_dir) && ./update-version launcher/version.py
 	cd $(dist_dir) && ./update-version fs-uae-arcade
 	cd $(dist_dir) && ./update-version fs-uae-arcade.spec --rpm
@@ -169,8 +179,8 @@ windows-dist: distdir
 	mv $(dist_dir)/fs-uae-arcade_*windows* .
 	rm -Rf $(dist_dir)
 
-macosx-dist: distdir
-	cd $(dist_dir)/dist/macosx && make
+macos-dist: distdir
+	cd $(dist_dir)/dist/macos && make
 	mv $(dist_dir)/fs-uae-arcade_*macos* .
 	rm -Rf $(dist_dir)
 
@@ -188,4 +198,14 @@ clean:
 distclean: clean clean-dist
 	rm -f Makefile
 	rm -f setup.py
+
+bindist: distdir
+	cd $(dist_dir)/dist/linux && fs-sdk-linux-x86-64 make
+	mv $(dist_dir)/fs-uae-launcher_*linux* .
+	rm -Rf $(dist_dir)
+
+bindist-x86: distdir
+	cd $(dist_dir)/dist/linux && fs-sdk-linux-x86 make
+	mv $(dist_dir)/fs-uae-launcher_*linux* .
+	rm -Rf $(dist_dir)
 

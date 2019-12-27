@@ -2,12 +2,14 @@ import os
 import threading
 
 from arcade.glui.state import State
+from fsbc.settings import Settings
 from fsui.qt import QCursor
 
 
 class GameCenterRunner(object):
-    def __init__(self, controller=None, platform=None, name=None,
-                 config=None, **_):
+    def __init__(
+        self, controller=None, platform=None, name=None, config=None, **_
+    ):
         self.controller = controller
         self.platform_name = platform
         self.game_name = name
@@ -19,14 +21,16 @@ class GameCenterRunner(object):
 
     def prepare(self):
         self.done = False
-        threading.Thread(target=self._prepare_thread,
-                         name="GameRunnerPrepareThread").start()
+        threading.Thread(
+            target=self._prepare_thread, name="GameRunnerPrepareThread"
+        ).start()
 
     def _prepare_thread(self):
         try:
             self._do_prepare()
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             self.error = repr(e)
             self.backtrace = traceback.format_exc()
@@ -35,6 +39,7 @@ class GameCenterRunner(object):
 
     def _do_prepare(self):
         self.controller.prepare()
+        self.controller.install()
 
     def configure(self):
         self.done = True
@@ -76,8 +81,19 @@ class GameCenterRunner(object):
             # noinspection PyCallByClass,PyTypeChecker
             QCursor.setPos(x, y)
 
-        threading.Thread(target=self._run_thread,
-                         name="GameRunnerRunThread").start()
+        # cursor_x = Settings.instance().get("__cursor_x")
+        # cursor_y = Settings.instance().get("__cursor_y")
+        # try:
+        #     cursor_x = int(cursor_x)
+        #     cursor_y = int(cursor_y)
+        # except ValueError:
+        #     pass
+        # else:
+        #     QCursor.setPos(cursor_x, cursor_y)
+
+        threading.Thread(
+            target=self._run_thread, name="GameRunnerRunThread"
+        ).start()
 
     def abort(self):
         self.controller.abort()
@@ -87,6 +103,7 @@ class GameCenterRunner(object):
             self._do_run()
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             self.error = repr(e)
             self.backtrace = traceback.format_exc()
@@ -115,8 +132,8 @@ class GameCenterRunner(object):
         try:
             print("state.game_running = True")
             state.game_running = True
-            process = self.controller.run()
-            process.wait()
+            self.controller.run()
+            self.controller.wait()
         finally:
             print("state.game_running = False")
             state.game_running = False

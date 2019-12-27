@@ -1,21 +1,22 @@
-from launcher.file_scanner import FileScanner
+import time
+
+import requests
+
+from launcher.filescanner import FileScanner
 from fsgs.download import Downloader
 from fsgs.FSGSDirectories import FSGSDirectories
 import fsui
 from fsui.extra.iconheader import IconHeader
-import time
 from fsbc.application import app
-from urllib.request import urlopen
 from fsbc.signal import Signal
 from fsbc.task import Task
 from fsgs.Database import Database
 from fsgs.ogd.context import SynchronizerContext
-from launcher.game_scanner import GameScanner
+from launcher.gamescanner import GameScanner
 from ..i18n import gettext
 
 
 class DownloadGameWindow(fsui.Window):
-
     def __init__(self, parent, fsgs):
         fsui.Window.__init__(self, parent, gettext("Download Game Manually"))
         self.fsgs = fsgs
@@ -27,22 +28,31 @@ class DownloadGameWindow(fsui.Window):
         self.layout.set_padding(20, 20, 20, 20)
 
         self.icon_header = IconHeader(
-            self, fsui.Icon("web-browser", "pkg:workspace"),
+            self,
+            fsui.Icon("web-browser", "pkg:workspace"),
             gettext("Download Game Manually"),
-            gettext("This game must be downloaded before you can play it"))
+            gettext("This game must be downloaded before you can play it"),
+        )
         self.layout.add(self.icon_header, fill=True, margin_bottom=20)
 
-        label = fsui.HeadingLabel(self, gettext(
-            "Please open the following web page and download the "
-            "game from there:"))
+        label = fsui.HeadingLabel(
+            self,
+            gettext(
+                "Please open the following web page and download the "
+                "game from there:"
+            ),
+        )
         label.set_min_width(500)
         self.layout.add(label)
 
         hori_layout = fsui.HorizontalLayout()
         self.layout.add(hori_layout, fill=True, margin_top=10)
 
-        hori_layout.add(fsui.ImageView(self, fsui.Image(
-            "launcher:res/16/world_link.png")))
+        hori_layout.add(
+            fsui.ImageView(
+                self, fsui.Image("launcher:res/16x16/world_link.png")
+            )
+        )
 
         label = fsui.URLLabel(self, self.download_page, self.download_page)
         hori_layout.add(label, margin_left=6)
@@ -52,17 +62,22 @@ class DownloadGameWindow(fsui.Window):
             label.set_min_width(500)
             self.layout.add(label, margin_top=20)
 
-        label = fsui.HeadingLabel(self, gettext(
-            "Download to the following directory, and then "
-            "click '{0}':".format(gettext("Scan Downloads"))))
+        label = fsui.HeadingLabel(
+            self,
+            gettext(
+                "Download to the following directory, and then "
+                "click '{0}':".format(gettext("Scan Downloads"))
+            ),
+        )
         label.set_min_width(500)
         self.layout.add(label, margin_top=20)
 
         hori_layout = fsui.HorizontalLayout()
         self.layout.add(hori_layout, fill=True, margin_top=10)
 
-        hori_layout.add(fsui.ImageView(self, fsui.Image(
-            "launcher:res/16/folder.png")))
+        hori_layout.add(
+            fsui.ImageView(self, fsui.Image("launcher:res/16x16/folder.png"))
+        )
 
         label = fsui.Label(self, FSGSDirectories.ensure_downloads_dir())
         hori_layout.add(label, margin_left=6)
@@ -112,9 +127,13 @@ class DownloadGameWindow(fsui.Window):
         if self.fsgs.config.get("x_missing_files"):
             message = gettext(
                 "Files for this game are still missing. Did you download "
-                "the game and put the file(s) in the Downloads directory?")
-            fsui.show_error(message, title=gettext("Missing Files"),
-                            parent=self.get_window())
+                "the game and put the file(s) in the Downloads directory?"
+            )
+            fsui.show_error(
+                message,
+                title=gettext("Missing Files"),
+                parent=self.get_window(),
+            )
             self.scan_button.enable()
             self.status_label.set_text("")
         else:
@@ -122,7 +141,6 @@ class DownloadGameWindow(fsui.Window):
 
 
 class RescanTask(Task):
-
     def __init__(self):
         Task.__init__(self, "RescanTask")
 
@@ -141,13 +159,16 @@ class RescanTask(Task):
 
         paths = [FSGSDirectories.downloads_dir()]
         scanner = FileScanner(
-            paths, purge_other_dirs=False, on_status=self.on_status,
-            stop_check=self.stop_check)
+            paths,
+            purge_other_dirs=False,
+            on_status=self.on_status,
+            stop_check=self.stop_check,
+        )
         scanner.scan()
 
         scanner = GameScanner(
-            context, None, on_status=self.on_status,
-            stop_check=self.stop_check)
+            context, None, on_status=self.on_status, stop_check=self.stop_check
+        )
         scanner.scan(database)
 
         # FIXME: review what signals should be sent when a scan is performed
@@ -160,7 +181,6 @@ class RescanTask(Task):
 
 
 class DownloadTermsDialog(fsui.LegacyDialog):
-
     def __init__(self, parent, fsgs):
         fsui.LegacyDialog.__init__(self, parent, gettext("Terms of Download"))
         self.fsgs = fsgs
@@ -172,10 +192,14 @@ class DownloadTermsDialog(fsui.LegacyDialog):
         self.layout.set_padding(20, 20, 20, 20)
 
         self.icon_header = IconHeader(
-            self, fsui.Icon("web-browser", "pkg:workspace"),
+            self,
+            fsui.Icon("web-browser", "pkg:workspace"),
             gettext("Terms of Download"),
-            gettext("This game can be automatically downloaded if you "
-                    "accept the terms"))
+            gettext(
+                "This game can be automatically downloaded if you "
+                "accept the terms"
+            ),
+        )
         self.layout.add(self.icon_header, fill=True, margin_bottom=20)
 
         self.label = fsui.MultiLineLabel(self, gettext("Loading..."))
@@ -226,7 +250,6 @@ class DownloadTermsDialog(fsui.LegacyDialog):
 
 
 class DownloadTermsTask(Task):
-
     def __init__(self, url):
         Task.__init__(self, "DownloadTermsTask")
         self.url = url
@@ -235,9 +258,13 @@ class DownloadTermsTask(Task):
     def run(self):
         for i in range(3):
             try:
-                self.data = urlopen(self.url).read().decode("UTF-8")
+                r = requests.get(self.url)
+                r.raise_for_status()
+                self.data = r.text
             except Exception:
                 time.sleep(0.5)
             else:
                 return
-        self.data = urlopen(self.url).read().decode("UTF-8")
+        r = requests.get(self.url)
+        r.raise_for_status()
+        self.data = r.text

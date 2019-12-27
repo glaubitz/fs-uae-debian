@@ -114,7 +114,7 @@
 #undef FPU_UAE
 
 /* multiple driver backends (experimental) */
-#undef FS_EMU_DRIVERS
+#undef FSE_DRIVERS
 
 /* GFX hardware boards */
 #undef GFXBOARD
@@ -456,6 +456,9 @@
 /* Define to 1 if `st_rdev' is a member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_RDEV
 
+/* Define to 1 if `uc_mcontext.gregs' is a member of `struct ucontext_t'. */
+#undef HAVE_STRUCT_UCONTEXT_T_UC_MCONTEXT_GREGS
+
 /* Define to 1 if `uc_mcontext.gregs' is a member of `struct ucontext'. */
 #undef HAVE_STRUCT_UCONTEXT_UC_MCONTEXT_GREGS
 
@@ -675,9 +678,6 @@
 /* JIT compilation of FPU instructions */
 #undef USE_JIT_FPU
 
-/* Define to 1 to use OpenAL */
-#undef USE_OPENAL
-
 /* Define to 1 to use OpenGL */
 #undef USE_OPENGL
 
@@ -725,6 +725,9 @@
 
 /* netplay support */
 #undef WITH_NETPLAY
+
+/* Define to 1 to use OpenAL */
+#undef WITH_OPENAL
 
 /* use PearPC for PPC emulation (deprecated) */
 #undef WITH_PEARPC_CPU

@@ -5,14 +5,13 @@ DEBUG = 0
 
 
 class LayoutChild(object):
-
     def __init__(self):
         self.element = None
         self.spacing = 0
         self.expand = False
         self.fill = False
         self.valign = 0.5
-        self.margin_left  = 0
+        self.margin_left = 0
         self.margin_right = 0
         self.margin_top = 0
         self.margin_bottom = 0
@@ -20,7 +19,6 @@ class LayoutChild(object):
 
 
 class Layout(object):
-
     def __init__(self, padding):
         # self.min_size = (0, 0)
         self.position = (0, 0)
@@ -39,8 +37,12 @@ class Layout(object):
         return True
 
     def get_padding(self):
-        return self.padding_left, self.padding_top, self.padding_right, \
-            self.padding_bottom
+        return (
+            self.padding_left,
+            self.padding_top,
+            self.padding_right,
+            self.padding_bottom,
+        )
 
     def set_padding(self, *amount):
         print("set_padding", amount)
@@ -60,9 +62,53 @@ class Layout(object):
     def get_min_size(self):
         return self.get_min_width(), self.get_min_height()
 
-    def add(self, element, spacing=0, expand=False, fill=False, valign=0.5,
-            margin=0, margin_left=None, margin_right=None,
-            margin_top=None, margin_bottom=None):
+    def insert(
+        self,
+        index,
+        element,
+        spacing=0,
+        expand=False,
+        fill=False,
+        valign=0.5,
+        margin=0,
+        margin_left=None,
+        margin_right=None,
+        margin_top=None,
+        margin_bottom=None,
+    ):
+        self.add(
+            element,
+            spacing=spacing,
+            expand=expand,
+            fill=fill,
+            valign=valign,
+            margin=margin,
+            margin_left=margin_left,
+            margin_right=margin_right,
+            margin_top=margin_top,
+            margin_bottom=margin_bottom,
+            index=index,
+        )
+
+    # FIXME: Rename margin -> margins (+ alias), margin_top -> top, etc
+    def add(
+        self,
+        element,
+        spacing=0,
+        expand=False,
+        fill=False,
+        valign=0.5,
+        margin=0,
+        margin_left=None,
+        margin_right=None,
+        margin_top=None,
+        margin_bottom=None,
+        index=None,
+        left=None,
+        right=None,
+        top=None,
+        bottom=None,
+    ):
         """
 
         - By setting fill < 0, the height or width of the control will not
@@ -75,6 +121,14 @@ class Layout(object):
           share of expansion space, according to abs(expand) / sum(all expand).
 
         """
+        if left is not None:
+            margin_left = left
+        if right is not None:
+            margin_right = right
+        if top is not None:
+            margin_top = top
+        if bottom is not None:
+            margin_bottom = bottom
         child = LayoutChild()
         child.element = element
         child.spacing = spacing
@@ -97,7 +151,10 @@ class Layout(object):
             child.margin_bottom = margin_bottom
         else:
             child.margin_bottom = margin
-        self.children.append(child)
+        if index is None:
+            self.children.append(child)
+        else:
+            self.children.insert(index, child)
 
     def remove(self, element):
         for i, child in enumerate(self.children):
@@ -105,7 +162,7 @@ class Layout(object):
                 del self.children[i]
                 return
 
-    def add_spacer(self, size, size2=None, expand=False):
+    def add_spacer(self, size=0, size2=None, expand=False):
         self.add(Spacer(size, size2), expand=expand)
 
     def get_position(self):
@@ -133,7 +190,6 @@ class Layout(object):
 
 
 class LinearLayout(Layout):
-
     def __init__(self, vertical, padding=0):
         Layout.__init__(self, padding)
         self.vertical = vertical
@@ -154,8 +210,10 @@ class LinearLayout(Layout):
             if not child.element.is_visible():
                 continue
 
-            child.min_size = [child.element.get_min_width(),
-                              child.element.get_min_height()]
+            child.min_size = [
+                child.element.get_min_width(),
+                child.element.get_min_height(),
+            ]
 
             if child.expand < 0:
                 child.size = 0
@@ -205,8 +263,10 @@ class LinearLayout(Layout):
         x = self.padding_left
         y = self.padding_top
         # self_height = self.size[1] - self.padding_top - self.padding_bottom
-        fill_size = (self.size[0] - self.padding_left - self.padding_right,
-                     self.size[1] - self.padding_top - self.padding_bottom)
+        fill_size = (
+            self.size[0] - self.padding_left - self.padding_right,
+            self.size[1] - self.padding_top - self.padding_bottom,
+        )
 
         for child in self.children:
             if not child.element.is_visible():
@@ -240,9 +300,12 @@ class LinearLayout(Layout):
                     # position[0] += (self.size[0] - size[0]) // 2
                     pass
                 else:
-                    position[1] += (fill_size[1]
-                                    - child.margin_top - child.margin_bottom
-                                    - size[1]) * child.valign
+                    position[1] += (
+                        fill_size[1]
+                        - child.margin_top
+                        - child.margin_bottom
+                        - size[1]
+                    ) * child.valign
 
             child.element.set_position_and_size(position, size)
 
@@ -253,7 +316,6 @@ class LinearLayout(Layout):
 
 
 class HorizontalLayout(LinearLayout):
-
     def __init__(self, padding=0):
         LinearLayout.__init__(self, False, padding=padding)
 
@@ -286,13 +348,15 @@ class HorizontalLayout(LinearLayout):
 
 
 class VerticalLayout(LinearLayout):
-
     def __init__(self, padding=0):
         LinearLayout.__init__(self, True, padding=padding)
 
     def get_min_width(self):
         min_width = 0
         for child in self.children:
+            if hasattr(child.element, "explicitly_hidden"):
+                if child.element.explicitly_hidden():
+                    continue
             w = child.element.get_min_width()
             w += child.margin_left + child.margin_right
             if w > min_width:
@@ -306,6 +370,9 @@ class VerticalLayout(LinearLayout):
         min_height = 0
         last_margin = 0
         for child in self.children:
+            if hasattr(child.element, "explicitly_hidden"):
+                if child.element.explicitly_hidden():
+                    continue
             min_height += child.element.get_min_height()
             min_height += max(last_margin, child.margin_top)
             last_margin = child.margin_bottom

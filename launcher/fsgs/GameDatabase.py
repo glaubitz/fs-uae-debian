@@ -1,12 +1,13 @@
 import json
+import os
 import sqlite3
-from binascii import hexlify, unhexlify
 import zlib
+from binascii import hexlify, unhexlify
+
 from .BaseDatabase import BaseDatabase
 
-
-VERSION = 18
-RESET_VERSION = 18
+VERSION = 19
+RESET_VERSION = 19
 DUMMY_UUID = b"'\\x8b\\xbb\\x00Y\\x8bqM\\x15\\x972\\xa8-t_\\xb2\\xfd'"
 
 
@@ -15,15 +16,22 @@ class IncompleteGameException(Exception):
 
 
 class GameDatabase(BaseDatabase):
-
     def __init__(self, path):
         BaseDatabase.__init__(self, BaseDatabase.SENTINEL)
         self._path = path
-        # self._connection = None
-        # self._cursor = None
+        self._name = os.path.splitext(os.path.basename(path))[0]
+
+    def name(self):
+        return self._name
+
+    def path(self):
+        return self._path
 
     def get_path(self):
         return self._path
+
+    def version(self):
+        return VERSION
 
     def get_version(self):
         return VERSION
@@ -45,7 +53,9 @@ class GameDatabase(BaseDatabase):
         cursor = self.internal_cursor()
         cursor.execute(
             "SELECT like_rating, work_rating FROM rating WHERE "
-            "game_uuid = ?", (game_uuid,))
+            "game_uuid = ?",
+            (game_uuid,),
+        )
         row = cursor.fetchone()
         if row is not None:
             return row[0], row[1]
@@ -65,32 +75,34 @@ class GameDatabase(BaseDatabase):
         return None
 
     def add_game(self, game_id, game_uuid, game_data):
-        # print("add game", repr(game_id), repr(game_uuid), repr(game_data))
         cursor = self.internal_cursor()
         cursor.execute(
-            "DELETE FROM game WHERE uuid = ?",
-            (sqlite3.Binary(game_uuid),))
+            "DELETE FROM game WHERE uuid = ?", (sqlite3.Binary(game_uuid),)
+        )
         cursor.execute(
             "INSERT INTO game (id, uuid, data) VALUES (?, ?, ?)",
-            (game_id, sqlite3.Binary(game_uuid), sqlite3.Binary(game_data)))
+            (game_id, sqlite3.Binary(game_uuid), sqlite3.Binary(game_data)),
+        )
 
     def delete_game(self, game_id, game_uuid):
         cursor = self.internal_cursor()
         cursor.execute(
-            "DELETE FROM game WHERE uuid = ?",
-            (sqlite3.Binary(game_uuid),))
+            "DELETE FROM game WHERE uuid = ?", (sqlite3.Binary(game_uuid),)
+        )
         cursor.execute(
-            "DELETE FROM game WHERE uuid = ?",
-            (sqlite3.Binary(DUMMY_UUID),))
+            "DELETE FROM game WHERE uuid = ?", (sqlite3.Binary(DUMMY_UUID),)
+        )
         cursor.execute(
             "INSERT INTO game (id, uuid, data) VALUES (?, ?, ?)",
-            (game_id, sqlite3.Binary(DUMMY_UUID), ""))
+            (game_id, sqlite3.Binary(DUMMY_UUID), ""),
+        )
 
     @staticmethod
     def binary_uuid_to_str(data):
         s = hexlify(data).decode("ASCII")
         return "{}-{}-{}-{}-{}".format(
-            s[0:8], s[8:12], s[12:16], s[16:20], s[20:32])
+            s[0:8], s[8:12], s[12:16], s[16:20], s[20:32]
+        )
 
     def get_all_uuids(self):
         cursor = self.internal_cursor()
@@ -99,22 +111,19 @@ class GameDatabase(BaseDatabase):
         for row in cursor:
             data = row[0]
             if len(data) != 16:
-                print("WARNING: Invalid UUID ({} bytes) found: {}".format(
-                      len(data), repr(data)))
+                print(
+                    "WARNING: Invalid UUID ({} bytes) found: {}".format(
+                        len(data), repr(data)
+                    )
+                )
                 continue
             result.add(self.binary_uuid_to_str(data))
         return result
 
     def get_game_values_for_uuid(self, game_uuid, recursive=True):
-        print("get_game_values_for_uuid", game_uuid)
+        # print("get_game_values_for_uuid", game_uuid)
         assert game_uuid
         assert isinstance(game_uuid, str)
-        # cursor = self.internal_cursor()
-        # query = "SELECT id FROM game WHERE uuid = ?"
-        # args = (sqlite3.Binary(unhexlify(game_uuid.replace("-", ""))),)
-        # cursor.execute(query, args)
-        # game_id = cursor.fetchone()[0]
-        # return self.get_game_values(game_id, recursive)
         return self.get_game_values(game_uuid=game_uuid, recursive=recursive)
 
     def get_game_values(self, game_id=None, *, game_uuid=None, recursive=True):
@@ -122,13 +131,15 @@ class GameDatabase(BaseDatabase):
         if game_uuid is not None:
             cursor.execute(
                 "SELECT uuid, data FROM game WHERE uuid = ?",
-                (sqlite3.Binary(unhexlify(game_uuid.replace("-", ""))),))
+                (sqlite3.Binary(unhexlify(game_uuid.replace("-", ""))),),
+            )
             row = cursor.fetchone()
             if not row:
                 raise LookupError("Cannot find game uuid {}".format(game_uuid))
         else:
             cursor.execute(
-                "SELECT uuid, data FROM game WHERE id = ?", (game_id,))
+                "SELECT uuid, data FROM game WHERE id = ?", (game_id,)
+            )
             row = cursor.fetchone()
             if not row:
                 raise LookupError("Cannot find game id {}".format(game_id))
@@ -138,28 +149,49 @@ class GameDatabase(BaseDatabase):
             assert self.binary_uuid_to_str(row[0]) == game_uuid
         data = zlib.decompress(row[1])
         data = data.decode("UTF-8")
+
         doc = json.loads(data)
+        doc["variant_uuid"] = game_uuid
+
+        # This is a hack so we can retrieve the published-status of the
+        # child entry. The original key should have been named _published,
+        # probably, to avoid it being inherited.
+        variant_published = doc.get("publish", "")
+
         next_parent_uuid = doc.get("parent_uuid", "")
+        next_parent_database = doc.get("parent_database", "")
         while next_parent_uuid and recursive:
-            # treat game_uuid special, it will be the first parent_uuid
-            # in the chain
+            # Treat game_uuid special, it will be the first parent_uuid
+            # in the chain.
             doc["game_uuid"] = next_parent_uuid
-            cursor.execute(
-                "SELECT data FROM game WHERE uuid = ?",
-                (sqlite3.Binary(
-                    unhexlify(next_parent_uuid.replace("-", ""))),))
-            row = cursor.fetchone()
-            if not row:
-                raise IncompleteGameException(
-                    "Could not find parent {0} of game {1}".format(
-                        next_parent_uuid, game_uuid))
-            data = zlib.decompress(row[0])
-            data = data.decode("UTF-8")
-            next_doc = json.loads(data)
+            if next_parent_database:
+                break
+            else:
+                cursor.execute(
+                    "SELECT data FROM game WHERE uuid = ?",
+                    (
+                        sqlite3.Binary(
+                            unhexlify(next_parent_uuid.replace("-", ""))
+                        ),
+                    ),
+                )
+                row = cursor.fetchone()
+                if not row:
+                    raise IncompleteGameException(
+                        "Could not find parent {0} of game {1}".format(
+                            next_parent_uuid, game_uuid
+                        )
+                    )
+                data = zlib.decompress(row[0])
+                data = data.decode("UTF-8")
+                next_doc = json.loads(data)
             next_parent_uuid = next_doc.get("parent_uuid", "")
-            # let child doc overwrite and append values to parent doc
+            next_parent_database = next_doc.get("parent_database", "")
+            # Let child doc overwrite and append values to parent doc.
             next_doc.update(doc)
             doc = next_doc
+
+        doc["__publish_hack__"] = variant_published
         return doc
 
     def get_game_database_version(self):
@@ -176,31 +208,41 @@ class GameDatabase(BaseDatabase):
         cursor.execute("DELETE FROM rating")
         cursor.execute("DELETE FROM game")
 
-    def update_database_to_version_18(self):
+    def update_database_to_version_19(self):
         cursor = self.internal_cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             ALTER TABLE metadata ADD COLUMN games_version
             INTEGER NOT NULL DEFAULT 0;
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE game (
                 id INTEGER PRIMARY KEY,
                 uuid BLOB,
                 data BLOB
             );
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX game_uuid ON game (uuid);
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE rating (
                 game_uuid VARCHAR(36) PRIMARY KEY NOT NULL,
                 work_rating INT NOT NULL,
                 like_rating INT NOT NULL,
                 updated TIMESTAMP NULL
             );
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             ALTER TABLE metadata ADD COLUMN database_version
             INTEGER NOT NULL DEFAULT 0;
-        """)
+        """
+        )

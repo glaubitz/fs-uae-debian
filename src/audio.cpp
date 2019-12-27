@@ -433,7 +433,7 @@ static void put_sound_word_right (uae_u32 w)
 		right_word_saved[saved_ptr] = w;
 		return;
 	}
-	PUT_SOUND_WORD (w);
+	PUT_SOUND_WORD(w);
 }
 
 static void put_sound_word_left (uae_u32 w)
@@ -454,10 +454,10 @@ static void put_sound_word_left (uae_u32 w)
 		rold = right_word_saved[saved_ptr] - SOUND16_BASE_VAL;
 		w = (lnew * mixed_mul2 + rold * mixed_mul1) / MIXED_STEREO_SCALE;
 
-		PUT_SOUND_WORD (w);
-		PUT_SOUND_WORD (tmp);
+		PUT_SOUND_WORD(tmp);
+		PUT_SOUND_WORD(w);
 	} else {
-		PUT_SOUND_WORD (w);
+		PUT_SOUND_WORD(w);
 	}
 }
 
@@ -467,7 +467,7 @@ static void put_sound_word_right2 (uae_u32 w)
 		right2_word_saved[saved_ptr2] = w;
 		return;
 	}
-	PUT_SOUND_WORD (w);
+	PUT_SOUND_WORD(w);
 }
 
 static void put_sound_word_left2 (uae_u32 w)
@@ -488,10 +488,10 @@ static void put_sound_word_left2 (uae_u32 w)
 		rold = right2_word_saved[saved_ptr2] - SOUND16_BASE_VAL;
 		w = (lnew * mixed_mul2 + rold * mixed_mul1) / MIXED_STEREO_SCALE;
 
-		PUT_SOUND_WORD (w);
-		PUT_SOUND_WORD (tmp);
+		PUT_SOUND_WORD(tmp);
+		PUT_SOUND_WORD(w);
 	} else {
-		PUT_SOUND_WORD (w);
+		PUT_SOUND_WORD(w);
 	}
 }
 
@@ -887,12 +887,12 @@ void sample16ss_handler (void)
 	get_extra_channels_sample(&data2, &data3, 0);
 
 	set_sound_buffers ();
-	put_sound_word_left (data0);
-	put_sound_word_right (data1);
+	put_sound_word_right(data0);
+	put_sound_word_left (data1);
 	if (currprefs.sound_stereo == SND_6CH)
 		make6ch (data0, data1, data2, data3);
-	put_sound_word_left2 (data3);
-	put_sound_word_right2 (data2);
+	put_sound_word_right2(data3);
+	put_sound_word_left2 (data2);
 	check_sound_buffers ();
 }
 
@@ -919,12 +919,12 @@ static void sample16ss_anti_handler (void)
 	get_extra_channels_sample(&data3, &data2, 1);
 
 	set_sound_buffers ();
-	put_sound_word_left (data0);
-	put_sound_word_right (data1);
+	put_sound_word_right(data0);
+	put_sound_word_left (data1);
 	if (currprefs.sound_stereo == SND_6CH)
 		make6ch (data0, data1, data2, data3);
-	put_sound_word_left2 (data3);
-	put_sound_word_right2 (data2);
+	put_sound_word_right2(data3);
+	put_sound_word_left2 (data2);
 	check_sound_buffers ();
 }
 
@@ -944,8 +944,8 @@ static void sample16si_anti_handler (void)
 	get_extra_channels_sample(&data1, &data2, 1);
 
 	set_sound_buffers ();
-	put_sound_word_left (data1);
-	put_sound_word_right (data2);
+	put_sound_word_right(data1);
+	put_sound_word_left (data2);
 	check_sound_buffers ();
 }
 
@@ -969,12 +969,12 @@ static void sample16ss_sinc_handler (void)
 	get_extra_channels_sample(&data3, &data2, 2);
 
 	set_sound_buffers ();
-	put_sound_word_left (data0);
-	put_sound_word_right (data1);
+	put_sound_word_right(data0);
+	put_sound_word_left (data1);
 	if (currprefs.sound_stereo == SND_6CH)
 		make6ch (data0, data1, data2, data3);
-	put_sound_word_left2 (data3);
-	put_sound_word_right2 (data2);
+	put_sound_word_right2(data3);
+	put_sound_word_left2 (data2);
 	check_sound_buffers ();
 }
 
@@ -994,8 +994,8 @@ static void sample16si_sinc_handler (void)
 	get_extra_channels_sample(&data1, &data2, 2);
 
 	set_sound_buffers ();
-	put_sound_word_left (data1);
-	put_sound_word_right (data2);
+	put_sound_word_right(data1);
+	put_sound_word_left(data2);
 	check_sound_buffers ();
 }
 
@@ -1028,8 +1028,8 @@ void sample16s_handler (void)
 	get_extra_channels_sample(&data2, &data3, 0);
 
 	set_sound_buffers ();
-	put_sound_word_left (data2);
-	put_sound_word_right (data3);
+	put_sound_word_right(data2);
+	put_sound_word_left(data3);
 	check_sound_buffers ();
 }
 
@@ -1107,8 +1107,8 @@ static void sample16si_crux_handler (void)
 	get_extra_channels_sample(&data2, &data3, 0);
 
 	set_sound_buffers ();
-	put_sound_word_left (data2);
-	put_sound_word_right (data3);
+	put_sound_word_right(data2);
+	put_sound_word_left (data3);
 	check_sound_buffers ();
 }
 
@@ -1167,8 +1167,8 @@ static void sample16si_rh_handler (void)
 	get_extra_channels_sample(&data2, &data3, 0);
 
 	set_sound_buffers ();
-	put_sound_word_left (data2);
-	put_sound_word_right (data3);
+	put_sound_word_right(data2);
+	put_sound_word_left (data3);
 	check_sound_buffers ();
 }
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: frode@fs-uae.net\n"
-"POT-Creation-Date: 2017-10-20 10:14+0200\n"
+"POT-Creation-Date: 2019-05-27 23:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,6 +49,10 @@ msgstr ""
 msgid "CD32 Pad Mode"
 msgstr ""
 
+#, c-format
+msgid "CPU scaling governor is '%s', not '%s'"
+msgstr ""
+
 #. / TRANSLATORS: This is a menu entry and must not be too long
 msgid "Custom Joystick Ports"
 msgstr ""
@@ -68,6 +72,9 @@ msgid "Eject"
 msgstr ""
 
 msgid "Empty"
+msgstr ""
+
+msgid "Emulation frame rate may suffer"
 msgstr ""
 
 msgid "Emulator Control"

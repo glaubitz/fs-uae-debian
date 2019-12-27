@@ -28,6 +28,8 @@
 #include <glad/glad.h>
 #elif defined(USE_SDL2)
 #include <SDL_opengl.h>
+#elif defined(USE_SDL)
+#include <SDL_opengl.h>
 #else
 #include <GL/gl.h>
 #endif
@@ -48,8 +50,9 @@ void fs_gl_blending(int enable);
 void fs_gl_color4fv(float *c);
 void fs_gl_color4f(float r, float g, float b, float a);
 
-void fs_gl_ortho();
-void fs_gl_ortho_hd();
+void fs_gl_ortho(void);
+void fs_gl_ortho_hd(void);
+void fs_gl_ortho_render(void);
 void fs_gl_perspective();
 void fs_gl_viewport(int x, int y, int w, int h);
 
@@ -82,6 +85,8 @@ void fs_gl_remove_context_notification(fs_gl_context_notify_function function,
 #define CHECK_GL_ERROR()
 #endif
 
+#ifdef FSUAE
+
 typedef GLsync (APIENTRYP FS_PFNGLFENCESYNCPROC) (GLenum condition, GLbitfield flags);
 typedef GLenum (APIENTRYP FS_PFNGLCLIENTWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
 typedef void (APIENTRYP FS_PFNGLWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
@@ -102,5 +107,7 @@ typedef GLboolean (APIENTRYP FS_PFNGLTESTFENCENVPROC) (GLuint fence);
 typedef void (APIENTRYP FS_PFNGLGETFENCEIVNVPROC) (GLuint fence, GLenum pname, GLint *params);
 typedef void (APIENTRYP FS_PFNGLFINISHFENCENVPROC) (GLuint fence);
 typedef void (APIENTRYP FS_PFNGLSETFENCENVPROC) (GLuint fence, GLenum condition);
+
+#endif
 
 #endif /* LIBFSGL_OPENGL_H_ */

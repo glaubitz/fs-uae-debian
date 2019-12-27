@@ -926,6 +926,7 @@ def _int_uae_boot_rom(c, f):
         value = "true"
     else:
         value = "false"
+    # FIXME: chipmem size > 2 MB
     # FIXME:
     # if (nr_directory_units (NULL))
     #     return b;
@@ -936,7 +937,7 @@ def _int_uae_boot_rom(c, f):
     # if (currprefs.scsi == 1)
     #     return b;
     # if (currprefs.input_tablet > 0)
-    # 	return b;
+    #     return b;
     # if (currprefs.rtgmem_size && currprefs.rtgmem_type < GFXBOARD_HARDWARE)
     #     return b;
     # if (currprefs.win32_automount_removable)
@@ -1797,7 +1798,6 @@ def _zorro_iii_memory(c, f):
 
 
 class AbstractExpandFunctions:
-
     @staticmethod
     def matches(a, b):
         pass

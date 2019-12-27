@@ -7,61 +7,104 @@ from launcher.launcher_settings import LauncherSettings
 from launcher.option import Option
 from launcher.ui.HelpButton import HelpButton
 from launcher.ui.behaviors import OptionsBehavior
+from launcher.ui.behaviors.platformbehavior import PlatformEnableBehavior
 
 
 class OptionWidgetFactory(object):
     """Factory for creating user interface groups for options."""
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, check=False, help=False, settings=False):
+    def __init__(self, check=False, help=False, settings=False, label=True):
         self.check = check
         self.help = help
         self.label_spacing = 10
+        self.label = label
         if settings:
             self.options = LauncherSettings
         else:
             self.options = LauncherConfig
 
     # noinspection PyShadowingBuiltins
-    def create(self, parent, name, text=None, check=None, help=None):
+    def create(
+        self,
+        parent,
+        name,
+        text=None,
+        check=None,
+        help=None,
+        platforms=None,
+        label=None,
+    ):
         option = Option.get(name)
         return create_option_group(
-            parent, self.options, option, name, option["type"].lower(),
+            parent,
+            self.options,
+            option,
+            name,
+            option["type"].lower(),
             text if text is not None else gettext(option["description"]),
             check if check is not None else self.check,
             help if help is not None else self.help,
-            self.label_spacing)
+            self.label_spacing,
+            platforms=platforms,
+            use_label=(label if label is not None else self.label),
+        )
+
+
+class OptionPanel(fsui.Panel):
+    def __init__(self, parent, platforms):
+        super().__init__(parent)
+        if platforms:
+            PlatformEnableBehavior(self, platforms)
 
 
 def create_option_group(
-        parent, options, option, key, option_type, option_text,
-        use_checkbox, use_help_button, label_spacing):
-    group = fsui.Group(parent)
+    parent,
+    options,
+    option,
+    key,
+    option_type,
+    option_text,
+    use_checkbox,
+    use_help_button,
+    label_spacing,
+    platforms=None,
+    use_label=True,
+):
+    # group = fsui.Group(parent)
+    group = OptionPanel(parent, platforms)
     group.layout = fsui.HorizontalLayout()
 
     if use_checkbox:
         group.layout.add(
             OptionCheckBox(group, option_text + ":", options, key),
-            margin_right=label_spacing)
-    else:
+            margin_right=label_spacing,
+        )
+    elif use_label:
         group.layout.add(
-            fsui.Label(group, option_text + ":"),
-            margin_right=label_spacing)
+            fsui.Label(group, option_text + ":"), margin_right=label_spacing
+        )
 
     choice_values = []
 
     if option_type == "boolean":
         group.layout.add_spacer(0, expand=True)
-        group.layout.add(BooleanChoiceControl(
-            group, options, key, use_checkbox=use_checkbox))
+        group.layout.add(
+            BooleanChoiceControl(
+                group, options, key, use_checkbox=use_checkbox
+            )
+        )
 
     elif option_type == "choice":
         group.layout.add_spacer(0, expand=True)
         choices = option["values"]
         # if use_checkbox:
         #     choices,insert(("", gettext("Auto")))
-        group.layout.add(ChoiceControl(
-            group, options, key, choices, use_checkbox=use_checkbox))
+        group.layout.add(
+            ChoiceControl(
+                group, options, key, choices, use_checkbox=use_checkbox
+            )
+        )
 
     elif option_type == "string":
 
@@ -75,12 +118,16 @@ def create_option_group(
         text_field.on_changed = on_changed
         group.layout.add(text_field, expand=True)
 
-    elif option["type"].lower() == "integer" and "min" in option \
-            and "max" in option:
+    elif (
+        option["type"].lower() == "integer"
+        and "min" in option
+        and "max" in option
+    ):
         assert use_checkbox
 
         spin_ctrl = SpinValueControl(
-            group, options, key, option["min"], option["max"])
+            group, options, key, option["min"], option["max"]
+        )
 
         # current = LauncherConfig.get(key)
         # current_int = int(option["default"])
@@ -136,8 +183,7 @@ def create_option_group(
         group.widget = choice
 
     if use_help_button:
-        help_button = HelpButton(
-            parent, "https://fs-uae.net/options#" + key)
+        help_button = HelpButton(parent, "https://fs-uae.net/options#" + key)
         group.layout.add(help_button, margin_left=10)
 
     return group
@@ -147,8 +193,8 @@ class ConfigWidgetFactory(OptionWidgetFactory):
     """Factory for creating user interface groups for config options."""
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, check=True, help=False):
-        super().__init__(check=check, help=help)
+    def __init__(self, check=True, help=False, label=True):
+        super().__init__(check=check, help=help, label=label)
 
 
 class SettingsWidgetFactory(OptionWidgetFactory):
@@ -171,8 +217,11 @@ class OptionCheckBox(fsui.CheckBox):
         self.options = options
         self.key = key
         setattr(self, "on_{}_option".format(key), self.on_explicit_option)
-        setattr(self, "on___implicit_{}_option".format(key),
-                self.on_implicit_option)
+        setattr(
+            self,
+            "on___implicit_{}_option".format(key),
+            self.on_implicit_option,
+        )
         OptionsBehavior(self, options, [key, "__implicit_" + key])
 
     def on_explicit_option(self, value):
@@ -214,8 +263,11 @@ class ChoiceControl(fsui.Choice):
         self.invalid_index = None
 
         setattr(self, "on_{}_option".format(key), self.on_explicit_option)
-        setattr(self, "on___implicit_{}_option".format(key),
-                self.on_implicit_option)
+        setattr(
+            self,
+            "on___implicit_{}_option".format(key),
+            self.on_implicit_option,
+        )
         OptionsBehavior(self, options, [key, "__implicit_" + key])
 
     def on_explicit_option(self, value):
@@ -249,7 +301,9 @@ class ChoiceControl(fsui.Choice):
                     self.remove_invalid_item()
                 break
         else:
-            print("WARNING: Could not find value", value)
+            print(
+                "WARNING: Could not find value", repr(value), "key =", self.key
+            )
             self.set_invalid_item(value)
 
     def set_invalid_item(self, value):
@@ -293,14 +347,12 @@ class ChoiceControl(fsui.Choice):
 
 class BooleanChoiceControl(ChoiceControl):
     def __init__(self, parent, options, key, use_checkbox=False):
-        choices = [
-            ("1", gettext("Enabled")),
-            ("0", gettext("Disabled"))
-        ]
+        choices = [("1", gettext("Enabled")), ("0", gettext("Disabled"))]
         # if not use_checkbox:
         #     choices.insert(0, ("", gettext("Auto")))
         super().__init__(
-            parent, options, key, choices, use_checkbox=use_checkbox)
+            parent, options, key, choices, use_checkbox=use_checkbox
+        )
 
 
 class SpinValueControl(fsui.SpinCtrl):
@@ -320,8 +372,11 @@ class SpinValueControl(fsui.SpinCtrl):
         self.key = key
 
         setattr(self, "on_{}_option".format(key), self.on_explicit_option)
-        setattr(self, "on___implicit_{}_option".format(key),
-                self.on_implicit_option)
+        setattr(
+            self,
+            "on___implicit_{}_option".format(key),
+            self.on_implicit_option,
+        )
         OptionsBehavior(self, options, [key, "__implicit_" + key])
 
     def on_changed(self):
@@ -360,6 +415,7 @@ class SpinValueControl(fsui.SpinCtrl):
                 value = default_value(self.key)
         with self.changed.inhibit:
             self.set_value(self.int_value(value))
+
 
 # current = LauncherConfig.get(key)
 # current_int = int(option["default"])

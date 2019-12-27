@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: frode@fs-uae.net\n"
-"POT-Creation-Date: 2016-12-11 15:16+0100\n"
-"PO-Revision-Date: 2016-12-31 10:05-0500\n"
-"Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
+"POT-Creation-Date: 2019-05-27 23:21+0200\n"
+"PO-Revision-Date: 2019-06-21 16:09\n"
+"Last-Translator: Frode Solheim (FrodeSolheim)\n"
 "Language-Team: Hungarian\n"
 "Language: hu_HU\n"
 "MIME-Version: 1.0\n"
@@ -17,34 +17,34 @@ msgstr ""
 "X-Crowdin-File: fs-uae-launcher.pot\n"
 
 msgid "16-bit"
-msgstr ""
+msgstr "16-bit"
 
 msgid "32-bit BGRA"
-msgstr ""
+msgstr "32-bit BGRA"
 
 msgid "32-bit RGBA"
-msgstr ""
+msgstr "32-bit RGBA"
 
 msgid "640x400 + Border"
-msgstr ""
+msgstr "640x400 + Szegély"
 
 msgid "640x480 + Border"
-msgstr ""
+msgstr "640x480 + Szegély"
 
 msgid "640x512 + Border"
-msgstr ""
+msgstr "640x512 + Szegély"
 
 msgid "ADF - Extended Floppy Disk Image (MFM Encoded)"
-msgstr ""
+msgstr "ADF - Bővített hajlékonylemez-kép (MFM kódolt)"
 
 msgid "ADF - Standard Floppy Disk Image"
-msgstr ""
+msgstr "ADF - Szabványos hajlékonylemez-kép"
 
 msgid "ADF Creator"
-msgstr ""
+msgstr "ADF készítő"
 
 msgid "ADF Disk Image Creator"
-msgstr ""
+msgstr "ADF lemezkép-készítő"
 
 msgid "About"
 msgstr ""
@@ -60,170 +60,185 @@ msgid "Accelerator RAM"
 msgstr ""
 
 msgid "Accept"
-msgstr ""
+msgstr "Elfogad"
 
 msgid "Accuracy:"
-msgstr ""
+msgstr "Pontosság:"
 
 msgid "Add"
-msgstr ""
+msgstr "Hozzáad"
 
 msgid "Add Directory to Search Path"
-msgstr ""
+msgstr "Könyvtár hozzáadása a keresési útvonalhoz"
 
 msgid "Add Files to List"
-msgstr ""
+msgstr "Fájlok hozzáadása a listához"
 
 msgid "Add Multiple CD-ROMs at Once"
-msgstr ""
+msgstr "Több CD-ROM hozzáadása egyszerre"
 
 msgid "Add Multiple Floppies at Once"
-msgstr ""
+msgstr "Több floppy hozzáadása egyszerre"
 
 msgid "Additional Configuration"
-msgstr ""
-
-msgid "Additional Databases"
-msgstr ""
+msgstr "További konfiguráció"
 
 msgid "Adult-Themed Games"
-msgstr ""
+msgstr "Felnőtt játékok"
 
 msgid "Advanced"
-msgstr ""
+msgstr "Haladó"
 
 msgid "Advanced Audio Options"
-msgstr ""
+msgstr "Haladó hangbeállítások"
 
 msgid "Advanced Settings"
-msgstr ""
+msgstr "Haladó beállítások"
 
 msgid "Advanced Video"
-msgstr ""
+msgstr "Haladó video"
 
 msgid "Advanced Video Settings"
-msgstr ""
+msgstr "Haladó videóbeállítások"
 
 msgid "All"
-msgstr ""
+msgstr "Összes"
 
 msgid "All Games"
-msgstr ""
+msgstr "Összes játék"
 
 msgid "Amiga Forever Import"
-msgstr ""
+msgstr "Amiga Forever importálás"
 
 msgid "Amiga Forever import task started"
-msgstr ""
+msgstr "Az Amiga Forever importálás megkezdődött"
 
 msgid "Amiga Joystick"
-msgstr ""
+msgstr "Amiga joystick"
 
 msgid "Amiga Model"
-msgstr ""
+msgstr "Amiga Modell"
 
 msgid "Amiga Mouse"
-msgstr ""
+msgstr "Amiga egér"
 
 msgid "An Error Occurred"
-msgstr ""
+msgstr "Hiba lépett fel"
 
 msgid "Arcade Fullscreen"
-msgstr ""
+msgstr "Teljes képernyős Arcade"
+
+msgid "Arcade starts with favorites filter"
+msgstr "Az Arcade a 'kedvencek' szűrővel indul"
+
+msgid "Arcade theme"
+msgstr "Arcade téma"
 
 msgid "Audio"
-msgstr ""
+msgstr "Hang"
 
 msgid "Audio Settings"
-msgstr ""
-
-msgid "Audio buffer target size (bytes)"
-msgstr ""
+msgstr "Hangbeállítások"
 
 msgid "Audio buffer target size (ms)"
-msgstr ""
+msgstr "Hangpuffer-célméret (ms)"
 
 msgid "Audio output frequency"
-msgstr ""
+msgstr "Audio kimeneti frekvencia"
 
 msgid "Auto"
-msgstr ""
+msgstr "Automatikus"
 
 msgid "Auto + Border"
-msgstr ""
+msgstr "Automatikus + Szegély"
 
 msgid "Auto - {}"
-msgstr ""
+msgstr "Automatikus - {}"
 
-msgid "Auto-Download"
+msgid "Auto Smoothing"
 msgstr ""
 
 msgid "Auto-Fire is Off"
-msgstr ""
+msgstr "Automatikus tűz: Ki"
 
 msgid "Auto-Fire is On"
+msgstr "Automatikus tűz: Be"
+
+msgid "Auto-download"
 msgstr ""
 
 msgid "Automatic"
-msgstr ""
+msgstr "Automatikus"
+
+msgid "Automatic mouse/joystick mode for mouse port"
+msgstr "Automatikus egér/joystick mód az egérporthoz"
 
 msgid "Available Games"
-msgstr ""
+msgstr "Elérhető játékok"
 
 msgid "Available Kickstart Versions"
-msgstr ""
+msgstr "Elérhető Kickstart-verziók"
 
 msgid "Available and Auto-Downloadable Games"
-msgstr ""
+msgstr "Elérhető és automatikusan letölthető játékok"
 
 msgid "Available and Downloadable Games"
-msgstr ""
+msgstr "Elérhető és letölthető játékok"
 
 msgid "Bad Variant"
-msgstr ""
+msgstr "Rossz változat"
 
 msgid "Best Variant"
-msgstr ""
+msgstr "Legjobb változat"
 
 msgid "Blizzard SCSI Kit"
-msgstr ""
+msgstr "Blizzard SCSI készlet"
+
+msgid "Blue"
+msgstr "Kék"
 
 msgid "Browse"
-msgstr ""
+msgstr "Tallózás"
 
 msgid "Browse for File"
-msgstr ""
+msgstr "Fájl tallózása"
 
 msgid "Browse for Folder"
+msgstr "Mappa tallózása"
+
+msgid "Built-in"
 msgstr ""
 
 msgid "CD-ROM Drive"
-msgstr ""
-
-msgid "CD-ROM Drive Count"
-msgstr ""
+msgstr "CD-ROM-meghajtó"
 
 msgid "CD-ROM Drives"
-msgstr ""
+msgstr "CD-ROM-meghajtók"
 
 msgid "CD-ROMs"
-msgstr ""
+msgstr "CD-ROM-ok"
 
 msgid "CD32 Pad"
 msgstr ""
 
 msgid "CPU"
-msgstr ""
+msgstr "CPU"
+
+msgid "CRT Emulation"
+msgstr "CRT-emuláció"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Mégse"
 
 #, python-brace-format
 msgid "Cannot find required ROM file: {name}"
-msgstr ""
+msgstr "A szükséges ROM-fájl nem található: {name}"
+
+msgid "Cartridge"
+msgstr "Kazetta"
 
 msgid "Change fullscreen mode (desktop, fullscreen, window)"
-msgstr ""
+msgstr "Teljes képernyős mód módosítása (asztal, teljes képernyő, ablak)"
 
 msgid "Checksumming"
 msgstr ""
@@ -234,7 +249,13 @@ msgstr ""
 msgid "Chip RAM"
 msgstr ""
 
+msgid "Choices marked with (*) is the default setting"
+msgstr ""
+
 msgid "Choose CD-ROM Image"
+msgstr ""
+
+msgid "Choose Cartridge Image"
 msgstr ""
 
 msgid "Choose Extended ROM"
@@ -249,160 +270,163 @@ msgstr ""
 msgid "Choose Kickstart ROM"
 msgstr ""
 
+msgid "Choose Tape Image"
+msgstr ""
+
 msgid "Choose Type"
 msgstr ""
 
 msgid "Choose what folders you want to scan for Amiga files"
-msgstr ""
+msgstr "Válaszd ki azokat az mappákat, amelyekben az Amiga fájlokat szeretnéd keresni"
 
 msgid "Cleaning up..."
-msgstr ""
+msgstr "Takarítás..."
 
 msgid "Clear List"
-msgstr ""
+msgstr "Lista törlése"
 
 msgid "Click 'Scan' button if you want to re-scan"
-msgstr ""
+msgstr "Ha újra szeretnéd beolvasni, kattints a \"Beolvasás\" gombra"
 
 msgid "Click 'Scan' button to start scan"
-msgstr ""
+msgstr "A beolvasás megkezdéséhez kattints a Beolvasás gombra"
 
 msgid "Click to import Kickstart ROMs"
-msgstr ""
+msgstr "Kattints Kickstart ROM-ok importálásához"
 
 msgid "Close"
-msgstr ""
+msgstr "Bezár"
 
 msgid "Committing data..."
-msgstr ""
+msgstr "Adattovábbítás..."
 
 msgid "Committing locker data..."
 msgstr ""
 
-msgid "Config"
-msgstr ""
+msgid "Common"
+msgstr "Általános"
 
-msgid "Config Options in Settings"
-msgstr ""
+msgid "Config"
+msgstr "Konfiguráció"
 
 #, python-brace-format
-msgid "Config in Settings: {name}"
+msgid "Config in settings: {name}"
+msgstr ""
+
+msgid "Config options in settings"
 msgstr ""
 
 msgid "Configs"
-msgstr ""
+msgstr "Konfigurációk"
 
 msgid "Configs and Games"
-msgstr ""
+msgstr "Konfigurációk és játékok"
 
 msgid "Configuration"
-msgstr ""
+msgstr "Konfiguráció"
 
 msgid "Configuration Browser"
-msgstr ""
+msgstr "Konfiguráció-böngésző"
 
 msgid "Configurations"
-msgstr ""
+msgstr "Konfigurációk"
 
 msgid "Configure joysticks and set preferred joystick devices"
-msgstr ""
+msgstr "Joystickok konfigurálása és az előnyben részesített joystick eszközök beállítása"
 
 #, python-brace-format
 msgid "Configure {device_name}"
-msgstr ""
+msgstr "{device_name} konfigurálása"
 
 msgid "Connect"
-msgstr ""
+msgstr "Csatlakozás"
+
+msgid "Controllers"
+msgstr "Vezérlők"
 
 #, python-brace-format
 msgid "Copy {0}\n"
 "to {1}"
+msgstr "{0} másolása\n"
+"ide: {1}"
+
+msgid "Correct Aspect"
 msgstr ""
 
 msgid "Could not open file for writing"
-msgstr ""
+msgstr "Nem sikerült megnyitni a fájlt az íráshoz"
 
 msgid "Create"
-msgstr ""
+msgstr "Létrehoz"
 
 msgid "Create a blank or formatted ADF floppy disk image"
-msgstr ""
+msgstr "Egy üres vagy formázott ADF hajlékonylemez-kép létrehozása"
 
 msgid "Create a single-partition or partitionable hard drive image"
-msgstr ""
+msgstr "Egy partíció vagy particionálható merevlemez létrehozása"
 
 msgid "Create an account now"
-msgstr ""
+msgstr "Fiók létrehozása"
 
 msgid "Create disk image of type:"
+msgstr "Lemezkép létrehozása típus szerint:"
+
+msgid "Crop"
 msgstr ""
 
 msgid "Cursor Keys and Right Ctrl/Alt"
-msgstr ""
+msgstr "Kurzorbillentyűk és jobb oldali Ctrl/Alt"
 
 msgid "Custom"
-msgstr ""
+msgstr "Egyéni"
 
 msgid "Custom Configuration"
-msgstr ""
+msgstr "Egyéni konfiguráció"
 
 msgid "Custom IRC Server"
-msgstr ""
+msgstr "Egyéni IRC szerver"
 
 msgid "Custom Joystick Port"
-msgstr ""
+msgstr "Egyéni joystick port"
 
 #, python-brace-format
-msgid "Custom Option: {name}"
+msgid "Custom option: {name}"
 msgstr ""
 
-msgid "Custom Options"
-msgstr ""
-
-msgid "Custom boot directory for automatic WHDLoad support"
+msgid "Custom options"
 msgstr ""
 
 msgid "Custom uae_ Options"
-msgstr ""
+msgstr "Egyéni uae_ opciók"
 
 msgid "Database Games"
-msgstr ""
+msgstr "Adatbázis játékok"
 
 msgid "Default"
-msgstr ""
+msgstr "Alapértelmezett"
 
 #, python-brace-format
 msgid "Default ({0})"
-msgstr ""
-
-#, python-brace-format
-msgid "Default - {0}"
-msgstr ""
+msgstr "Alapértelmezett ({0})"
 
 msgid "Defragment Databases"
-msgstr ""
+msgstr "Adatbázisok töredezettségmentesítése"
 
 msgid "Defragmenting the databases will improve performance by ensuring that tables and indices are stored contiguously on disk. It will also reclaim some storage space."
-msgstr ""
+msgstr "Az adatbázisok töredezettségmentessége javítja a teljesítményt annak biztosításával, hogy a táblákat és indexeket a lemezen egymás után tárolja. Ezenkívül egy kis tárhelyet is visszanyer."
 
 #, python-brace-format
 msgid "Defragmenting {name}"
-msgstr ""
+msgstr "{name} töredezettségmentesítése"
 
 msgid "Delayed CD-ROM Insert"
-msgstr ""
+msgstr "Késleltetett CD-ROM beillesztés"
 
 msgid "Depending on your OS and OpenGL drivers, synchronizing can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
-msgstr ""
+msgstr "Az operációs rendszertől és az OpenGL-vezérlőtől függően a szinkronizálás szükségtelenül sok CPU-t használ (különösen a Linuxon). A teljesítmény javítása érdekében különböző szinkronizálási módszerekkel kísérletezhet."
 
 msgid "Depending on your OS and OpenGL drivers, video synchronization can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
-msgstr ""
-
-msgid "Deprecated: uaegfx_card"
-msgstr ""
-
-msgid "Device ID used with OAGD.net authentication"
-msgstr ""
+msgstr "Az operációs rendszertől és az OpenGL-vezérlőtől függően a video-szinkronizálás szükségtelenül sok CPU-t használ (különösen a Linuxon). A teljesítmény javítása érdekében különböző szinkronizálási módszerekkel kísérletezhet."
 
 msgid "Did not find required Kickstart or ROM for {}. Wanted one of these files: {}"
 msgstr ""
@@ -410,7 +434,7 @@ msgstr ""
 msgid "Digital Joystick"
 msgstr ""
 
-msgid "Directory for WHDLoad.key file (if you have it):"
+msgid "Directories"
 msgstr ""
 
 msgid "Disabled"
@@ -428,30 +452,30 @@ msgstr ""
 msgid "Dongle"
 msgstr ""
 
-msgid "Double-click a device entry to configure it (map joystick buttons)."
-msgstr ""
-
-msgid "Download Game"
-msgstr ""
+msgid "Double-click a controller to configure it:"
+msgstr "Kattints duplán egy vezérlőre a konfiguráláshoz:"
 
 msgid "Download Game Manually"
-msgstr ""
+msgstr "Játék manuális letöltése"
 
 #, python-brace-format
 msgid "Download failed (attempt {0}) - retrying in {0} seconds"
-msgstr ""
+msgstr "A letöltés sikertelen ({0}. próbálkozás) - újraindítás {0} másodperc múlva"
 
 #, python-brace-format
 msgid "Download failed (attempt {0}) - retrying in {1} seconds"
+msgstr "A letöltés sikertelen ({0}. próbálkozás) - újraindítás {1} másodperc múlva"
+
+msgid "Download game"
 msgstr ""
 
 #, python-brace-format
 msgid "Download to the following directory, and then click '{0}':"
-msgstr ""
+msgstr "Töltsd le a következő könyvtárba, majd kattints a(z) '{0}' gombra:"
 
 #, python-brace-format
 msgid "Downloading {0}..."
-msgstr ""
+msgstr "{0} letöltése..."
 
 msgid "Drive Count"
 msgstr ""
@@ -465,143 +489,86 @@ msgstr ""
 msgid "Empty Floppy Drive Volume"
 msgstr ""
 
-msgid "Enable experimental net play GUI (requires restart)"
-msgstr ""
-
-msgid "Enable online database support (requires restart)"
-msgstr ""
-
-msgid "Enable/disable use of OAGD.net locker"
-msgstr ""
-
-msgid "Enable/disable use of the Amstrad CPC game database"
-msgstr ""
-
-msgid "Enable/disable use of the Arcade game database"
-msgstr ""
-
-msgid "Enable/disable use of the Atari ST game database"
-msgstr ""
-
-msgid "Enable/disable use of the Commodore 64 (C64) database"
-msgstr ""
-
-msgid "Enable/disable use of the DOS game database"
-msgstr ""
-
-msgid "Enable/disable use of the Game Boy Advance database"
-msgstr ""
-
-msgid "Enable/disable use of the Game Boy Color database"
-msgstr ""
-
-msgid "Enable/disable use of the Game Boy database"
-msgstr ""
-
-msgid "Enable/disable use of the Nintendo (NES) database"
-msgstr ""
-
-msgid "Enable/disable use of the Super Nintendo database"
-msgstr ""
+msgid "Enable Additional Platforms (Requires Restart)"
+msgstr "További platformok engedélyezése (újraindítás szükséges)"
 
 msgid "Enabled"
-msgstr ""
+msgstr "Engedélyezve"
 
 msgid "Enabling the following option will synchronize the emulation to the display when the emulation refresh rate matches the screen refresh rate."
-msgstr ""
+msgstr "Ha engedélyezi a következő opciót, az emuláció a kijelzőre lesz szinkronizálva, ha az emuláció frissítési sebessége megegyezik a képernyő frissítési gyakoriságával."
 
 msgid "Enabling the following option will synchronize the emulation to the display when the emulation refresh rate matches thescreen refresh rate."
-msgstr ""
+msgstr "Ha engedélyezi a következő opciót, az emuláció a kijelzőre lesz szinkronizálva, ha az emuláció frissítési sebessége megegyezik a képernyő frissítési gyakoriságával."
 
 msgid "Error moving file into place"
-msgstr ""
+msgstr "Hiba a fájl helyreállítása közben"
 
 msgid "Error writing disk image"
-msgstr ""
+msgstr "Hiba a lemezkép írása közben"
 
 msgid "Expansions"
 msgstr ""
 
-msgid "Expect Specific FS-UAE Version"
-msgstr ""
-
-msgid "Experimental Config Visualization (Requires Restart)"
-msgstr ""
-
 msgid "Experimental Features"
-msgstr ""
+msgstr "Kísérleti funkciók"
 
 msgid "Extended ROM"
-msgstr ""
-
-msgid "FS-UAE   Arcade"
-msgstr ""
-
-msgid "FS-UAE Arcade"
-msgstr ""
-
-msgid "Fade-in Duration on Start"
-msgstr ""
+msgstr "Kiterjesztett ROM"
 
 msgid "Fast RAM"
-msgstr ""
+msgstr "Gyors RAM"
 
 msgid "Favorites"
-msgstr ""
+msgstr "Kedvencek"
 
 #, python-brace-format
 msgid "Fetching database entries ({0})"
-msgstr ""
+msgstr "Adatbázis-bejegyzések lekérése ({0})"
 
 #, python-brace-format
 msgid "Fetching game ratings ({0})"
-msgstr ""
+msgstr "Játékminősítések lekérése ({0})"
 
 msgid "Fetching locker data..."
 msgstr ""
 
 msgid "Fetching synchronization information..."
-msgstr ""
+msgstr "Szinkronizálási információk lekérése..."
 
 #, python-brace-format
 msgid "Fetching user game ratings ({0})"
-msgstr ""
+msgstr "Felhasználói játékminősítések lekérése ({0})"
 
 msgid "File Database"
-msgstr ""
+msgstr "Fájladatbázis"
 
 msgid "File Database Settings"
-msgstr ""
+msgstr "Fájladatbázis beállításai"
 
 msgid "File already exists"
-msgstr ""
+msgstr "A fájl már létezik"
 
 msgid "Filename for the new disk image:"
-msgstr ""
+msgstr "Az új lemezkép fájlneve:"
 
 msgid "Files for this game are still missing. Did you download the game and put the file(s) in the Downloads directory?"
-msgstr ""
+msgstr "A játékhoz tartozó fájlok még mindig hiányoznak. Letöltötte a játékot és feltöltötte a fájl(oka)t a Letöltések könyvtárba?"
+
+msgid "Fill Screen"
+msgstr "Képernyő kitöltése"
 
 msgid "Filters"
-msgstr ""
+msgstr "Szűrők"
 
 msgid "Finding files eligible for OAGD.net Locker"
 msgstr ""
 
-msgid "First rendered line (NTSC)"
-msgstr ""
-
-msgid "First rendered line (PAL)"
-msgstr ""
-
 msgid "Floppies"
-msgstr ""
-
-msgid "Floppy Drive Count"
-msgstr ""
+msgstr "Floppyk"
 
 msgid "Floppy Drive Sound Emulation"
-msgstr ""
+msgstr "Floppy hang-emuláció"
 
 msgid "Floppy Drive Speed"
 msgstr ""
@@ -612,11 +579,8 @@ msgstr ""
 msgid "Floppy Drives"
 msgstr ""
 
-msgid "Flush log after each log line"
-msgstr ""
-
 msgid "Forgot your password?"
-msgstr ""
+msgstr "Elfelejtetted a jelszavad?"
 
 msgid "Freezer Cartridge"
 msgstr ""
@@ -625,39 +589,27 @@ msgid "Full Frame"
 msgstr ""
 
 msgid "Full-scene anti-aliasing (FSAA)"
-msgstr ""
+msgstr "Teljes körű anti-aliasing (FSAA)"
 
 msgid "Fullscreen"
-msgstr ""
+msgstr "Teljes képernyő"
 
 msgid "Fullscreen Desktop"
-msgstr ""
+msgstr "Teljes képernyős asztal"
 
 msgid "Fullscreen Mode"
-msgstr ""
+msgstr "Teljes képernyős mód"
 
 msgid "Fullscreen Window"
-msgstr ""
+msgstr "Teljes ablak"
 
 msgid "Game Database"
-msgstr ""
-
-msgid "Game Database Server"
-msgstr ""
+msgstr "Játékadatbázis"
 
 msgid "Game Database Settings"
-msgstr ""
+msgstr "Játékadatbázis beállítása"
 
-msgid "Game database authentication"
-msgstr ""
-
-msgid "Game database email"
-msgstr ""
-
-msgid "Game database password"
-msgstr ""
-
-msgid "Game database user name"
+msgid "Game Platforms"
 msgstr ""
 
 msgid "Gamepad"
@@ -667,7 +619,7 @@ msgid "Games"
 msgstr ""
 
 msgid "Good Variant"
-msgstr ""
+msgstr "Jó változat"
 
 msgid "Grab Input on Click"
 msgstr ""
@@ -708,22 +660,13 @@ msgstr ""
 msgid "Hardware Dongle"
 msgstr ""
 
+msgid "Hide Bezel"
+msgstr ""
+
 msgid "High"
 msgstr ""
 
 msgid "Home"
-msgstr ""
-
-msgid "Host Key BACKSLASH"
-msgstr ""
-
-msgid "Host Key EQUALS"
-msgstr ""
-
-msgid "Host Key INSERT"
-msgstr ""
-
-msgid "Host Key LESS"
 msgstr ""
 
 msgid "How to achieve perfectly smooth scrolling"
@@ -754,7 +697,7 @@ msgstr ""
 msgid "Include Save Disk"
 msgstr ""
 
-msgid "Include built-in configurations"
+msgid "Include close buttons in dialogs"
 msgstr ""
 
 msgid "Input"
@@ -763,76 +706,82 @@ msgstr ""
 msgid "Input Options"
 msgstr ""
 
-msgid "Internal"
+msgid "Integer Scaling"
 msgstr ""
+
+msgid "Internal"
+msgstr "Belső"
 
 msgid "Invalid size specified"
-msgstr ""
+msgstr "Érvénytelen méretmegadás"
 
 msgid "JIT Compiler"
-msgstr ""
+msgstr "JIT tömörítő"
 
 msgid "JIT compiler with a PPC-only OS is not recommended"
+msgstr "A JIT tömörítő PPC-alapú operációs rendszerrel nem ajánlott"
+
+msgid "Joystick"
 msgstr ""
 
 msgid "Joystick & Mouse Port"
-msgstr ""
+msgstr "Joystick és egér port"
 
 msgid "Joystick Ports"
-msgstr ""
-
-msgid "Joysticks & Gamepads"
-msgstr ""
+msgstr "Joystick portok"
 
 msgid "Keep aspect ratio when scaling (do not stretch)"
-msgstr ""
+msgstr "Képarány megtartása méretezéskor (ne nyújtson)"
 
 msgid "Key Mapping"
-msgstr ""
+msgstr "Billentyűkiosztás"
 
 msgid "Keyboard"
-msgstr ""
+msgstr "Billentyűzet"
 
 msgid "Keyboard Settings"
-msgstr ""
+msgstr "Billentyűzet beállítások"
 
 msgid "Keyword"
-msgstr ""
+msgstr "Kulcsszó"
 
 msgid "Kickstart ROM"
-msgstr ""
+msgstr "Kickstart ROM"
 
 msgid "Kickstart import task started"
 msgstr ""
 
 msgid "Language"
-msgstr ""
+msgstr "Nyelv"
 
 msgid "Language:"
-msgstr ""
+msgstr "Nyelv:"
+
+msgid "Large Border"
+msgstr "Nagy szegély"
 
 msgid "Launcher Font Size"
-msgstr ""
+msgstr "A Launcher betűmérete"
 
 msgid "Launcher Theme"
-msgstr ""
+msgstr "A Launcher témája"
 
 msgid "Launching FS-UAE"
-msgstr ""
+msgstr "Az FS-UAE elindítása"
 
 msgid "Launching Game"
-msgstr ""
+msgstr "Játék indítása"
 
 msgid "Left"
+msgstr ""
+
+msgid "Legacy Scaling"
 msgstr ""
 
 msgid "Letter"
 msgstr ""
 
 msgid "List"
-msgstr ""
-
-msgid "Load state by number"
 msgstr ""
 
 msgid "Loading..."
@@ -859,14 +808,11 @@ msgstr ""
 msgid "Log Out from Your OAGD.net Account"
 msgstr ""
 
-msgid "Log database query plans"
-msgstr ""
-
 msgid "Logging"
 msgstr ""
 
 msgid "Logging in will enable the online game database and more"
-msgstr ""
+msgstr "A bejelentkezés lehetővé teszi az online játékadatbázis használatát és még sok mást"
 
 msgid "Low"
 msgstr ""
@@ -892,6 +838,9 @@ msgstr ""
 msgid "Make:"
 msgstr ""
 
+msgid "Max Scaling"
+msgstr ""
+
 msgid "Media Swap List"
 msgstr ""
 
@@ -904,14 +853,10 @@ msgstr ""
 msgid "Middle Right"
 msgstr ""
 
-#, python-brace-format
-msgid "Miscellaneous functions to optimize {name}"
-msgstr ""
-
 msgid "Missing Files"
 msgstr ""
 
-msgid "Missing Game Files"
+msgid "Missing game files"
 msgstr ""
 
 msgid "Model:"
@@ -921,9 +866,6 @@ msgid "Monitor to display FS-UAE on (fullscreen)"
 msgstr ""
 
 msgid "Monitor to display FS-UAE on (left, middle-left, middle-right, right)"
-msgstr ""
-
-msgid "Motherboard RAM"
 msgstr ""
 
 msgid "Mouse"
@@ -960,13 +902,19 @@ msgstr ""
 msgid "New Config"
 msgstr ""
 
+msgid "Next"
+msgstr ""
+
 msgid "Nick:"
 msgstr ""
 
 msgid "No Amiga Device"
 msgstr ""
 
-msgid "No Device"
+msgid "No Border"
+msgstr ""
+
+msgid "No Effect"
 msgstr ""
 
 msgid "No Host Device"
@@ -978,11 +926,17 @@ msgstr ""
 msgid "No Protection"
 msgstr ""
 
+msgid "No Scaling"
+msgstr ""
+
+msgid "No Smoothing"
+msgstr ""
+
 msgid "No extended kickstart found for this model. Try 'scan' function."
 msgstr ""
 
 msgid "No scan in progress"
-msgstr ""
+msgstr "Nincs beolvasás folyamatban"
 
 msgid "None"
 msgstr ""
@@ -990,39 +944,48 @@ msgstr ""
 msgid "Not logged in"
 msgstr ""
 
-msgid "Note: Support for additional game databases is an experimental feature and does not provide the same level of maturity as Amiga/CDTV/CD32. Also, additional plugins are needed to play the games."
-msgstr ""
+msgid "Note: This is an experimental feature. Additional plugins are needed."
+msgstr "Megjegyzés: Ez egy kísérleti funkció. További bővítmények szükségesek."
 
 msgid "OAGD.net Locker Uploader"
 msgstr ""
 
 msgid "OAGD.net Locker is not enabled for your user. It may be available only to a few select beta users."
-msgstr ""
+msgstr "Az OAGD.net Locker nem engedélyezett a felhasználó számára. Előfordulhat, hogy csak néhány kiválasztott béta-felhasználó férhet hozzá."
 
 msgid "OAGD.net upload task completed successfully"
-msgstr ""
+msgstr "Az OAGD.net feltöltési feladat sikeresen befejeződött"
 
 msgid "Off"
-msgstr ""
+msgstr "Ki"
 
 msgid "On"
-msgstr ""
+msgstr "Be"
 
 msgid "OpenGL Settings"
-msgstr ""
+msgstr "OpenGL-beállítások"
 
 #, python-brace-format
 msgid "Option {name} is overridden by current configuration"
-msgstr ""
+msgstr "A(z) {name} opciót az aktuális konfiguráció felülírja"
 
 msgid "Options for WHDLoad support in FS-UAE Launcher"
-msgstr ""
+msgstr "A WHDLoad támogatási lehetőségei az FS-UAE Launcher-ben"
 
 msgid "Other Device"
-msgstr ""
+msgstr "Egyéb eszköz"
 
 #, python-brace-format
 msgid "Outdated plugins: {0}"
+msgstr "Elavult bővítmények: {0}"
+
+msgid "Override WHDLoad preload option"
+msgstr "A WHDLoad előtöltési opció felülbírálása"
+
+msgid "Override WHDLoad quit key"
+msgstr ""
+
+msgid "Override WHDLoad splash delay"
 msgstr ""
 
 msgid "Parallel Port Joysticks"
@@ -1031,47 +994,59 @@ msgstr ""
 msgid "Password:"
 msgstr ""
 
+msgid "Pixel Doubling"
+msgstr ""
+
 msgid "Platform"
 msgstr ""
 
-msgid "Please open the following web page and download the game from there:"
+msgid "Platform & Model"
 msgstr ""
+
+msgid "Please open the following web page and download the game from there:"
+msgstr "Nyisd meg a következő weboldalt és töltsd le onnan a játékot:"
 
 msgid "Please wait..."
-msgstr ""
+msgstr "Kérlek, várj..."
 
 msgid "Plugins"
+msgstr "Bővítmények"
+
+msgid "Preferred Controllers"
 msgstr ""
 
-msgid "Preferred Joysticks"
-msgstr ""
+msgid "Preferred controller (if present):"
+msgstr "Előnyben részesített vezérlő (ha van):"
 
-msgid "Preferred device for secondary joystick:"
-msgstr ""
+msgid "Preferred device for secondary controller:"
+msgstr "A másodlagos vezérlőhöz előnyben részesített eszköz:"
 
 msgid "Preparing WHDLoad..."
-msgstr ""
+msgstr "WHDLoad előkészítése..."
 
 msgid "Preparing floppy images..."
-msgstr ""
+msgstr "Floppy-képek előkészítése..."
 
 msgid "Preparing hard drives..."
-msgstr ""
+msgstr "Merevlemezek előkészítése..."
 
 msgid "Preparing kickstart ROMs..."
-msgstr ""
+msgstr "Kickstart ROM-k előkészítése..."
 
 msgid "Preparing..."
-msgstr ""
+msgstr "Előkészítés..."
+
+msgid "Prev"
+msgstr "Előző"
 
 msgid "Purging old entries..."
 msgstr ""
 
 msgid "Quit"
-msgstr ""
+msgstr "Kilépés"
 
 msgid "ROM & RAM"
-msgstr ""
+msgstr "ROM & RAM"
 
 msgid "ROM and RAM"
 msgstr ""
@@ -1086,19 +1061,13 @@ msgstr ""
 msgid "Read more"
 msgstr ""
 
-msgid "Refresh List of Connected Joystick Devices"
+msgid "Red"
 msgstr ""
+
+msgid "Refresh List of Connected Joystick Devices"
+msgstr "Csatlakoztatott Joystick eszközök frissítése"
 
 msgid "Reject"
-msgstr ""
-
-msgid "Relative Temporary Directories"
-msgstr ""
-
-msgid "Relative paths"
-msgstr ""
-
-msgid "Relax host CPU usage when using fastest-possible CPU"
 msgstr ""
 
 msgid "Remove Directory from Search Path"
@@ -1120,6 +1089,9 @@ msgstr ""
 msgid "Reset password via e-mail"
 msgstr ""
 
+msgid "Reset to Defaults"
+msgstr ""
+
 msgid "Resetting game database..."
 msgstr ""
 
@@ -1128,7 +1100,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Retrying last operation (attempt {0})"
-msgstr ""
+msgstr "Az utolsó művelet újrapróbálása ({0}. próbálkozás)"
 
 msgid "Right"
 msgstr ""
@@ -1142,16 +1114,13 @@ msgstr ""
 msgid "Save Config"
 msgstr ""
 
-msgid "Save Disk"
-msgstr ""
-
 msgid "Save to directory:"
 msgstr ""
 
 msgid "Saving changes..."
-msgstr ""
+msgstr "Módosítások mentése..."
 
-msgid "Scaling"
+msgid "Scaling & Filters"
 msgstr ""
 
 msgid "Scaling Options"
@@ -1228,27 +1197,36 @@ msgstr ""
 
 #, python-brace-format
 msgid "Select a folder containing Amiga kickstart files and click \"{0}\""
-msgstr ""
+msgstr "Válaszd ki az Amiga kickstart fájlokat tartalmazó mappát, majd kattints a \"{0}\" gombra"
 
 msgid "Set language for FS-UAE applications"
-msgstr ""
+msgstr "Az FS-UAE alkalmazások nyelvének beállítása"
 
 msgid "Settings"
 msgstr ""
 
-msgid "Show kickstart setup page on startup when all ROMs are missing"
+msgid "Setup Wizard"
 msgstr ""
 
-msgid "Show window border and decorations"
+msgid "Show Bezel"
 msgstr ""
 
 msgid "Shuffle"
+msgstr ""
+
+msgid "Six Button Control Pad"
 msgstr ""
 
 msgid "Size:"
 msgstr ""
 
 msgid "Slow RAM"
+msgstr ""
+
+msgid "Small Border"
+msgstr ""
+
+msgid "Smoothing"
 msgstr ""
 
 msgid "Sound Card"
@@ -1258,9 +1236,12 @@ msgid "Specified directory does not exist"
 msgstr ""
 
 msgid "Specify global options and settings which does not have UI controls"
+msgstr "Olyan globális beállítások és beállítások megadása, amelyek nem tartalmaznak felhasználói felületet"
+
+msgid "Square Pixels"
 msgstr ""
 
-msgid "Standard"
+msgid "Standard Qt Theme"
 msgstr ""
 
 msgid "Start"
@@ -1300,9 +1281,12 @@ msgid "Synchronizing personal ratings..."
 msgstr ""
 
 msgid "Synchronizing with the display can in some cases cause increased stuttering and low frame rates (esp. in some Linux desktop environments with compositing enabled)."
-msgstr ""
+msgstr "A kijelzővel való szinkronizálás bizonyos esetekben megnövekedett akadozással és alacsony képsebességekkel járhat (különösen egyes Linux asztali környezetekben, amelyeknél engedélyezve van a kompozíció)."
 
 msgid "System"
+msgstr ""
+
+msgid "Tape Drive"
 msgstr ""
 
 msgid "Terms of Download"
@@ -1311,43 +1295,43 @@ msgstr ""
 msgid "Texture filter"
 msgstr ""
 
-msgid "The following joystick will be preferred, if present:"
-msgstr ""
-
 msgid "The following options may affect performance, so only enable them when needed for testing or debugging purposes."
-msgstr ""
+msgstr "Az alábbi opciók befolyásolhatják a teljesítményt, ezért csak akkor engedélyezd őket, ha tesztelés vagy hibakeresés céljából szükségesek."
 
 msgid "The following options only apply when you use the automatic WHDLoad support in FS-UAE Launcher, for example in relation with the online game database."
-msgstr ""
+msgstr "Az alábbi opciók csak akkor alkalmazhatók, ha az FS-UAE Launcher automata WHDLoad támogatását használod, például az online játékadatbázisok miatt."
 
 msgid "The options specified here are global and will apply to all configurations. Config options such as hardware and memory options will be ignored. Options suitable here are options like theme options."
-msgstr ""
+msgstr "Az itt megadott opciók globálisak és minden konfigurációra vonatkoznak. A konfigurációs beállítások, például a hardver és a memória beállítások figyelmen kívül maradnak. Itt alkalmas opció például a témabeállítás."
 
 msgid "The options specified here will apply to this configuration only."
-msgstr ""
+msgstr "Az itt megadott beállítások csak erre a konfigurációra vonatkoznak."
 
 msgid "This game can be automatically downloaded if you accept the terms"
-msgstr ""
+msgstr "A játék automatikusan letölthető, ha elfogadod a feltételeket"
 
 msgid "This game must be downloaded before you can play it"
-msgstr ""
+msgstr "Ezt a játékot le kell tölteni, mielőtt játszhatnál vele"
 
 msgid "This game variant cannot be started because you don't have all required files."
-msgstr ""
+msgstr "Ez a játékváltozat nem indítható el, mert nem rendelkezel az összes szükséges fájllal."
 
 msgid "This plugin is outdated"
-msgstr ""
+msgstr "Ez a bővítmény elavult"
 
 msgid "Toggle Between Windowed and Full-Screen Mode"
+msgstr ""
+
+msgid "Toggle quick settings sidebar"
 msgstr ""
 
 msgid "Turbo"
 msgstr ""
 
-msgid "UAE bsdsocket.library"
+msgid "Ungrab Input on Middle Mouse Button"
 msgstr ""
 
-msgid "Ungrab Input on Middle Mouse Button"
+msgid "Unpublished Games"
 msgstr ""
 
 msgid "Update File Database"
@@ -1379,7 +1363,7 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-msgid "Upload Files to OAGD.net Locker"
+msgid "Upload Files to OpenRetro Locker"
 msgstr ""
 
 msgid "Upload recognized Amiga files to your OAGD.net locker"
@@ -1435,9 +1419,6 @@ msgstr ""
 msgid "WHDLoad Arguments"
 msgstr ""
 
-msgid "WHDLoad splash delay"
-msgstr ""
-
 msgid "Warning"
 msgstr ""
 
@@ -1447,8 +1428,11 @@ msgstr ""
 msgid "Web Links"
 msgstr ""
 
+msgid "Welcome to the setup wizard for FS-UAE Launcher!"
+msgstr "Üdvözöljük az FS-UAE Launcher telepítővarázslóban!"
+
 msgid "When Automatic is specified, your preferred language is set based on information from the operating system (or English, if a supported language is not detected)."
-msgstr ""
+msgstr "Az Automatikus beállítás megadása esetén a program az operációs rendszer (vagy angol, ha nem támogatott a rendszernyelv) nyelvét használja."
 
 msgid "When checked, enable video synchronization whenever possible"
 msgstr ""
@@ -1459,14 +1443,14 @@ msgstr ""
 msgid "While logged out you will not get database updates"
 msgstr ""
 
-msgid "Write .uaem metadata files"
-msgstr ""
-
 msgid "Year"
 msgstr ""
 
+msgid "You can close this wizard at any time if you do not want to use it, and you can also run it again later."
+msgstr "Ezt a varázslót bármikor bezárhatod, ha nem szeretnéd használni, és később is futtathatod."
+
 msgid "You can write key = value pairs here to set FS-UAE options not currently supported by the user interface. This is only a temporary feature until the GUI supports all options directly."
-msgstr ""
+msgstr "Írhatsz kulcs = érték párokat az FS-UAE opciók beállításához, amelyek jelenleg nem támogatottak a felhasználói felületen. Ez csak ideiglenes funkció, amíg a GUI közvetlenül nem támogatja az összes lehetőséget."
 
 msgid "You should have kickstart files for each Amiga model you want to use:"
 msgstr ""
@@ -1486,5 +1470,32 @@ msgid "{system} Keyboard"
 msgstr ""
 
 msgid "{} ROM files were imported"
+msgstr ""
+
+msgid "Finding files eligible for OpenRetro Locker"
+msgstr ""
+
+msgid "Locker upload task completed successfully"
+msgstr ""
+
+msgid "Log In to Your OpenRetro Account"
+msgstr ""
+
+msgid "Log Out from Your OpenRetro Account"
+msgstr ""
+
+msgid "OpenRetro Locker Uploader"
+msgstr ""
+
+msgid "OpenRetro Locker is not enabled for your user. It may be available only to a few select beta users."
+msgstr ""
+
+msgid "Upload recognized Amiga files to your OpenRetro locker"
+msgstr ""
+
+msgid "Use GameMode to optimize performance"
+msgstr ""
+
+msgid "Warn when CPU governor is not 'performance'"
 msgstr ""
 

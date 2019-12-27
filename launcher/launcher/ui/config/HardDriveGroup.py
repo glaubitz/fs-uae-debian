@@ -1,31 +1,32 @@
 import os
-import traceback
-from fsgs.ChecksumTool import ChecksumTool
+
 import fsui
-from fsgs.Archive import Archive
-from ...launcher_config import LauncherConfig
+from fsgs.checksumtool import ChecksumTool
 from fsgs.FSGSDirectories import FSGSDirectories
-from ...i18n import gettext
-from ..IconButton import IconButton
-from ..LauncherFilePicker import LauncherFilePicker
+from fsgs.amiga import whdload
+from launcher.i18n import gettext
+from launcher.launcher_config import LauncherConfig
+from launcher.ui.IconButton import IconButton
+from launcher.ui.LauncherFilePicker import LauncherFilePicker
+from launcher.ui.behaviors.platformbehavior import AmigaEnableBehavior
 
 
-class HardDriveGroup(fsui.Group):
-
+class HardDriveGroup(fsui.Panel):
     def __init__(self, parent, index):
-        fsui.Group.__init__(self, parent)
+        fsui.Panel.__init__(self, parent)
+        AmigaEnableBehavior(self)
         self.layout = fsui.VerticalLayout()
 
         self.index = index
         self.config_key = "hard_drive_{0}".format(index)
         self.config_key_sha1 = "x_hard_drive_{0}_sha1".format(index)
 
-        if index == 0:
-            # heading_label = fsui.HeadingLabel(self,
-            #         _("Hard Drive {0}").format(index + 1))
-            heading_label = fsui.HeadingLabel(self, gettext("Hard Drives"))
-            self.layout.add(heading_label, margin_bottom=20)
-            self.layout.add_spacer(0)
+        # if index == 0:
+        #     # heading_label = fsui.HeadingLabel(self,
+        #     #         _("Hard Drive {0}").format(index + 1))
+        #     heading_label = fsui.HeadingLabel(self, gettext("Hard Drives"))
+        #     self.layout.add(heading_label, margin_bottom=20)
+        #     self.layout.add_spacer(0)
 
         hori_layout = fsui.HorizontalLayout()
         self.layout.add(hori_layout, fill=True)
@@ -73,8 +74,9 @@ class HardDriveGroup(fsui.Group):
         self.eject_button.enable(bool(value))
 
     def on_eject_button(self):
-        LauncherConfig.set_multiple([(self.config_key, ""),
-                                     (self.config_key_sha1, "")])
+        LauncherConfig.set_multiple(
+            [(self.config_key, ""), (self.config_key_sha1, "")]
+        )
 
     def on_browse_folder_button(self):
         self.browse(dir_mode=True)
@@ -85,8 +87,12 @@ class HardDriveGroup(fsui.Group):
     def browse(self, dir_mode):
         default_dir = FSGSDirectories.get_hard_drives_dir()
         dialog = LauncherFilePicker(
-            self.get_window(), gettext("Choose Hard Drive"), "hd",
-            LauncherConfig.get(self.config_key), dir_mode=dir_mode)
+            self.get_window(),
+            gettext("Choose Hard Drive"),
+            "hd",
+            LauncherConfig.get(self.config_key),
+            dir_mode=dir_mode,
+        )
         if not dialog.show_modal():
             dialog.destroy()
             return
@@ -108,13 +114,13 @@ class HardDriveGroup(fsui.Group):
         # FIXME: use contract function
         dir_path, file = os.path.split(path)
         self.text_field.set_text(file)
-        if os.path.normcase(os.path.normpath(dir_path)) == \
-                os.path.normcase(os.path.normpath(default_dir)):
+        if os.path.normcase(os.path.normpath(dir_path)) == os.path.normcase(
+            os.path.normpath(default_dir)
+        ):
             path = file
 
         self.text_field.set_text(path)
-        values = [(self.config_key, path),
-                  (self.config_key_sha1, sha1)]
+        values = [(self.config_key, path), (self.config_key_sha1, sha1)]
         if self.index == 0:
             # whdload_args = ""
             # dummy, ext = os.path.splitext(path)
@@ -124,40 +130,9 @@ class HardDriveGroup(fsui.Group):
             #     except Exception:
             #         traceback.print_exc()
             # values.append(("x_whdload_args", whdload_args))
-            values.extend(self.generate_config_for_archive(
-                full_path, model_config=False).items())
+            values.extend(
+                whdload.generate_config_for_archive(
+                    full_path, model_config=False
+                ).items()
+            )
         LauncherConfig.set_multiple(values)
-
-    @classmethod
-    def generate_config_for_archive(cls, path, model_config=True):
-        values = {}
-        whdload_args = ""
-        dummy, ext = os.path.splitext(path)
-        if ext.lower() in Archive.extensions:
-            try:
-                whdload_args = cls.calculate_whdload_args(path)
-            except Exception:
-                traceback.print_exc()
-        values["x_whdload_args"] = whdload_args
-        if whdload_args and model_config:
-            values["amiga_model"] = "A1200"
-            values["fast_memory"] = "8192"
-        return values
-
-    @classmethod
-    def calculate_whdload_args(cls, archive_path):
-        archive = Archive(archive_path)
-        slave = ""
-        for path in archive.list_files():
-            name = os.path.basename(path)
-            name_lower = name.lower()
-            if name_lower.endswith(".slave"):
-                if slave:
-                    print("already found one slave, don't know which "
-                          "one to choose")
-                    return ""
-                slave = name
-            elif name_lower == "startup-sequence":
-                print("found startup-sequence, assuming non-whdload "
-                      "archive")
-        return slave

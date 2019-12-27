@@ -15,8 +15,12 @@ from fsui.qt import init_qt, Qt, QWidget, QKeyEvent
 CURSOR_SHOW_DURATION = 5.0
 
 
-def check_argument(name):
+def check_argument(name, options=None):
     name = name.replace("_", "-")
+    if options is not None:
+        for option in options:
+            if "--" + name + "=" + option in sys.argv:
+                return option
     if "--" + name in sys.argv:
         return "1"
     if "--" + name + "=1" in sys.argv:
@@ -29,25 +33,30 @@ def check_argument(name):
 
 
 def fullscreen():
-    # If we have explicitly used --window or --maximized as arguments, do
+    # If we have explicitly used --window as arguments, do
     # not enable fullscreen regardless of settings.
-    if check_argument("window") == "1":
+    if check_argument("window", ["maximize"]) in ["1", "maximize"]:
         return False
-    if check_argument("maximize") == "1":
-        return False
+    # if check_argument("maximize") == "1":
+    #     return False
     value = check_argument("fullscreen")
     if not value:
         value = Settings.instance().get("arcade_fullscreen")
-    return value == "1"
+    return value != "0"
 
 
 def maximized():
-    if check_argument("window") == "1":
-        return False
-    value = check_argument("maximize")
-    if not value:
+    # if check_argument("fullscreen") == "1":
+    #     return False
+    # if check_argument("window") == "1":
+    #     return False
+    # value = check_argument("window") == "maximize"
+    value = check_argument("window", ["maximize"]) == "maximize"
+    if value:
+        return True
+    else:
         value = Settings.instance().get("arcade_maximized")
-    return value != "0"
+        return value == "1"
 
 
 def monitor():
@@ -101,8 +110,14 @@ class ArcadeWindow(fsui.Window):
         if maximized():
             border = False
 
-        super().__init__(parent, title, separator=False, border=border,
-                         menu=True, color=(0x00, 0x00, 0x00))
+        super().__init__(
+            parent,
+            title,
+            separator=False,
+            border=border,
+            menu=True,
+            color=(0x00, 0x00, 0x00),
+        )
         self.set_background_color(fsui.Color(0x00, 0x00, 0x00))
         self.layout = fsui.HorizontalLayout()
         self.quit_flag = False
@@ -126,7 +141,10 @@ class ArcadeWindow(fsui.Window):
 
     def show_auto(self):
         if fullscreen():
-            self.set_fullscreen(True, screen_geometry())
+            geometry = screen_geometry()
+            self.set_fullscreen(True, geometry)
+            Settings.instance().set("__cursor_x", geometry[2])
+            Settings.instance().set("__cursor_y", geometry[3])
         elif maximized():
             x, y, w, h = screen_geometry()
             self.set_maximized(True, (x, y, 960, 540))
@@ -181,8 +199,11 @@ class QtWindow(QWidget):
         if blank:
             # Fool app to think mouse has moved to neutral position,
             # in order to "de-focus" focused item.
-            InputHandler.add_event(Event.create_fake_mouse_event(
-                "mouse-motion", 960, 540, (self.width(), self.height())))
+            InputHandler.add_event(
+                Event.create_fake_mouse_event(
+                    "mouse-motion", 960, 540, (self.width(), self.height())
+                )
+            )
 
     def window(self) -> ArcadeWindow:
         # return self.parent().window()
@@ -206,7 +227,8 @@ class QtWindow(QWidget):
             # self.gl_widget.setCursor(Qt.BlankCursor)
             self.set_blank_cursor()
             self.gl_widget.setGeometry(
-                0, 0, self.size().width(), self.size().height())
+                0, 0, self.size().width(), self.size().height()
+            )
             self.gl_widget.show()
         return False
 
@@ -251,28 +273,30 @@ class QtWindow(QWidget):
             # at startup.
             self.first_motion_event = False
             return
-        InputHandler.add_event(Event.create_mouse_event(
-            event, (self.width(), self.height())))
+        InputHandler.add_event(
+            Event.create_mouse_event(event, (self.width(), self.height()))
+        )
         self.ensure_cursor_visible()
 
     def mousePressEvent(self, event):
         if self.show_cursor_until is None:
             # Ignore clicks when cursor is hidden
             return
-        InputHandler.add_event(Event.create_mouse_event(
-            event, (self.width(), self.height())))
+        InputHandler.add_event(
+            Event.create_mouse_event(event, (self.width(), self.height()))
+        )
         self.ensure_cursor_visible()
 
     def mouseReleaseEvent(self, event):
         if self.show_cursor_until is None:
             # Ignore clicks when cursor is hidden
             return
-        InputHandler.add_event(Event.create_mouse_event(
-            event, (self.width(), self.height())))
+        InputHandler.add_event(
+            Event.create_mouse_event(event, (self.width(), self.height()))
+        )
         self.ensure_cursor_visible()
 
     def keyPressEvent(self, event):
-
         def modifier():
             if macosx:
                 # This should correspond to the Cmd key(s) on OS X
@@ -298,10 +322,7 @@ class QtWindow(QWidget):
             # We don't want special characters such as return, backspace
             # and escape (etc) to be sent as text events. For now, we use
             # a simple white list.
-            InputHandler.add_event({
-                "type": "text",
-                "text": event.text(),
-            })
+            InputHandler.add_event({"type": "text", "text": event.text()})
 
     def keyReleaseEvent(self, event):
         assert isinstance(event, QKeyEvent)
@@ -312,7 +333,8 @@ class QtWindow(QWidget):
 
 
 TEXT_WHITE_LIST = (
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,- ")
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,- "
+)
 
 
 def set_black_background(widget):

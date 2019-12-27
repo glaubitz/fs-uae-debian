@@ -69,16 +69,23 @@ def fix_binary(path):
             changes += 1
     if strip:
         # strip does not work after patchelf has been run
-        os.system("strip '{}'".format(path))
+        command = "strip '{}'".format(path)
+        print(command)
+        os.system(command)
     if rpath:
-        assert os.system(
-            "patchelf --set-rpath '{}' '{}'".format(rpath, path)) == 0
+        command = "patchelf --set-rpath '{}' '{}'".format(rpath, path)
+        print(command)
+        assert os.system(command) == 0
     # to make sure strip is not run again
     os.system("touch '{}.standalone'".format(path))
     return changes
 
 
 def ignore_library(name):
+    if name.startswith("libgpg-error.so"):
+        raise Exception(
+            "Bundling libgpg-error (libgcrypt?) breaks Intel GL driver")
+
     if name.startswith("linux-gate.so"):
         return True
     if name.startswith("linux-vdso.so"):
@@ -89,6 +96,13 @@ def ignore_library(name):
         return True
 
     if name.startswith("libc.so"):
+        return True
+    if name.startswith("libstdc++.so"):
+        # Including libstdc++.sp breaks libGL loading with Intel on Ubuntu 16.10
+        # libGL error: unable to load driver: i965_dri.so
+        return True
+    if name.startswith("libgcc_s.so"):
+        # Might as well skip this one also, to avoid potential similar problems.
         return True
     if name.startswith("libpthread.so"):
         return True
@@ -102,25 +116,22 @@ def ignore_library(name):
         return True
     if name.startswith("libutil.so"):
         return True
-    if name.startswith("libpcre.so"):
-        # Problem with OpenAL on Ubuntu 16.04 if this is included.
-        return True
+    # if name.startswith("libpcre.so"):
+    #     # Problem with OpenAL on Ubuntu 16.04 if this is included.
+    #     return True
 
     if name.startswith("libGL.so"):
         return True
     if name.startswith("libGLU.so"):
+        return True
+    if name.startswith("libEGL.so"):
         return True
 
     if name.startswith("libasound.so"):
         # Alsa library is in LSB, looks like only "old" interfaces are used
         # by SDL2.
         return True
-    if name.startswith("libfreetype.so"):
-        # libfreetype.so.6 is commonly available (also in LSB standard)
-        return True
-    if name.startswith("libz.so"):
-        # libz.so.1 is commonly available (also in LSB standard)
-        return True
+
     if name.startswith("libX11.so"):
         return True
     if name.startswith("libXext.so"):
@@ -173,6 +184,9 @@ def main():
         changes = fix_iteration(app)
         if changes == 0:
             break
+    for name in os.listdir(app):
+        if name.endswith(".standalone"):
+            os.remove(os.path.join(app, name))
 
 
 if __name__ == "__main__":

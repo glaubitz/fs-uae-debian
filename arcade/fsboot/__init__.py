@@ -5,6 +5,9 @@ import getpass
 import subprocess
 import logging
 import sys
+import time
+
+perf_counter_epoch = time.perf_counter()
 
 # The current directory when the application was started.
 _cwd = os.getcwd()
@@ -37,6 +40,9 @@ def setup_logging():
 if "--workspace" in sys.argv:
     # Hack
     set("fws", "1")
+if "--openretro" in sys.argv:
+    # Hack
+    set("openretro", "1")
 if "--logging" in sys.argv:
     setup_logging()
     sys.argv.remove("--logging")
@@ -72,17 +78,23 @@ if sys.platform == "win32":
     CSIDL_PROFILE = 40
     CSIDL_COMMON_DOCUMENTS = 46
     from ctypes import windll, wintypes
+
     _SHGetFolderPath = windll.shell32.SHGetFolderPathW
     _SHGetFolderPath.argtypes = [
-        wintypes.HWND, ctypes.c_int, wintypes.HANDLE, wintypes.DWORD,
-        wintypes.LPCWSTR]
+        wintypes.HWND,
+        ctypes.c_int,
+        wintypes.HANDLE,
+        wintypes.DWORD,
+        wintypes.LPCWSTR,
+    ]
 
     def csidl_dir(csidl):
         path_buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
         result = _SHGetFolderPath(0, csidl, 0, 0, path_buf)
         if result != S_OK:
             raise RuntimeError(
-                "Could not find common directory for CSIDL {}".format(csidl))
+                "Could not find common directory for CSIDL {}".format(csidl)
+            )
         return path_buf.value
 
     class WinPathsException(Exception):
@@ -93,7 +105,8 @@ if sys.platform == "win32":
             return result
         else:
             raise WinPathsException(
-                "Failed to retrieve windows path: %s" % result)
+                "Failed to retrieve windows path: %s" % result
+            )
 
     _SHGetFolderPath.restype = err_unless_zero
 
@@ -108,7 +121,8 @@ def user_name():
 def xdg_user_dir(name):
     try:
         process = subprocess.Popen(
-                ["xdg-user-dir", name], stdout=subprocess.PIPE)
+            ["xdg-user-dir", name], stdout=subprocess.PIPE
+        )
         path = process.stdout.read().strip()
         path = path.decode("UTF-8")
         logger.debug("XDG user dir %s => %s", name, repr(path))
@@ -143,6 +157,10 @@ def documents_dir(create=False):
     if create and not os.path.isdir(path):
         os.makedirs(path)
     return path
+
+
+def is_portable():
+    return portable_dir() is not None
 
 
 @functools.lru_cache()
@@ -201,7 +219,11 @@ def app_config_dir(app):
 
 @functools.lru_cache()
 def custom_path(name):
-    for app_name in ["fs-uae-launcher", "fs-uae"]:
+    if get("openretro") == "1":
+        app_names = ["openretro"]
+    else:
+        app_names = ["fs-uae-launcher", "fs-uae"]
+    for app_name in app_names:
         key_path = os.path.join(app_config_dir(app_name), name)
         logger.debug("Checking %s", repr(key_path))
         if os.path.exists(key_path):
@@ -234,21 +256,41 @@ def base_dir():
     if path:
         return path
 
-    logger.debug("Checking FS_UAE_BASE_DIR")
-    path = os.environ.get("FS_UAE_BASE_DIR", "")
-    if path:
-        logger.debug("Base directory via FS_UAE_BASE_DIR: %s", repr(path))
-        return path
+    if get("openretro") == "1":
+        logger.debug("Checking OPENRETRO_BASE_DIR")
+        path = os.environ.get("OPENRETRO_BASE_DIR", "")
+        if path:
+            logger.debug(
+                "Base directory via OPENRETRO_BASE_DIR: %s", repr(path)
+            )
+            return path
+
+    else:
+        logger.debug("Checking FS_UAE_BASE_DIR")
+        path = os.environ.get("FS_UAE_BASE_DIR", "")
+        if path:
+            logger.debug("Base directory via FS_UAE_BASE_DIR: %s", repr(path))
+            return path
 
     path = custom_path("base-dir")
     if path:
         logger.debug("Base directory via custom path config: %s", repr(path))
         return path
 
-    path = os.path.join(documents_dir(True), "FS-UAE")
+    if get("openretro") == "1":
+        path = os.path.join(documents_dir(True), "OpenRetro")
+    else:
+        path = os.path.join(documents_dir(True), "FS-UAE")
     if not os.path.exists(path):
         os.makedirs(path)
     # FIXME: normalize / case-normalize base dir?
     # path = Paths.get_real_case(path)
     logger.debug("Using default base dir %s", repr(path))
     return path
+
+
+@functools.lru_cache()
+def development():
+    result = os.path.exists(os.path.join(executable_dir(), "setup.py"))
+    logger.info("Development mode: %s", result)
+    return result

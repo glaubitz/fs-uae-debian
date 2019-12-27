@@ -1,10 +1,10 @@
 import fsui
-from fsgs.amiga.Amiga import Amiga
+from fsgs.amiga.amiga import Amiga
 from fsgs.context import fsgs
 from launcher.i18n import gettext
 from launcher.launcher_signal import LauncherSignal
 from launcher.scanner import Scanner
-from launcher.ui.settings.scan_paths_group import ScanPathsGroup
+from launcher.settings.scan_paths_group import ScanPathsGroup
 
 TIMER_INTERVAL = 100
 
@@ -12,14 +12,16 @@ TIMER_INTERVAL = 100
 class ScanDialog(fsui.Window):
     @classmethod
     def refresh_game_database(cls, window):
-        return cls(window, minimal=True, interactive=False,
-                   scan_for_files=False)
+        return cls(
+            window, minimal=True, interactive=False, scan_for_files=False
+        )
 
-    def __init__(self, parent, minimal=False, interactive=True,
-                 scan_for_files=True):
+    def __init__(
+        self, parent, minimal=False, interactive=True, scan_for_files=True
+    ):
         super().__init__(parent, gettext("Update File Database"))
         buttons, layout = fsui.DialogButtons.create_with_layout(self)
-        # buttons.create_close_button()
+        buttons.create_close_button()
 
         self.layout.add_spacer(640, 0)
 
@@ -35,7 +37,8 @@ class ScanDialog(fsui.Window):
             layout.add_spacer(20)
 
             label = fsui.HeadingLabel(
-                self, gettext("Scan for Kickstarts, Files and Configurations"))
+                self, gettext("Scan for Kickstarts, Files and Configurations")
+            )
             layout.add(label, margin_bottom=10)
 
             self.scan_paths_group = ScanPathsGroup(self)
@@ -55,7 +58,8 @@ class ScanDialog(fsui.Window):
         # hor_layout.add_spacer(10, expand=True)
         if interactive:
             self.scan_button = buttons.add_button(
-                fsui.Button(buttons, gettext("Scan")))
+                fsui.Button(buttons, gettext("Scan"))
+            )
             # self.scan_button = fsui.Button(self, _("Scan"))
             # hor_layout.add(self.scan_button)
             # hor_layout.add_spacer(10)
@@ -66,14 +70,9 @@ class ScanDialog(fsui.Window):
         # self.stop_button = fsui.Button(self, _("Abort"))
         # hor_layout.add(self.stop_button)
         self.stop_button = buttons.add_button(
-            fsui.Button(buttons, gettext("Stop")))
+            fsui.Button(buttons, gettext("Stop"))
+        )
         self.stop_button.activated.connect(self.on_stop_button)
-
-        # hor_layout.add_spacer(10)
-        # self.close_button = fsui.Button(self, _("Close"))
-        # self.close_button.activated.connect(self.on_close_button
-        # hor_layout.add(self.close_button)
-        # hor_layout.add_spacer(10)
 
         # layout.add_spacer(10)
 
@@ -122,11 +121,13 @@ class ScanDialog(fsui.Window):
                         return
                     self.set_scan_title(gettext("Scan complete"))
                     self.set_scan_status(
-                        gettext("Click 'Scan' button if you want to re-scan"))
+                        gettext("Click 'Scan' button if you want to re-scan")
+                    )
             else:
                 self.set_scan_title(gettext("No scan in progress"))
                 self.set_scan_status(
-                    gettext("Click 'Scan' button to start scan"))
+                    gettext("Click 'Scan' button to start scan")
+                )
             if self.scan_button is not None:
                 self.scan_button.enable()
             self.stop_button.disable()
@@ -151,9 +152,12 @@ class ScanDialog(fsui.Window):
         # self.close_button.disable()
         self.stop_button.enable()
 
-        Scanner.start(paths, scan_for_files=self.scan_for_files,
-                      update_game_database=self.update_game_database,
-                      purge_other_dirs=True)
+        Scanner.start(
+            paths,
+            scan_for_files=self.scan_for_files,
+            update_game_database=self.update_game_database,
+            purge_other_dirs=True,
+        )
 
     # def on_close_button(self):
     #     self.end_modal(False)
@@ -203,7 +207,8 @@ class ScanKickstartGroup(fsui.Group):
 
         self.layout = fsui.VerticalLayout()
         label = fsui.HeadingLabel(
-            self, gettext("Available Kickstart Versions"))
+            self, gettext("Available Kickstart Versions")
+        )
         self.layout.add(label, margin_bottom=10)
 
         icon_layout = fsui.HorizontalLayout()
@@ -220,8 +225,12 @@ class ScanKickstartGroup(fsui.Group):
         vert_layout.add_spacer(0)
 
         label = fsui.Label(
-            self, gettext("You should have kickstart files for "
-                          "each Amiga model you want to use:"))
+            self,
+            gettext(
+                "You should have kickstart files for "
+                "each Amiga model you want to use:"
+            ),
+        )
         vert_layout.add(label, margin_bottom=0)
 
         hori_layout = fsui.HorizontalLayout()

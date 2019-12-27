@@ -3,7 +3,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from arcade.arcadetheme import ArcadeTheme
 from fsui.qt import QImage
+
 # import numpy
 # from PIL import Image
 # from fsbc.Application import app
@@ -59,8 +61,10 @@ class Texture(object):
     item_background = None
     top_item_background = None
     logo_32 = None
+
     stretch = None
     aspect = None
+    square_pixels = None
 
     def __init__(self, name, target=gl.GL_TEXTURE_2D, **kwargs):
         # print(repr(type(name)))
@@ -72,9 +76,13 @@ class Texture(object):
             self.size = [0, 0]
             # print(name, kwargs)
             out_data = {}
-            self.texture = self.from_resource(
-                name, target=target, size=self.size, out_data=out_data,
-                **kwargs)
+            self.texture = self.from_theme(
+                name,
+                target=target,
+                size=self.size,
+                out_data=out_data,
+                **kwargs
+            )
             self.data = out_data["im_data"]
             self.gl_type = out_data["type"]
         self.w, self.h = self.size
@@ -110,9 +118,17 @@ class Texture(object):
         gl.glEnd()
 
     @classmethod
-    def load(cls, im, mipmap=False, min_filter=None,
-             wrap_s=gl.GL_CLAMP_TO_EDGE, wrap_t=gl.GL_CLAMP_TO_EDGE,
-             target=gl.GL_TEXTURE_2D, size=None, out_data=None):
+    def load(
+        cls,
+        im,
+        mipmap=False,
+        min_filter=None,
+        wrap_s=gl.GL_CLAMP_TO_EDGE,
+        wrap_t=gl.GL_CLAMP_TO_EDGE,
+        target=gl.GL_TEXTURE_2D,
+        size=None,
+        out_data=None,
+    ):
         if size is None:
             size = [0, 0]
         # type = "RGB"
@@ -160,11 +176,20 @@ class Texture(object):
         size[1] = im.height()
 
         from arcade.glui.render import Render
+
         texture = Render.get().create_texture()
         gl.glBindTexture(target, texture)
         gl.glTexImage2D(
-            target, 0, internal_format, size[0], size[1], 0, texture_format,
-            gl.GL_UNSIGNED_BYTE, pixels)
+            target,
+            0,
+            internal_format,
+            size[0],
+            size[1],
+            0,
+            texture_format,
+            gl.GL_UNSIGNED_BYTE,
+            pixels,
+        )
         if mipmap:
             gl.glGenerateMipmap(target)
             if min_filter is None:
@@ -185,12 +210,20 @@ class Texture(object):
     def from_resource(cls, name, size=None, **kwargs):
         if size is None:
             size = [0, 0]
-        # try:
-        #     path = app.data_file(name)
-        # except LookupError:
-        #     im = resources.resource_pil_image(name)
-        # else:
-        #     im = Image.open(path)
-        # return cls.load(im, size=size, **kwargs)
         im = resources.resource_qt_image(name)
+        return cls.load(im, size=size, **kwargs)
+
+    # @classmethod
+    # def from_qimage(cls, name, size=None, **kwargs):
+    #     if size is None:
+    #         size = [0, 0]
+    #     im = resources.resource_qt_image(name)
+    #     return cls.load(im, size=size, **kwargs)
+
+    @classmethod
+    def from_theme(cls, name, size=None, **kwargs):
+        if size is None:
+            size = [0, 0]
+        # im = resources.resource_qt_image(name)
+        im = ArcadeTheme.get().qimage(name)
         return cls.load(im, size=size, **kwargs)

@@ -4,11 +4,14 @@ import sys
 import time
 from collections import deque
 
+from arcade.gamecentersettings import ArcadeSettings
+from fsbc import settings
 from fsgs.FSGSDirectories import FSGSDirectories
 
 from arcade.gamecenter import GameCenter
 from arcade.resources import resources
 from fsbc.system import windows
+from fsgs.option import Option
 from fsgs.platform import PlatformHandler
 from fsgs.util.gamenameutil import GameNameUtil
 
@@ -26,9 +29,10 @@ from arcade.glui.animation import AnimationSystem
 from arcade.glui.animation import AnimateValueBezier
 from arcade.glui.state import State
 from arcade.glui.render import Render
-from arcade.glui.notification import NotificationRender
+from arcade.glui.notificationrender import NotificationRender
 from arcade.glui.font import Font, BitmapFont
 from arcade.glui.items import MenuItem, AllMenuItem, NoItem, PlatformItem
+from arcade.glui.items import ListItem
 from arcade.glui.texture import Texture
 from arcade.glui.texturemanager import TextureManager
 from arcade.glui.constants import TOP_HEIGHT
@@ -41,12 +45,17 @@ ENABLE_VSYNC = "--vsync" in sys.argv
 ALWAYS_RENDER = True
 # IDLE = Config.get_bool("Menu/Idle", 1)
 IDLE = 1
+if "--no-idle" in sys.argv:
+    IDLE = 0
 # Render.get().display_fps = pyapp.user.ini.get_bool("Menu/ShowFPS", False)
 # LIGHTING = Config.get_bool("Menu/Lighting", False)
 LIGHTING = False
 RENDER_DEBUG_SQUARES = 0
-SEARCH_CHARS = \
+if "--render-debug-squares" in sys.argv:
+    RENDER_DEBUG_SQUARES = 1
+SEARCH_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -:.,"
+)
 CONFIG_SEPARATION = 0.15
 ANIMATION_SETTLE_TIME_1 = 1.0
 ANIMATION_SETTLE_TIME_2 = 2.0
@@ -146,10 +155,15 @@ class Mouse(object):
 def set_items_brightness(brightness, duration=1.0, delay=0.0):
     State.get().items_brightness_anim = AnimateValueBezier(
         (State, "items_brightness"),
-        State.get().items_brightness, State.get().time + delay,
-        State.get().items_brightness, State.get().time + delay,
-        brightness, State.get().time + delay + duration,
-        brightness, State.get().time + delay + duration)
+        State.get().items_brightness,
+        State.get().time + delay,
+        State.get().items_brightness,
+        State.get().time + delay,
+        brightness,
+        State.get().time + delay + duration,
+        brightness,
+        State.get().time + delay + duration,
+    )
 
 
 def compile_shader(source, shader_type):
@@ -179,7 +193,9 @@ def compile_program(vertex_source, fragment_source):
         gl.glAttachShader(program, vertex_shader)
     if fragment_source:
         print("compile fragment shader")
-        fragment_shader = compile_shader(fragment_source, gl.GL_FRAGMENT_SHADER)
+        fragment_shader = compile_shader(
+            fragment_source, gl.GL_FRAGMENT_SHADER
+        )
         gl.glAttachShader(program, fragment_shader)
     gl.glLinkProgram(program)
     status = gl.glGetProgramiv(program, gl.GL_LINK_STATUS)
@@ -212,7 +228,10 @@ def compile_programs():
     global texture_program, color_program, premultiplied_texture_program
     vertex_shader = None
 
-    color_program = compile_program(vertex_shader, ["""
+    color_program = compile_program(
+        vertex_shader,
+        [
+            """
 void main()
 {
 vec4 s = gl_Color;
@@ -224,9 +243,14 @@ gl_FragColor.r = s.r*a;
 gl_FragColor.g = s.g*a;
 gl_FragColor.b = s.b*a;
 }
-            """])
+            """
+        ],
+    )
 
-    texture_program = compile_program(vertex_shader, ["""
+    texture_program = compile_program(
+        vertex_shader,
+        [
+            """
 uniform sampler2D texture;
 
 void main()
@@ -241,9 +265,14 @@ gl_FragColor.r = s.r * a;
 gl_FragColor.g = s.g * a;
 gl_FragColor.b = s.b * a;
 }
-"""])
+"""
+        ],
+    )
 
-    premultiplied_texture_program = compile_program(vertex_shader, ["""
+    premultiplied_texture_program = compile_program(
+        vertex_shader,
+        [
+            """
 uniform sampler2D texture;
 
 void main()
@@ -257,7 +286,9 @@ gl_FragColor.r = s.r * opacity;
 gl_FragColor.g = s.g * opacity;
 gl_FragColor.b = s.b * opacity;
 }
-"""])
+"""
+        ],
+    )
 
 
 def enable_texture_shader():
@@ -333,19 +364,46 @@ def show():
     new_menu = create_main_menu()
     State.get().history.append(new_menu)
 
+    override_items = []
     for platform_id in PlatformHandler.get_platform_ids():
         if "--platform=" + platform_id in sys.argv:
-            platform_menu = ItemMenu()
-            platform_menu.parent_menu = new_menu
-
+            sys.argv.remove("--platform=" + platform_id)
             platform_item = PlatformItem(platform_id)
-            platform_menu.items.append(platform_item)
-            # platform_menu.set_selected_index(0, immediate=True)
-
-            new_menu = platform_item.activate(platform_menu)
-            print(new_menu)
-            State.get().history.append(new_menu)
+            override_items.append(platform_item)
             break
+    # if "--favorites" in sys.argv or \
+    #         settings.get(Option.ARCADE_INITIAL_VIEW) == "favorites":
+    if (
+        "--favorites" in sys.argv
+        or settings.get(Option.ARCADE_INITIAL_FAVORITES) == "1"
+    ):
+        if "--favorites" in sys.argv:
+            sys.argv.remove("--favorites")
+        try:
+            list_uuid = ListItem.get_favorites_uuid()
+            favorites_item = ListItem("Favorites", list_uuid)
+        except LookupError:
+            print("No favorites list")
+            # noinspection SpellCheckingInspection
+            favorites_item = ListItem(
+                "Favorites", "c03dd5fe-0e85-4efb-a126-f0e4f40feae6"
+            )
+        override_items.append(favorites_item)
+    if override_items:
+        parent_menu = new_menu
+        override_menu = None
+        parents = []
+        for item in override_items:
+            override_menu = ItemMenu()
+            override_menu.parent_menu = parent_menu
+            parents.append(parent_menu)
+            # This is really hackish
+            override_menu.parents = parents
+            override_menu.items.append(item)
+            parent_menu = override_menu
+        new_menu = override_items[-1].activate(override_menu)
+        print(new_menu)
+        State.get().history.append(new_menu)
 
     set_current_menu(new_menu)
     if len(new_menu) == 1:
@@ -378,7 +436,8 @@ vera_font_path = None
 
 def find_font_path_or_stream(name):
     path = os.path.join(
-        FSGSDirectories.get_base_dir(), "Workspace", "Fonts", name)
+        FSGSDirectories.get_base_dir(), "Workspace", "Fonts", name
+    )
     if os.path.exists(path):
         return path
     stream = resources.resource_stream(name)
@@ -386,15 +445,18 @@ def find_font_path_or_stream(name):
 
 
 def reinit_fonts():
-    print("reinit_fonts, Render.get().display_height =",
-          Render.get().display_height)
+    print(
+        "reinit_fonts, Render.get().display_height =",
+        Render.get().display_height,
+    )
     global liberation_sans_bold_path
     global liberation_sans_narrow_bold_path
     global vera_font_path
 
     if liberation_sans_bold_path is None:
         liberation_sans_bold_path = find_font_path_or_stream(
-            "LiberationSans-Bold.ttf")
+            "LiberationSans-Bold.ttf"
+        )
 
     # if liberation_sans_narrow_bold_path is None:
     #     liberation_sans_narrow_bold_path = resources.resource_filename(
@@ -405,11 +467,13 @@ def reinit_fonts():
 
     if Font.title_font is None:
         Font.title_font = Font(
-            liberation_sans_bold_path, int(0.04 * Render.get().display_height))
+            liberation_sans_bold_path, int(0.04 * Render.get().display_height)
+        )
     Font.title_font.set_size(int(0.04 * Render.get().display_height))
     if Font.subtitle_font is None:
         Font.subtitle_font = Font(
-            liberation_sans_bold_path, int(0.025 * Render.get().display_height))
+            liberation_sans_bold_path, int(0.025 * Render.get().display_height)
+        )
     Font.subtitle_font.set_size(int(0.025 * Render.get().display_height))
     # if Font.small_font is None:
     #     Font.small_font = Font(
@@ -418,16 +482,23 @@ def reinit_fonts():
     # Font.small_font.set_size(int(0.025 * Render.get().display_height))
     if Font.main_path_font is None:
         Font.main_path_font = Font(
-            liberation_sans_bold_path, int(0.025 * Render.get().display_height))
+            liberation_sans_bold_path, int(0.025 * Render.get().display_height)
+        )
     Font.main_path_font.set_size(int(0.025 * Render.get().display_height))
     if Font.list_subtitle_font is None:
         Font.list_subtitle_font = Font(
-            liberation_sans_bold_path, int(0.020 * Render.get().display_height))
+            liberation_sans_bold_path, int(0.020 * Render.get().display_height)
+        )
     Font.list_subtitle_font.set_size(int(0.020 * Render.get().display_height))
     # if Font.header_font is None:
     #     Font.header_font = Font(
     #         vera_font_path, int(0.06 * Render.get().display_height))
     # Font.header_font.set_size(int(0.06 * Render.get().display_height))
+
+    if NotificationRender.font is None:
+        NotificationRender.font = Font(
+            liberation_sans_bold_path, int(0.020 * Render.get().display_height)
+        )
 
 
 char_buffer = ""
@@ -471,30 +542,36 @@ def character_press(char):
         print("returning false")
         return False
     elif char == "BACKSPACE" or char == u"\b":
-        char_buffer = char_buffer[:-1]
-        if len(char_buffer) <= 2:
-            char_buffer = ""
-        handle_search_menu_on_character_press(char_buffer)
+        if ArcadeSettings().search():
+            char_buffer = char_buffer[:-1]
+            if len(char_buffer) <= 2:
+                char_buffer = ""
+            handle_search_menu_on_character_press(char_buffer)
         return True
     elif len(char) == 1:
-        char_buffer += char
-        handle_search_menu_on_character_press(char_buffer)
-        if 1 <= len(char_buffer) <= 2:
-            jump_to_item = -1
-            for i, item in enumerate(current_menu.items):
-                # FIXME: a bit hack-y this, should check sort_name
-                # instead (need to store this in items then)
-                # also, should use binary search and not sequential search...
-                searches = [char_buffer, "the " + char_buffer,
-                            "a " + char_buffer]
-                check = item.name.lower()
-                for s in searches:
-                    if check.startswith(s):
-                        jump_to_item = i
-                        break
-            if jump_to_item >= 0:
-                current_menu.set_selected_index(jump_to_item, immediate=True)
-
+        if ArcadeSettings().search():
+            char_buffer += char
+            handle_search_menu_on_character_press(char_buffer)
+            if 1 <= len(char_buffer) <= 2:
+                jump_to_item = -1
+                for i, item in enumerate(current_menu.items):
+                    # FIXME: a bit hack-y this, should check sort_name
+                    # instead (need to store this in items then)
+                    # also, should use binary search and not sequential search
+                    searches = [
+                        char_buffer,
+                        "the " + char_buffer,
+                        "a " + char_buffer,
+                    ]
+                    check = item.name.lower()
+                    for s in searches:
+                        if check.startswith(s):
+                            jump_to_item = i
+                            break
+                if jump_to_item >= 0:
+                    current_menu.set_selected_index(
+                        jump_to_item, immediate=True
+                    )
         return True
     else:
         raise Exception(repr(char))
@@ -521,10 +598,10 @@ def create_search_results_menu(text):
     new_menu.search_text = text
     # words = [v.strip() for v in text.lower().split(" ")]
     # print "Creating search results for", words
-    new_menu.top.append_left(
-        SearchTextItem("Search: {0}_".format(text)))
+    new_menu.top.append_left(SearchTextItem("Search: {0}_".format(text)))
     new_menu.top.set_selected_index(
-        len(new_menu.top.left) + len(new_menu.top.right) - 1)
+        len(new_menu.top.left) + len(new_menu.top.right) - 1
+    )
 
     # clause = []
     # args = []
@@ -648,9 +725,9 @@ def render_top():
         item.y = 1080 - TOP_HEIGHT
         item.h = TOP_HEIGHT
         if Mouse.focus:
-            selected = (Mouse.focus == item)
+            selected = Mouse.focus == item
         else:
-            selected = (index == selected_index)
+            selected = index == selected_index
         item.render_top_right(selected=selected)
         Mouse.items.append(item)
         index -= 1
@@ -798,7 +875,8 @@ def render_global_fade():
     t = State.get().time
     if State.get().fade_end >= t >= State.get().fade_start:
         a = (t - State.get().fade_start) / (
-            State.get().fade_end - State.get().fade_start)
+            State.get().fade_end - State.get().fade_start
+        )
         if a < 0.0:
             a = 0.0
         elif a > 1.0:
@@ -812,8 +890,11 @@ def render_global_fade():
         if State.get().fade_splash:
             Texture.splash.render(
                 (1920 - Texture.splash.w) // 2,
-                (1080 - Texture.splash.h) // 2, Texture.splash.w,
-                Texture.splash.h, opacity=(1.0 - a))
+                (1080 - Texture.splash.h) // 2,
+                Texture.splash.w,
+                Texture.splash.h,
+                opacity=(1.0 - a),
+            )
 
         c = [0, 0, 0, (1.0 - a)]
         # for i in range(4):
@@ -1172,8 +1253,10 @@ def init_display():
         Render.get().hd_perspective()
         Texture.splash.render(
             (1920 - Texture.splash.w) // 2,
-            (1080 - Texture.splash.h) // 2, Texture.splash.w,
-            Texture.splash.h)
+            (1080 - Texture.splash.h) // 2,
+            Texture.splash.w,
+            Texture.splash.h,
+        )
         gl.glFinish()
         # pygame.display.flip()
         gl.glFinish()
@@ -1226,7 +1309,8 @@ def init_textures():
 
     Texture.sidebar_background = Texture("sidebar_background.png")
     Texture.sidebar_background_shadow = Texture(
-        "sidebar_background_shadow.png")
+        "sidebar_background_shadow.png"
+    )
     Texture.glow_top = Texture("glow_top.png")
     Texture.glow_top_left = Texture("glow_top_left.png")
     Texture.glow_left = Texture("glow_left.png")
@@ -1235,8 +1319,10 @@ def init_textures():
     Texture.item_background = Texture("item_background.png")
     Texture.top_item_background = Texture("top_item_background.png")
     Texture.logo_32 = Texture("logo-32.png")
+
     Texture.stretch = Texture("stretch.png")
-    Texture.aspect = Texture("aspect.png")
+    Texture.aspect = Texture("stretch-aspect.png")
+    Texture.square_pixels = Texture("stretch-none.png")
 
     # # FIXME: TEMPORARY - FOR TESTING, ONLY
     # path = "c:\\git\\fs-game-database\\Backdrops\\ffx.png"
@@ -1259,7 +1345,8 @@ def init_lighting():
     gl.glLightModeli(gl.GL_LIGHT_MODEL_LOCAL_VIEWER, gl.GL_TRUE)
     gl.glLightModeli(gl.GL_LIGHT_MODEL_TWO_SIDE, gl.GL_FALSE)
     gl.glLightModeli(
-        gl.GL_LIGHT_MODEL_COLOR_CONTROL, gl.GL_SEPARATE_SPECULAR_COLOR)
+        gl.GL_LIGHT_MODEL_COLOR_CONTROL, gl.GL_SEPARATE_SPECULAR_COLOR
+    )
 
     light_position = (0.0, 0.0, 3.0, 1.0)
     gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, light_position)
@@ -1297,9 +1384,9 @@ def on_resize(display_size):
 
     Render.get().display_width, Render.get().display_height = display_size  #
     #  display# .get_size()
-    State.get().display_aspect = Render.get().display_width / Render.get(
-
-    ).display_height
+    State.get().display_aspect = (
+        Render.get().display_width / Render.get().display_height
+    )
     print(WINDOWED_SIZE)
     Settings.windowed_size = tuple(WINDOWED_SIZE)
 
@@ -1319,28 +1406,36 @@ def on_resize(display_size):
 
     reinit_fonts()
 
-    print(0, display_yoffset, Render.get().display_width,
-          Render.get().display_height)
+    print(
+        0,
+        display_yoffset,
+        Render.get().display_width,
+        Render.get().display_height,
+    )
     gl.glViewport(
-        0, display_yoffset, Render.get().display_width,
-        Render.get().display_height)
+        0,
+        display_yoffset,
+        Render.get().display_width,
+        Render.get().display_height,
+    )
 
     # aspect_ratio = max(4 / 3, (Render.get().display_width / Render.get(
     # ).display_height))
     factor = (Render.get().display_width / Render.get().display_height) / (
-        1024 / 600)
+        1024 / 600
+    )
     browse_curve = Bezier.bezier(
         (-5.0 * factor, -10.0),
         (-1.7 * factor, -0.0),
         (1.7 * factor, -0.0),
-        (5.0 * factor, -10.0)
+        (5.0 * factor, -10.0),
     )
     header_curve = Bezier.bezier(
         (-2.0 * factor, 0.00),
         (-1.0 * factor, 0.075),
         (1.0 * factor, 0.075),
         (2.0 * factor, 0.00),
-        steps=50
+        steps=50,
     )
 
     # if USE_MENU_TRANSITIONS:
@@ -1381,8 +1476,7 @@ def back_to_menu_from_game():
 
     State.get().fade_splash = True
     State.get().fade_start = State.get().time
-    State.get().fade_end = State.get().time + 2.0
-    # Use 2.0 here to force full black for 1 second
+    State.get().fade_end = State.get().time + 0.5
     State.get().fade_from = (0.0, 0.0, 0.0, 2.0)
     State.get().fade_to = (0.0, 0.0, 0.0, 0.0)
 
@@ -1452,12 +1546,16 @@ def find_item_at_coordinate(pos):
     menu = current_menu
     # Just checking top items for now
     for item in menu.top.left:
-        if (item.x <= pos[0] <= item.x + item.w and
-                item.y <= pos[1] <= item.y + item.h):
+        if (
+            item.x <= pos[0] <= item.x + item.w
+            and item.y <= pos[1] <= item.y + item.h
+        ):
             return item
     for item in menu.top.right:
-        if (item.x <= pos[0] <= item.x + item.w and
-                item.y <= pos[1] <= item.y + item.h):
+        if (
+            item.x <= pos[0] <= item.x + item.w
+            and item.y <= pos[1] <= item.y + item.h
+        ):
             return item
     return None
 
@@ -1482,7 +1580,8 @@ def handle_mouse_event(event):
 
 
 def main_loop_iteration(
-        input_func=default_input_func, render_func=default_render_func):
+    input_func=default_input_func, render_func=default_render_func
+):
     state = State.get()
 
     # if State.get().currently_ingame:

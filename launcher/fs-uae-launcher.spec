@@ -1,6 +1,21 @@
+# Copyright © 2012–2019 Frode Solheim <frode@fs-uae.net>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 %define name fs-uae-launcher
-%define version 2.8.3
-%define unmangled_version 2.8.3
+%define version 3.0.2
+%define unmangled_version 3.0.2
 %define release 1%{?dist}
 
 Summary: Graphical configuration frontend and launcher for FS-UAE
@@ -14,18 +29,20 @@ Group: Applications/Emulators
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
-Vendor: Frode Solheim <frode@fs-uae.net>
-Requires: python3-qt5 fs-uae python3-setuptools
-BuildRequires: python3-devel python3-setuptools
+Vendor: Frode Solheim <frode@solheim.dev>
+Requires: fs-uae
+Requires: python3-qt5
+Requires: python3-lhafile
+Requires: python3-requests
+Requires: python3-setuptools
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools
 
 %if 0%{?suse_version}
 %global __python  /usr/bin/python3
 %global __python3  /usr/bin/python3
 %else
-%if 0%{?mandriva_version}
-%else
 %global __python %{__python3}
-%endif
 %endif
 
 %description
@@ -40,6 +57,7 @@ make
 
 %install
 make install DESTDIR=%{buildroot} prefix=%{_prefix}
+rm -Rf %{buildroot}%{_prefix}/share/fs-uae-launcher/OpenGL
 
 %clean
 rm -rf %{buildroot}
@@ -58,6 +76,10 @@ rm -rf %{buildroot}
 %dir %_datadir/icons/hicolor/128x128/apps
 %dir %_datadir/icons/hicolor/16x16
 %dir %_datadir/icons/hicolor/16x16/apps
+%dir %_datadir/icons/hicolor/22x22
+%dir %_datadir/icons/hicolor/22x22/apps
+%dir %_datadir/icons/hicolor/24x24
+%dir %_datadir/icons/hicolor/24x24/apps
 %dir %_datadir/icons/hicolor/256x256
 %dir %_datadir/icons/hicolor/256x256/apps
 %dir %_datadir/icons/hicolor/32x32

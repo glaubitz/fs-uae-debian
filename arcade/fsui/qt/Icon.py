@@ -4,6 +4,11 @@ from .Image import Image
 
 
 class Icon(object):
+    """
+    FIXME: Add support for icon search path, so, during startup, a list
+    of package data directories to check can be added to this class, and
+    icons can be looked up just by name.
+    """
 
     def __init__(self, name, path):
         self.name = name
@@ -13,8 +18,12 @@ class Icon(object):
         # package, file_ = name.split(":", 1)
         assert self.path.startswith("pkg:")
         package = self.path[4:]
-        name = "res/{0}/{1}.png".format(size, self.name)
-        stream = Resources(package).stream(name)
+        try:
+            name = "res/{0}x{0}/{1}.png".format(size, self.name)
+            stream = Resources(package).stream(name)
+        except LookupError:
+            name = "res/{0}/{1}.png".format(size, self.name)
+            stream = Resources(package).stream(name)
         return stream
 
     def qimage(self, size):
@@ -34,7 +43,7 @@ class Icon(object):
         if size is not None:
             sizes = [size]
         else:
-            sizes = [16, 22, 24, 32, 64, 128, 256]
+            sizes = [16, 22, 24, 32, 40, 48, 64, 128, 256]
         for size in sizes:
             try:
                 pixmap = self.qpixmap(size)

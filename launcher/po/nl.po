@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: frode@fs-uae.net\n"
-"POT-Creation-Date: 2016-12-11 15:16+0100\n"
-"PO-Revision-Date: 2016-12-31 10:05-0500\n"
-"Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
+"POT-Creation-Date: 2019-05-27 23:21+0200\n"
+"PO-Revision-Date: 2019-06-21 16:09\n"
+"Last-Translator: Frode Solheim (FrodeSolheim)\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
 "MIME-Version: 1.0\n"
@@ -83,11 +83,8 @@ msgstr "Meerdere diskettes tegelijk toevoegen"
 msgid "Additional Configuration"
 msgstr "Additionele configuratie"
 
-msgid "Additional Databases"
-msgstr "Aanvullende databanken"
-
 msgid "Adult-Themed Games"
-msgstr "18+ Spelen"
+msgstr "18+ Spellen"
 
 msgid "Advanced"
 msgstr "Geavanceerd"
@@ -131,14 +128,17 @@ msgstr "Er is een fout opgetreden"
 msgid "Arcade Fullscreen"
 msgstr "Arcade volledig scherm"
 
+msgid "Arcade starts with favorites filter"
+msgstr ""
+
+msgid "Arcade theme"
+msgstr "Arcade thema"
+
 msgid "Audio"
 msgstr "Geluid"
 
 msgid "Audio Settings"
 msgstr "Geluidsinstellingen"
-
-msgid "Audio buffer target size (bytes)"
-msgstr "Audiobuffer grootte (bytes)"
 
 msgid "Audio buffer target size (ms)"
 msgstr "Audiobuffer grootte (ms)"
@@ -155,8 +155,8 @@ msgstr "Automatisch + Kader"
 msgid "Auto - {}"
 msgstr "Automatisch - {}"
 
-msgid "Auto-Download"
-msgstr "Automatische download"
+msgid "Auto Smoothing"
+msgstr "Automatisch Vloeiend Maken"
 
 msgid "Auto-Fire is Off"
 msgstr "Automatisch vuren staat Aan"
@@ -164,11 +164,17 @@ msgstr "Automatisch vuren staat Aan"
 msgid "Auto-Fire is On"
 msgstr "Automatisch vuren staat Uit"
 
+msgid "Auto-download"
+msgstr ""
+
 msgid "Automatic"
 msgstr "Automatisch"
 
+msgid "Automatic mouse/joystick mode for mouse port"
+msgstr ""
+
 msgid "Available Games"
-msgstr "Beschikbare spellen"
+msgstr "Beschikbare Spellen"
 
 msgid "Available Kickstart Versions"
 msgstr "Beschikbare Kickstart versies"
@@ -188,6 +194,9 @@ msgstr "Beste variant"
 msgid "Blizzard SCSI Kit"
 msgstr "Blizzard SCSI-Kit"
 
+msgid "Blue"
+msgstr "Blauw"
+
 msgid "Browse"
 msgstr "Bladeren"
 
@@ -197,11 +206,11 @@ msgstr "Bladeren naar bestand"
 msgid "Browse for Folder"
 msgstr "Bladeren naar map"
 
+msgid "Built-in"
+msgstr "Ingebouwd"
+
 msgid "CD-ROM Drive"
 msgstr "CD-ROM station"
-
-msgid "CD-ROM Drive Count"
-msgstr "Aantal CD-ROM apparaten"
 
 msgid "CD-ROM Drives"
 msgstr "CD-ROM stations"
@@ -215,12 +224,18 @@ msgstr "CD32 Pad"
 msgid "CPU"
 msgstr "CPU"
 
+msgid "CRT Emulation"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Annuleren"
 
 #, python-brace-format
 msgid "Cannot find required ROM file: {name}"
 msgstr "Kan benodigd ROM bestand: {name} niet vinden"
+
+msgid "Cartridge"
+msgstr ""
 
 msgid "Change fullscreen mode (desktop, fullscreen, window)"
 msgstr "Volledig scherm modus wijzigen (bureaublad, volledig scherm, venster)"
@@ -234,8 +249,14 @@ msgstr "Checksum bestand..."
 msgid "Chip RAM"
 msgstr "Chip RAM"
 
+msgid "Choices marked with (*) is the default setting"
+msgstr ""
+
 msgid "Choose CD-ROM Image"
 msgstr "Selecteert CD-ROM image"
+
+msgid "Choose Cartridge Image"
+msgstr ""
 
 msgid "Choose Extended ROM"
 msgstr "Selecteert Extended ROM"
@@ -248,6 +269,9 @@ msgstr "Selecteer hardeschijf"
 
 msgid "Choose Kickstart ROM"
 msgstr "Selecteer Kickstart ROM"
+
+msgid "Choose Tape Image"
+msgstr ""
 
 msgid "Choose Type"
 msgstr "Kies Type"
@@ -279,15 +303,18 @@ msgstr "Bezig met opslaan..."
 msgid "Committing locker data..."
 msgstr "Locker gegevens vastleggen..."
 
+msgid "Common"
+msgstr ""
+
 msgid "Config"
 msgstr "Configureer"
 
-msgid "Config Options in Settings"
-msgstr "Configuratie-opties in Instellingen"
-
 #, python-brace-format
-msgid "Config in Settings: {name}"
-msgstr "Configuratie in Instellingen: {name}"
+msgid "Config in settings: {name}"
+msgstr ""
+
+msgid "Config options in settings"
+msgstr ""
 
 msgid "Configs"
 msgstr "Configuraties"
@@ -314,11 +341,17 @@ msgstr "{device_name} configureren"
 msgid "Connect"
 msgstr "Verbinden"
 
+msgid "Controllers"
+msgstr ""
+
 #, python-brace-format
 msgid "Copy {0}\n"
 "to {1}"
 msgstr "Kopieer {0}\n"
 "naar {1}"
+
+msgid "Correct Aspect"
+msgstr ""
 
 msgid "Could not open file for writing"
 msgstr "Kon bestand niet opnemen om naar te schrijven"
@@ -338,6 +371,9 @@ msgstr "Creëer nu een account"
 msgid "Create disk image of type:"
 msgstr "Creëer disk image van type:"
 
+msgid "Crop"
+msgstr ""
+
 msgid "Cursor Keys and Right Ctrl/Alt"
 msgstr "Cursortoetsen en rechter Ctrl/Alt"
 
@@ -354,20 +390,17 @@ msgid "Custom Joystick Port"
 msgstr "Joystickpoort Aanpassingen"
 
 #, python-brace-format
-msgid "Custom Option: {name}"
-msgstr "Aangepaste optie: {name}"
+msgid "Custom option: {name}"
+msgstr ""
 
-msgid "Custom Options"
-msgstr "Aangepaste opties"
-
-msgid "Custom boot directory for automatic WHDLoad support"
-msgstr "Aangepaste opstart directory voor automatische WHDLoad ondersteuning"
+msgid "Custom options"
+msgstr ""
 
 msgid "Custom uae_ Options"
 msgstr "Aangepaste uae_ opties"
 
 msgid "Database Games"
-msgstr "Spellen database"
+msgstr "Database Spellen"
 
 msgid "Default"
 msgstr "Standaard"
@@ -376,12 +409,8 @@ msgstr "Standaard"
 msgid "Default ({0})"
 msgstr "Standaard ({0})"
 
-#, python-brace-format
-msgid "Default - {0}"
-msgstr "Standaard - {0}"
-
 msgid "Defragment Databases"
-msgstr "Databases defragmenteren"
+msgstr "Databases Defragmenteren"
 
 msgid "Defragmenting the databases will improve performance by ensuring that tables and indices are stored contiguously on disk. It will also reclaim some storage space."
 msgstr "Het defragmenteren van de databases zorgt ervoor dat de tabellen en indices aangesloten op de schijf worden opgeslagen. Dit kan de prestaties verbeteren. Het geeft ook ongebruikte opslagruimte terug."
@@ -399,20 +428,14 @@ msgstr "Afhankelijk van uw OS en OpenGL-stuurprogramma's, synchroniseren kunt on
 msgid "Depending on your OS and OpenGL drivers, video synchronization can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
 msgstr "Afhankelijk van uw OS en OpenGL-stuurprogramma's, video synchronisatie kan onnodig veel CPU gebruiken (in het bijzonder bij Linux). U kunt experimenteren met verschillende sync methoden om prestaties te verbeteren."
 
-msgid "Deprecated: uaegfx_card"
-msgstr "Verouderd: uaegfx_card"
-
-msgid "Device ID used with OAGD.net authentication"
-msgstr "Apparaat-ID gebruikt met OAGD.net-verificatie"
-
 msgid "Did not find required Kickstart or ROM for {}. Wanted one of these files: {}"
 msgstr "Kan vereist Kickstart of ROM voor {} niet vinden. Gezochte bestanden: {}"
 
 msgid "Digital Joystick"
 msgstr "Digitale Joystick"
 
-msgid "Directory for WHDLoad.key file (if you have it):"
-msgstr "Map voor het WHDLoad.key bestand (als je die hebt):"
+msgid "Directories"
+msgstr "Mappen"
 
 msgid "Disabled"
 msgstr "Uitgeschakeld"
@@ -429,14 +452,11 @@ msgstr "Nog geen account?"
 msgid "Dongle"
 msgstr "Dongle"
 
-msgid "Double-click a device entry to configure it (map joystick buttons)."
-msgstr "Dubbelklik op een apparaat om deze te configureren (mappen van joystick knoppen)."
-
-msgid "Download Game"
-msgstr "Spel downloaden"
+msgid "Double-click a controller to configure it:"
+msgstr ""
 
 msgid "Download Game Manually"
-msgstr "Handmatig het spel downloaden"
+msgstr "Spel Handmatig Downloaden"
 
 #, python-brace-format
 msgid "Download failed (attempt {0}) - retrying in {0} seconds"
@@ -445,6 +465,9 @@ msgstr "Downloaden mislukt (poging {0}) - opnieuw proberen over {0} seconden"
 #, python-brace-format
 msgid "Download failed (attempt {0}) - retrying in {1} seconds"
 msgstr "Downloaden mislukt (poging {0}) - opnieuw proberen in {1} seconden"
+
+msgid "Download game"
+msgstr "Spel downloaden"
 
 #, python-brace-format
 msgid "Download to the following directory, and then click '{0}':"
@@ -466,43 +489,7 @@ msgstr "Uitwerpen"
 msgid "Empty Floppy Drive Volume"
 msgstr "Volume voor leeg diskettestation"
 
-msgid "Enable experimental net play GUI (requires restart)"
-msgstr "Inschakelen experimentele 'net play' interface (herstart vereist)"
-
-msgid "Enable online database support (requires restart)"
-msgstr "Inschakelen van online database ondersteuning (herstart vereist)"
-
-msgid "Enable/disable use of OAGD.net locker"
-msgstr "Inschakelen/uitschakelen gebruik van OAGD.net locker"
-
-msgid "Enable/disable use of the Amstrad CPC game database"
-msgstr "In/uitschakelen gebruik van Amstrad CPC spellen database"
-
-msgid "Enable/disable use of the Arcade game database"
-msgstr "In/uitschakelen gebruik van Arcade spellen database"
-
-msgid "Enable/disable use of the Atari ST game database"
-msgstr "In/uitschakelen gebruik van Atari ST spellen database"
-
-msgid "Enable/disable use of the Commodore 64 (C64) database"
-msgstr ""
-
-msgid "Enable/disable use of the DOS game database"
-msgstr ""
-
-msgid "Enable/disable use of the Game Boy Advance database"
-msgstr ""
-
-msgid "Enable/disable use of the Game Boy Color database"
-msgstr ""
-
-msgid "Enable/disable use of the Game Boy database"
-msgstr ""
-
-msgid "Enable/disable use of the Nintendo (NES) database"
-msgstr ""
-
-msgid "Enable/disable use of the Super Nintendo database"
+msgid "Enable Additional Platforms (Requires Restart)"
 msgstr ""
 
 msgid "Enabled"
@@ -523,26 +510,11 @@ msgstr ""
 msgid "Expansions"
 msgstr "Expansies"
 
-msgid "Expect Specific FS-UAE Version"
-msgstr ""
-
-msgid "Experimental Config Visualization (Requires Restart)"
-msgstr ""
-
 msgid "Experimental Features"
 msgstr "Expirimentele functies"
 
 msgid "Extended ROM"
 msgstr "Uitgebreid ROM"
-
-msgid "FS-UAE   Arcade"
-msgstr ""
-
-msgid "FS-UAE Arcade"
-msgstr "FS-UAE Arcade"
-
-msgid "Fade-in Duration on Start"
-msgstr ""
 
 msgid "Fast RAM"
 msgstr "Fast RAM"
@@ -569,10 +541,10 @@ msgid "Fetching user game ratings ({0})"
 msgstr ""
 
 msgid "File Database"
-msgstr ""
+msgstr "Bestandsdatabase"
 
 msgid "File Database Settings"
-msgstr ""
+msgstr "Bestandsdatabase Instellingen"
 
 msgid "File already exists"
 msgstr "Bestand bestaat al"
@@ -583,23 +555,17 @@ msgstr ""
 msgid "Files for this game are still missing. Did you download the game and put the file(s) in the Downloads directory?"
 msgstr ""
 
+msgid "Fill Screen"
+msgstr "Scherm Vullen"
+
 msgid "Filters"
 msgstr "Filters"
 
 msgid "Finding files eligible for OAGD.net Locker"
 msgstr ""
 
-msgid "First rendered line (NTSC)"
-msgstr ""
-
-msgid "First rendered line (PAL)"
-msgstr ""
-
 msgid "Floppies"
 msgstr "Diskettes"
-
-msgid "Floppy Drive Count"
-msgstr "Aantal diskettestations"
 
 msgid "Floppy Drive Sound Emulation"
 msgstr "Emulatie van diskettestation geluid"
@@ -612,9 +578,6 @@ msgstr "Volume diskettestation"
 
 msgid "Floppy Drives"
 msgstr "Diskettestations"
-
-msgid "Flush log after each log line"
-msgstr ""
 
 msgid "Forgot your password?"
 msgstr "Wachtwoord vergeten?"
@@ -641,31 +604,19 @@ msgid "Fullscreen Window"
 msgstr "Volledig scherm"
 
 msgid "Game Database"
-msgstr "Spel Database"
-
-msgid "Game Database Server"
-msgstr ""
+msgstr "Speldatabase"
 
 msgid "Game Database Settings"
-msgstr "Spel Database instellingen"
+msgstr "Speldatabase Instellingen"
 
-msgid "Game database authentication"
-msgstr "Spel database authenticatie"
-
-msgid "Game database email"
-msgstr "Spel database e-mail"
-
-msgid "Game database password"
-msgstr "Spel database wachtwoord"
-
-msgid "Game database user name"
-msgstr "Spel database gebruikersnaam"
+msgid "Game Platforms"
+msgstr ""
 
 msgid "Gamepad"
 msgstr "Gamepad"
 
 msgid "Games"
-msgstr "Games"
+msgstr "Spellen"
 
 msgid "Good Variant"
 msgstr "Goede variant"
@@ -709,29 +660,20 @@ msgstr "Hardware"
 msgid "Hardware Dongle"
 msgstr ""
 
+msgid "Hide Bezel"
+msgstr "Verberg Bezel"
+
 msgid "High"
 msgstr "Hoog"
 
 msgid "Home"
 msgstr "Beginscherm"
 
-msgid "Host Key BACKSLASH"
-msgstr ""
-
-msgid "Host Key EQUALS"
-msgstr ""
-
-msgid "Host Key INSERT"
-msgstr ""
-
-msgid "Host Key LESS"
-msgstr ""
-
 msgid "How to achieve perfectly smooth scrolling"
 msgstr ""
 
 msgid "IRC nickname"
-msgstr ""
+msgstr "IRC gebruikersnaam"
 
 #, python-brace-format
 msgid "If you own Amiga Forever, select the drive/folder and click \"{0}\""
@@ -755,7 +697,7 @@ msgstr "Importeren gereed"
 msgid "Include Save Disk"
 msgstr ""
 
-msgid "Include built-in configurations"
+msgid "Include close buttons in dialogs"
 msgstr ""
 
 msgid "Input"
@@ -763,6 +705,9 @@ msgstr "Invoer"
 
 msgid "Input Options"
 msgstr "Invoer instelingen"
+
+msgid "Integer Scaling"
+msgstr ""
 
 msgid "Internal"
 msgstr "Intern"
@@ -776,14 +721,14 @@ msgstr "JIT-Compiler"
 msgid "JIT compiler with a PPC-only OS is not recommended"
 msgstr ""
 
+msgid "Joystick"
+msgstr ""
+
 msgid "Joystick & Mouse Port"
 msgstr "Joystick- & Muispoort"
 
 msgid "Joystick Ports"
 msgstr "Joystickpoorten"
-
-msgid "Joysticks & Gamepads"
-msgstr "Joysticks & Gamepads"
 
 msgid "Keep aspect ratio when scaling (do not stretch)"
 msgstr ""
@@ -812,6 +757,9 @@ msgstr "Taal"
 msgid "Language:"
 msgstr "Taal:"
 
+msgid "Large Border"
+msgstr ""
+
 msgid "Launcher Font Size"
 msgstr ""
 
@@ -819,22 +767,22 @@ msgid "Launcher Theme"
 msgstr ""
 
 msgid "Launching FS-UAE"
-msgstr ""
+msgstr "Lanceren van FS-UAE"
 
 msgid "Launching Game"
-msgstr ""
+msgstr "Lanceren van Spel"
 
 msgid "Left"
 msgstr "Left"
+
+msgid "Legacy Scaling"
+msgstr ""
 
 msgid "Letter"
 msgstr "Letter"
 
 msgid "List"
 msgstr "Lijst"
-
-msgid "Load state by number"
-msgstr ""
 
 msgid "Loading..."
 msgstr "Bezig met laden..."
@@ -860,14 +808,11 @@ msgstr "Uitloggen"
 msgid "Log Out from Your OAGD.net Account"
 msgstr "Uitloggen van uw OAGD.net account"
 
-msgid "Log database query plans"
-msgstr ""
-
 msgid "Logging"
 msgstr "Logboek"
 
 msgid "Logging in will enable the online game database and more"
-msgstr "Aanmelden activeert de online spel database en meer"
+msgstr "Aanmelden activeert de online speldatabase en meer"
 
 msgid "Low"
 msgstr "Laag"
@@ -893,6 +838,9 @@ msgstr "Onderhoud"
 msgid "Make:"
 msgstr "Merk:"
 
+msgid "Max Scaling"
+msgstr ""
+
 msgid "Media Swap List"
 msgstr ""
 
@@ -905,14 +853,10 @@ msgstr ""
 msgid "Middle Right"
 msgstr ""
 
-#, python-brace-format
-msgid "Miscellaneous functions to optimize {name}"
-msgstr ""
-
 msgid "Missing Files"
-msgstr ""
+msgstr "Missende Bestanden"
 
-msgid "Missing Game Files"
+msgid "Missing game files"
 msgstr ""
 
 msgid "Model:"
@@ -923,9 +867,6 @@ msgstr ""
 
 msgid "Monitor to display FS-UAE on (left, middle-left, middle-right, right)"
 msgstr ""
-
-msgid "Motherboard RAM"
-msgstr "Moederbord RAM"
 
 msgid "Mouse"
 msgstr "Muis"
@@ -959,25 +900,37 @@ msgid "Network Card"
 msgstr "Netwerkkaart"
 
 msgid "New Config"
-msgstr ""
+msgstr "Nieuwe Configuratie"
+
+msgid "Next"
+msgstr "Volgende"
 
 msgid "Nick:"
-msgstr ""
+msgstr "Bijnaam:"
 
 msgid "No Amiga Device"
-msgstr ""
+msgstr "Geen Amiga Apparaat"
 
-msgid "No Device"
-msgstr "Geen apparaat"
+msgid "No Border"
+msgstr "Geen Rand"
+
+msgid "No Effect"
+msgstr "Geen Effect"
 
 msgid "No Host Device"
 msgstr "Geen hostapparaat"
 
 msgid "No Last Played"
-msgstr ""
+msgstr "Geen Laatst Gespeelde"
 
 msgid "No Protection"
-msgstr ""
+msgstr "Geen Bescherming"
+
+msgid "No Scaling"
+msgstr "Niet Schalen"
+
+msgid "No Smoothing"
+msgstr "Niet Vloeiend Maken"
 
 msgid "No extended kickstart found for this model. Try 'scan' function."
 msgstr ""
@@ -991,7 +944,7 @@ msgstr "Geen"
 msgid "Not logged in"
 msgstr "Niet aangemeld"
 
-msgid "Note: Support for additional game databases is an experimental feature and does not provide the same level of maturity as Amiga/CDTV/CD32. Also, additional plugins are needed to play the games."
+msgid "Note: This is an experimental feature. Additional plugins are needed."
 msgstr ""
 
 msgid "OAGD.net Locker Uploader"
@@ -1020,10 +973,19 @@ msgid "Options for WHDLoad support in FS-UAE Launcher"
 msgstr ""
 
 msgid "Other Device"
-msgstr ""
+msgstr "Ander apparaat"
 
 #, python-brace-format
 msgid "Outdated plugins: {0}"
+msgstr ""
+
+msgid "Override WHDLoad preload option"
+msgstr ""
+
+msgid "Override WHDLoad quit key"
+msgstr ""
+
+msgid "Override WHDLoad splash delay"
 msgstr ""
 
 msgid "Parallel Port Joysticks"
@@ -1032,8 +994,14 @@ msgstr ""
 msgid "Password:"
 msgstr "Wachtwoord:"
 
+msgid "Pixel Doubling"
+msgstr ""
+
 msgid "Platform"
 msgstr "Platform"
+
+msgid "Platform & Model"
+msgstr ""
 
 msgid "Please open the following web page and download the game from there:"
 msgstr ""
@@ -1042,12 +1010,15 @@ msgid "Please wait..."
 msgstr "Een ogenblik geduld..."
 
 msgid "Plugins"
+msgstr "Plugins"
+
+msgid "Preferred Controllers"
 msgstr ""
 
-msgid "Preferred Joysticks"
-msgstr "Voorkeur Joysticks"
+msgid "Preferred controller (if present):"
+msgstr ""
 
-msgid "Preferred device for secondary joystick:"
+msgid "Preferred device for secondary controller:"
 msgstr ""
 
 msgid "Preparing WHDLoad..."
@@ -1064,6 +1035,9 @@ msgstr ""
 
 msgid "Preparing..."
 msgstr "Voorbereiden..."
+
+msgid "Prev"
+msgstr "Vorig"
 
 msgid "Purging old entries..."
 msgstr ""
@@ -1087,19 +1061,13 @@ msgstr ""
 msgid "Read more"
 msgstr "Lees meer"
 
+msgid "Red"
+msgstr "Rood"
+
 msgid "Refresh List of Connected Joystick Devices"
 msgstr ""
 
 msgid "Reject"
-msgstr ""
-
-msgid "Relative Temporary Directories"
-msgstr ""
-
-msgid "Relative paths"
-msgstr ""
-
-msgid "Relax host CPU usage when using fastest-possible CPU"
 msgstr ""
 
 msgid "Remove Directory from Search Path"
@@ -1119,13 +1087,16 @@ msgid "Render scan lines in RTG graphics mode"
 msgstr ""
 
 msgid "Reset password via e-mail"
-msgstr ""
+msgstr "Reset wachtwoord via e-mail"
+
+msgid "Reset to Defaults"
+msgstr "Standaardwaarden Herstellen"
 
 msgid "Resetting game database..."
-msgstr ""
+msgstr "Speldatabase Herstellen..."
 
 msgid "Restoring changes..."
-msgstr ""
+msgstr "Wijzigingen herstellen..."
 
 #, python-brace-format
 msgid "Retrying last operation (attempt {0})"
@@ -1135,25 +1106,22 @@ msgid "Right"
 msgstr "Rechts"
 
 msgid "Running: Emulator"
-msgstr ""
+msgstr "Actief: Emulator"
 
 msgid "Save"
 msgstr "Opslaan"
 
 msgid "Save Config"
-msgstr ""
-
-msgid "Save Disk"
-msgstr ""
+msgstr "Configuratie Opslaan"
 
 msgid "Save to directory:"
-msgstr ""
+msgstr "Opslaan in map:"
 
 msgid "Saving changes..."
-msgstr ""
+msgstr "Wijzigingen opslaan..."
 
-msgid "Scaling"
-msgstr "Schalen"
+msgid "Scaling & Filters"
+msgstr "Schalen & Filters"
 
 msgid "Scaling Options"
 msgstr "Schaalopties"
@@ -1191,7 +1159,7 @@ msgstr "Scannen speldatabase items..."
 
 #, python-brace-format
 msgid "Scanning game variants ({count} scanned)"
-msgstr "Scannen spel varianten ({count} gescand)"
+msgstr "Scannen spelvarianten ({count} gescand)"
 
 msgid "Scanning games"
 msgstr "Scannen van spellen"
@@ -1232,25 +1200,34 @@ msgid "Select a folder containing Amiga kickstart files and click \"{0}\""
 msgstr "Selecteer een map met Amiga Kickstart bestanden en klik op \"{0}\""
 
 msgid "Set language for FS-UAE applications"
-msgstr ""
+msgstr "Selecteer taal voor FS-UAE applicaties"
 
 msgid "Settings"
 msgstr "Instellingen"
 
-msgid "Show kickstart setup page on startup when all ROMs are missing"
-msgstr "Toon Kickstart configuratie pagina bij het starten indien alle ROM's ontbreken"
+msgid "Setup Wizard"
+msgstr "Instelwizard"
 
-msgid "Show window border and decorations"
-msgstr ""
+msgid "Show Bezel"
+msgstr "Toon Bezel"
 
 msgid "Shuffle"
 msgstr "Schudden"
+
+msgid "Six Button Control Pad"
+msgstr ""
 
 msgid "Size:"
 msgstr "Grootte:"
 
 msgid "Slow RAM"
 msgstr "Slow RAM"
+
+msgid "Small Border"
+msgstr "Kleine Rand"
+
+msgid "Smoothing"
+msgstr "Vloeiend maken"
 
 msgid "Sound Card"
 msgstr "Geluidskaart"
@@ -1261,14 +1238,17 @@ msgstr "Opgegeven map bestaat niet"
 msgid "Specify global options and settings which does not have UI controls"
 msgstr ""
 
-msgid "Standard"
-msgstr ""
+msgid "Square Pixels"
+msgstr "Vierkante Pixels"
+
+msgid "Standard Qt Theme"
+msgstr "Standaard Qt Thema"
 
 msgid "Start"
 msgstr "Starten"
 
 msgid "Start FS-UAE in fullscreen mode"
-msgstr ""
+msgstr "FS-UAE in volledig scherm modus starten"
 
 msgid "Start with full keyboard emulation"
 msgstr ""
@@ -1277,7 +1257,7 @@ msgid "Starting scan"
 msgstr "Scan starten"
 
 msgid "Stereo Separation"
-msgstr ""
+msgstr "Stereoscheiding"
 
 msgid "Stop"
 msgstr "Stoppen"
@@ -1295,7 +1275,7 @@ msgid "Synchronize FS-UAE with your display for smooth video"
 msgstr "FS-UAE synchroniseren met uw beeldscherm voor vloeiende video"
 
 msgid "Synchronizing game database..."
-msgstr "Synchroniseren van spel-database..."
+msgstr "Synchroniseren van speldatabase..."
 
 msgid "Synchronizing personal ratings..."
 msgstr "Synchroniseren persoonlijke beoordelingen..."
@@ -1306,14 +1286,14 @@ msgstr "Synchroniseren met het beeldscherm kan in sommige situaties het hapering
 msgid "System"
 msgstr "System"
 
+msgid "Tape Drive"
+msgstr "Tapedrive"
+
 msgid "Terms of Download"
 msgstr "Gebruiksvoorwaarden van download"
 
 msgid "Texture filter"
 msgstr "Texture filter"
-
-msgid "The following joystick will be preferred, if present:"
-msgstr "Gebruik - indien aanwezig - de volgende joystick:"
 
 msgid "The following options may affect performance, so only enable them when needed for testing or debugging purposes."
 msgstr ""
@@ -1337,29 +1317,32 @@ msgid "This game variant cannot be started because you don't have all required f
 msgstr "Deze spel variant kan niet worden gestart omdat niet alle vereiste bestanden aanwezig zijn."
 
 msgid "This plugin is outdated"
-msgstr ""
+msgstr "Deze plugin is verouderd"
 
 msgid "Toggle Between Windowed and Full-Screen Mode"
 msgstr "Schakel tussen venster en volledig scherm modus"
 
-msgid "Turbo"
+msgid "Toggle quick settings sidebar"
 msgstr ""
 
-msgid "UAE bsdsocket.library"
-msgstr ""
+msgid "Turbo"
+msgstr "Turbo"
 
 msgid "Ungrab Input on Middle Mouse Button"
 msgstr ""
 
+msgid "Unpublished Games"
+msgstr "Onuitgegeven Spellen"
+
 msgid "Update File Database"
-msgstr ""
+msgstr "Bestandsdatabase Bijwerken"
 
 msgid "Update Game Database"
-msgstr ""
+msgstr "Speldatabase Bijwerken"
 
 #, python-brace-format
 msgid "Update available: {version}"
-msgstr ""
+msgstr "Update beschikbaar: {version}"
 
 msgid "Updating Database"
 msgstr "Bijwerken Database"
@@ -1368,7 +1351,7 @@ msgid "Updating database"
 msgstr "Bijwerken database"
 
 msgid "Updating game lists..."
-msgstr "Bijwerken spel lijsten..."
+msgstr "Bijwerken spellijsten..."
 
 #, python-brace-format
 msgid "Updating list '{0}'..."
@@ -1380,8 +1363,8 @@ msgstr ""
 msgid "Upload"
 msgstr "Upload"
 
-msgid "Upload Files to OAGD.net Locker"
-msgstr "Bestanden uploaden naar OAGD.net Locker"
+msgid "Upload Files to OpenRetro Locker"
+msgstr ""
 
 msgid "Upload recognized Amiga files to your OAGD.net locker"
 msgstr ""
@@ -1436,9 +1419,6 @@ msgstr "WHDLoad"
 msgid "WHDLoad Arguments"
 msgstr ""
 
-msgid "WHDLoad splash delay"
-msgstr ""
-
 msgid "Warning"
 msgstr "Let op"
 
@@ -1446,6 +1426,9 @@ msgid "Warning: No ROM files were found!"
 msgstr ""
 
 msgid "Web Links"
+msgstr ""
+
+msgid "Welcome to the setup wizard for FS-UAE Launcher!"
 msgstr ""
 
 msgid "When Automatic is specified, your preferred language is set based on information from the operating system (or English, if a supported language is not detected)."
@@ -1460,11 +1443,11 @@ msgstr ""
 msgid "While logged out you will not get database updates"
 msgstr ""
 
-msgid "Write .uaem metadata files"
-msgstr ""
-
 msgid "Year"
 msgstr "Jaar"
+
+msgid "You can close this wizard at any time if you do not want to use it, and you can also run it again later."
+msgstr ""
 
 msgid "You can write key = value pairs here to set FS-UAE options not currently supported by the user interface. This is only a temporary feature until the GUI supports all options directly."
 msgstr ""
@@ -1476,16 +1459,43 @@ msgid "Zoom Amiga display (crop)"
 msgstr ""
 
 msgid "Zorro III Fast Memory"
-msgstr ""
+msgstr "Zorro III Snel Geheugen"
 
 #, python-brace-format
 msgid "{amiga_model} with < 2 MB chip memory"
-msgstr ""
+msgstr "{amiga_model} met < 2 MB chip geheugen"
 
 #, python-brace-format
 msgid "{system} Keyboard"
-msgstr ""
+msgstr "{system} Toetsenbord"
 
 msgid "{} ROM files were imported"
+msgstr "{} ROM-bestanden zijn geïmporteerd"
+
+msgid "Finding files eligible for OpenRetro Locker"
+msgstr ""
+
+msgid "Locker upload task completed successfully"
+msgstr ""
+
+msgid "Log In to Your OpenRetro Account"
+msgstr ""
+
+msgid "Log Out from Your OpenRetro Account"
+msgstr ""
+
+msgid "OpenRetro Locker Uploader"
+msgstr ""
+
+msgid "OpenRetro Locker is not enabled for your user. It may be available only to a few select beta users."
+msgstr ""
+
+msgid "Upload recognized Amiga files to your OpenRetro locker"
+msgstr ""
+
+msgid "Use GameMode to optimize performance"
+msgstr ""
+
+msgid "Warn when CPU governor is not 'performance'"
 msgstr ""
 
