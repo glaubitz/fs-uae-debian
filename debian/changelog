@@ -1,3 +1,20 @@
+fs-uae (3.0.2+dfsg-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #886933, #944373)
+  * Drop fs-uae-netplay-server package which is python2-only. (Closes: #936566)
+    + Add note about removal in debian/README.source.
+    + Delete debian/fs-uae-netplay-server.* files.
+    + Drop python and python-setuptools from Build-Depends in debian/control.
+    + Remove package description from debian/README.Debian.
+    + Remove package build invocation from debian/rules.
+    + Remove file pattern matching from debian/copyright.
+    + Remove section from debian/control.
+  * Drop debian/patches directory to start with a fresh patch-queue.
+  * Re-add patch to define unknown CPUs as CPU_unknown:
+    + debian/patches/0001-Define-unknown-host-CPUs-as-CPU_unknown.patch.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 27 Dec 2019 13:47:35 +0100
+
 fs-uae (2.8.4+dfsg-2) unstable; urgency=medium
 
   * Add debian/patches/0002-rename-async-for-python3.7.patch
