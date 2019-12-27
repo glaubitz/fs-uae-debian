@@ -5,10 +5,10 @@ from configparser import ConfigParser, NoSectionError
 
 from fsbc.paths import Paths
 from fsbc.signal import Signal
-from fsgs.ChecksumTool import ChecksumTool
+from fsgs.checksumtool import ChecksumTool
 from fsgs.FSGSDirectories import FSGSDirectories
-from fsgs.amiga.Amiga import Amiga
-from fsgs.amiga.ValueConfigLoader import ValueConfigLoader
+from fsgs.amiga.amiga import Amiga
+from fsgs.amiga.valueconfigloader import ValueConfigLoader
 from fsgs.context import fsgs
 from fsgs.platform import PlatformHandler
 from launcher.option import Option
@@ -36,27 +36,24 @@ cfg = [
     ("joystick_port_3", ""),
     ("joystick_port_3_mode", "", "checksum", "sync"),
     ("joystick_port_3_autofire", "", "checksum", "sync"),
-
     ("floppy_drive_count", "", "checksum", "sync"),
     ("cdrom_drive_count", "", "checksum", "sync"),
-
     # this is not an Amiga device, so no need to checksum / sync
     ("joystick_port_4_mode", "", "custom"),
-
     ("kickstart_file", ""),
     ("x_kickstart_file", "", "no_save"),
     ("x_kickstart_file_sha1", "", "checksum", "sync", "no_save"),
     ("kickstart_ext_file", ""),
     ("x_kickstart_ext_file", "", "no_save"),
     ("x_kickstart_ext_file_sha1", "", "checksum", "sync", "no_save"),
-
-    ("x_whdload_args", "", "checksum", "sync"),
-    ("x_whdload_version", "", "checksum", "sync"),
+    (Option.X_WHDLOAD_ARGS, "", "checksum", "sync"),
+    (Option.X_WHDLOAD_VERSION, "", "checksum", "sync"),
+    # (Option.WHDLOAD_SPLASH_DELAY, "", "checksum", "sync"),
+    # (Option.WHDLOAD_QUIT_KEY, "", "checksum", "sync"),
     ("floppy_drive_count", "", "checksum", "sync"),
     ("floppy_drive_speed", "", "checksum", "sync"),
     ("cdrom_drive_count", "", "checksum", "sync"),
     ("dongle_type", "", "checksum", "sync"),
-
     ("__netplay_game", "", "checksum", "sync"),
     ("__netplay_password", "", "checksum", "sync"),
     ("__netplay_players", "", "checksum", "sync"),
@@ -72,7 +69,6 @@ cfg = [
     ("title", "", "custom"),
     ("sub_title", "", "custom"),
     ("viewport", "", "custom"),
-
     ("year", ""),
     ("developer", ""),
     ("publisher", ""),
@@ -90,22 +86,18 @@ cfg = [
     ("thelegacy_url", ""),
     ("homepage_url", ""),
     ("longplay_url", ""),
-    ("__variant_rating", ""),
-    ("variant_rating", ""),
     ("variant_uuid", ""),
-
+    ("game_uuid", ""),
     ("download_file", ""),
     ("download_page", ""),
     ("download_terms", ""),
     ("download_notice", ""),
-
     ("x_missing_files", ""),
     ("x_game_notice", ""),
     ("x_variant_notice", ""),
     ("x_variant_warning", ""),
     ("x_variant_error", ""),
     ("x_joy_emu_conflict", ""),
-
     ("screen1_sha1", ""),
     ("screen2_sha1", ""),
     ("screen3_sha1", ""),
@@ -113,7 +105,6 @@ cfg = [
     ("screen5_sha1", ""),
     ("front_sha1", ""),
     ("title_sha1", ""),
-
     ("mouse_integration", "", "checksum", "sync"),
     ("cdrom_drive_0_delay", "", "checksum", "sync"),
     ("cpu", "", "checksum", "sync"),
@@ -127,36 +118,96 @@ cfg = [
     ("jit_compiler", "", "checksum", "sync"),
     ("__database", ""),
     ("platform", ""),
-    ("floppy_drive_volume_empty", "", "sync"),
     ("save_disk", "", "checksum", "sync"),
     ("network_card", "", "checksum", "sync"),
     ("freezer_cartridge", "", "checksum", "sync"),
+    (Option.A7800_A78_HEADER, "", "checksum", "sync"),
+    (Option.A7800_MODEL, "", "checksum", "sync"),
+    (Option.A7800_PORT_1_TYPE, "", "checksum", "sync"),
+    (Option.A7800_PORT_2_TYPE, "", "checksum", "sync"),
+    (Option.NES_MODEL, "", "checksum", "sync"),
+    (Option.ATARI_MODEL, "", "checksum", "sync"),
+    (Option.C64_MODEL, "", "checksum", "sync"),
+    (Option.CARTRIDGE_SLOT, "", "checksum", "sync"),
+    (Option.FILE_LIST, "", "custom", "sync"),
+    (Option.FLOPPY_DRIVE_VOLUME_EMPTY, "", "sync"),
+    (Option.GAME_NAME, ""),
+    ("mame_rom_set", "", "custom", "checksum", "sync"),
+    (Option.NEOGEO_MODEL, "", "checksum", "sync"),
+    (Option.NES_INES_HEADER, "", "checksum", "sync"),
+    (Option.NES_MODEL, "", "checksum", "sync"),
+    (Option.SMD_EMULATOR, "", "checksum", "sync"),
+    (Option.SMD_MODEL, "", "checksum", "sync"),
+    (Option.SMD_PORT_1_TYPE, "", "checksum", "sync"),
+    (Option.SMD_PORT_2_TYPE, "", "checksum", "sync"),
+    ("refresh_rate", "", "custom", "checksum", "sync"),
+    (Option.TAPE_DRIVE_0, "", "checksum", "sync"),
+    ("tape_image_0", "", "checksum", "sync"),
+    (Option.VARIANT_NAME, ""),
+    (Option.ZXS_MODEL, "", "checksum", "sync"),
 ]
 
 for _i in range(Amiga.MAX_FLOPPY_DRIVES):
     cfg.append(("floppy_drive_{0}".format(_i), ""))
-    cfg.append(("x_floppy_drive_{0}_sha1".format(_i),
-                "", "checksum", "sync", "no_save"))
+    cfg.append(
+        (
+            "x_floppy_drive_{0}_sha1".format(_i),
+            "",
+            "checksum",
+            "sync",
+            "no_save",
+        )
+    )
 for _i in range(Amiga.MAX_FLOPPY_IMAGES):
     cfg.append(("floppy_image_{0}".format(_i), ""))
-    cfg.append(("x_floppy_image_{0}_sha1".format(_i),
-                "", "checksum", "sync", "no_save"))
+    cfg.append(
+        (
+            "x_floppy_image_{0}_sha1".format(_i),
+            "",
+            "checksum",
+            "sync",
+            "no_save",
+        )
+    )
 for _i in range(Amiga.MAX_CDROM_DRIVES):
     cfg.append(("cdrom_drive_{0}".format(_i), ""))
-    cfg.append(("x_cdrom_drive_{0}_sha1".format(_i),
-                "", "checksum", "sync", "no_save"))
+    cfg.append(
+        (
+            "x_cdrom_drive_{0}_sha1".format(_i),
+            "",
+            "checksum",
+            "sync",
+            "no_save",
+        )
+    )
 for _i in range(Amiga.MAX_CDROM_IMAGES):
     cfg.append(("cdrom_image_{0}".format(_i), ""))
-    cfg.append(("x_cdrom_image_{0}_sha1".format(_i),
-                "", "checksum", "sync", "no_save"))
+    cfg.append(
+        (
+            "x_cdrom_image_{0}_sha1".format(_i),
+            "",
+            "checksum",
+            "sync",
+            "no_save",
+        )
+    )
 for _i in range(Amiga.MAX_HARD_DRIVES):
     cfg.append(("hard_drive_{0}".format(_i), ""))
-    cfg.append(("hard_drive_{0}_label".format(_i),
-                "", "checksum", "sync", "custom"))
-    cfg.append(("hard_drive_{0}_priority".format(_i),
-                "", "checksum", "sync", "custom"))
-    cfg.append(("x_hard_drive_{0}_sha1".format(_i),
-                "", "checksum", "sync", "no_save"))
+    cfg.append(
+        ("hard_drive_{0}_label".format(_i), "", "checksum", "sync", "custom")
+    )
+    cfg.append(
+        (
+            "hard_drive_{0}_priority".format(_i),
+            "",
+            "checksum",
+            "sync",
+            "custom",
+        )
+    )
+    cfg.append(
+        ("x_hard_drive_{0}_sha1".format(_i), "", "checksum", "sync", "no_save")
+    )
 
 
 class LauncherConfig(object):
@@ -183,20 +234,30 @@ class LauncherConfig(object):
 
     reset_values = {}
     for i in range(Amiga.MAX_FLOPPY_DRIVES):
-        reset_values["floppy_drive_{0}".format(i)] = \
-            ("x_floppy_drive_{0}_sha1".format(i), "")
+        reset_values["floppy_drive_{0}".format(i)] = (
+            "x_floppy_drive_{0}_sha1".format(i),
+            "",
+        )
     for i in range(Amiga.MAX_FLOPPY_IMAGES):
-        reset_values["floppy_image_{0}".format(i)] = \
-            ("x_floppy_image_{0}_sha1".format(i), "")
+        reset_values["floppy_image_{0}".format(i)] = (
+            "x_floppy_image_{0}_sha1".format(i),
+            "",
+        )
     for i in range(Amiga.MAX_CDROM_DRIVES):
-        reset_values["cdrom_drive_{0}".format(i)] = \
-            ("x_cdrom_drive_{0}_sha1".format(i), "")
+        reset_values["cdrom_drive_{0}".format(i)] = (
+            "x_cdrom_drive_{0}_sha1".format(i),
+            "",
+        )
     for i in range(Amiga.MAX_CDROM_IMAGES):
-        reset_values["cdrom_image_{0}".format(i)] = \
-            ("x_cdrom_image_{0}_sha1".format(i), "")
+        reset_values["cdrom_image_{0}".format(i)] = (
+            "x_cdrom_image_{0}_sha1".format(i),
+            "",
+        )
     for i in range(Amiga.MAX_HARD_DRIVES):
-        reset_values["hard_drive_{0}".format(i)] = \
-            ("x_hard_drive_{0}_sha1".format(i), "")
+        reset_values["hard_drive_{0}".format(i)] = (
+            "x_hard_drive_{0}_sha1".format(i),
+            "",
+        )
     reset_values["x_kickstart_file"] = ("x_kickstart_file_sha1", "")
     reset_values["x_kickstart_ext_file"] = ("x_kickstart_ext_file_sha1", "")
 
@@ -266,7 +327,8 @@ class LauncherConfig(object):
     def update_kickstart_in_config_dict(cls, config_dict):
         print("update_kickstart_in_config")
         model = config_dict.setdefault(
-            "amiga_model", cls.default_config["amiga_model"])
+            "amiga_model", cls.default_config["amiga_model"]
+        )
 
         kickstart_file = config_dict.setdefault("kickstart_file", "")
         if kickstart_file:
@@ -290,8 +352,9 @@ class LauncherConfig(object):
                 config_dict["x_kickstart_file_sha1"] = Amiga.INTERNAL_ROM_SHA1
 
         if config_dict.setdefault("kickstart_ext_file", ""):
-            config_dict["x_kickstart_ext_file"] = \
-                config_dict["kickstart_ext_file"]
+            config_dict["x_kickstart_ext_file"] = config_dict[
+                "kickstart_ext_file"
+            ]
             # FIXME: set checksum
         else:
             checksums = Amiga.get_model_config(model)["ext_roms"]
@@ -325,10 +388,13 @@ class LauncherConfig(object):
         cls.update_from_config_dict(config_dict)
 
     @classmethod
-    def load_default_config(cls):
-        print("load_default_config")
-        cls.load({})
-        LauncherSettings.set("config_name", "Unnamed Configuration")
+    def load_default_config(cls, platform=""):
+        print("load_default_config platform =", platform)
+        if platform:
+            cls.load({Option.PLATFORM: platform})
+        else:
+            cls.load({})
+        LauncherSettings.set(Option.CONFIG_NAME, "Unnamed Configuration")
         LauncherSettings.set("config_path", "")
         LauncherSettings.set("config_xml_path", "")
 
@@ -380,7 +446,8 @@ class LauncherConfig(object):
         print("---", config["joystick_port_0"])
         print("---", config["joystick_port_1"])
 
-        from .device_manager import DeviceManager
+        from .devicemanager import DeviceManager
+
         available = DeviceManager.get_joystick_names()
         available.extend(["none", "mouse", "keyboard"])
         available_lower = [x.lower() for x in available]
@@ -474,15 +541,15 @@ class LauncherConfig(object):
 
     @classmethod
     def create_fs_name(cls, name):
-        name = name.replace(':', ' - ')
-        name = name.replace('*', '-')
-        name = name.replace('?', '')
-        name = name.replace('/', '-')
-        name = name.replace('\\', '-')
+        name = name.replace(":", " - ")
+        name = name.replace("*", "-")
+        name = name.replace("?", "")
+        name = name.replace("/", "-")
+        name = name.replace("\\", "-")
         name = name.replace('"', "'")
         for i in range(3):
-            name = name.replace('  ', ' ')
-        while name.endswith('.'):
+            name = name.replace("  ", " ")
+        while name.endswith("."):
             name = name[:-1]
         name = name.strip()
         return name
@@ -534,14 +601,14 @@ class LauncherConfig(object):
         else:
             config_name, ext = os.path.splitext(os.path.basename(path))
 
-        LauncherSettings.set("config_name", config_name)
+        LauncherSettings.set(Option.CONFIG_NAME, config_name)
         LauncherSettings.set("config_xml_path", config_xml_path)
         cls.set("__changed", changed)
         return True
 
     @classmethod
     def load_values(cls, values, uuid=""):
-        print("loading config values", values)
+        # print("loading config values", values)
         platform_id = values.get("platform", "").lower()
 
         if platform_id in ["amiga", "cdtv", "cd32"]:
@@ -565,12 +632,12 @@ class LauncherConfig(object):
             config_name = values.get("__config_name", "")
         else:
             config_name = "{0} ({1})".format(
-                values.get("game_name"),
-                values.get("platform_name"))
+                values.get("game_name"), values.get("variant_name")
+            )
         LauncherSettings.set("config_path", "")
         if config_name:
             config_name = cls.create_fs_name(config_name)
-        LauncherSettings.set("config_name", config_name)
+        LauncherSettings.set(Option.CONFIG_NAME, config_name)
         LauncherSettings.set("config_xml_path", "")
         cls.set("__changed", "0")
 
@@ -647,35 +714,46 @@ class LauncherConfig(object):
             fix_file_checksum(
                 "x_floppy_drive_{0}_sha1".format(i),
                 "floppy_drive_{0}".format(i),
-                FSGSDirectories.get_floppies_dir())
+                FSGSDirectories.get_floppies_dir(),
+            )
         for i in range(Amiga.MAX_FLOPPY_IMAGES):
             fix_file_checksum(
                 "x_floppy_image_{0}_sha1".format(i),
                 "floppy_image_{0}".format(i),
-                FSGSDirectories.get_floppies_dir())
+                FSGSDirectories.get_floppies_dir(),
+            )
         for i in range(Amiga.MAX_CDROM_DRIVES):
             fix_file_checksum(
                 "x_cdrom_drive_{0}_sha1".format(i),
                 "cdrom_drive_{0}".format(i),
-                FSGSDirectories.get_cdroms_dir())
+                FSGSDirectories.get_cdroms_dir(),
+            )
         for i in range(Amiga.MAX_CDROM_IMAGES):
             fix_file_checksum(
                 "x_cdrom_image_{0}_sha1".format(i),
                 "cdrom_image_{0}".format(i),
-                FSGSDirectories.get_cdroms_dir())
+                FSGSDirectories.get_cdroms_dir(),
+            )
         for i in range(Amiga.MAX_HARD_DRIVES):
             fix_file_checksum(
                 "x_hard_drive_{0}_sha1".format(i),
                 "hard_drive_{0}".format(i),
-                FSGSDirectories.get_hard_drives_dir())
+                FSGSDirectories.get_hard_drives_dir(),
+            )
 
         # FIXME: need to handle checksums for Cloanto here
         fix_file_checksum(
-            "x_kickstart_file_sha1", "x_kickstart_file",
-            FSGSDirectories.get_kickstarts_dir(), is_rom=True)
+            "x_kickstart_file_sha1",
+            "x_kickstart_file",
+            FSGSDirectories.get_kickstarts_dir(),
+            is_rom=True,
+        )
         fix_file_checksum(
-            "x_kickstart_ext_file_sha1", "x_kickstart_ext_file",
-            FSGSDirectories.get_kickstarts_dir(), is_rom=True)
+            "x_kickstart_ext_file_sha1",
+            "x_kickstart_ext_file",
+            FSGSDirectories.get_kickstarts_dir(),
+            is_rom=True,
+        )
 
         # Convert uaegfx_card to new graphics_card option
         uae_gfx_card = config.get(Option.UAEGFX_CARD, "")

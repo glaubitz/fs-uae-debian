@@ -5,10 +5,10 @@ import traceback
 from fsbc.path import is_same_file
 import fsui
 from ...i18n import gettext
-from fsgs.amiga.ROMManager import ROMManager
+from fsgs.amiga.rommanager import ROMManager
 from fsgs.FSGSDirectories import FSGSDirectories
 from ...launcher_signal import LauncherSignal
-from fsgs.FileDatabase import FileDatabase
+from fsgs.filedatabase import FileDatabase
 
 
 class ImportTask(threading.Thread):
@@ -72,16 +72,18 @@ class ImportTask(threading.Thread):
         return self.copy_roms(self.path, FSGSDirectories.get_kickstarts_dir())
 
     def import_amiga_forever(self):
-        return self.copy_roms(os.path.join(
-            self.path, "Amiga Files", "Shared", "rom"),
-            FSGSDirectories.get_kickstarts_dir())
+        return self.copy_roms(
+            os.path.join(self.path, "Amiga Files", "Shared", "rom"),
+            FSGSDirectories.get_kickstarts_dir(),
+        )
 
     def copy_file(self, src, dst):
         with self.log_lock:
             self.log_lines.append(gettext("Copy {0}\nto {1}").format(src, dst))
         if is_same_file(src, dst):
             self.log_lines.append(
-                "- source and destination are the same, skipping...")
+                "- source and destination are the same, skipping..."
+            )
             return
         if not os.path.exists(os.path.dirname(dst)):
             os.makedirs(os.path.dirname(dst))

@@ -1,3 +1,5 @@
+import warnings
+
 from fsui.common.layout import Layout
 from fsui.qt import QPoint
 from fsui.qt import Qt, QObject, QFontMetrics, QWidget, QPalette, QCursor
@@ -17,6 +19,7 @@ class Widget(QObject):
         # noinspection PyProtectedMember
         self._window = parent._window
         self._widget = None
+        self._explicitly_hidden = False
 
     def widget(self):
         return self._widget
@@ -44,11 +47,15 @@ class Widget(QObject):
         print("Widget.on_destroy", self)
         self.destroyed.emit()
 
+    def explicitly_hidden(self):
+        return self._explicitly_hidden
+
     def set_visible(self, show=True):
         if show:
             self.widget().show()
         else:
             self.widget().hide()
+        self._explicitly_hidden = not show
 
     def show(self):
         self.set_visible(True)
@@ -152,7 +159,13 @@ class Widget(QObject):
     def set_position_and_size(self, position, size):
         self.widget().setGeometry(position[0], position[1], size[0], size[1])
 
+    @property
+    def window(self):
+        # noinspection PyCallingNonCallable
+        return self._window()
+
     def get_window(self):
+        warnings.warn("use window property instead", DeprecationWarning)
         # noinspection PyCallingNonCallable
         return self._window()
 

@@ -12,6 +12,12 @@ else
 	OpenGL_dir := "."
 endif
 
+ifeq ($(wildcard amitools),)
+	amitools_dir := "."
+else
+	amitools_dir := "."
+endif
+
 ifeq ($(wildcard arcade),)
 	arcade_dir := "."
 else
@@ -36,6 +42,12 @@ else
 	fsgs_dir := "."
 endif
 
+ifeq ($(wildcard fspy),)
+	fspy_dir := "."
+else
+	fspy_dir := "."
+endif
+
 ifeq ($(wildcard fstd),)
 	fstd_dir := "."
 else
@@ -58,12 +70,6 @@ ifeq ($(wildcard oyoyo),)
 	oyoyo_dir := "."
 else
 	oyoyo_dir := "."
-endif
-
-ifeq ($(wildcard six),)
-	six_dir := "."
-else
-	six_dir := "."
 endif
 
 ifeq ($(wildcard workspace),)
@@ -94,6 +100,7 @@ catalogs = \
 	share/locale/pl/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/pt/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/pt_BR/LC_MESSAGES/fs-uae-launcher.mo \
+	share/locale/ru/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/sr/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/sv/LC_MESSAGES/fs-uae-launcher.mo \
 	share/locale/tr/LC_MESSAGES/fs-uae-launcher.mo
@@ -130,15 +137,16 @@ distdir:
 	mkdir -p $(dist_dir)
 
 	cp -a $(OpenGL_dir)/OpenGL $(dist_dir)/
+	cp -a $(amitools_dir)/amitools $(dist_dir)/
 	cp -a $(arcade_dir)/arcade $(dist_dir)/
 	cp -a $(fsbc_dir)/fsbc $(dist_dir)/
 	cp -a $(fsboot_dir)/fsboot $(dist_dir)/
 	cp -a $(fsgs_dir)/fsgs $(dist_dir)/
+	cp -a $(fspy_dir)/fspy $(dist_dir)/
 	cp -a $(fstd_dir)/fstd $(dist_dir)/
 	cp -a $(fsui_dir)/fsui $(dist_dir)/
 	cp -a $(launcher_dir)/launcher $(dist_dir)/
 	cp -a $(oyoyo_dir)/oyoyo $(dist_dir)/
-	cp -a $(six_dir)/six $(dist_dir)/
 	cp -a $(workspace_dir)/workspace $(dist_dir)/
 	cp -a share $(dist_dir)/
 	mkdir $(dist_dir)/po/
@@ -153,6 +161,7 @@ distdir:
 	cp Makefile $(dist_dir)/
 	cp README $(dist_dir)/
 	cp VERSION $(dist_dir)/
+	cp cacert.pem $(dist_dir)/
 	mkdir -p $(dist_dir)/debian
 	cp debian/changelog $(dist_dir)/debian
 	cp debian/compat $(dist_dir)/debian
@@ -168,11 +177,11 @@ distdir:
 	cp dist/linux/Makefile $(dist_dir)/dist/linux
 	cp dist/linux/build.py $(dist_dir)/dist/linux
 	cp dist/linux/standalone-linux.py $(dist_dir)/dist/linux
-	mkdir -p $(dist_dir)/dist/macosx
-	cp dist/macosx/Info.plist $(dist_dir)/dist/macosx
-	cp dist/macosx/Makefile $(dist_dir)/dist/macosx
-	cp dist/macosx/fs-make-standalone-app.py $(dist_dir)/dist/macosx
-	cp dist/macosx/sign.py $(dist_dir)/dist/macosx
+	mkdir -p $(dist_dir)/dist/macos
+	cp dist/macos/Info.plist $(dist_dir)/dist/macos
+	cp dist/macos/Makefile $(dist_dir)/dist/macos
+	cp dist/macos/sign.py $(dist_dir)/dist/macos
+	cp dist/macos/standalone.py $(dist_dir)/dist/macos
 	mkdir -p $(dist_dir)/dist/python
 	cp dist/python/Makefile $(dist_dir)/dist/python
 	mkdir -p $(dist_dir)/dist/steamos
@@ -206,6 +215,7 @@ distdir:
 	cp po/pl.po $(dist_dir)/po
 	cp po/pt.po $(dist_dir)/po
 	cp po/pt_BR.po $(dist_dir)/po
+	cp po/ru.po $(dist_dir)/po
 	cp po/sr.po $(dist_dir)/po
 	cp po/sv.po $(dist_dir)/po
 	cp po/tr.po $(dist_dir)/po
@@ -213,7 +223,7 @@ distdir:
 	cp update-version $(dist_dir)/
 	cd $(dist_dir) && ./update-version setup.py --strict
 	cd $(dist_dir) && ./update-version debian/changelog --deb
-	cd $(dist_dir) && ./update-version dist/macosx/Info.plist --strict
+	cd $(dist_dir) && ./update-version dist/macos/Info.plist --strict
 	cd $(dist_dir) && ./update-version launcher/version.py
 	cd $(dist_dir) && ./update-version fs-uae-launcher
 	cd $(dist_dir) && ./update-version fs-uae-launcher.spec --rpm
@@ -227,8 +237,8 @@ windows-dist: distdir
 	mv $(dist_dir)/fs-uae-launcher_*windows* .
 	rm -Rf $(dist_dir)
 
-macosx-dist: distdir
-	cd $(dist_dir)/dist/macosx && make
+macos-dist: distdir
+	cd $(dist_dir)/dist/macos && make
 	mv $(dist_dir)/fs-uae-launcher_*macos* .
 	rm -Rf $(dist_dir)
 
@@ -246,4 +256,14 @@ clean:
 distclean: clean clean-dist
 	rm -f Makefile
 	rm -f setup.py
+
+bindist: distdir
+	cd $(dist_dir)/dist/linux && fs-sdk-linux-x86-64 make
+	mv $(dist_dir)/fs-uae-launcher_*linux* .
+	rm -Rf $(dist_dir)
+
+bindist-x86: distdir
+	cd $(dist_dir)/dist/linux && fs-sdk-linux-x86 make
+	mv $(dist_dir)/fs-uae-launcher_*linux* .
+	rm -Rf $(dist_dir)
 

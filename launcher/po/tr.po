@@ -2,15 +2,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fs-uae\n"
 "Report-Msgid-Bugs-To: frode@fs-uae.net\n"
-"POT-Creation-Date: 2016-12-11 15:16+0100\n"
-"PO-Revision-Date: 2016-12-31 10:05-0500\n"
-"Last-Translator: FrodeSolheim <frode-crowdin@fsolheim.net>\n"
+"POT-Creation-Date: 2019-05-27 23:21+0200\n"
+"PO-Revision-Date: 2019-06-21 16:09\n"
+"Last-Translator: Frode Solheim (FrodeSolheim)\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: fs-uae\n"
 "X-Crowdin-Language: tr\n"
@@ -83,9 +83,6 @@ msgstr "Tek Seferde Birden Çok Disket Ekle"
 msgid "Additional Configuration"
 msgstr "Ek Konfigürasyon"
 
-msgid "Additional Databases"
-msgstr "Ek veritabanları"
-
 msgid "Adult-Themed Games"
 msgstr "Yetişkin Temalı Oyunlar"
 
@@ -131,14 +128,17 @@ msgstr "Bir Hata Meydana Geldi"
 msgid "Arcade Fullscreen"
 msgstr "Arcade Tam Ekran"
 
+msgid "Arcade starts with favorites filter"
+msgstr "Arcade, favoriler filtresiyle başlar"
+
+msgid "Arcade theme"
+msgstr "Arcade teması"
+
 msgid "Audio"
 msgstr "Ses"
 
 msgid "Audio Settings"
 msgstr "Ses Ayarları"
-
-msgid "Audio buffer target size (bytes)"
-msgstr "Ses arabelleği hedef boyutu (bayt)"
 
 msgid "Audio buffer target size (ms)"
 msgstr "Ses arabelleği hedef boyutu (ms)"
@@ -155,8 +155,8 @@ msgstr "Otomatik + Kenar"
 msgid "Auto - {}"
 msgstr "Otomatik - {}"
 
-msgid "Auto-Download"
-msgstr "Otomatik İndir"
+msgid "Auto Smoothing"
+msgstr "Otomatik Yumuşatma"
 
 msgid "Auto-Fire is Off"
 msgstr "Otomatik Ateş Kapalı"
@@ -164,8 +164,14 @@ msgstr "Otomatik Ateş Kapalı"
 msgid "Auto-Fire is On"
 msgstr "Otomatik Ateş Açık"
 
+msgid "Auto-download"
+msgstr "Otomatik indir"
+
 msgid "Automatic"
 msgstr "Otomatik"
+
+msgid "Automatic mouse/joystick mode for mouse port"
+msgstr "Fare portu için otomatik fare/joystick modu"
 
 msgid "Available Games"
 msgstr "Mevcut Oyunlar"
@@ -188,6 +194,9 @@ msgstr "En İyi Varyant"
 msgid "Blizzard SCSI Kit"
 msgstr "Blizzard SCSI Kiti"
 
+msgid "Blue"
+msgstr "Mavi"
+
 msgid "Browse"
 msgstr "Gözat"
 
@@ -197,11 +206,11 @@ msgstr "Dosya için Gözat"
 msgid "Browse for Folder"
 msgstr "Klasör için Gözat"
 
+msgid "Built-in"
+msgstr "Dahili"
+
 msgid "CD-ROM Drive"
 msgstr "CD-ROM Sürücü"
-
-msgid "CD-ROM Drive Count"
-msgstr "CD-ROM Sürücü Sayısı"
 
 msgid "CD-ROM Drives"
 msgstr "CD-ROM Sürücüleri"
@@ -215,12 +224,18 @@ msgstr "CD32 Pedi"
 msgid "CPU"
 msgstr "CPU"
 
+msgid "CRT Emulation"
+msgstr "CRT Emülasyonu"
+
 msgid "Cancel"
 msgstr "Vazgeç"
 
 #, python-brace-format
 msgid "Cannot find required ROM file: {name}"
 msgstr "Gereken Rom dosyası: {name} bulunamadı"
+
+msgid "Cartridge"
+msgstr "Kartuş"
 
 msgid "Change fullscreen mode (desktop, fullscreen, window)"
 msgstr "Tam ekran modunu değiştir (masaüstü, tam ekran, pencere)"
@@ -234,8 +249,14 @@ msgstr "Dosyanın sağlaması yapılıyor..."
 msgid "Chip RAM"
 msgstr "Grafik Belleği"
 
+msgid "Choices marked with (*) is the default setting"
+msgstr "(*) işaretli olan seçimler varsayılan ayarlardır"
+
 msgid "Choose CD-ROM Image"
 msgstr "CD-ROM İmajını Seçin"
+
+msgid "Choose Cartridge Image"
+msgstr "Kartuş imajını seçin"
 
 msgid "Choose Extended ROM"
 msgstr "Genişletilmiş ROM'u Seçin"
@@ -248,6 +269,9 @@ msgstr "Hard Diski Seçin"
 
 msgid "Choose Kickstart ROM"
 msgstr "Kickstart ROM'unu Seçin"
+
+msgid "Choose Tape Image"
+msgstr "Teyp imajını seçin"
 
 msgid "Choose Type"
 msgstr "Tür Seçin"
@@ -279,15 +303,18 @@ msgstr "Veri işleniyor..."
 msgid "Committing locker data..."
 msgstr "Dolap verisi gönderiliyor..."
 
+msgid "Common"
+msgstr "Genel"
+
 msgid "Config"
 msgstr "Konfig"
 
-msgid "Config Options in Settings"
-msgstr "Ayarlardaki Konfig Seçenekleri"
-
 #, python-brace-format
-msgid "Config in Settings: {name}"
-msgstr "Ayarlardaki Konfig: {name}"
+msgid "Config in settings: {name}"
+msgstr "Ayarlardaki konfigürasyon: {name}"
+
+msgid "Config options in settings"
+msgstr "Ayarlardaki konfigürasyon seçenekleri"
 
 msgid "Configs"
 msgstr "Konfigürasyonlar"
@@ -314,11 +341,17 @@ msgstr "{device_name}'i Yapılandır"
 msgid "Connect"
 msgstr "Bağlan"
 
+msgid "Controllers"
+msgstr "Kontrolcüler"
+
 #, python-brace-format
 msgid "Copy {0}\n"
 "to {1}"
 msgstr "{0}'ı\n"
 "{1}'e kopyala"
+
+msgid "Correct Aspect"
+msgstr "Gerçek Ekran Oranı"
 
 msgid "Could not open file for writing"
 msgstr "Dosyayı yazmak için açamıyorum"
@@ -338,6 +371,9 @@ msgstr "Bir hesap yaratın"
 msgid "Create disk image of type:"
 msgstr "Şu türde bir disk imajı yarat:"
 
+msgid "Crop"
+msgstr "Kırp"
+
 msgid "Cursor Keys and Right Ctrl/Alt"
 msgstr "İmleç Tuşları ve Sağ Ctrl/Alt"
 
@@ -354,14 +390,11 @@ msgid "Custom Joystick Port"
 msgstr "Özel Joystick Portu"
 
 #, python-brace-format
-msgid "Custom Option: {name}"
+msgid "Custom option: {name}"
 msgstr "Özel Seçenek: {name}"
 
-msgid "Custom Options"
-msgstr "Özel Ayarlar"
-
-msgid "Custom boot directory for automatic WHDLoad support"
-msgstr "Otomatik WHDLoad desteği için özel yükleme dizini"
+msgid "Custom options"
+msgstr "Özel seçenekler"
 
 msgid "Custom uae_ Options"
 msgstr "Özel uae_ Ayarları"
@@ -375,10 +408,6 @@ msgstr "Varsayılan"
 #, python-brace-format
 msgid "Default ({0})"
 msgstr "Varsayılan ({0})"
-
-#, python-brace-format
-msgid "Default - {0}"
-msgstr "Varsayılan - {0}"
 
 msgid "Defragment Databases"
 msgstr "Veritabanlarına birleştirme uygula"
@@ -399,20 +428,14 @@ msgstr "İşletim sisteminize ve OpenGL sürücülerine bağlı olarak, senkroni
 msgid "Depending on your OS and OpenGL drivers, video synchronization can use needlessly much CPU (esp. applies to Linux). You can experiment with different sync methods to improve performance."
 msgstr "OS ve OpenGL sürücülerine bağlı olarak görüntü senkronizasyonu gereksiz yere CPU kullanabilir (öz. Linux'ta). Performansı arttırmak için farklı senkronizasyon yöntemleri deneyebilirsiniz."
 
-msgid "Deprecated: uaegfx_card"
-msgstr "Kullanım Dışı: uaegfx_card"
-
-msgid "Device ID used with OAGD.net authentication"
-msgstr "OAGD.net kimlik doğrulaması ile kullanılan Aygıt kimliği"
-
 msgid "Did not find required Kickstart or ROM for {}. Wanted one of these files: {}"
 msgstr "{} için gereken Kickstart veya ROM bulunamadı. Şu dosyalardan biri gerekli: {}"
 
 msgid "Digital Joystick"
 msgstr "Dijital Joystick"
 
-msgid "Directory for WHDLoad.key file (if you have it):"
-msgstr "WHDLoad.key dosyası için dizin (varsa):"
+msgid "Directories"
+msgstr "Klasörler"
 
 msgid "Disabled"
 msgstr "Devre Dışı"
@@ -429,11 +452,8 @@ msgstr "Henüz bir hesabınız yok mu?"
 msgid "Dongle"
 msgstr "Program Kilidi"
 
-msgid "Double-click a device entry to configure it (map joystick buttons)."
-msgstr "Ayarlamak için cihaz ismine çift tıklayın (joystick düğmelerini atamak için)."
-
-msgid "Download Game"
-msgstr "Oyunu İndir"
+msgid "Double-click a controller to configure it:"
+msgstr "Ayarlamak için bir kontrolcüye çift tıklayın:"
 
 msgid "Download Game Manually"
 msgstr "Oyunu manuel olarak indir"
@@ -445,6 +465,9 @@ msgstr "İndirme başarısız (deneme {0}) - {0} saniye içinde tekrar denenecek
 #, python-brace-format
 msgid "Download failed (attempt {0}) - retrying in {1} seconds"
 msgstr "İndirme başarısız (deneme {0}) - {1} saniye içinde tekrar denenecek"
+
+msgid "Download game"
+msgstr "Oyunu indir"
 
 #, python-brace-format
 msgid "Download to the following directory, and then click '{0}':"
@@ -466,44 +489,8 @@ msgstr "Çıkar"
 msgid "Empty Floppy Drive Volume"
 msgstr "Boş Disket Sürücü Birimi"
 
-msgid "Enable experimental net play GUI (requires restart)"
-msgstr "Deneysel net oyunu arayüzünü aktifleştir (yeniden başlatmanız gerekir)"
-
-msgid "Enable online database support (requires restart)"
-msgstr "Online veritabanı desteğini aktifleştir (yeniden başlatmanız gerekir)"
-
-msgid "Enable/disable use of OAGD.net locker"
-msgstr "OAGD.net dolabının kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Amstrad CPC game database"
-msgstr "Amstrad CPC oyun veritabanının kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Arcade game database"
-msgstr "Arcade oyun veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Atari ST game database"
-msgstr "Atari ST oyun veritabanının kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Commodore 64 (C64) database"
-msgstr "Commodore 64 (C64) veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the DOS game database"
-msgstr "DOS oyun veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Game Boy Advance database"
-msgstr "Game Boy Advance veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Game Boy Color database"
-msgstr "Game Boy Color veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Game Boy database"
-msgstr "Game Boy veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Nintendo (NES) database"
-msgstr "Nintendo (NES) veritabanı kullanımını etkinleştir/devre dışı bırak"
-
-msgid "Enable/disable use of the Super Nintendo database"
-msgstr "Super Nintendo veritabanı kullanımını etkinleştir/devre dışı bırak"
+msgid "Enable Additional Platforms (Requires Restart)"
+msgstr "Ek Platformları Etkinleştir (Yeniden Başlatmanızı gerektirir)"
 
 msgid "Enabled"
 msgstr "Etkin"
@@ -523,26 +510,11 @@ msgstr "Disk imajını yazarken hata oluştu"
 msgid "Expansions"
 msgstr "Genişlemeler"
 
-msgid "Expect Specific FS-UAE Version"
-msgstr "Belli bir FS-UAE Versiyonu Bekleniyor"
-
-msgid "Experimental Config Visualization (Requires Restart)"
-msgstr "Deneysel Konfigürasyon Görselleştirme (Yeniden başlatmanız gerekir)"
-
 msgid "Experimental Features"
 msgstr "Deneysel Özellikler"
 
 msgid "Extended ROM"
 msgstr "Genişletilmiş ROM"
-
-msgid "FS-UAE   Arcade"
-msgstr ""
-
-msgid "FS-UAE Arcade"
-msgstr "FS-UAE Arcade"
-
-msgid "Fade-in Duration on Start"
-msgstr "Başlangıçtaki Fade-in Süresi"
 
 msgid "Fast RAM"
 msgstr "Hızlı RAM"
@@ -583,23 +555,17 @@ msgstr "Yeni disk imajı için dosya ismi:"
 msgid "Files for this game are still missing. Did you download the game and put the file(s) in the Downloads directory?"
 msgstr "Bu oyunun dosyaları hala eksik. Oyunu indirip dosyalarını İndirilenler klasörüne kopyaladınız mı?"
 
+msgid "Fill Screen"
+msgstr "Ekranı Doldur"
+
 msgid "Filters"
 msgstr "Filtreler"
 
 msgid "Finding files eligible for OAGD.net Locker"
 msgstr "OAGD.net Dolabına uygun dosyalar bulunuyor"
 
-msgid "First rendered line (NTSC)"
-msgstr "İlk çizilen satır (NTSC)"
-
-msgid "First rendered line (PAL)"
-msgstr "İlk çizilen satır (PAL)"
-
 msgid "Floppies"
 msgstr "Disketler"
-
-msgid "Floppy Drive Count"
-msgstr "Disket Sürücü Sayısı"
 
 msgid "Floppy Drive Sound Emulation"
 msgstr "Disket Sürücü Ses Emülasyonu"
@@ -612,9 +578,6 @@ msgstr "Disket Sürücü Birimi"
 
 msgid "Floppy Drives"
 msgstr "Disket Sürücüler"
-
-msgid "Flush log after each log line"
-msgstr "Her günlük satırından sonra günlüğü temizle"
 
 msgid "Forgot your password?"
 msgstr "Şifrenizi mi unuttunuz?"
@@ -643,23 +606,11 @@ msgstr "Tam Ekran Pencere"
 msgid "Game Database"
 msgstr "Oyun Veritabanı"
 
-msgid "Game Database Server"
-msgstr "Oyun Veritabanı Sunucusu"
-
 msgid "Game Database Settings"
 msgstr "Oyun Veritabanı Ayarları"
 
-msgid "Game database authentication"
-msgstr "Oyun veritabanı kimlik doğrulama"
-
-msgid "Game database email"
-msgstr "Oyun veritabanı e-postası"
-
-msgid "Game database password"
-msgstr "Oyun veritabanı şifresi"
-
-msgid "Game database user name"
-msgstr "Oyun veritabanı kullanıcı ismi"
+msgid "Game Platforms"
+msgstr "Oyun Platformları"
 
 msgid "Gamepad"
 msgstr "Gamepad"
@@ -709,23 +660,14 @@ msgstr "Donanım"
 msgid "Hardware Dongle"
 msgstr "Donanım Kilidi"
 
+msgid "Hide Bezel"
+msgstr "Çerçeveyi Gizle"
+
 msgid "High"
 msgstr "Yüksek"
 
 msgid "Home"
 msgstr "Ana Sayfa"
-
-msgid "Host Key BACKSLASH"
-msgstr "Sunucu Tuşu BACKSLASH"
-
-msgid "Host Key EQUALS"
-msgstr "Sunucu Tuşu EQUALS"
-
-msgid "Host Key INSERT"
-msgstr "Sunucu Tuşu INSERT"
-
-msgid "Host Key LESS"
-msgstr "Sunucu Tuşu LESS"
 
 msgid "How to achieve perfectly smooth scrolling"
 msgstr "Kusursuz yumuşak kaydırma nasıl elde edilir"
@@ -755,14 +697,17 @@ msgstr "Yükleme işlemi tamamlandı"
 msgid "Include Save Disk"
 msgstr "Kayıt Diski Ekle"
 
-msgid "Include built-in configurations"
-msgstr "Dahili konfigürasyonları ekle"
+msgid "Include close buttons in dialogs"
+msgstr "Diyalog kutularına kapatma düğmeleri ekle"
 
 msgid "Input"
 msgstr "Giriş"
 
 msgid "Input Options"
 msgstr "Giriş Seçenekleri"
+
+msgid "Integer Scaling"
+msgstr "Tamsayı Büyütme"
 
 msgid "Internal"
 msgstr "Dahili"
@@ -776,14 +721,14 @@ msgstr "JIT Derleyici"
 msgid "JIT compiler with a PPC-only OS is not recommended"
 msgstr "PPC kullanan OS ile JIT derleyicisi önerilmez"
 
+msgid "Joystick"
+msgstr "Joystick"
+
 msgid "Joystick & Mouse Port"
 msgstr "Joystick & Fare Portu"
 
 msgid "Joystick Ports"
 msgstr "Joystick Portları"
-
-msgid "Joysticks & Gamepads"
-msgstr "Joystickler ve Gamepadler"
 
 msgid "Keep aspect ratio when scaling (do not stretch)"
 msgstr "Büyütme sırasında en boy oranını koru (kenarı uzatma)"
@@ -812,6 +757,9 @@ msgstr "Dil"
 msgid "Language:"
 msgstr "Dil:"
 
+msgid "Large Border"
+msgstr "Geniş Kenar"
+
 msgid "Launcher Font Size"
 msgstr "Başlatıcı Yazı Tipi Boyutu"
 
@@ -827,14 +775,14 @@ msgstr "Oyun Başlatılıyor"
 msgid "Left"
 msgstr "Sol"
 
+msgid "Legacy Scaling"
+msgstr "Eski Tip Büyütme"
+
 msgid "Letter"
 msgstr "Harf"
 
 msgid "List"
 msgstr "Liste"
-
-msgid "Load state by number"
-msgstr "Sayıyla durum yükle"
 
 msgid "Loading..."
 msgstr "Yükleniyor..."
@@ -859,9 +807,6 @@ msgstr "Çıkış Yap"
 
 msgid "Log Out from Your OAGD.net Account"
 msgstr "OAGD.net Hesabınızdan Çıkış Yapın"
-
-msgid "Log database query plans"
-msgstr "Kütük veritabanı sorgu planları"
 
 msgid "Logging"
 msgstr "Kaydediliyor"
@@ -893,6 +838,9 @@ msgstr "Bakım"
 msgid "Make:"
 msgstr "Yapım:"
 
+msgid "Max Scaling"
+msgstr "Max Büyütme"
+
 msgid "Media Swap List"
 msgstr "Medya Değişim Listesi"
 
@@ -905,14 +853,10 @@ msgstr "Orta Sol"
 msgid "Middle Right"
 msgstr "Orta Sağ"
 
-#, python-brace-format
-msgid "Miscellaneous functions to optimize {name}"
-msgstr "{name} optimizasyonu için çeşitli işlevler"
-
 msgid "Missing Files"
 msgstr "Eksik Dosyalar"
 
-msgid "Missing Game Files"
+msgid "Missing game files"
 msgstr "Eksik Oyun Dosyaları"
 
 msgid "Model:"
@@ -923,9 +867,6 @@ msgstr "FS-UAE'nin görüntüleneceği monitör (tam ekran)"
 
 msgid "Monitor to display FS-UAE on (left, middle-left, middle-right, right)"
 msgstr "FS-UAE'nin görüntüleneceği monitör (sol, sol orta, sağ orta, sağ)"
-
-msgid "Motherboard RAM"
-msgstr "Anakart RAM'i"
 
 msgid "Mouse"
 msgstr "Fare"
@@ -961,14 +902,20 @@ msgstr "Ağ Kartı"
 msgid "New Config"
 msgstr "Yeni Konfigürasyon"
 
+msgid "Next"
+msgstr "Sonraki"
+
 msgid "Nick:"
 msgstr "Takma isim:"
 
 msgid "No Amiga Device"
 msgstr "Amiga Cihazı Yok"
 
-msgid "No Device"
-msgstr "Cihaz Yok"
+msgid "No Border"
+msgstr "Kenar Yok"
+
+msgid "No Effect"
+msgstr "Efekt Yok"
 
 msgid "No Host Device"
 msgstr "Sunucu Cihaz Yok"
@@ -978,6 +925,12 @@ msgstr "Son Oynanan Yok"
 
 msgid "No Protection"
 msgstr "Koruma Yok"
+
+msgid "No Scaling"
+msgstr "Büyütme Yok"
+
+msgid "No Smoothing"
+msgstr "Yumuşatma Yok"
 
 msgid "No extended kickstart found for this model. Try 'scan' function."
 msgstr "Bu model için genişletilmiş kickstart bulunamadı. 'Tara' işlevini deneyin."
@@ -991,8 +944,8 @@ msgstr "Hiçbiri"
 msgid "Not logged in"
 msgstr "Giriş yapılmadı"
 
-msgid "Note: Support for additional game databases is an experimental feature and does not provide the same level of maturity as Amiga/CDTV/CD32. Also, additional plugins are needed to play the games."
-msgstr "Not: Ek oyun veritabanları desteği deneysel bir özelliktir ve Amiga/CDTV/CD32 kadar gelişmiş değildir. Ayrıca oyunları oynamak için ek eklentiler gerekebilir."
+msgid "Note: This is an experimental feature. Additional plugins are needed."
+msgstr "Not: Bu deneysel bir özelliktir. Ekstra eklentiler gerekir."
 
 msgid "OAGD.net Locker Uploader"
 msgstr "OAGD.net Dolap Yükleyicisi"
@@ -1026,14 +979,29 @@ msgstr "Diğer Cihaz"
 msgid "Outdated plugins: {0}"
 msgstr "Zamanı geçmiş eklentiler: {0}"
 
+msgid "Override WHDLoad preload option"
+msgstr "WHDLoad ön yükleme seçeneğini geçersiz kıl"
+
+msgid "Override WHDLoad quit key"
+msgstr "WHDLoad çıkış tuşunu geçersiz kıl"
+
+msgid "Override WHDLoad splash delay"
+msgstr "WHDLoad açılış penceresi gecikmesini geçersiz kıl"
+
 msgid "Parallel Port Joysticks"
 msgstr "Paralel Port Joystickleri"
 
 msgid "Password:"
 msgstr "Şifre:"
 
+msgid "Pixel Doubling"
+msgstr "Piksel İkileme"
+
 msgid "Platform"
 msgstr "Platform"
+
+msgid "Platform & Model"
+msgstr "Platform & Model"
 
 msgid "Please open the following web page and download the game from there:"
 msgstr "Lütfen aşağıdaki web sayfasını açın ve oyunu oradan indirin:"
@@ -1044,11 +1012,14 @@ msgstr "Lütfen bekleyin..."
 msgid "Plugins"
 msgstr "Eklentiler"
 
-msgid "Preferred Joysticks"
-msgstr "Tercih Edilen Joystickler"
+msgid "Preferred Controllers"
+msgstr "Tercih Edilen Kontrolcüler"
 
-msgid "Preferred device for secondary joystick:"
-msgstr "İkinci joystick için tercih edilen cihaz:"
+msgid "Preferred controller (if present):"
+msgstr "Tercih edilen kontrolcü (mevcutsa):"
+
+msgid "Preferred device for secondary controller:"
+msgstr "İkinci kontrolcü için tercih edilen cihaz:"
 
 msgid "Preparing WHDLoad..."
 msgstr "WHDLoad hazırlanıyor..."
@@ -1064,6 +1035,9 @@ msgstr "Kickstart ROM'ları hazırlanıyor..."
 
 msgid "Preparing..."
 msgstr "Hazırlanıyor..."
+
+msgid "Prev"
+msgstr "Önceki"
 
 msgid "Purging old entries..."
 msgstr "Eski girdiler temizleniyor..."
@@ -1087,20 +1061,14 @@ msgstr "{0} saniye içinde tekrar deniyorum..."
 msgid "Read more"
 msgstr "Daha fazlasını okuyun"
 
+msgid "Red"
+msgstr "Kırmızı"
+
 msgid "Refresh List of Connected Joystick Devices"
 msgstr "Bağlı Joystick Cihazlarının Listesini Yenile"
 
 msgid "Reject"
 msgstr "Reddet"
-
-msgid "Relative Temporary Directories"
-msgstr "Göreceli Geçici Dizinler"
-
-msgid "Relative paths"
-msgstr "İlgili yollar"
-
-msgid "Relax host CPU usage when using fastest-possible CPU"
-msgstr "Mümkün olan en hızlı CPU'yu kullanırken sunucu CPU kullanımını rahatlat"
 
 msgid "Remove Directory from Search Path"
 msgstr "Arama Adresinden Klasörü Sil"
@@ -1120,6 +1088,9 @@ msgstr "RTG grafik modunda tarama çizgilerini göster"
 
 msgid "Reset password via e-mail"
 msgstr "Şifreyi e-posta yoluyla sıfırla"
+
+msgid "Reset to Defaults"
+msgstr "Varsayılan Ayarlara Geri Dön"
 
 msgid "Resetting game database..."
 msgstr "Oyun veritabanı sıfırlanıyor..."
@@ -1143,17 +1114,14 @@ msgstr "Kaydet"
 msgid "Save Config"
 msgstr "Konfigürasyonu Kaydet"
 
-msgid "Save Disk"
-msgstr "Kayıt Diski"
-
 msgid "Save to directory:"
 msgstr "Şu klasöre kaydet:"
 
 msgid "Saving changes..."
 msgstr "Değişiklikler kaydediliyor..."
 
-msgid "Scaling"
-msgstr "Ölçekleme"
+msgid "Scaling & Filters"
+msgstr "Ölçekleme & Filtreler"
 
 msgid "Scaling Options"
 msgstr "Büyütme Seçenekleri"
@@ -1237,20 +1205,29 @@ msgstr "FS-UAE uygulamaları için dili ayarla"
 msgid "Settings"
 msgstr "Ayarlar"
 
-msgid "Show kickstart setup page on startup when all ROMs are missing"
-msgstr "Tüm ROM'lar eksikse başlangıçta kickstart ayar sayfasını göster"
+msgid "Setup Wizard"
+msgstr "Kurulum Sihirbazı"
 
-msgid "Show window border and decorations"
-msgstr "Pencere kenarlarını ve dekorasyonları göster"
+msgid "Show Bezel"
+msgstr "Çerçeveyi Göster"
 
 msgid "Shuffle"
 msgstr "Karıştır"
+
+msgid "Six Button Control Pad"
+msgstr ""
 
 msgid "Size:"
 msgstr "Boyut:"
 
 msgid "Slow RAM"
 msgstr "Yavaş RAM"
+
+msgid "Small Border"
+msgstr "Küçük Kenar"
+
+msgid "Smoothing"
+msgstr "Yumuşatma"
 
 msgid "Sound Card"
 msgstr "Ses Kartı"
@@ -1261,8 +1238,11 @@ msgstr "Belirtilen klasör mevcut değil"
 msgid "Specify global options and settings which does not have UI controls"
 msgstr "Genel ayarları ve UI kontrolleri olmayan ayarları belirleyin"
 
-msgid "Standard"
-msgstr "Standart"
+msgid "Square Pixels"
+msgstr "Kare Pikseller"
+
+msgid "Standard Qt Theme"
+msgstr "Standart Qt Teması"
 
 msgid "Start"
 msgstr "Başlat"
@@ -1306,14 +1286,14 @@ msgstr "Ekranla senkronizasyon bazı durumlarda tekleme ve düşük kare hızlar
 msgid "System"
 msgstr "Sistem"
 
+msgid "Tape Drive"
+msgstr "Teyp Sürücüsü"
+
 msgid "Terms of Download"
 msgstr "İndirme Şartları"
 
 msgid "Texture filter"
 msgstr "Doku filtresi"
-
-msgid "The following joystick will be preferred, if present:"
-msgstr "Mevcut olduğu taktirde aşağıdaki joystick tercih edilecektir:"
 
 msgid "The following options may affect performance, so only enable them when needed for testing or debugging purposes."
 msgstr "Aşağıdaki ayarlar performansını etkileyebilir, bu yüzden sadece test veya hata ayıklama gerektiğinde etkinleştirin."
@@ -1342,14 +1322,17 @@ msgstr "Bu eklentinin zamanı geçmiş"
 msgid "Toggle Between Windowed and Full-Screen Mode"
 msgstr "Pencere ve Tam-Ekran Modu Arasında Geçiş Yap"
 
+msgid "Toggle quick settings sidebar"
+msgstr "Hızlı ayarlar çubuğunu aç/kapa"
+
 msgid "Turbo"
 msgstr "Turbo"
 
-msgid "UAE bsdsocket.library"
-msgstr "UAE bsdsocket.library"
-
 msgid "Ungrab Input on Middle Mouse Button"
 msgstr "Orta Fare Düğmesiyle Girişi Bırak"
+
+msgid "Unpublished Games"
+msgstr "Yayınlanmamış Oyunlar"
 
 msgid "Update File Database"
 msgstr "Dosya Veritabanını Güncelle"
@@ -1380,8 +1363,8 @@ msgstr "Dolap verisi güncelleniyor..."
 msgid "Upload"
 msgstr "Yükle"
 
-msgid "Upload Files to OAGD.net Locker"
-msgstr "OAGD.net Dolabına Dosya Yükle"
+msgid "Upload Files to OpenRetro Locker"
+msgstr "OpenRetro Dolabına Dosya Yükle"
 
 msgid "Upload recognized Amiga files to your OAGD.net locker"
 msgstr "Tanınmış Amiga dosyalarını OAGD.net Dolabına Yükle"
@@ -1436,9 +1419,6 @@ msgstr "WHDLoad"
 msgid "WHDLoad Arguments"
 msgstr "WHDLoad Argümanları"
 
-msgid "WHDLoad splash delay"
-msgstr "WHDLoad açılış gecikmesi"
-
 msgid "Warning"
 msgstr "Uyarı"
 
@@ -1447,6 +1427,9 @@ msgstr "Uyarı: ROM dosyası bulunamadı!"
 
 msgid "Web Links"
 msgstr "Web Bağlantıları"
+
+msgid "Welcome to the setup wizard for FS-UAE Launcher!"
+msgstr "FS-UAE Launcher kurulum sihirbazına hoş geldiniz!"
 
 msgid "When Automatic is specified, your preferred language is set based on information from the operating system (or English, if a supported language is not detected)."
 msgstr "Otomatik seçili olduğunda, dil seçimi işletim sisteminize bağlı olarak yapılacaktır (eğer desteklenen dil tespit edilmezse İngilizce kullanılacaktır)"
@@ -1460,11 +1443,11 @@ msgstr "İşaretlendiğinde, FS-UAE'nin disket değiştirme listesine bir kayıt
 msgid "While logged out you will not get database updates"
 msgstr "Giriş yapmadığınız taktirde veritabanı güncellemelerini alamazsınız"
 
-msgid "Write .uaem metadata files"
-msgstr ".uaem metaveri dosyalarını yaz"
-
 msgid "Year"
 msgstr "Yıl"
+
+msgid "You can close this wizard at any time if you do not want to use it, and you can also run it again later."
+msgstr "Kullanmak istemiyorsanız sihirbazı istediğiniz zaman kapatabilir ve sonra tekrar başlatabilirsiniz."
 
 msgid "You can write key = value pairs here to set FS-UAE options not currently supported by the user interface. This is only a temporary feature until the GUI supports all options directly."
 msgstr "Kullanıcı arayüzünün desteklemediği FS-UAE ayarlarını girmek için anahtar = değer ikililerini buraya yazabilirsiniz. Bu GUI tüm ayarları doğrudan destekleyene kadar geçerli olacak geçici bir özelliktir."
@@ -1488,4 +1471,31 @@ msgstr "{system} Klavyesi"
 
 msgid "{} ROM files were imported"
 msgstr "{} ROM dosyası yüklendi"
+
+msgid "Finding files eligible for OpenRetro Locker"
+msgstr ""
+
+msgid "Locker upload task completed successfully"
+msgstr ""
+
+msgid "Log In to Your OpenRetro Account"
+msgstr ""
+
+msgid "Log Out from Your OpenRetro Account"
+msgstr ""
+
+msgid "OpenRetro Locker Uploader"
+msgstr ""
+
+msgid "OpenRetro Locker is not enabled for your user. It may be available only to a few select beta users."
+msgstr ""
+
+msgid "Upload recognized Amiga files to your OpenRetro locker"
+msgstr ""
+
+msgid "Use GameMode to optimize performance"
+msgstr ""
+
+msgid "Warn when CPU governor is not 'performance'"
+msgstr ""
 

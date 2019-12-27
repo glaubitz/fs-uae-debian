@@ -24,9 +24,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//#include <fs/ml/opengl.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void fs_ml_quit();
+void fs_ml_maybe_quit();
 int fs_ml_is_quitting();
 
 extern int g_fs_ml_opengl_context_stamp;
@@ -72,12 +75,12 @@ void fs_ml_usleep(int usec);
 #define FS_ML_VIDEO_EVENT_SHOW_CURSOR 3
 #define FS_ML_VIDEO_EVENT_HIDE_CURSOR 4
 
-void fs_ml_init();
+void fs_ml_init(void);
 void fs_ml_init_2(void);
 
 void fs_ml_stop();
 
-int fs_ml_main_loop();
+int fs_ml_main_loop(void);
 
 int fs_ml_get_video_sync();
 double fs_ml_get_refresh_rate(void);
@@ -601,5 +604,9 @@ typedef enum {
 #define FS_ML_KEY_MOD_SHIFT  (FS_ML_KEY_MOD_LSHIFT | FS_ML_KEY_MOD_RSHIFT)
 #define FS_ML_KEY_MOD_ALT    (FS_ML_KEY_MOD_LALT | FS_ML_KEY_MOD_RALT)
 #define FS_ML_KEY_MOD_META   (FS_ML_KEY_MOD_LMETA | FS_ML_KEY_MOD_RMETA)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBFSML_ML_H_

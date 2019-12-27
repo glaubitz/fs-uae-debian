@@ -1,6 +1,7 @@
 import os
 import time
 
+import fsgs
 from arcade.gamecentersettings import GameCenterSettings
 from arcade.glui.constants import TOP_ITEM_LEFT
 from arcade.glui.constants import TOP_ITEM_NOBORDER
@@ -34,8 +35,11 @@ class TopMenuItem(MenuItem):
         mouse_state = state.mouse_item == self
         mouse_pressed_state = mouse_state and state.mouse_press_item == self
         self.render_top_background(
-            selected, style=TOP_ITEM_LEFT, mouse_state=mouse_state,
-            mouse_pressed_state=mouse_pressed_state)
+            selected,
+            style=TOP_ITEM_LEFT,
+            mouse_state=mouse_state,
+            mouse_pressed_state=mouse_pressed_state,
+        )
         fs_emu_blending(True)
         if selected:
             texture = self.selected_texture
@@ -44,7 +48,10 @@ class TopMenuItem(MenuItem):
         # texture.render(self.x, self.y, self.w, self.h)
         texture.render(
             self.x + (self.w - texture.w) / 2,
-            self.y + (self.h - texture.h) / 2, texture.w, texture.h)
+            self.y + (self.h - texture.h) / 2,
+            texture.w,
+            texture.h,
+        )
 
 
 class CloseItem(TopMenuItem):
@@ -112,24 +119,46 @@ class ClockItem(MenuItem):
 class AspectItem(TopMenuItem):
     def __init__(self):
         super().__init__()
-        self.normal_texture = Texture.stretch
-        self.selected_texture = Texture.stretch
+        # self.normal_texture = Texture.stretch
+        # self.selected_texture = Texture.stretch
+        self.normal_texture = Texture.aspect
+        self.selected_texture = Texture.aspect
         self.update_texture()
+
+    # def update_texture(self):
+    #     # TODO: Ideally, this class should listen for settings changes.
+    #     if Settings.instance()["keep_aspect"] in ["0", ""]:
+    #         texture = Texture.stretch
+    #     else:
+    #         texture = Texture.aspect
+    #     self.normal_texture = texture
+    #     self.selected_texture = texture
+    #
+    # def activate(self, menu):
+    #     if Settings.instance()["keep_aspect"] == "1":
+    #         Settings.instance()["keep_aspect"] = ""
+    #     else:
+    #         Settings.instance()["keep_aspect"] = "1"
+    #     self.update_texture()
 
     def update_texture(self):
         # TODO: Ideally, this class should listen for settings changes.
-        if Settings.instance()["keep_aspect"] == "0":
+        if Settings.instance()["stretch"] == "1":
             texture = Texture.stretch
+        elif Settings.instance()["stretch"] == "0":
+            texture = Texture.square_pixels
         else:
             texture = Texture.aspect
         self.normal_texture = texture
         self.selected_texture = texture
 
     def activate(self, menu):
-        if Settings.instance()["keep_aspect"] == "0":
-            Settings.instance()["keep_aspect"] = ""
+        if Settings.instance()["stretch"] == "1":
+            Settings.instance()["stretch"] = "0"
+        elif Settings.instance()["stretch"] == "0":
+            Settings.instance()["stretch"] = ""
         else:
-            Settings.instance()["keep_aspect"] = "0"
+            Settings.instance()["stretch"] = "1"
         self.update_texture()
 
 
@@ -149,8 +178,11 @@ class VideoSyncItem(MenuItem):
         mouse_state = state.mouse_item == self
         mouse_pressed_state = mouse_state and state.mouse_press_item == self
         self.render_top_background(
-            selected, style=TOP_ITEM_LEFT, mouse_state=mouse_state,
-            mouse_pressed_state=mouse_pressed_state)
+            selected,
+            style=TOP_ITEM_LEFT,
+            mouse_state=mouse_state,
+            mouse_pressed_state=mouse_pressed_state,
+        )
         gl.glDisable(gl.GL_DEPTH_TEST)
         fs_emu_blending(True)
         if Settings.instance()["video_sync"] == "1":
@@ -164,8 +196,9 @@ class VideoSyncItem(MenuItem):
             b = 1.0
             alpha = 0.33
         x = self.x + 20
-        BitmapFont.title_font.render(self.title, x, self.y + 14,
-                                     r=r, g=g, b=b, alpha=alpha)
+        BitmapFont.title_font.render(
+            self.title, x, self.y + 14, r=r, g=g, b=b, alpha=alpha
+        )
         gl.glEnable(gl.GL_DEPTH_TEST)
 
 
@@ -232,9 +265,11 @@ class TopMenu(Navigatable):
         result = self.selected_item.activate(State.get().current_menu)
         # FIXME:
         from arcade.glui.menu import Menu
+
         if isinstance(result, Menu):
             # FIXME:
             from arcade.glui.window import enter_menu
+
             enter_menu(result)
 
     def __getitem__(self, index):
@@ -249,8 +284,12 @@ class TopMenu(Navigatable):
 class OldGameCenterItem(MenuItem):
     def __init__(self):
         super().__init__()
-        # if app.name == "fs-uae-arcade":
-        self.title = gettext("FS-UAE   Arcade")
+        if fsgs.product == "FS-UAE":
+            self.title = "FS-UAE   Arcade"
+        elif fsgs.product == "OpenRetro":
+            self.title = "OpenRetro   Arcade"
+        else:
+            self.title = "Unknown   Arcade"
         # else:
         #     self.title = gettext("Game   Center")
         self.path_title = self.title
@@ -285,16 +324,23 @@ class OldGameCenterItem(MenuItem):
 class GameCenterItem(MenuItem):
     def __init__(self):
         super().__init__()
-        self.title = gettext("FS-UAE Arcade")
         self.path_title = self.title
         self.enabled = False
+        if fsgs.product == "FS-UAE":
+            self.text1 = "FS-UAE"
+        elif fsgs.product == "OpenRetro":
+            self.text1 = "OpenRetro"
+        else:
+            self.text1 = "Unknown"
+        self.text2 = "Arcade"
+        self.title = "{} {}".format(self.text1, self.text2)
 
     def activate(self, menu):
         pass
 
     def update_size(self, text):
-        tw, _ = BitmapFont.title_font.measure("FS-UAE")
-        tw2, _ = BitmapFont.title_font.measure("Arcade")
+        tw, _ = BitmapFont.title_font.measure(self.text1)
+        tw2, _ = BitmapFont.title_font.measure(self.text2)
         self.w = 20 + 32 + 20 + tw + 20 + tw2 + 20
 
     def render_top_left(self, selected=False):
@@ -305,10 +351,10 @@ class GameCenterItem(MenuItem):
         texture = Texture.logo_32
         texture.render(x, 1080 - y - texture.h, texture.w, texture.h)
         x += 32 + 20
-        BitmapFont.title_font.render("FS-UAE", x, self.y + 14)
-        tw, _ = BitmapFont.title_font.measure("FS-UAE")
+        BitmapFont.title_font.render(self.text1, x, self.y + 14)
+        tw, _ = BitmapFont.title_font.measure(self.text1)
         x += tw + 20
-        BitmapFont.title_font.render("Arcade", x, self.y + 14, alpha=0.5)
+        BitmapFont.title_font.render(self.text2, x, self.y + 14, alpha=0.5)
         gl.glEnable(gl.GL_DEPTH_TEST)
 
 
@@ -320,10 +366,12 @@ class HomeItem(MenuItem):
 
     def activate(self, menu):
         from arcade.glui.window import create_main_menu
+
         new_menu = create_main_menu()
         # State.get().history = [new_menu]
         State.get().history.append(new_menu)
         from arcade.glui.window import set_current_menu
+
         set_current_menu(new_menu)
 
     def update_size_left(self):
@@ -333,8 +381,11 @@ class HomeItem(MenuItem):
         state = State.get()
         mouse_state = state.mouse_item == self
         mouse_pressed_state = mouse_state and state.mouse_press_item == self
-        self.render_top_background(selected, mouse_state=mouse_state,
-                                   mouse_pressed_state=mouse_pressed_state)
+        self.render_top_background(
+            selected,
+            mouse_state=mouse_state,
+            mouse_pressed_state=mouse_pressed_state,
+        )
         # fs_emu_blending(True)
         if selected:
             texture = Texture.home_selected
@@ -356,8 +407,11 @@ class AddItem(MenuItem):
         state = State.get()
         mouse_state = state.mouse_item == self
         mouse_pressed_state = mouse_state and state.mouse_press_item == self
-        self.render_top_background(selected, mouse_state=mouse_state,
-                                   mouse_pressed_state=mouse_pressed_state)
+        self.render_top_background(
+            selected,
+            mouse_state=mouse_state,
+            mouse_pressed_state=mouse_pressed_state,
+        )
         # fs_emu_blending(True)
         if selected:
             texture = Texture.add_selected

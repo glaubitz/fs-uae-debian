@@ -15,7 +15,9 @@
 #include <fs/base.h>
 #include <fs/data.h>
 #include <fs/emu.h>
+#include <fs/emu/audio.h>
 #include <fs/emu/path.h>
+#include <fs/emu/video.h>
 #include <fs/glib.h>
 #include <fs/lazyness.h>
 #include <fs/main.h>
@@ -34,6 +36,11 @@
 #include "config-drives.h"
 #ifdef WITH_CEF
 #include <fs/emu/cef.h>
+#endif
+#include <fs/emu/hacks.h>
+
+#ifdef LINUX
+#include "../../gamemode/lib/gamemode_client.h"
 #endif
 
 static int fs_uae_argc;
@@ -238,7 +245,7 @@ static int input_handler_loop(int line)
 
     int action;
     //int reconfigure_input = 0;
-    while((action = fs_emu_get_input_event()) != 0) {
+    while ((action = fs_emu_get_input_event()) != 0) {
         //printf("event_handler_loop received input action %d\n", action);
         int istate = (action & 0x00ff0000) >> 16;
         // force to -128 to 127 range
@@ -309,7 +316,7 @@ static int input_handler_loop(int line)
     return 1;
 }
 
-static void pause_throttle()
+static void pause_throttle(void)
 {
     /*
     if (fs_emu_get_vblank_sync()) {
@@ -352,11 +359,19 @@ static void event_handler(int line)
 
     fs_emu_wait_for_frame(g_fs_uae_frame);
     if (g_fs_uae_frame == 1) {
-        // we configure input ports after first frame are confirmed,
-        // because otherwise configure events would get lost if initially
-        // connected to the server (for net play game), but aborted connection
-        // before game started
+        if (!fs_emu_netplay_enabled()) {
+            if (fs_config_true(OPTION_WARP_MODE)) {
+                amiga_send_input_event(INPUTEVENT_SPC_WARP, 1);
+            }
+        }
+        /* We configure input ports after first frame are confirmed,
+         * because otherwise configure events would get lost if initially
+         * connected to the server (for net play game), but aborted connection
+         * before game started. */
         fs_uae_reconfigure_input_ports_amiga();
+        /* Also configure input ports now (which also makes sure keyboard
+         * etc. is initialized) to ensure it is configured at least once. */
+        fs_uae_reconfigure_input_ports_host();
     }
 
     if (fs_emu_is_quitting()) {
@@ -395,23 +410,20 @@ char *g_fs_uae_config_dir_path = NULL;
 static int audio_callback_function(int type, int16_t *buffer, int size)
 {
     if (type == 0) {
-        return fs_emu_audio_queue_buffer(0, buffer, size);
-    }
-    else if (type == 1) {
-        fs_emu_audio_set_paused(0, true);
+        return fse_queue_audio_buffer(0, buffer, size);
+    } else if (type == 1) {
+        fse_set_audio_paused(0, true);
         return 0;
-    }
-    else if (type == 2) {
-        fs_emu_audio_set_paused(0, false);
+    } else if (type == 2) {
+        fse_set_audio_paused(0, false);
         return 0;
-    }
-    else if (type == 3) {
-        // cd audio stream
+    } else if (type == 3) {
+        /* CD audio stream */
         if (buffer == NULL) {
-            // check status of buffer number given by size
-            return fs_emu_audio_check_buffer(1, size);
+            /* Check status of buffer number given by size. */
+            return fse_check_audio_buffer(1, size);
         }
-        return fs_emu_audio_queue_buffer(1, buffer, size);
+        return fse_queue_audio_buffer(1, buffer, size);
     }
     return -1;
 }
@@ -481,27 +493,27 @@ void fs_uae_load_rom_files(const char *path)
     //exit(1);
 }
 
-char *fs_uae_encode_path(const char* path)
+char *fs_uae_encode_path(const char *path)
 {
     // FIXME: libamiga now always accepts UTF-8, so this function is
     // deprecated. Simply returning a duplicate now.
     return g_strdup(path);
 }
 
-char *fs_uae_decode_path(const char* path)
+char *fs_uae_decode_path(const char *path)
 {
     // FIXME: libamiga now always accepts UTF-8, so this function is
     // deprecated. Simply returning a duplicate now.
     return g_strdup(path);
 }
 
-static void on_gui_message(const char* message)
+static void on_gui_message(const char *message)
 {
     printf("MESSAGE: %s\n", message);
     fs_emu_warning("%s", message);
 }
 
-static void on_init()
+static void on_init(void)
 {
     fs_log("\n");
     fs_log(LOG_LINE);
@@ -532,7 +544,7 @@ static void on_init()
     if (fs_config_get_int("min_first_line_ntsc") != FS_CONFIG_NONE) {
         amiga_set_min_first_line(fs_config_get_int("min_first_line_ntsc"), 1);
     }
-    if (fs_config_is_true(OPTION_CLIPBOARD_SHARING)) {
+    if (fs_config_true(OPTION_CLIPBOARD_SHARING)) {
         amiga_set_option("clipboard_sharing", "yes");
     }
 
@@ -611,7 +623,7 @@ static void pause_function(int pause)
     amiga_pause(pause);
 }
 
-static int load_config_file()
+static int load_config_file(void)
 {
     fs_log("load config file\n");
     const char *msg = "checking config file %s\n";
@@ -667,7 +679,7 @@ static int load_config_file()
         }
     }
     if (g_fs_uae_config_file_path == NULL) {
-        char *path = g_build_filename(fs_get_user_config_dir(),
+        char *path = g_build_filename(fse_user_config_dir(),
                 "fs-uae", "fs-uae.conf", NULL);
         fs_log(msg, path);
         if (fs_path_exists(path)) {
@@ -719,7 +731,18 @@ static int load_config_file()
 
 static void log_to_libfsemu(const char *message)
 {
-    fs_log_string(message);
+    /* UAE logs some messages char-for-char, so we need to buffer logging
+     * here if we want to log with [UAE] prefix. */
+    // fs_log("[UAE] %s", message);
+    static bool initialized;
+    static bool ignore;
+    if (!initialized) {
+        initialized = true;
+        ignore = fs_config_false(OPTION_UAELOG);
+    }
+    if (!ignore) {
+        fs_log_string(message);
+    }
 }
 
 static void main_function()
@@ -763,29 +786,30 @@ static void init_i18n(void)
 
 #ifndef ANDROID
     textdomain("fs-uae");
-    char *path = fs_get_data_file("fs-uae/share-dir");
-    if (path) {
-        fs_log("[I18N] Using data dir \"%s\"\n", path);
-        /* Remove trailing "fs-uae/share-dir" from the returned path. */
-        int len = strlen(path);
-        if (len > 16) {
-            path[len - 16] = '\0';
-        }
-        char *locale_base = g_build_filename(path, "locale", NULL);
+
+    char executable_dir[FS_PATH_MAX];
+    fs_get_application_exe_dir(executable_dir, FS_PATH_MAX);
+    char *locale_base = g_build_filename(
+        executable_dir, "..", "..", "Data", "Locale", NULL);
+    if (g_file_test(locale_base, G_FILE_TEST_IS_DIR)) {
         fs_log("[I18N] Using locale dir \"%s\"\n", locale_base);
         bindtextdomain("fs-uae", locale_base);
         free(locale_base);
-        free(path);
     } else {
-        char executable_dir[FS_PATH_MAX];
-        fs_get_application_exe_dir(executable_dir, FS_PATH_MAX);
-        char *locale_base = g_build_filename(
-            executable_dir, "..", "..", "Data", "Locale", NULL);
-        if (g_file_test(locale_base, G_FILE_TEST_IS_DIR)) {
+        char *path = fs_get_data_file("fs-uae/share-dir");
+        if (path) {
+            fs_log("[I18N] Using data dir \"%s\"\n", path);
+            /* Remove trailing "fs-uae/share-dir" from the returned path. */
+            int len = strlen(path);
+            if (len > 16) {
+                path[len - 16] = '\0';
+            }
+            char *locale_base = g_build_filename(path, "locale", NULL);
             fs_log("[I18N] Using locale dir \"%s\"\n", locale_base);
             bindtextdomain("fs-uae", locale_base);
+            free(locale_base);
+            free(path);
         }
-        free(locale_base);
     }
     bind_textdomain_codeset("fs-uae", "UTF-8");
 #endif
@@ -813,6 +837,50 @@ static void on_update_leds(void *data)
     }
 }
 
+static unsigned int whdload_quit_key = 0;
+static int64_t whdload_quit_time = 0;
+
+static void fs_emu_send_whdload_quit_key(int whdload_quit_key) {
+    fs_log("Find input event for amiga key %d\n", whdload_quit_key);
+    int input_event = amiga_find_input_event_for_key(whdload_quit_key);
+    fs_log("Found input event %d for amiga key %d\n", input_event, whdload_quit_key);
+    if (input_event) {
+        fs_log("Sending WHDLoad quit key input");
+        fs_emu_queue_action(input_event, 1);
+    }
+}
+
+static int quit_function()
+{
+    fs_log("quit_function\n");
+    if (whdload_quit_key) {
+        if (whdload_quit_time > 0) {
+            int64_t diff = fs_ml_monotonic_time() - whdload_quit_time;
+            if (diff < 0.1 * 1000000) {
+                // Duplicate SDL_QUIT event?
+                return 0;
+            }
+            // Press quit twice within one second to force quit
+            if (diff < 1.0 * 1000000) {
+                return 1;
+            }
+        }
+        fs_log("NOT QUITING\n");
+        if (whdload_quit_time == 0) {
+            // Only show this message once
+            fs_emu_warning(
+                "Sent WHDLoad quit key ($%02X) to exit gracefully",
+                whdload_quit_key
+            );
+        } else {
+            fs_emu_warning("Press Quit twice to force quit");
+        }
+        fs_emu_send_whdload_quit_key(whdload_quit_key);
+        whdload_quit_time = fs_ml_monotonic_time();
+        return 0;
+    }
+    return 1;
+}
 
 static void media_function(int drive, const char *path)
 {
@@ -941,6 +1009,32 @@ static bool check_extension(const char *path, const char *ext)
     return result;
 }
 
+#ifdef LINUX
+static void check_linux_cpu_governor()
+{
+    gchar *governor;
+    if (!g_file_get_contents(
+            "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+            &governor, NULL, NULL)) {
+        return;
+    }
+    g_strstrip(governor);
+    fs_log("CPU scaling governor: '%s'\n", governor);
+    if (fs_config_get_boolean(OPTION_GOVERNOR_WARNING) == 0) {
+        return;
+    }
+    if (strcmp(governor, "performance") != 0) {
+        fs_emu_warning(
+            _("CPU scaling governor is '%s', not '%s'"),
+            governor,
+            "performance"
+        );
+        fs_emu_warning(_("Emulation frame rate may suffer"));
+    }
+    g_free(governor);
+}
+#endif
+
 static const char *overlay_names[] = {
     "df0_led",     // 0
     "df1_led",     // 1
@@ -979,9 +1073,9 @@ static const char *overlay_names[] = {
 #endif
 
 #define COPYRIGHT_NOTICE "FS-UAE %s (Built for %s %s)\n" \
-"Copyright 1995-2002 Bernd Schmidt, 1999-2015 Toni Wilen,\n" \
+"Copyright 1995-2002 Bernd Schmidt, 1999-2017 Toni Wilen,\n" \
 "2003-2007 Richard Drummond, 2006-2011 Mustafa 'GnoStiC' Tufan,\n" \
-"2011-2015 Frode Solheim, and contributors.\n" \
+"2011-2017 Frode Solheim, and contributors.\n" \
 "\n" \
 "This is free software; see the file COPYING for copying conditions. There\n" \
 "is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR\n" \
@@ -1102,7 +1196,7 @@ int main(int argc, char *argv[])
     fs_emu_path_set_expand_function(fs_uae_expand_path);
 
     fs_emu_init_overlays(overlay_names);
-    fs_emu_init();
+    fse_init_early();
 
     /* Then load the config file and set data dir */
     load_config_file();
@@ -1126,6 +1220,17 @@ int main(int argc, char *argv[])
                        expect_version, PACKAGE_VERSION);
     }
 
+#ifdef LINUX
+    if (fs_config_get_boolean(OPTION_GAME_MODE) != 0) {
+        if (gamemode_request_start() < 0) {
+            fs_log("GameMode: Request failed: %s\n", gamemode_error_string());
+        } else {
+            fs_log("GameMode: Enabled game mode\n");
+        }
+    }
+    check_linux_cpu_governor();
+#endif
+
     fs_log("\n");
     fs_log(LOG_LINE);
     fs_log("fs-uae init\n");
@@ -1144,6 +1249,7 @@ int main(int argc, char *argv[])
 
     fs_emu_set_state_check_function(amiga_get_state_checksum);
     fs_emu_set_rand_check_function(amiga_get_rand_checksum);
+    fs_emu_set_quit_function(quit_function);
 
     // force creation of some recommended default directories
     fs_uae_kickstarts_dir();
@@ -1197,7 +1303,7 @@ int main(int argc, char *argv[])
     fs_emu_set_pause_function(pause_function);
 
     //fs_uae_init_input();
-    fs_emu_init_2(FS_EMU_INIT_EVERYTHING);
+    fse_init(FS_EMU_INIT_EVERYTHING);
 
     // we initialize the recording module either it is used or not, so it
     // can delete state-specific recordings (if necessary) when states are
@@ -1231,8 +1337,8 @@ int main(int argc, char *argv[])
         }
     }
 
-#ifdef FS_EMU_DRIVERS
-    fs_emu_audio_stream_options **options = fs_emu_audio_alloc_stream_options(2);
+#if 1 // def FSE_DRIVERS
+    fse_audio_stream_options **options = fs_emu_audio_alloc_stream_options(2);
     options[0]->frequency = fs_emu_audio_output_frequency();
     /* 12 * 2352 is CDDA_BUFFERS * 2352 (blkdev_cdimage.cpp) */
     options[1]->buffer_size = 12 * 2352;
@@ -1245,8 +1351,8 @@ int main(int argc, char *argv[])
     // this stream is for paula output and drive clicks
     // FIXME: could mix drive clicks in its own stream instead, -might
     // give higher quality mixing
-    fs_emu_audio_stream_options options;
-    options.struct_size = sizeof(fs_emu_audio_stream_options);
+    fse_audio_stream_options options;
+    options.struct_size = sizeof(fse_audio_stream_options);
     fs_emu_init_audio_stream_options(&options);
     options.frequency = fs_emu_audio_output_frequency();
     fs_emu_init_audio_stream(0, &options);
@@ -1304,6 +1410,14 @@ int main(int argc, char *argv[])
     //fs_uae_init_keyboard();
     fs_uae_init_mouse();
     fs_uae_configure_menu();
+
+    const char *value = fs_config_get_const_string("whdload_quit_key");
+    if (value) {
+        sscanf(value, "%02x", &whdload_quit_key);
+        if (whdload_quit_key) {
+            fs_log("Using WHDLoad quit key: %02X\n", whdload_quit_key);
+        }
+    }
 
     fs_emu_run(main_function);
     fs_log("fs-uae shutting down, fs_emu_run returned\n");

@@ -5,6 +5,7 @@
 #include "font.h"
 
 #include <fs/emu.h>
+#include <fs/emu/video.h>
 #include <fs/glib.h>
 #include <fs/i18n.h>
 
@@ -632,7 +633,7 @@ static void prepare_font(fs_emu_font *font)
 
 fs_emu_font *fs_emu_font_new_from_data(char *data, int size)
 {
-    fs_emu_log("load font from data\n");
+    fs_emu_log("load font from data %p size %d\n", data, size);
     fs_emu_font *font = g_malloc0(sizeof(fs_emu_font));
     if (data != NULL) {
         font->image = load_font_from_data(data, size);

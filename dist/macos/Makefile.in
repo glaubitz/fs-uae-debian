@@ -1,0 +1,42 @@
+ver = @PACKAGE_VERSION@
+os = macos
+arch = $(strip $(shell python3 ../arch.py))
+
+os_arch = $(os)_$(arch)
+ver_os_arch = $(ver)_$(os_arch)
+dname = fs-uae_$(ver_os_arch)
+
+all: bindist
+
+clean:
+	rm -Rf ../macos/fs-uae*
+
+bindist: bundle
+	tar Jcfv ../../$(dname).tar.xz FS-UAE.app
+
+bundle:
+	make -C ../..
+	rm -Rf FS-UAE.app
+	mkdir -p FS-UAE.app/Contents/Frameworks
+	mkdir -p FS-UAE.app/Contents/MacOS
+	mkdir -p FS-UAE.app/Contents/Resources
+	mkdir -p FS-UAE.app/Contents/
+	cp Info.plist FS-UAE.app/Contents/
+	cp ./PkgInfo FS-UAE.app/Contents/
+	cp ../../fs-uae FS-UAE.app/Contents/MacOS/
+	cp ../../fs-uae.dat FS-UAE.app/Contents/MacOS/
+	cp ../../fs-uae-device-helper FS-UAE.app/Contents/MacOS/
+
+	mkdir -p FS-UAE.app/Contents/Resources/fs-uae
+	touch FS-UAE.app/Contents/Resources/fs-uae/share-dir
+	cp -pPR ../../share/locale FS-UAE.app/Contents/Resources
+
+	strip FS-UAE.app/Contents/MacOS/*
+	cp ./fs-uae.icns FS-UAE.app/Contents/Resources/
+	cp ./fs-uae-config.icns FS-UAE.app/Contents/Resources/
+	# cp -pPR ./../../licenses FS-UAE.app/Contents/Resources/
+	# cp ./../../COPYING FS-UAE.app/Contents/Resources/
+	# cp ./../../README FS-UAE.app/Contents/Resources/
+	./standalone.py FS-UAE.app
+	./sign.py FS-UAE.app
+	./notarize.py FS-UAE.app no.fengestad.fs-uae

@@ -5,9 +5,15 @@ from ..launcher_settings import LauncherSettings
 
 
 class LauncherFilePicker(object):
-
-    def __init__(self, parent, title, media_type, last_path="",
-                 multiple=False, dir_mode=False):
+    def __init__(
+        self,
+        parent,
+        title,
+        media_type,
+        last_path="",
+        multiple=False,
+        dir_mode=False,
+    ):
         self.multiple = multiple
         self.dir_mode = dir_mode
         self.parent = parent
@@ -50,26 +56,34 @@ class LauncherFilePicker(object):
             return FSGSDirectories.get_hard_drives_dir()
         elif media_type == "rom":
             return FSGSDirectories.get_kickstarts_dir()
-        raise Exception("unknown file dialog type")
+        # FIXME: Return new Media directory instead
+        return FSGSDirectories.get_base_dir()
+        # raise Exception("unknown file dialog type")
 
     def show_modal(self):
         path = None
         if self.dir_mode:
             self.result = fsui.pick_directory(
-                parent=self.parent, message=self.title,
-                directory=self.directory)
+                parent=self.parent,
+                message=self.title,
+                directory=self.directory,
+            )
             if self.result:
                 path = self.result
         elif self.multiple:
             self.result = fsui.pick_files(
-                parent=self.parent, message=self.title,
-                directory=self.directory)
+                parent=self.parent,
+                message=self.title,
+                directory=self.directory,
+            )
             if self.result:
                 path = self.result[0]
         else:
             self.result = fsui.pick_file(
-                parent=self.parent, message=self.title,
-                directory=self.directory)
+                parent=self.parent,
+                message=self.title,
+                directory=self.directory,
+            )
             if self.result:
                 path = self.result
         if path:

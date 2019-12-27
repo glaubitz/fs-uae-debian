@@ -5,14 +5,52 @@ from .Constants import Constants
 from ..option import Option
 from ..launcher_settings import LauncherSettings
 import fsboot
+
 try:
     import workspace
 except ImportError:
     workspace = None
 
 # LEVEL = 0xce
-LEVEL = 0xeb
+LEVEL = 0xEB
 # LEVEL = 0xe4
+
+
+class LauncherTheme(object):
+    __instance = None
+
+    @classmethod
+    def get(cls):
+        if cls.__instance is None:
+            cls.__instance = cls()
+        return cls.__instance
+
+    def __init__(self):
+        from fsui.qt import QPalette
+
+        palette = QPalette()
+        self.sidebar_list_background = fsui.Color(palette.color(QPalette.Base))
+        self.sidebar_list_row_height = 28
+        self.sidebar_list_row_text = fsui.Color(
+            palette.color(QPalette.HighlightedText)
+        )
+        self.sidebar_list_row_background = fsui.Color(
+            palette.color(QPalette.Highlight)
+        )
+
+        if Skin.fws():
+            from workspace.ui.theme import WorkspaceTheme as WorkspaceTheme
+
+            ws_theme = WorkspaceTheme.instance()
+            self.sidebar_list_background = ws_theme.sidebar_background
+            self.sidebar_list_row_text = fsui.Color(0xFF, 0xFF, 0xFF)
+            self.sidebar_list_row_background = ws_theme.selection_background
+        elif Skin.windows_10():
+            self.sidebar_list_background = fsui.Color(0xE2, 0xE2, 0xE2)
+
+    @property
+    def has_close_buttons(self):
+        return LauncherSettings.get(Option.LAUNCHER_CLOSE_BUTTONS) == "1"
 
 
 class Skin(object):
@@ -34,15 +72,24 @@ class Skin(object):
     @classmethod
     @memoize
     def _get_background_color(cls):
+        # FIXME: Rename to launcher_bg/background_color and document.
         value = LauncherSettings.get("ui_background_color")
         if len(value) == 7 and value[0] == "#":
+
             def convert(s):
                 return int(s, 16)
+
             r = convert(value[1:3])
             g = convert(value[3:5])
             b = convert(value[5:7])
             return fsui.Color(r, g, b)
-        if fsbc.system.windows:
+        if cls.windows_10():
+            return None
+        elif cls.fws():
+            return None
+        elif fsbc.system.windows:
+            # FIXME: Should really just check for Windows XP here, or maybe
+            # just remove it altogether.
             return fsui.Color(LEVEL, LEVEL, LEVEL)
         elif fsbc.system.macosx:
             return fsui.Color(237, 237, 237)
@@ -72,8 +119,17 @@ class Skin(object):
 
     @classmethod
     def get_bottom_panel_height(cls):
-        return (Constants.SCREEN_SIZE[1] + 20 + 2 + 1 + 1 +
-                cls.get_bottom_margin())
+        return (
+            Constants.SCREEN_SIZE[1] + 20 + 2 + 1 + 1 + cls.get_bottom_margin()
+        )
+
+    @classmethod
+    def windows_10(cls):
+        return fsui.theme == "fusion" and fsui.theme_variant == "windows10"
+
+    @classmethod
+    def adwaita(cls):
+        return fsui.theme == "fusion" and fsui.theme_variant == "adwaita"
 
     @classmethod
     def fws(cls):

@@ -1,6 +1,21 @@
+# Copyright © 2011–2019 Frode Solheim <frode@fs-uae.net>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 %define name fs-uae
-%define version 2.8.4
-%define unmangled_version 2.8.4
+%define version 3.0.2
+%define unmangled_version 3.0.2
 %define release 1%{?dist}
 
 %undefine _hardened_build
@@ -13,6 +28,11 @@ URL: http://fs-uae.net/
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPL-2.0+
 Group: System/Emulators/Other
+%if 0%{?suse_version}
+%else
+# For joystick support in Fedora
+Requires: kernel-modules-extra
+%endif
 %if 0%{?suse_version}
 BuildRequires: fdupes
 %endif

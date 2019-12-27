@@ -1,10 +1,10 @@
 import os
 
 from fsbc.paths import Paths
-from fsgs.Archive import Archive
-from fsgs.ChecksumTool import ChecksumTool
+from fsgs.archive import Archive
+from fsgs.checksumtool import ChecksumTool
 from fsgs.FSGSDirectories import FSGSDirectories
-from fsgs.amiga.Amiga import Amiga
+from fsgs.amiga.amiga import Amiga
 from fsgs.context import fsgs
 from .i18n import gettext
 from .launcher_config import LauncherConfig
@@ -38,8 +38,11 @@ class FloppyManager(object):
     def multi_select(cls, parent=None):
         default_dir = FSGSDirectories.get_floppies_dir()
         dialog = LauncherFilePicker(
-            parent, gettext("Select Multiple Floppies"),
-            "floppy", multiple=True)
+            parent,
+            gettext("Select Multiple Floppies"),
+            "floppy",
+            multiple=True,
+        )
         if not dialog.show_modal():
             return
         original_paths = dialog.get_paths()
@@ -70,24 +73,37 @@ class FloppyManager(object):
         for i, path in enumerate(paths):
             sha1 = checksum_tool.checksum(path)
             path = Paths.contract_path(
-                path, default_dir, force_real_case=False)
+                path, default_dir, force_real_case=False
+            )
 
             if i < 4:
-                LauncherConfig.set_multiple([
-                    ("floppy_drive_{0}".format(i), path),
-                    ("x_floppy_drive_{0}_sha1".format(i), sha1)])
-            LauncherConfig.set_multiple([
-                ("floppy_image_{0}".format(i), path),
-                ("x_floppy_image_{0}_sha1".format(i), sha1)])
+                LauncherConfig.set_multiple(
+                    [
+                        ("floppy_drive_{0}".format(i), path),
+                        ("x_floppy_drive_{0}_sha1".format(i), sha1),
+                    ]
+                )
+            LauncherConfig.set_multiple(
+                [
+                    ("floppy_image_{0}".format(i), path),
+                    ("x_floppy_image_{0}_sha1".format(i), sha1),
+                ]
+            )
 
         # blank the rest of the drives
         for i in range(len(paths), 4):
-            LauncherConfig.set_multiple([
-                ("floppy_drive_{0}".format(i), ""),
-                ("x_floppy_drive_{0}_sha1".format(i), "")])
+            LauncherConfig.set_multiple(
+                [
+                    ("floppy_drive_{0}".format(i), ""),
+                    ("x_floppy_drive_{0}_sha1".format(i), ""),
+                ]
+            )
         # blank the rest of the image list
         for i in range(len(paths), 20):
-            LauncherConfig.set_multiple([
-                ("floppy_image_{0}".format(i), ""),
-                ("x_floppy_image_{0}_sha1".format(i), "")])
+            LauncherConfig.set_multiple(
+                [
+                    ("floppy_image_{0}".format(i), ""),
+                    ("x_floppy_image_{0}_sha1".format(i), ""),
+                ]
+            )
             # dialog.destroy()

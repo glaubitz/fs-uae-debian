@@ -2,6 +2,7 @@ import sys
 import platform
 import fsbc.debug
 import fsbc.logging
+
 # import fsbc.unicode
 from fsbc.application import Application
 
@@ -12,11 +13,14 @@ exception_handler_enabled = False
 
 
 def initialize_application(
-        name=None, version=None, patch_unicode=True,
-        enable_logging=True, enable_exception_handler=True):
+    name=None,
+    version=None,
+    patch_unicode=True,
+    enable_logging=True,
+    enable_exception_handler=True,
+):
 
-    global init_called, unicode_patched, logging_enabled, \
-        exception_handler_enabled
+    global init_called, unicode_patched, logging_enabled, exception_handler_enabled
     init_called = True
 
     if name and enable_logging:
@@ -25,11 +29,11 @@ def initialize_application(
 
     if name is not None:
         Application.app_name = name
-        print(name)
+        # print(name)
 
     if version is not None:
         Application.app_version = version
-        print(version)
+        # print(version)
 
     if enable_exception_handler:
         fsbc.debug.enable_exception_handler()
@@ -42,5 +46,5 @@ def initialize_application(
         # fsbc.unicode.patch_all()
         unicode_patched = True
 
-    print(platform.uname())
-    print(sys.argv)
+    # print(platform.uname())
+    # print(sys.argv)

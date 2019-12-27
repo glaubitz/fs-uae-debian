@@ -5,7 +5,6 @@ from fsgs.network import openretro_url_prefix
 
 
 class SimpleLoader:
-
     def __init__(self, fsgs):
         self.fsgs = fsgs
         self.config = {}
@@ -15,20 +14,28 @@ class SimpleLoader:
 
     def load_files(self, values):
         file_list = json.loads(values["file_list"])
-        assert len(file_list) == 1
-        self.config["cartridge"] = "sha1://{0}/{1}".format(
-            file_list[0]["sha1"], file_list[0]["name"])
+        if len(file_list) == 0:
+            self.config["x_variant_error"] = "Variant has empty file list"
+        elif len(file_list) > 1:
+            self.config["x_variant_error"] = "Unsupported multi-file variant"
+
+        self.config["cartridge_slot"] = "sha1://{0}/{1}".format(
+            file_list[0]["sha1"], file_list[0]["name"]
+        )
+
+        self.config["cue_sheets"] = values["cue_sheets"]
 
     def load_extra(self, values):
         pass
 
     def load_basic(self, values):
-        for key in ["command"]:
-            if key in values:
-                self.config[key] = values[key]
-
-        self.config["platform"] = values["platform"]
+        self.config["command"] = values["command"]
+        self.config["game_name"] = values["game_name"]
+        self.config["game_uuid"] = values["game_uuid"]
+        self.config["variant_name"] = values["variant_name"]
+        self.config["variant_uuid"] = values["variant_uuid"]
         self.config["model"] = values["model"]
+        self.config["platform"] = values["platform"]
         self.config["protection"] = values["protection"]
         self.config["viewport"] = values["viewport"]
         self.config["video_standard"] = values["video_standard"]
@@ -46,30 +53,56 @@ class SimpleLoader:
         self.config["x_variant_error"] = values["variant_error"]
 
         self.config["database_url"] = "{0}/game/{1}".format(
-            openretro_url_prefix(), values["parent_uuid"])
+            openretro_url_prefix(), values["parent_uuid"]
+        )
         for key in ["mobygames_url"]:
             self.config[key] = values[key]
 
-        for key in ["download_file", "download_page", "download_terms",
-                    "download_notice"]:
+        for key in [
+            "download_file",
+            "download_page",
+            "download_terms",
+            "download_notice",
+        ]:
             if key in values:
                 self.config[key] = values[key]
 
     def load_images(self, values):
-        for key in ["front_sha1", "screen1_sha1", "screen2_sha1",
-                    "screen3_sha1", "screen4_sha1", "screen5_sha1",
-                    "title_sha1"]:
+        for key in [
+            "front_sha1",
+            "screen1_sha1",
+            "screen2_sha1",
+            "screen3_sha1",
+            "screen4_sha1",
+            "screen5_sha1",
+            "title_sha1",
+        ]:
             self.config[key] = values[key]
 
     def load_values(self, key_values):
         # print(key_values)
         values = defaultdict(str)
         values.update(key_values)
+        self.load(values)
+        return self.get_config()
 
+    def load(self, values):
         self.load_basic(values)
-        self.load_files(values)
         self.load_extra(values)
         self.load_info(values)
         self.load_images(values)
+        self.load_files(values)
 
-        return self.get_config()
+
+class PlatformLoader(SimpleLoader):
+    pass
+
+
+class CartridgePlatformLoader(PlatformLoader):
+    pass
+
+
+class CDPlatformLoader(PlatformLoader):
+    def load_files(self, values):
+        self.config["cue_sheets"] = values["cue_sheets"]
+        self.config["file_list"] = values["file_list"]

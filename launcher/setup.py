@@ -20,20 +20,21 @@ title = "FS-UAE Launcher"
 name = "fs-uae-launcher"
 py_name = "fs_uae_launcher"
 tar_name = "fs-uae-launcher"
-version = "2.8.3"
+version = "3.0.2"
 author = "Frode Solheim"
 author_email = "frode@fs-uae.net"
 package_map = {
+    "amitools": ".",
     "arcade": ".",
     "fsbc": ".",
     "fsboot": ".",
     "fsgs": ".",
+    "fspy": ".",
     "fstd": ".",
     "fsui": ".",
     "launcher": ".",
     "OpenGL": ".",
     "oyoyo": ".",
-    "six": ".",
     "workspace": ".",
 }
 packages = sorted(package_map.keys())
@@ -53,15 +54,16 @@ setup_cmdclass = {}
 
 res_dirs = []
 res_dirs.append('OpenGL/res')
+res_dirs.append('amitools/res')
 res_dirs.append('arcade/res')
 res_dirs.append('fsbc/res')
 res_dirs.append('fsboot/res')
 res_dirs.append('fsgs/res')
+res_dirs.append('fspy/res')
 res_dirs.append('fstd/res')
 res_dirs.append('fsui/res')
 res_dirs.append('launcher/res')
 res_dirs.append('oyoyo/res')
-res_dirs.append('six/res')
 res_dirs.append('workspace/res')
 
 
@@ -119,14 +121,15 @@ setup_kwargs = {
 }
 
 if sys.argv[1] == "build_exe":
+    import cx_Freeze
     if sys.platform == "win32":
         setup_kwargs["executables"] = [
-            Executable(s, base="Win32GUI", icon="icon/" + s + ".ico") 
+            Executable(s, base="Win32GUI", icon="icon/" + s + ".ico")
                 for s in scripts]
     else:
         setup_kwargs["executables"] = [Executable(s) for s in scripts]
 
-    setup_kwargs["version"] = "2.8.3"
+    setup_kwargs["version"] = "3.0.2"
     build_exe_options = {
         "includes": [
         #    "ctypes",
@@ -141,6 +144,9 @@ if sys.argv[1] == "build_exe":
         "include_files": [],
         "zip_includes": [],
     }
+    if int(cx_Freeze.version.split(".")[0]) >= 5:
+        build_exe_options["zip_include_packages"] = "*"
+        build_exe_options["zip_exclude_packages"] = []
     #for res_dir in res_dirs:
     #    print(res_dir)
     #    build_exe_options["zip_includes"].append((res_dir, res_dir))
@@ -176,7 +182,7 @@ if sys.platform == "win32" and False:
 
 if sys.platform == "darwin":
     setup_kwargs["name"] = title
-    setup_kwargs["version"] = "2.8.3"
+    setup_kwargs["version"] = "3.0.2"
 else:
     setup_kwargs["scripts"] = scripts
 

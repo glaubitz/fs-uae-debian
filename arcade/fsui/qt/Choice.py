@@ -63,8 +63,8 @@ class Choice(QComboBox, WidgetMixin):
         self.removeItem(index)
 
     def __current_index_changed(self):
-        print("__current_index_changed", self.currentIndex(),
-              "inhibit", self.inhibit_change_event)
+        # print("__current_index_changed", self.currentIndex(),
+        #       "inhibit", self.inhibit_change_event)
         if not self.inhibit_change_event:
             # print("Choice.__current_index_changed")
             # if not getattr(self, "_inhibit_changed", False):
@@ -98,7 +98,6 @@ class Choice(QComboBox, WidgetMixin):
 
 
 class ItemChoice(Choice):
-
     def __init__(self, parent):
         Choice.__init__(self, parent)
 

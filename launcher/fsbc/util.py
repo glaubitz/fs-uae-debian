@@ -16,7 +16,8 @@ def is_uuid(value: str) -> str:
     """
     match = re.match(
         "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-        value.lower())
+        value.lower(),
+    )
     if match is not None:
         return match.group(0)
     return ""
@@ -46,6 +47,7 @@ def memoize(func):
                 # FIXME: will not happen here.. se above type error?
                 pass
             return value
+
     return wrapper
 
 
@@ -53,15 +55,15 @@ def split_version(version_string: str) -> List[str]:
     pattern = re.compile(
         "^([0-9]{1,4})(?:\.([0-9]{1,4}))?"
         "(?:\.([0-9]{1,4}))?(?:\.([0-9]{1,4}))?"
-        "(~?[a-z][a-z0-9\.]*)?(?:_([0-9]+))?$")
+        "(~?[a-z0-9\.]*)?(?:[-_]([0-9]+))?$"
+    )
     m = pattern.match(version_string)
     if m is None:
         raise ValueError(version_string + " is not a valid version number")
     return list(m.groups())
 
 
-class Version (object):
-
+class Version(object):
     def __init__(self, version_string: str) -> None:
         self.string = version_string
         v = split_version(version_string)
@@ -74,13 +76,24 @@ class Version (object):
         self.val += self.revision * 10000 ** 1
         self.val += self.build * 10000 ** 0
         self.mod = v[4]
-        self.release = None if v[5] is None else int(v[5])
+        self.release = -1 if v[5] is None else int(v[5])
+        # print(
+        #     {
+        #         "major": self.major,
+        #         "minor": self.minor,
+        #         "revision": self.revision,
+        #         "build": self.build,
+        #         "val": self.val,
+        #         "mod": self.mod,
+        #         "release": self.release,
+        #     }
+        # )
 
     def cmp_value(self):
-        mod_cmp = self.mod or "~~o"
+        mod_cmp = self.mod or "~~e"
         if not mod_cmp.startswith("~"):
             mod_cmp = "~~" + mod_cmp
-        return self.val, mod_cmp, int(self.release or 0)
+        return self.val, mod_cmp, self.release
 
     def __lt__(self, other: "Version") -> bool:
         return self.cmp_value() < other.cmp_value()
@@ -130,6 +143,22 @@ def compare_versions(a: Union[Version, str], b: Union[Version, str]):
     -1
     >>> compare_versions("3.8.1qemu2.4.0", "3.8.1qemu2.2.0")
     1
+    >>> compare_versions("1.22.2-1", "1.22.2")
+    1
+    >>> compare_versions("1.22.2-0", "1.22.2")
+    1
+    >>> compare_versions("3.3-0", "3.4")
+    -1
+    >>> compare_versions("3.3-0", "3.3-1")
+    -1
+    >>> compare_versions("3.3~fs0", "3.4")
+    -1
+    >>> compare_versions("3.3~fs0", "3.3~fs1")
+    -1
+    >>> compare_versions("1.22.2fs1", "1.22.2")
+    1
+    >>> compare_versions("1.22.2fs0", "1.22.2")
+    1
     """
     # >>> compare_versions("2.6.0beta1", "2.6.0beta1.1")
     # -1
@@ -158,4 +187,5 @@ def chained_exception(new_e, org_e):
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

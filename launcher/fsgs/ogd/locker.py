@@ -2,33 +2,27 @@ import time
 from functools import lru_cache
 
 import fsbc.settings
-from fsgs.FileDatabase import FileDatabase
+from fsgs.filedatabase import FileDatabase
 from fsgs.LockerDatabase import LockerDatabase
 from fsgs.download import Downloader
-from fsgs.network import opener_for_url_prefix, openretro_url_prefix
+from fsgs.network import openretro_url_prefix
 from fsgs.ogd.base import SynchronizerBase
 from fsgs.ogd.context import SynchronizerContext
 from fsgs.res import gettext
 
 
 def is_locker_enabled():
-    return fsbc.settings.get("database_locker") != "0"
+    return fsbc.settings.get("database_locker") == "1"
 
 
-@lru_cache()
-def locker_opener():
-    pass
-
-
-def open_locker_uri(uri, opener_cache_dict=None):
+def open_locker_uri(uri):
     sha1 = uri[9:]
     assert len(sha1) == 40
     context = SynchronizerContext()
-    opener = opener_for_url_prefix(
-        openretro_url_prefix(), username=context.username,
-        password=context.password, cache_dict=opener_cache_dict)
     url = "{0}/api/locker/{1}".format(openretro_url_prefix(), sha1)
-    path = Downloader.cache_file_from_url(url, opener=opener)
+    path = Downloader.cache_file_from_url(
+        url, auth=(context.username, context.password)
+    )
     return path
 
 
@@ -39,7 +33,7 @@ class LockerSynchronizer(SynchronizerBase):
     def synchronize(self):
         if not is_locker_enabled():
             return
-        if "locker-sync" not in self.context.meta:
+        if "locker" not in self.context.meta:
             # We haven't looked up synchronization information from the server,
             # that probably means we didn't want to synchronize with the
             # server now, therefore we just return.
@@ -48,8 +42,8 @@ class LockerSynchronizer(SynchronizerBase):
             return
         database = LockerDatabase.instance()
         sync_version = database.get_sync_version()
-        if sync_version == self.context.meta["locker-sync"]:
-            print("locker already up to date")
+        if sync_version == self.context.meta["locker"]["sync"]:
+            print("[SYNC] Locker data already up to date")
             return
 
         self.set_status(gettext("Fetching locker data..."))
@@ -59,11 +53,11 @@ class LockerSynchronizer(SynchronizerBase):
         database.clear()
         k = 0
         while k < len(data):
-            sha1_bytes = data[k:k + 20]
+            sha1_bytes = data[k : k + 20]
             database.add_sha1_binary(sha1_bytes)
             k += 20
 
-        database.set_sync_version(self.context.meta["locker-sync"])
+        database.set_sync_version(self.context.meta["locker"]["sync"])
         self.set_status(gettext("Committing locker data..."))
         self.update_file_database_timestamps()
         database.commit()

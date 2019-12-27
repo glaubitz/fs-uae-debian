@@ -1,3 +1,4 @@
+from fsgs import openretro
 from fsgs.Database import Database
 from fsgs.platform import PlatformHandler
 from fsgs.util.gamenameutil import GameNameUtil
@@ -7,23 +8,23 @@ from ..launcher_settings import LauncherSettings
 
 
 class ConfigurationsBrowser(fsui.VerticalItemView):
-
     def __init__(self, parent):
         fsui.VerticalItemView.__init__(self, parent)
         self.items = []
-        self.game_icon = fsui.Image("launcher:res/16/controller.png")
-        self.config_icon = fsui.Image(
-            "launcher:res/fsuae_config_16.png")
+        self.game_icon = fsui.Image("launcher:res/16x16/controller.png")
+        self.config_icon = fsui.Image("launcher:res/fsuae_config_16.png")
         LauncherSettings.add_listener(self)
         self.update_search()
 
         self.manual_download_icon = fsui.Image(
-            "launcher:res/16/arrow_down_yellow.png")
+            "launcher:res/16x16/arrow_down_yellow.png"
+        )
         self.auto_download_icon = fsui.Image(
-            "launcher:res/16/arrow_down_green.png")
-        self.blank_icon = fsui.Image(
-            "launcher:res/16/blank.png")
-        self.missing_color = fsui.Color(0xa8, 0xa8, 0xa8)
+            "launcher:res/16x16/arrow_down_green.png"
+        )
+        self.blank_icon = fsui.Image("launcher:res/16x16/blank.png")
+        self.missing_color = fsui.Color(0xA8, 0xA8, 0xA8)
+        self.unpublished_color = fsui.Color(0xCC, 0x00, 0x00)
 
         self.platform_icons = {}
 
@@ -37,12 +38,18 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
         self.load_configuration(self.items[index])
 
     def on_activate_item(self, index):
-        from ..fs_uae_launcher import FSUAELauncher
-        FSUAELauncher.start_game()
+        from ..launcherapp import LauncherApp
+
+        LauncherApp.start_game()
 
     def on_setting(self, key, _):
-        if key in ["config_search", "game_list_uuid", "database_show_games",
-                   "database_show_adult"]:
+        if key in [
+            "config_search",
+            "game_list_uuid",
+            "database_show_games",
+            "database_show_adult",
+            "database_show_unpublished",
+        ]:
             # if key == "game_list_uuid":
             self.update_search()
             if len(self.items) > 0:
@@ -61,8 +68,10 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
                 LauncherSettings.set("parent_uuid", "")
                 LauncherSettings.set("parent_uuid", old_parent_uuid)
         elif key == "parent_uuid" or key == "config_path":
-            if (not (LauncherSettings.get("parent_uuid") or
-                     LauncherSettings.get("config_path"))):
+            if not (
+                LauncherSettings.get("parent_uuid")
+                or LauncherSettings.get("config_path")
+            ):
                 self.select_item(None)
 
     def set_items(self, items):
@@ -82,12 +91,12 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
             extra = " \u00b7 " + extra.strip(" ]")
         else:
             extra = ""
-        if fsui.toolkit == 'wx':
+        if fsui.toolkit == "wx":
             sep = "\n"
         else:
             sep = " \u00b7 "
             name = name.replace("\n", " \u00b7 ")
-        if platform == "Amiga":
+        if platform == "Amiga" and not openretro:
             platform = ""
         elif platform:
             platform = sep + PlatformHandler.get_platform_name(platform)
@@ -110,6 +119,9 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
         have = self.items[index][str("have")]
         if not have:
             return self.missing_color
+        published = self.items[index]["published"]
+        if not published:
+            return self.unpublished_color
 
     def get_item_icon(self, index):
         item = self.items[index]
@@ -123,8 +135,9 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
         elif item[str("have")] == 4:
             if platform_id not in self.platform_icons:
                 try:
-                    icon = fsui.Image("launcher:res/16/{0}.png".format(
-                        platform_id))
+                    icon = fsui.Image(
+                        "launcher:res/16x16/{0}.png".format(platform_id)
+                    )
                 except Exception:
                     icon = self.game_icon
                 self.platform_icons[platform_id] = icon
@@ -160,8 +173,10 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
             # default is show all downloadable and locally available games
             have = 1
         items = database.find_games_new(
-            " ".join(terms), have=have,
-            list_uuid=LauncherSettings.get("game_list_uuid"))
+            " ".join(terms),
+            have=have,
+            list_uuid=LauncherSettings.get("game_list_uuid"),
+        )
 
         self.set_items(items)
 
@@ -171,7 +186,8 @@ class ConfigurationsBrowser(fsui.VerticalItemView):
             LauncherSettings.set("parent_uuid", item[str("uuid")])
         else:
             config_path = Database.get_instance().decode_path(
-                item[str("path")])
+                item[str("path")]
+            )
             print("load config from", config_path)
             LauncherConfig.load_file(config_path)
             LauncherSettings.set("parent_uuid", "")

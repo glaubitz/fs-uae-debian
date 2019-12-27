@@ -1,34 +1,110 @@
-Version 2.8.4:
+Version 3.0.1:
 
-* Removed GLee from source.
+* Fix video scaling when restoring from fullscreen on Windows.
 
-Version 2.8.3:
+Version 3.0.0:
 
-* Fix decoding on non-ascii %-escaped file names on directory HDs.
-* Fixed caps lock.
+* Show error during configure if OpenAL is not found.
+* More controller configs.
 * Imported updated translations from crowdin.com.
 
-Version 2.8.2u2:
+Version 2.9.12dev:
 
-* Added Added xinput_controller_11_6_1_0_windows.
+* Added controller config for DualShock 4 v2.
+* Change default for bezel option to 0 (off).
 
-Version 2.8.2u1:
+Version 2.9.11dev:
 
+* Linux: Automatically uses (Feral Interactive) GameMode daemon if available.
+* New option game_mode = 0 to disable above mentioned feature.
+* Linux: Warn if running with a CPU governor other than performance.
+* New option governor_warning = 0 to to disable above mentioned warning.
+* Fixed support for multiple mice also on Windows.
+
+Version 2.9.9dev:
+
+* Added 8BitDo controller configurations, updated dualshock 3 for Linux.
+* Fixed mouse integration.
+* Fixed support for multiple mice (was accidentally disabled).
+* More deterministic creation of fs-uae.dat [bmwiedemann].
+* HAM6 on AGA fix [sonnenscheinchen].
+* Imported updated translations from crowdin.com.
+
+Version 2.9.8dev:
+
+* New option whdload_quit_key to gracefully quit slaves.
+* Do not alias mouse clicks when joystick_port_0_autoswitch is off.
+* Added Build-Conflicts: libroar-dev to fix building on OBS.
+* Added sharp-bilinear-simple.shader [rsn8887].
+* New options window_hidden, window_minimized [cnvogelg].
+* Removed GLee from source.
+* Fixed JIT direct access on modern Linux distributions.
+* Changed default sync method on Windows to swap-finish.
+* Updated bezel.
+* New option: frame_time (can be used to limit emulation time before vsync).
+* Compatibility updates for a couple of shaders [guest.r].
+* Imported updated translations from crowdin.com.
+
+Version 2.9.7dev:
+
+* Support building with latest version of MSYS2.
+* Renamed option frame to bezel.
+* New option: force_aspect.
+* Added shaders compiled/ported/written by guest.r.
+
+Version 2.9.6dev:
+
+* Changed default fade in/out duration, only fade in fullscreen.
+* FS-UAE default is now to show a 692x540 image, not stretched to fill screen.
+* Use scale = legacy to revert to old default behavior (Can put in Host.fs-uae
+  or use FS-UAE Launcher set set globally).
+* New option scale (choose between full, integer, legacy and no scaling).
+* New option stretch (replaces keep_aspect, though it still works).
+* F11 is now a dedicated toggle auto zoom function, Alt/Cmd+Z cycles through
+  zoom modes as before.
+* Render a frame around the view when not stretched (frame = 0 to disable).
+* Cartridge freeze shortcut is now Alt/Cmd+C.
+* Alt/Cmd+A now toggles stretch mode (aspect correction).
+* Imported updated translations from crowdin.com.
+
+Version 2.9.5dev:
+
+* Added some game controller configs.
+* Restructuring to allow for (future) multiple video/audio/input drivers.
+
+Version 2.9.3dev:
+
+* Updated FS-UAE icon.
+* Allow specifying sub_title = 0 to disable the sub title.
+
+Version 2.9.2dev:
+
+* New boolean option warp_mode (warp_mode = 1 to start in warp mode).
+* Try ralphschmidt-cyberstorm-ppc-4471.rom if cyberstormppc.rom is not found.
+* Imported updated translations from crowdin.com.
+
+Version 2.9.1dev:
+
+* Configure now fails if zip or msgfmt is not found on path.
+* Added xinput_controller_11_6_1_0_windows.
+* GUI warning when running with llvmpipe software renderer.
+* Fixed caps lock.
 * Fix loading of bundled gamepad configs for macOS.
+* Fix decoding on non-ascii %-escaped file names on directory HDs.
+* Fixed loading compressed resources from fs-uae.dat on big-endian CPU.
+* Fix compilation with --disable-jit.
 
-Version 2.8.1u1:
+Version 2.9.0dev:
 
 * Fix mouse input on Windows with raw keyboard input enabled.
-
-Version 2.8.1:
-
 * Alt+F4 and Cmd+Q will no longer quit FS-UAE (in full keyboard emulation mode).
 * Use raw input on Windows again (allows grabbing of Windows keys, etc).
 * New option raw_input = 0 will disable use of raw input for keyboard.
 * Fixed loading shaders from fs-uae.dat.
 * Updated Xbox 360 configs for Linux.
+* Updated emulation core from WinUAE 3300b2.
 
-Version 2.8.0 / 2.7.16dev:
+Version 2.7.16dev:
 
 * Add -no-pie (unless JIT is explicitly disabled) if supported by linker.
 * Removed dependency on GLEW, use GLAD OpenGL loader instead.

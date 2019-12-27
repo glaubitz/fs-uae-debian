@@ -1,15 +1,9 @@
-import json
-import os
 from functools import lru_cache
 
-from fsgs.drivers.c64 import C64Driver
+from fsgs.drivers.gamedriver import GameDriver
 
 
-class Platform(object):
-    pass
-
-
-class PlatformHandler(object):
+class PlatformHandler:
     def __init__(self, loader_class=None, runner_class=None):
         self.loader_class = loader_class
         self.runner_class = runner_class
@@ -42,114 +36,174 @@ class PlatformHandler(object):
             raise Exception("loader class is None for " + repr(self))
         return self.loader_class(fsgs)
 
-    def get_runner(self, fsgs):
+    def get_runner(self, fsgs) -> GameDriver:
         if self.runner_class is None:
             raise Exception("runner class is None for " + repr(self))
         return self.runner_class(fsgs)
 
+    def driver(self, fsgc):
+        return self.get_runner(fsgc)
+
+    def loader(self, fsgc):
+        return self.get_loader(fsgc)
+
+
+class Platform(PlatformHandler):
+    AMIGA = "amiga"
+    ARCADE = "arcade"
+    A2600 = "a2600"
+    A5200 = "a5200"
+    A7800 = "a7800"
+    ATARI = "atari"
+    C64 = "c64"
+    CD32 = "cd32"
+    CDTV = "cdtv"
+    CPC = "cpc"
+    DOS = "dos"
+    GB = "gb"
+    GBA = "gba"
+    GBC = "gbc"
+    LYNX = "lynx"
+    MSX = "msx"
+    N64 = "n64"
+    NDS = "nds"
+    NEOGEO = "neogeo"
+    NES = "nes"
+    NGC = "ngc"
+    PSX = "psx"
+    SNES = "snes"
+    SGG = "sgg"
+    SMD = "smd"
+    SMS = "sms"
+    TG16 = "tg16"
+    TGCD = "tgcd"
+    ZXS = "zxs"
+
+    def get_loader(self, fsgc):
+        return self.loader(fsgc)
+
+    def get_runner(self, fsgc):
+        return self.driver(fsgc)
+
+    def driver(self, fsgc):
+        raise NotImplementedError()
+
+    def loader(self, fsgc):
+        raise NotImplementedError()
+
 
 from fsgs.platforms.amiga import AmigaPlatformHandler
 from fsgs.platforms.amstrad_cpc import AmstradCPCPlatformHandler
-from fsgs.platforms.arcade import ArcadePlatformHandler
+from fsgs.platforms.arcade.arcadeplatform import ArcadePlatformHandler
 from fsgs.platforms.atari_2600 import Atari2600PlatformHandler
-from fsgs.platforms.atari_5200 import Atari5200PlatformHandler
-from fsgs.platforms.atari_7800 import Atari7800PlatformHandler
-from fsgs.platforms.atari_st import AtariSTPlatformHandler
+from fsgs.platforms.atari5200 import Atari5200PlatformHandler
+from fsgs.platforms.atari7800 import Atari7800PlatformHandler
+from fsgs.platforms.atari.atariplatform import AtariSTPlatformHandler
 from fsgs.platforms.cd32 import CD32PlatformHandler
 from fsgs.platforms.cdtv import CDTVPlatformHandler
-from fsgs.platforms.dos import DOSPlatformHandler
-from fsgs.platforms.game_boy import GameBoyPlatformHandler
-from fsgs.platforms.game_boy_advance import GameBoyAdvancePlatformHandler
-from fsgs.platforms.game_boy_color import GameBoyColorPlatformHandler
-from fsgs.platforms.game_gear import GameGearPlatformHandler
-from fsgs.platforms.loader import SimpleLoader
+from fsgs.platforms.commodore64 import Commodore64Platform
+from fsgs.platforms.dos.dosplatform import DOSPlatformHandler
+from fsgs.platforms.gameboy import GameBoyPlatform
+from fsgs.platforms.gameboyadvance import GameBoyAdvancePlatform
+from fsgs.platforms.gameboycolor import GameBoyColorPlatform
+from fsgs.platforms.gamegear import GameGearPlatform
 from fsgs.platforms.lynx import LynxPlatformHandler
-from fsgs.platforms.master_system import MasterSystemPlatformHandler
-from fsgs.platforms.mega_drive import MegaDrivePlatformHandler
-from fsgs.platforms.nintendo import NintendoPlatformHandler
-from fsgs.platforms.super_nintendo import SuperNintendoPlatformHandler
-from fsgs.platforms.turbografx_16 import TurboGrafx16PlatformHandler
-from fsgs.platforms.zx_spectrum import ZXSpectrumPlatformHandler
+from fsgs.platforms.mastersystem import MasterSystemPlatform
+from fsgs.platforms.megadrive import MegaDrivePlatform
+from fsgs.platforms.msx import MsxPlatformHandler
+from fsgs.platforms.nintendo64 import Nintendo64Platform
+from fsgs.platforms.nintendods import NintendoDSPlatform
+from fsgs.platforms.neogeo import NeoGeoPlatform
+from fsgs.platforms.gamecube import GameCubePlatform
+from fsgs.platforms.nintendo import NintendoPlatform
+from fsgs.platforms.playstation import PlayStationPlatform
+from fsgs.platforms.supernintendo import SuperNintendoPlatformHandler
+from fsgs.platforms.turbografx16 import TurboGrafx16Platform
+from fsgs.platforms.turbografxcd import TurboGrafxCDPlatform
+from fsgs.platforms.zxs import SpectrumPlatformHandler
 
 
 class UnsupportedPlatform(PlatformHandler):
     PLATFORM_NAME = "Unsupported"
 
 
-class C64Loader(SimpleLoader):
-    def load_files(self, values):
-        file_list = json.loads(values["file_list"])
-        # assert len(file_list) == 1
-        for i, item in enumerate(file_list):
-            _, ext = os.path.splitext(item["name"])
-            if ext in [".tap"]:
-                if i == 0:
-                    self.config["tape_drive_0"] = "sha1://{0}/{1}".format(
-                        item["sha1"], item["name"])
-                self.config["tape_image_{0}".format(i)] = \
-                    "sha1://{0}/{1}".format(item["sha1"], item["name"])
-            elif ext in [".d64"]:
-                if i == 0:
-                    self.config["floppy_drive_0"] = "sha1://{0}/{1}".format(
-                        item["sha1"], item["name"])
-                self.config["floppy_image_{0}".format(i)] = \
-                    "sha1://{0}/{1}".format(item["sha1"], item["name"])
-
-
-class C64Platform(PlatformHandler):
-    PLATFORM_NAME = "Commodore 64"
-
-    def __init__(self):
-        super().__init__(C64Loader, C64Driver)
-
-
 platforms = {
-    "amiga": AmigaPlatformHandler,
-    "arcade": ArcadePlatformHandler,
-    "atari-2600": Atari2600PlatformHandler,
-    "atari-5200": Atari5200PlatformHandler,
-    "atari-7800": Atari7800PlatformHandler,
-    "atari": AtariSTPlatformHandler,
-    "c64": C64Platform,
-    "cd32": CD32PlatformHandler,
-    "cdtv": CDTVPlatformHandler,
-    "cpc": AmstradCPCPlatformHandler,
-    "dos": DOSPlatformHandler,
-    "gb": GameBoyPlatformHandler,
-    "gba": GameBoyAdvancePlatformHandler,
-    "gbc": GameBoyColorPlatformHandler,
-    "game-gear": GameGearPlatformHandler,
-    "lynx": LynxPlatformHandler,
-    "master-system": MasterSystemPlatformHandler,
-    "mega-drive": MegaDrivePlatformHandler,
-    "nes": NintendoPlatformHandler,
-    "snes": SuperNintendoPlatformHandler,
-    "turbografx-16": TurboGrafx16PlatformHandler,
-    "zx-spectrum": ZXSpectrumPlatformHandler,
+    Platform.AMIGA: AmigaPlatformHandler,
+    Platform.ARCADE: ArcadePlatformHandler,
+    Platform.A2600: Atari2600PlatformHandler,
+    Platform.A5200: Atari5200PlatformHandler,
+    Platform.A7800: Atari7800PlatformHandler,
+    Platform.ATARI: AtariSTPlatformHandler,
+    Platform.C64: Commodore64Platform,
+    Platform.CD32: CD32PlatformHandler,
+    Platform.CDTV: CDTVPlatformHandler,
+    Platform.CPC: AmstradCPCPlatformHandler,
+    Platform.DOS: DOSPlatformHandler,
+    Platform.GB: GameBoyPlatform,
+    Platform.GBA: GameBoyAdvancePlatform,
+    Platform.GBC: GameBoyColorPlatform,
+    Platform.LYNX: LynxPlatformHandler,
+    Platform.MSX: MsxPlatformHandler,
+    Platform.N64: Nintendo64Platform,
+    Platform.NDS: NintendoDSPlatform,
+    Platform.NEOGEO: NeoGeoPlatform,
+    Platform.NES: NintendoPlatform,
+    Platform.NGC: GameCubePlatform,
+    Platform.SNES: SuperNintendoPlatformHandler,
+    Platform.PSX: PlayStationPlatform,
+    Platform.SGG: GameGearPlatform,
+    Platform.SMD: MegaDrivePlatform,
+    Platform.SMS: MasterSystemPlatform,
+    Platform.TG16: TurboGrafx16Platform,
+    Platform.TGCD: TurboGrafxCDPlatform,
+    Platform.ZXS: SpectrumPlatformHandler,
 }
+PLATFORM_IDS = platforms.keys()
 
 
 def normalize_platform_id(platform_id):
     platform_id = platform_id.lower().replace("-", "").replace("_", "")
     # noinspection SpellCheckingInspection
     if platform_id in ["st", "atarist"]:
-        return "atari"
+        return Platform.ATARI
     elif platform_id in ["commodorecdtv"]:
-        return "cdtv"
+        return Platform.CDTV
     elif platform_id in ["amigacd32"]:
-        return "cd32"
+        return Platform.CD32
     elif platform_id in ["amstradcpc"]:
-        return "cpc"
+        return Platform.CPC
     elif platform_id in ["msdos"]:
-        return "dos"
+        return Platform.DOS
     elif platform_id in ["gameboy"]:
-        return "gb"
+        return Platform.GB
     elif platform_id in ["gameboyadvance"]:
-        return "gba"
+        return Platform.GBA
     elif platform_id in ["gameboycolor"]:
-        return "gbc"
+        return Platform.GBC
     elif platform_id in ["nintendo", "famicom"]:
-        return "nes"
+        return Platform.NES
+    elif platform_id in ["nintendo64"]:
+        return Platform.N64
+    elif platform_id in ["nintendods"]:
+        return Platform.NDS
+    elif platform_id in ["nintendogamecube", "gamecube", "gc"]:
+        return Platform.NGC
     elif platform_id in ["supernintendo", "supernes", "superfamicom"]:
-        return "snes"
+        return Platform.SNES
+    elif platform_id in ["zxspectrum"]:
+        return Platform.ZXS
+    elif platform_id in ["mastersystem", "segamastersystem"]:
+        return Platform.SMS
+    elif platform_id in ["megadrive", "segamegadrive", "genesis"]:
+        return Platform.SMD
+    elif platform_id in ["atari2600"]:
+        return Platform.A2600
+    elif platform_id in ["atari5200"]:
+        return Platform.A5200
+    elif platform_id in ["atari78600"]:
+        return Platform.A7800
+    elif platform_id in ["turbografx16"]:
+        return Platform.TG16
+    elif platform_id in ["gamegear", "sgg"]:
+        return Platform.SGG
     return platform_id

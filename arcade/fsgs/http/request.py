@@ -1,10 +1,10 @@
 import json
-import urllib.parse
-from .requestparams import RequestParams
+from urllib.parse import parse_qsl
+
+from fsgs.http.requestparams import RequestParams
 
 
 class Request:
-
     def __init__(self, environ):
         self.environ = environ
         self.session_id = ""
@@ -31,7 +31,8 @@ class Request:
                     setattr(self.params, key, value)
 
         query_string = environ.get("QUERY_STRING", "")
-        items = urllib.parse.parse_qsl(
-            query_string, keep_blank_values=False, strict_parsing=False)
+        items = parse_qsl(
+            query_string, keep_blank_values=False, strict_parsing=False
+        )
         for item in items:
             setattr(self.params, item[0], item[1])

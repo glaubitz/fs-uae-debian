@@ -7,7 +7,6 @@ from fsui.qt.widget import Widget
 
 
 class Panel(Widget):
-
     def __init__(self, parent, paintable=False):
         unused(paintable)
         super().__init__(parent)
@@ -28,9 +27,6 @@ class Panel(Widget):
         self._ignore_next_left_down_event = False
         # self._widget.setFocusPolicy(Qt.NoFocus)
 
-    def window(self):
-        return self._window()
-
     def on_left_down(self):
         pass
 
@@ -48,6 +44,7 @@ class Panel(Widget):
 
     def create_dc(self):
         from .DrawingContext import DrawingContext
+
         return DrawingContext(self._painter)
 
     def on_mouse_enter(self):
@@ -68,7 +65,6 @@ class Panel(Widget):
 
 # noinspection PyProtectedMember
 class WidgetWithEventHandlers(QWidget):
-
     def __init__(self, parent, owner):
         super().__init__(parent)
         self._owner = owner

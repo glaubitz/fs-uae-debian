@@ -2,7 +2,10 @@
 #include "config.h"
 #endif
 
+#define FSE_INTERNAL_API
 #include <fs/emu.h>
+#include <fs/emu/hacks.h>
+#include <fs/emu/video.h>
 #include <stdio.h>
 #include <string.h>
 #include <fs/glib.h>
@@ -138,6 +141,15 @@ void fs_emu_set_video_frame_rate(double frame_rate)
             }
         }
     }
+
+    static int last_frame_wait = 0;
+    if (fs_emu_frame_time) {
+        fs_emu_frame_wait = (1000 / frame_rate) - fs_emu_frame_time;
+        if (fs_emu_frame_wait != last_frame_wait) {
+            fs_log("[VIDEO] Frame wait is now %d ms\n", fs_emu_frame_wait);
+            last_frame_wait = fs_emu_frame_wait;
+        }
+    }
 }
 
 static void initialize()
@@ -174,30 +186,28 @@ void fs_emu_video_render_mutex_unlock() {
     fs_mutex_unlock(g_video_render_mutex);
 }
 
-#ifdef FS_EMU_DRIVERS
-/* see video/init.c instead */
-#else
-void fs_emu_video_init(void)
+void fse_init_video_2(void)
 {
-    fs_log("fs_emu_video_init\n");
-    fs_emu_video_init_options();
+    fs_log("[FSE] fse_init_video_2\n");
+    fse_init_video_options();
 
     g_video_render_mutex = fs_mutex_create();
     g_emu_video_struct_queue = g_queue_new();
     g_emu_video_struct_mutex = fs_mutex_create();
 }
-#endif
 
-int fs_emu_get_video_format() {
+int fs_emu_get_video_format()
+{
     return g_fs_emu_video_format;
 }
 
-int fs_emu_get_texture_format() {
+int fs_emu_get_texture_format()
+{
     return g_fs_emu_texture_format;
 }
 
-void fs_emu_video_init_opengl() {
-    fs_log("fs_emu_video_init_opengl\n");
+void fse_init_video_opengl() {
+    fs_log("fse_init_video_opengl\n");
     fs_emu_initialize_opengl();
     initialize();
     fs_emu_menu_init_opengl();

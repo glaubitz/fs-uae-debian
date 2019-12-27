@@ -1,10 +1,11 @@
 import fsui
-from .Constants import Constants
-from .skin import Skin
-from .TabPanel import TabPanel
+from launcher.ui.Constants import Constants
+from launcher.ui.skin import Skin
+from launcher.ui.TabPanel import TabPanel
 
 
 class TabButton(fsui.Panel):
+    activated = fsui.Signal()
 
     TYPE_TAB = 0
     TYPE_BUTTON = 1
@@ -12,8 +13,14 @@ class TabButton(fsui.Panel):
     STATE_NORMAL = 0
     STATE_SELECTED = 1
 
-    def __init__(self, parent, icon, button_type=TYPE_TAB, left_padding=0,
-                 right_padding=0):
+    def __init__(
+        self,
+        parent,
+        icon,
+        button_type=TYPE_TAB,
+        left_padding=0,
+        right_padding=0,
+    ):
         fsui.Panel.__init__(self, parent, paintable=True)
         Skin.set_background_color(self)
         self.layout = fsui.VerticalLayout()
@@ -34,14 +41,26 @@ class TabButton(fsui.Panel):
 
     def on_paint(self):
         dc = self.create_dc()
-        selected = (self.state == self.STATE_SELECTED)
+        selected = self.state == self.STATE_SELECTED
         TabPanel.draw_background(
-            self, dc, selected=selected, hover=self.hover,
-            button_style=(self.type == self.TYPE_BUTTON))
+            self,
+            dc,
+            selected=selected,
+            hover=self.hover,
+            button_style=(self.type == self.TYPE_BUTTON),
+        )
         # TabPanel.draw_border(self, dc)
         size = self.size()
-        x = self.left_padding + (size[0] - self.left_padding -
-                                 self.right_padding - self.icon.size[0]) // 2
+        x = (
+            self.left_padding
+            + (
+                size[0]
+                - self.left_padding
+                - self.right_padding
+                - self.icon.size[0]
+            )
+            // 2
+        )
         # subtracting two because of bottom border
         y = (size[1] - 2 - self.icon.size[1]) // 2
         dc.draw_image(self.icon, x, y)
@@ -76,4 +95,4 @@ class TabButton(fsui.Panel):
             self.on_activate()
 
     def on_activate(self):
-        pass
+        self.activated.emit()
