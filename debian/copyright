@@ -37,10 +37,6 @@ Files: arcade/*
 Copyright: 2013-2015 Frode Solheim <fs-uae@fengestad.no>
 License: GPL-2+
 
-Files: server/*
-Copyright: 2011-2012 Frode Solheim <fs-uae@fengestad.no>
-License: GPL-2+
-
 Files: launcher/*
 Copyright: 2011-2015 Frode Solheim <fs-uae@fengestad.no>
 License: GPL-2+

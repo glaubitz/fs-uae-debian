@@ -17,8 +17,4 @@ fs-uae is split into four packages:
   * fs-uae-arcade -   a fullscreen user interface for browsing and
                       running games for couch potatoes.
 
-  * fs-uae-netplay-server - a server daemon which allows multiplayer
-                            games over a network across different
-			    platforms running the emulator
-
- -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 06 Apr 2014 18:13:00 +0200
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 27 Dec 2019 13:47:35 +0100

@@ -17,4 +17,8 @@ used to generate src/sinctable.cpp. This Python script has been included
 as well and the upstream tarball can now be considered DFSG-compliant,
 hence the +dfsg suffix was dropped from the version number.
 
- -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 06 Apr 2014 18:27:30 +0200
+As of package version 3.0.2+dfsg-1, the fs-uae-netplay-server package
+has been dropped completely as it requires Python 2 which is no longer
+supported with Debian Bullseye.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 27 Dec 2019 13:47:35 +0100

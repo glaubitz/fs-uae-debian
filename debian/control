@@ -13,8 +13,6 @@ Build-Depends: debhelper (>= 9),
                libopenal-dev,
                libsdl2-dev,
                libxi-dev,
-               python (>= 2.6),
-               python-setuptools,
                python3-all (>= 3.2),
                python3-setuptools,
                zip
@@ -47,17 +45,6 @@ Description: Launcher and configuration program for FS-UAE
  .
  This package contains the launcher, a graphical user interface for
  setting up FS-UAE.
-
-Package: fs-uae-netplay-server
-Architecture: all
-Depends: adduser (>= 3.11), python (>= 2.6), ${misc:Depends}
-Description: Netplay server for FS-UAE online play
- FS-UAE is a cross-platform Amiga emulator based on updated emulation code
- from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
- for graphics.
- .
- This package contains the FS-UAE netplay game server, and a service
- to start game servers on demand.
 
 Package: fs-uae-arcade
 Architecture: all
