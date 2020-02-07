@@ -16,7 +16,7 @@ Build-Depends: debhelper-compat (= 12),
                python3-all (>= 3.2),
                python3-setuptools,
                zip
-Standards-Version: 3.9.8
+Standards-Version: 4.5.0
 Homepage: http://fs-uae.net
 Vcs-Git: git://github.com/glaubitz/fs-uae-debian.git
 Vcs-Browser: https://github.com/glaubitz/fs-uae-debian
