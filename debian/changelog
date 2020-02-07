@@ -1,3 +1,11 @@
+fs-uae (3.0.2+dfsg-2) unstable; urgency=medium
+
+  * Drop python-lhafile from Recommends of fs-uae-launcher package.
+  * Update debhelper version to 12 and switch to debhelper-compat.
+  * Update standards version to 4.5.0 in debian/control.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Fri, 07 Feb 2020 14:18:46 +0100
+
 fs-uae (3.0.2+dfsg-1) unstable; urgency=medium
 
   * New upstream release. (Closes: #886933, #944373)
