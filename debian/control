@@ -54,7 +54,7 @@ Depends: fs-uae,
          python3-setuptools,
          ${misc:Depends},
          ${python3:Depends}
-Recommends: fs-uae-launcher, python-lhafile
+Recommends: fs-uae-launcher
 Description: Fullscreen game browser for FS-UAE
  FS-UAE is a cross-platform Amiga emulator based on updated emulation code
  from WinUAE. FS-UAE uses SDL for input, OpenAL for audio and OpenGL
