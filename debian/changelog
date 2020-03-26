@@ -1,3 +1,9 @@
+fs-uae (3.0.3+dfsg-1) unstable; urgency=medium
+
+  * New upstream version.
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Thu, 26 Mar 2020 16:28:24 +0100
+
 fs-uae (3.0.2+dfsg-2) unstable; urgency=medium
 
   * Drop python-lhafile from Recommends of fs-uae-launcher package.
