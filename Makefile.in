@@ -204,11 +204,6 @@ nodist_libcpuemu_a_OBJECTS = gen/cpuemu_0.$(OBJEXT) \
 	gen/cpuemu_32.$(OBJEXT) gen/cpuemu_33.$(OBJEXT) \
 	gen/cpuemu_40.$(OBJEXT) gen/cpuemu_50.$(OBJEXT)
 libcpuemu_a_OBJECTS = $(nodist_libcpuemu_a_OBJECTS)
-libdummy_a_AR = $(AR) $(ARFLAGS)
-libdummy_a_LIBADD =
-nodist_libdummy_a_OBJECTS = gen/cdummy.$(OBJEXT) \
-	gen/cppdummy.$(OBJEXT)
-libdummy_a_OBJECTS = $(nodist_libdummy_a_OBJECTS)
 libfsemu_a_AR = $(AR) $(ARFLAGS)
 libfsemu_a_LIBADD =
 am__libfsemu_a_SOURCES_DIST = libfsemu/include/fs/base.h \
@@ -847,9 +842,8 @@ DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = gen/$(DEPDIR)/blitfunc.Po \
-	gen/$(DEPDIR)/blittable.Po gen/$(DEPDIR)/cdummy.Po \
-	gen/$(DEPDIR)/compemu.Po gen/$(DEPDIR)/compstbl.Po \
-	gen/$(DEPDIR)/cppdummy.Po gen/$(DEPDIR)/cpudefs.Po \
+	gen/$(DEPDIR)/blittable.Po gen/$(DEPDIR)/compemu.Po \
+	gen/$(DEPDIR)/compstbl.Po gen/$(DEPDIR)/cpudefs.Po \
 	gen/$(DEPDIR)/cpuemu_0.Po gen/$(DEPDIR)/cpuemu_11.Po \
 	gen/$(DEPDIR)/cpuemu_13.Po gen/$(DEPDIR)/cpuemu_20.Po \
 	gen/$(DEPDIR)/cpuemu_21.Po gen/$(DEPDIR)/cpuemu_22.Po \
@@ -1207,8 +1201,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES) \
-	$(libfsemu_a_SOURCES) $(libglad_a_SOURCES) $(liblua_a_SOURCES) \
+SOURCES = $(nodist_libcpuemu_a_SOURCES) $(libfsemu_a_SOURCES) \
+	$(libglad_a_SOURCES) $(liblua_a_SOURCES) \
 	$(libmanymouse_a_SOURCES) $(libpearpc_a_SOURCES) \
 	$(libprowizard_a_SOURCES) $(libslirp_a_SOURCES) \
 	$(libsoftfloat_a_SOURCES) $(libuae_a_SOURCES) \
@@ -1711,9 +1705,9 @@ dist_doc_DATA = README COPYING
 noinst_LIBRARIES = libuae.a libcpuemu.a libfsemu.a $(am__append_14) \
 	$(am__append_18) $(am__append_22) $(am__append_26) \
 	$(am__append_30) $(am__append_33) $(am__append_38) \
-	$(am__append_42) libdummy.a
+	$(am__append_42)
 BUILT_SOURCES = gen/linetoscr.cpp $(nodist_libuae_a_SOURCES) \
-	$(nodist_libcpuemu_a_SOURCES) $(nodist_libdummy_a_SOURCES)
+	$(nodist_libcpuemu_a_SOURCES)
 nodist_fs_uae_SOURCES = $(am__append_11)
 fs_uae_SOURCES = gamemode/lib/gamemode_client.h src/fs-uae/config.c \
 	src/fs-uae/config-accelerator.c \
@@ -2555,10 +2549,6 @@ libfsemu_a_SOURCES = libfsemu/include/fs/base.h \
 @WITH_SOFTFLOAT_TRUE@	softfloat/softfloatx80.cc \
 @WITH_SOFTFLOAT_TRUE@	softfloat/softfloatx80.h
 
-nodist_libdummy_a_SOURCES = \
-	gen/cdummy.c \
-	gen/cppdummy.cpp
-
 gen_build68k_SOURCES = \
 	src/build68k.cpp \
 	src/writelog.cpp
@@ -2848,15 +2838,6 @@ libcpuemu.a: $(libcpuemu_a_OBJECTS) $(libcpuemu_a_DEPENDENCIES) $(EXTRA_libcpuem
 	$(AM_V_at)-rm -f libcpuemu.a
 	$(AM_V_AR)$(libcpuemu_a_AR) libcpuemu.a $(libcpuemu_a_OBJECTS) $(libcpuemu_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libcpuemu.a
-gen/cdummy.$(OBJEXT): gen/$(am__dirstamp) \
-	gen/$(DEPDIR)/$(am__dirstamp)
-gen/cppdummy.$(OBJEXT): gen/$(am__dirstamp) \
-	gen/$(DEPDIR)/$(am__dirstamp)
-
-libdummy.a: $(libdummy_a_OBJECTS) $(libdummy_a_DEPENDENCIES) $(EXTRA_libdummy_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libdummy.a
-	$(AM_V_AR)$(libdummy_a_AR) libdummy.a $(libdummy_a_OBJECTS) $(libdummy_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libdummy.a
 libfsemu/src/audio/$(am__dirstamp):
 	@$(MKDIR_P) libfsemu/src/audio
 	@: > libfsemu/src/audio/$(am__dirstamp)
@@ -4062,10 +4043,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/blitfunc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/blittable.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cdummy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/compemu.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/compstbl.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cppdummy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpudefs.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_0.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gen/$(DEPDIR)/cpuemu_11.Po@am__quote@ # am--include-marker
@@ -5173,10 +5152,8 @@ distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 		-rm -f gen/$(DEPDIR)/blitfunc.Po
 	-rm -f gen/$(DEPDIR)/blittable.Po
-	-rm -f gen/$(DEPDIR)/cdummy.Po
 	-rm -f gen/$(DEPDIR)/compemu.Po
 	-rm -f gen/$(DEPDIR)/compstbl.Po
-	-rm -f gen/$(DEPDIR)/cppdummy.Po
 	-rm -f gen/$(DEPDIR)/cpudefs.Po
 	-rm -f gen/$(DEPDIR)/cpuemu_0.Po
 	-rm -f gen/$(DEPDIR)/cpuemu_11.Po
@@ -5677,10 +5654,8 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -rf $(top_srcdir)/autom4te.cache
 		-rm -f gen/$(DEPDIR)/blitfunc.Po
 	-rm -f gen/$(DEPDIR)/blittable.Po
-	-rm -f gen/$(DEPDIR)/cdummy.Po
 	-rm -f gen/$(DEPDIR)/compemu.Po
 	-rm -f gen/$(DEPDIR)/compstbl.Po
-	-rm -f gen/$(DEPDIR)/cppdummy.Po
 	-rm -f gen/$(DEPDIR)/cpudefs.Po
 	-rm -f gen/$(DEPDIR)/cpuemu_0.Po
 	-rm -f gen/$(DEPDIR)/cpuemu_11.Po
@@ -6177,12 +6152,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_docDATA \
 
 @WINDOWS_TRUE@.rc.o:
 @WINDOWS_TRUE@	windres $< -o $@ -I$(s)
-
-gen/cdummy.c:
-	echo "int cdummy;" > $(b)/gen/cdummy.c
-
-gen/cppdummy.cpp:
-	echo "int cppdummy;" > $(b)/gen/cppdummy.cpp
 
 @CODEGEN_TRUE@gen/blit.h: gen/genblitter$(EXEEXT)
 @CODEGEN_TRUE@	$(b)/gen/genblitter$(EXEEXT) i > $(b)/gen/blit.h
