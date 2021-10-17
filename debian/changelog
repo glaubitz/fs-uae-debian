@@ -1,3 +1,17 @@
+fs-uae (3.1.35-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #984138)
+  * Drop fs-uae-arcade and fs-uae-launcher packages from debian/control
+  * Drop fs-uae-arcade and fs-uae-launcher packages from debian/copyright
+  * Drop dh-python, python3-{all,setuptools} from B-D in debian/control
+  * Remove fs-uae-arcade links file debian/fs-uae-arcade.links
+  * Remove fs-uae-launcher links file debian/fs-uae-launcher.links
+  * Stop building fs-uae-arcade and fs-uae-launcher packages in debian/rules
+  * Update Standards-Version to 4.5.1 in debian/control
+  * Update Vcs-* fields for new Salsa project in debian/control
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Sun, 17 Oct 2021 14:27:52 +0200
+
 fs-uae (3.0.5+dfsg-1) unstable; urgency=medium
 
   * New upstream release. (Closes: #957238)
