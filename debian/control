@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Build-Depends: debhelper-compat (= 12),
                dh-autoreconf,
-               dh-python,
                gettext,
                libfreetype6-dev,
                libglew-dev,
@@ -13,8 +12,6 @@ Build-Depends: debhelper-compat (= 12),
                libopenal-dev,
                libsdl2-dev,
                libxi-dev,
-               python3-all (>= 3.2),
-               python3-setuptools,
                zip
 Standards-Version: 4.5.0
 Homepage: http://fs-uae.net
