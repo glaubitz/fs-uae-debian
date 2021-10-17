@@ -15,8 +15,8 @@ Build-Depends: debhelper-compat (= 12),
                zip
 Standards-Version: 4.5.1
 Homepage: http://fs-uae.net
-Vcs-Git: git://github.com/glaubitz/fs-uae-debian.git
-Vcs-Browser: https://github.com/glaubitz/fs-uae-debian
+Vcs-Browser: https://salsa.debian.org/debian/fs-uae
+Vcs-Git: https://salsa.debian.org/debian/fs-uae.git
 
 Package: fs-uae
 Architecture: any
