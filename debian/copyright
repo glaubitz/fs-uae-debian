@@ -33,37 +33,6 @@ Files: share/fs-uae/aros-amiga-m68k-ext.bin
 Copyright: 1995-2015 The AROS Development Team <digulla@aros.org>
 License: APL
 
-Files: arcade/*
-Copyright: 2013-2015 Frode Solheim <fs-uae@fengestad.no>
-License: GPL-2+
-
-Files: launcher/*
-Copyright: 2011-2015 Frode Solheim <fs-uae@fengestad.no>
-License: GPL-2+
-
-Files: launcher/fs_uae_launcher/res/*
-Copyright: Ulisse Perusin <uli.peru@gmail.com>
-           Riccardo Buzzotta <raozuzu@yahoo.it>
-           Josef Vybíral <cornelius@vybiral.info>
-           Hylke Bons <h.bons@student.rug.nl>
-           Ricardo González <rick@jinlabs.com>
-           Lapo Calamandrei <calamandrei@gmail.com>
-           Rodney Dawes <dobey@novell.com>
-           Luca Ferretti <elle.uca@libero.it>
-           Tuomas Kuosmanen <tigert@gimp.org>
-           Andreas Nilsson <nisses.mail@home.se>
-           Jakub Steiner <jimmac@novell.com>
-           Daniel Fore <Daniel.P.Fore@gmail.com>
-           Jonian Guveli <jonian.guveli@gmail.com>
-           K.Vishnoo Charan Reddy <vish@ubuntu.com>
-           Nuno Pinheiro <nuno@oxygen-icons.org>
-           David Vignoni <david@icon-king.com>
-           David Miller <miller@oxygen-icons.org>
-           Johann Ollivier Lapeyre <johann@oxygen-icons.org>
-           Kenneth Wimer <kwwii@bootsplash.org>
-           Riccardo Iaconelli <riccardo@oxygen-icons.org> 
-License: GPL-2+ or GPL-3+ or CC-BY-SA-3.0
-
 Files: debian/*
 Copyright: 2011-2015 Frode Solheim <fs-uae@fengestad.no>
            2013-2016 John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
