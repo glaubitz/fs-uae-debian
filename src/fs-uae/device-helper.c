@@ -65,6 +65,11 @@ static char *joystick_config_name(const char* name, int with_number)
 int ManyMouse_Init(void);
 void ManyMouse_Quit(void);
 const char *ManyMouse_DeviceName(unsigned int index);
+#ifdef MACOSX
+int multiple_mice = 0;
+#else
+int multiple_mice = 1;
+#endif
 
 static void list_joysticks(void)
 {
@@ -81,19 +86,23 @@ static void list_joysticks(void)
     printf("# Mice:\n");
     printf("M: Mouse\n");
     flush_stdout();
-    int count = ManyMouse_Init();
-    if (count >= 0) {
-        for (int i = 0; i < count; i++) {
-            const char *name = ManyMouse_DeviceName(i);
-            if (name[0] == 0 || g_ascii_strcasecmp(name, "mouse") == 0) {
-                printf("M: Mouse: Unnamed Mouse\n");
-                flush_stdout();
-            } else {
-                printf("M: Mouse: %s\n", ManyMouse_DeviceName(i));
-                flush_stdout();
+    if (multiple_mice) {
+        int count = ManyMouse_Init();
+        if (count >= 0) {
+            for (int i = 0; i < count; i++) {
+                const char *name = ManyMouse_DeviceName(i);
+                if (name[0] == 0 || g_ascii_strcasecmp(name, "mouse") == 0) {
+                    printf("M: Mouse: Unnamed Mouse\n");
+                    flush_stdout();
+                } else {
+                    printf("M: Mouse: %s\n", ManyMouse_DeviceName(i));
+                    flush_stdout();
+                }
             }
+            ManyMouse_Quit();
         }
-        ManyMouse_Quit();
+    } else {
+        printf("# Support for multiple mice not enabled\n");
     }
     printf("# Joysticks:\n");
     flush_stdout();
@@ -186,28 +195,34 @@ static void print_events(void)
            0, "Mouse");
     flush_stdout();
 
-    int count = ManyMouse_Init();
-    if (count >= 0) {
-        for (int i = 0; i < count; i++) {
-            const char *name = ManyMouse_DeviceName(i);
-            if (name[0] == 0 || g_ascii_strcasecmp(name, "mouse") == 0) {
-                printf("{\"type\": \"mouse-device-added\", \"device\": %d, "
-                       "\"name\": \"%s\"}\n",
-                       i + 1, "Unnamed Mouse");
-            } else {
-                printf("{\"type\": \"mouse-device-added\", \"device\": %d, "
-                       "\"name\": \"%s\"}\n",
-                       i + 1, ManyMouse_DeviceName(i));
+    if (multiple_mice) {
+        int count = ManyMouse_Init();
+        if (count >= 0) {
+            for (int i = 0; i < count; i++) {
+                const char *name = ManyMouse_DeviceName(i);
+                if (name[0] == 0 || g_ascii_strcasecmp(name, "mouse") == 0) {
+                    printf("{\"type\": \"mouse-device-added\", \"device\": %d, "
+                           "\"name\": \"%s\"}\n",
+                           i + 1, "Unnamed Mouse");
+                } else {
+                    printf("{\"type\": \"mouse-device-added\", \"device\": %d, "
+                           "\"name\": \"%s\"}\n",
+                           i + 1, ManyMouse_DeviceName(i));
+                }
+                flush_stdout();
             }
-            flush_stdout();
+            ManyMouse_Quit();
         }
-        ManyMouse_Quit();
+    } else {
+        printf("# Support for multiple mice not enabled\n");
     }
 
-    printf("# SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_EVENTS))\n");
+    // With recent SDL2 versions (SDL 2.0.14+?), it seems that the video
+    // subsystem must be initialized to get events from xinput controllers.
+    printf("# SDL_Init(SDL_INIT_EVERYTHING)\n");
     flush_stdout();
-    if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) < 0) {
-        printf("# SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_EVENTS)) < 0\n");
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        printf("# SDL_Init(SDL_INIT_EVERYTHING) < 0\n");
         flush_stdout();
         return;
     }
@@ -301,7 +316,6 @@ static void print_events(void)
 
 static void print_state(SDL_Joystick* joystick, const char* name)
 {
-
     int num_buttons = SDL_JoystickNumButtons(joystick);
     int num_hats = SDL_JoystickNumHats(joystick);
     int num_axes = SDL_JoystickNumAxes(joystick);
@@ -364,12 +378,18 @@ int main(int argc, char* argv[])
     }
 
     if (strcmp(argv[1], "--list") == 0 || strcmp(argv[1], "list") == 0) {
+        if (argc >= 3 && strcmp(argv[2], "--multiple-mice") == 0) {
+            multiple_mice = 1;
+        }
         list_joysticks();
         printf("# End\n");
         flush_stdout();
         return 0;
     }
     if (strcmp(argv[1], "--events") == 0) {
+        if (argc >= 3 && strcmp(argv[2], "--multiple-mice") == 0) {
+            multiple_mice = 1;
+        }
         print_events();
         printf("# End\n");
         flush_stdout();
@@ -378,9 +398,12 @@ int main(int argc, char* argv[])
 
     char* compare_name = joystick_config_name(argv[1], 1);
 
-    printf("# SDL_Init(SDL_INIT_JOYSTICK)\n");
-    if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
-        printf("# SDL_Init(SDL_INIT_JOYSTICK) < 0\n");
+    // With recent SDL2 versions (SDL 2.0.14+?), it seems that the video
+    // subsystem must be initialized to get events from xinput controllers.
+    printf("# SDL_Init(SDL_INIT_EVERYTHING)\n");
+    flush_stdout();
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        printf("# SDL_Init(SDL_INIT_EVERYTHING) < 0\n");
         flush_stdout();
         return 2;
     }

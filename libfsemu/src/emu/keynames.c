@@ -336,5 +336,11 @@ const char* g_fs_emu_key_names[] = {
     "AUDIOPREV",
     "AUDIOSTOP",
     "AUDIOPLAY",
+    "APP1",
+    "APP2",
+    "ACHOME",
+    "MAIL",
+    "ACSEARCH",
+    "MEDIASELECT",
     NULL,
 };

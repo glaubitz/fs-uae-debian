@@ -1,3 +1,20 @@
+Version 3.1:
+
+* Fix device helper for xinput devices with recent SDL2 versions.
+* Support for multiple mice disabled by default on macOS due to security
+  warning. Use option multiple_mice = 1 to enable.
+* Disable expect_version option (no longer synchronized with launcher).
+* Added support for more physical keys (when using rawinput).
+* Compilation fixes for Apple M1 hardware.
+* Netplay desync fixes related to file system (directory hard drives).
+* Better virtual memory reservation algorithm.
+* Option to automatically pause on menu screen [mrsilver76].
+* Use RTLD_DEEPBIND with dlopen on Linux when loading plugins.
+* Changes to how plugins are looked up.
+* Ide patch.
+* SCP floppy image doesn't wrap to revolution #0 cleanly [keirf].
+* Fixed crash in nname_to_aname [PowderedToastMan].
+
 Version 3.0.5:
 
 * Packaging change to satisfy Apple's changed notarization process (sigh).

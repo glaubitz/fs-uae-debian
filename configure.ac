@@ -2,7 +2,14 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([FS-UAE], [3.0.5],
+
+m4_define([fsbuild_version], [3.1.35])
+m4_define([fsbuild_version_major], [3])
+m4_define([fsbuild_version_minor], [1])
+m4_define([fsbuild_version_revision], [35])
+m4_define([fsbuild_commit], [])
+
+AC_INIT([FS-UAE], [fsbuild_version],
         [frode@fs-uae.net], [fs-uae], [https://fs-uae.net])
 AC_CONFIG_AUX_DIR([.])
 AC_CANONICAL_HOST
@@ -333,7 +340,7 @@ AS_CASE([$host_os],
     OS_CPPFLAGS="-DWINDOWS"
     AS_CASE([$host_cpu],
     [x86_64], [
-        OS_LDFLAGS="-mwindows"
+        OS_LDFLAGS="-mwindows -Wl,--image-base=0x400000"
         PACKAGE_ARCH="x86-64"
     ], [
         OS_LDFLAGS="-mwindows -Wl,--large-address-aware"
@@ -354,7 +361,12 @@ AS_CASE([$host_os],
     OS_NAME_3="macOS"
     OS_CPPFLAGS="-DMACOSX -DMACOS"
     LOADABLE_MODULE_EXT=".so"
-    OS_LDFLAGS="-headerpad_max_install_names -pagezero_size 0x2000 -rpath @executable_path/../Frameworks"
+    AS_CASE([$host_cpu],
+    [x86_64], [
+        OS_LDFLAGS="-headerpad_max_install_names -pagezero_size 0x2000 -rpath @executable_path/../Frameworks"
+    ], [
+        OS_LDFLAGS="-headerpad_max_install_names -rpath @executable_path/../Frameworks"
+    ])
 ],
 [freebsd*], [
     OS_NAME="freebsd"
@@ -713,9 +725,11 @@ AS_IF([test "x$enable_jit" != xno], [
     ], [
         AC_DEFINE([JIT], [1], [Define to 1 to enable JIT compilation])
     ], [
-        if test "x$enable_jit" != xyes; then
+        if test "x$enable_jit" = xyes; then
             AC_MSG_FAILURE(
                 [JIT is not supported on $host])
+        else
+            enable_jit=no
         fi
     ])
 ])

@@ -576,6 +576,14 @@ typedef enum {
     FS_ML_KEY_AUDIOSTOP,
     FS_ML_KEY_AUDIOPLAY,
 
+    FS_ML_KEY_APP1,
+    FS_ML_KEY_APP2,
+
+    FS_ML_KEY_ACHOME,
+    FS_ML_KEY_MAIL,
+    FS_ML_KEY_ACSEARCH,
+    FS_ML_KEY_MEDIASELECT,
+
     FS_ML_KEY_LAST
 } fs_ml_key;
 

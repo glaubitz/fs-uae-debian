@@ -1,1 +1,0 @@
-from .archive_extractor import ArchiveExtractorApplication as Application

@@ -16,13 +16,17 @@
 
 // FIXME: move to configure.ac / config.h
 #if defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
-    #define ARCH_NAME "x86-64"
-#elif defined(__i386__) || defined (_M_IX86)
-    #define ARCH_NAME "x86"
+#define ARCH_NAME "x86-64"
+#elif defined(__i386__) || defined(_M_IX86)
+#define ARCH_NAME "x86"
 #elif defined(__ppc__)
-    #define ARCH_NAME "ppc"
+#define ARCH_NAME "PPC"
+#elif defined(__aarch64__)
+#define ARCH_NAME "ARM64"
+#elif defined(__arm__)
+#define ARCH_NAME "ARM32"
 #else
-    #define ARCH_NAME "unknown"
+#define ARCH_NAME "unknown"
 #endif
 
 static GHashTable *provides;
@@ -58,26 +62,9 @@ static const char *lookup_plugin(const char *name)
     fs_get_application_exe_dir(executable_dir, FS_PATH_MAX);
     gchar *path;
 
-    path = g_build_filename(executable_dir, module_name, NULL);
-    fs_log("[PLUGINS] Checking \"%s\"\n", path);
-    if (g_file_test(path, G_FILE_TEST_EXISTS)) {
-        g_free(module_name);
-        // FIXME: resource leak if called more than once for the same
-        // plugin, should cache the path
-        return (const char*) path;
-    }
-    g_free(path);
-
+    // Check side-by-side development directory
+    // FIXME: Ideally only in development mode
     path = g_build_filename(executable_dir, "..", name, module_name, NULL);
-    fs_log("[PLUGINS] Checking \"%s\"\n", path);
-    if (g_file_test(path, G_FILE_TEST_EXISTS)) {
-        g_free(module_name);
-        // FIXME: resource leak, should cache the path
-        return (const char*) path;
-    }
-    g_free(path);
-
-    path = g_build_filename(fs_uae_plugins_dir(), module_name, NULL);
     fs_log("[PLUGINS] Checking \"%s\"\n", path);
     if (g_file_test(path, G_FILE_TEST_EXISTS)) {
         g_free(module_name);
@@ -97,8 +84,25 @@ static const char *lookup_plugin(const char *name)
     }
 #endif
 
-    /* First check within plugin os/arch directories */
+#ifdef MACOSX
+    // First check for framework
+    gchar *framework_name = g_strconcat(name, ".framework", NULL);
+    for (int i = 0; i < g_plugin_count; i++) {
+        path = g_build_filename(g_plugin_ver_dirs[i], OS_NAME_3, ARCH_NAME,
+                                framework_name, name, NULL);
+        fs_log("[PLUGINS] Checking \"%s\"\n", path);
+        if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+            g_free(module_name);
+            g_free(framework_name);
+            // FIXME: resource leak, should cache the path
+            return (const char*) path;
+        }
+        g_free(path);
+    }
+    g_free(framework_name);
+#endif
 
+    // First check within plugin os/arch directories
     for (int i = 0; i < g_plugin_count; i++) {
 #ifdef NEW_PLUGINS
         path = g_build_filename(g_plugin_ver_dirs[i], OS_NAME_3, ARCH_NAME,
@@ -116,8 +120,7 @@ static const char *lookup_plugin(const char *name)
         g_free(path);
     }
 
-    /* Check outside arch directories */
-
+    // Check outside arch directories
     for (int i = 0; i < g_plugin_count; i++) {
         path = g_build_filename(g_plugin_ver_dirs[i], module_name, NULL);
         fs_log("[PLUGINS] Checking \"%s\"\n", path);
@@ -128,6 +131,27 @@ static const char *lookup_plugin(const char *name)
         }
         g_free(path);
     }
+
+    // Directly in old plugins dir
+    path = g_build_filename(fs_uae_plugins_dir(), module_name, NULL);
+    fs_log("[PLUGINS] Checking \"%s\"\n", path);
+    if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+        g_free(module_name);
+        // FIXME: resource leak, should cache the path
+        return (const char*) path;
+    }
+    g_free(path);
+
+    // Sideloaded with executable
+    path = g_build_filename(executable_dir, module_name, NULL);
+    fs_log("[PLUGINS] Checking \"%s\"\n", path);
+    if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+        g_free(module_name);
+        // FIXME: resource leak if called more than once for the same
+        // plugin, should cache the path
+        return (const char*) path;
+    }
+    g_free(path);
 
     g_free(module_name);
     return NULL;
@@ -216,15 +240,16 @@ static void load_plugins_from_dir(const char *plugins_dir)
     const gchar *name;
     while ((name = g_dir_read_name(dir))) {
         gchar *p = g_build_filename(plugins_dir, name, NULL);
-#if NEW_PLUGINS
-        gchar *p2 = g_build_filename(p, "Version.txt", NULL);
-#else
         gchar *p2 = g_build_filename(p, "Plugin.ini", NULL);
-#endif
+        // Legacy check
+        gchar *p3 = g_build_filename(p, "Version.txt", NULL);
         fs_log("[PLUGINS] Checking %s\n", p2);
         if (g_file_test(p2, G_FILE_TEST_IS_REGULAR)) {
-            load_plugin(p, p2);
+            load_plugin(p, NULL);
+        } else if (g_file_test(p3, G_FILE_TEST_IS_REGULAR)) {
+            load_plugin(p, NULL);
         }
+        g_free(p3);
         g_free(p2);
         g_free(p);
     }
@@ -237,22 +262,42 @@ void fs_uae_plugins_init()
     provides = g_hash_table_new(g_str_hash, g_str_equal);
     amiga_set_plugin_lookup_function(lookup_plugin);
 
-    const char *plugins_dir = fs_uae_plugins_dir();
-    load_plugins_from_dir(plugins_dir);
+    // First check FS-UAE/System
+    load_plugins_from_dir(fs_uae_system_dir());
 
+    // Then the older FS-UAE/Plugins directory
+    load_plugins_from_dir(fs_uae_plugins_dir());
+
+    // Then load side-by-side plugins
     gchar *path;
     char executable_dir[FS_PATH_MAX];
     fs_get_application_exe_dir(executable_dir, FS_PATH_MAX);
+#if 0
     path = g_build_filename(
                 executable_dir, "..", "lib", "fs-uae", "plugins", NULL);
     if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
         load_plugins_from_dir(path);
     }
     g_free(path);
-    path = g_build_filename(
-                executable_dir, "..", "..", "..", "Plugins", NULL);
-    if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
-        load_plugins_from_dir(path);
-    }
+#endif
+#ifdef MACOSX
+    path = g_build_filename(executable_dir, "..", "..", "..", "..", "..", "Plugin.ini", NULL);
+#else
+    path = g_build_filename(executable_dir, "..", "..", "Plugin.ini", NULL);
+#endif
+    fs_log("[PLUGINS] Test %s\n", path);
+    bool is_plugin = g_file_test(path, G_FILE_TEST_EXISTS);
     g_free(path);
+    fs_log("[PLUGINS] Is plugin: %d\n", is_plugin);
+    if (is_plugin) {
+        #ifdef MACOSX
+            path = g_build_filename(executable_dir, "..", "..", "..", "..", "..", "..", NULL);
+        #else
+            path = g_build_filename(executable_dir, "..", "..", "..", NULL);
+        #endif
+        if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
+            load_plugins_from_dir(path);
+        }
+        g_free(path);
+    }
 }
