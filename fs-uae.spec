@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-%define fsbuild_version 3.1.35
+%define fsbuild_version 3.1.47
 
 %define name fs-uae
 %define version %{fsbuild_version}
@@ -27,7 +27,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 URL: http://fs-uae.net/
-Source0: %{name}-%{unmangled_version}.tar.gz
+Source0: %{name}-%{unmangled_version}.tar.xz
 License: GPL-2.0+
 Group: System/Emulators/Other
 %if 0%{?suse_version}
