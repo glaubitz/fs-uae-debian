@@ -3,10 +3,10 @@
 
 AC_PREREQ([2.67])
 
-m4_define([fsbuild_version], [3.1.35])
+m4_define([fsbuild_version], [3.1.47])
 m4_define([fsbuild_version_major], [3])
 m4_define([fsbuild_version_minor], [1])
-m4_define([fsbuild_version_revision], [35])
+m4_define([fsbuild_version_revision], [47])
 m4_define([fsbuild_commit], [])
 
 AC_INIT([FS-UAE], [fsbuild_version],
@@ -53,6 +53,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AM_PROG_AR
 AM_PROG_CC_C_O
 # AC_PATH_TOOL(OBJCOPY, objcopy)
 AC_PATH_PROG([MSGFMT], [msgfmt], [not found])
