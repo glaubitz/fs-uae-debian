@@ -1,3 +1,9 @@
+fs-uae (3.1.59-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Mon, 22 Nov 2021 10:43:06 +0100
+
 fs-uae (3.1.47-1) unstable; urgency=medium
 
   * New upstream release
