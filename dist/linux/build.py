@@ -78,19 +78,21 @@ else:
     s("make -C ../..")
 
 s("cp -a ../../fs-uae {package_dir}/fs-uae")
-# s("cp -a ../../fs-uae.dat {package_dir}/fs-uae.dat")
 # s("PYTHONPATH=../../../fs-uae-launcher:../../../../fs-uae-launcher "
 #   "python3 -m fspy.zipfile deterministic {package_dir}/fs-uae.dat")
 s("cp -a ../../fs-uae-device-helper {package_dir}/fs-uae-device-helper")
 
-s("mkdir FS-UAE/Data")
-s("cp -a ../../fs-uae.dat FS-UAE/Data/fs-uae.dat")
+# s("mkdir FS-UAE/Data")
+# s("cp -a ../../fs-uae.dat FS-UAE/Data/fs-uae.dat")
+s("cp -a ../../fs-uae.dat {package_dir}/fs-uae.dat")
+
 # FIXME: Disabled for now since it references another project
 # s("PYTHONPATH=../../../fs-uae-launcher:../../../../fs-uae-launcher "
 #   "python3 -m fspy.zipfile deterministic FS-UAE/Data/fs-uae.dat")
 # s("mkdir -p {package_dir}/share")
 # s("cp -a ../../share/locale {package_dir}/share/locale")
-s("cp -a ../../share/locale FS-UAE/Data/Locale")
+s("mkdir FS-UAE/Locale")
+s("cp -a ../../share/locale/* FS-UAE/Locale")
 # s("mkdir -p {package_dir}/share/fs-uae")
 # s("touch {package_dir}/share/fs-uae/share-dir")
 
