@@ -509,7 +509,7 @@ static void map_custom_joystick_actions_2(
     }
 }
 
-static char *joystick_long_config_name(const fs_ml_input_device *device)
+static char *joystick_config_name_long(const fs_ml_input_device *device)
 {
     const char *in = device->name;
     char *result = g_malloc(strlen(device->name) + 1);
@@ -551,6 +551,15 @@ static char *joystick_long_config_name(const fs_ml_input_device *device)
     return result2;
 }
 
+static char *joystick_config_name_guid(const fs_ml_input_device *device)
+{
+    if (device->guid == NULL) {
+        return NULL;
+    }
+    return g_strdup(device->guid);
+}
+
+
 static char *joystick_config_name(const char* name, int with_number)
 {
     const char *in = name;
@@ -587,10 +596,20 @@ static char *joystick_config_name(const char* name, int with_number)
 static void map_custom_gamepad_actions(
         int joy, const char *name, fs_ml_input_device *device)
 {
-    char* config_name = joystick_long_config_name(device);
-    fs_log("[INPUT] Config name \"%s\"\n", config_name);
-    input_config_item *config = get_config_for_device(config_name,
-            "universal");
+    input_config_item *config = NULL;
+    char* config_name = joystick_config_name_guid(device);
+    if (config_name) {
+        fs_log("[INPUT] Config name \"%s\"\n", config_name);
+        config = get_config_for_device(config_name, "universal");
+    }
+    if (config == NULL) {
+        if (config_name) {
+            g_free(config_name);
+        }
+        config_name = joystick_config_name_long(device);
+        fs_log("[INPUT] Config name \"%s\"\n", config_name);
+        config = get_config_for_device(config_name, "universal");
+    }
     if (config == NULL) {
         fs_log("[INPUT] Did not find generic gamepad config for device "
                "\"%s\"\n", config_name);
@@ -619,6 +638,9 @@ static void map_custom_gamepad_actions(
         int index = button_index(-1, joy, config[j].axis, config[j].hat,
                 config[j].button, config[j].value);
         int action = fs_emu_input_action_from_string(config_value);
+        if (g_fs_log_input) {
+            fs_log("[INPUT] -> index %d action %d\n", index, action);
+        }
         if (action >= 0) {
             g_input_action_table[index] = action;
         }
@@ -658,6 +680,10 @@ static void map_custom_joystick_actions()
                     device.hats, device.buttons);
             map_custom_gamepad_actions(i, config_name, &device);
             g_free(config_name);
+
+            // Input mapping for all controllers
+            map_custom_gamepad_actions(i, "controller", &device);
+
             joystick_index += 1;
         }
     }
@@ -1104,6 +1130,17 @@ static input_config_item *get_config(
     char *config_name = NULL;
 
     if (config == NULL) {
+        config_name = joystick_config_name_guid(device);
+        if (config_name) {
+            fs_log("config name \"%s\"\n", config_name);
+            config = get_config_for_device(config_name, type);
+            if (config == NULL) {
+                fs_log("did not find config for device \"%s\"\n", config_name);
+            }
+            free(config_name);
+        }
+    }
+    if (config == NULL) {
         fs_log("config name \"%s\"\n", device->name);
         config = get_config_for_device(device->name, type);
         if (config == NULL) {
@@ -1111,7 +1148,7 @@ static input_config_item *get_config(
         }
     }
     if (config == NULL) {
-        config_name = joystick_long_config_name(device);
+        config_name = joystick_config_name_long(device);
         fs_log("config name \"%s\"\n", config_name);
         config = get_config_for_device(config_name, type);
         if (config == NULL) {
@@ -1142,9 +1179,11 @@ static input_config_item *get_config(
 
 int fs_emu_configure_joystick(
         const char *name, const char *type, fs_emu_input_mapping *mapping,
-        int usage, char *out_name, int out_name_len, bool reuse)
+        int usage, char *out_name, int out_name_len, bool reuse,
+        int port_index)
 {
-    fs_log("configure joystick \"%s\" for \"%s\"\n", name, type);
+    fs_log("configure joystick \"%s\" for \"%s\" (port index %d\n",
+        name, type, port_index);
     if (name == NULL || name[0] == '\0') {
         return 0;
     }
@@ -1181,6 +1220,12 @@ int fs_emu_configure_joystick(
             map_joystick(i, config + j, mapping, g_input_action_table,
                     NULL, NULL);
         }
+
+        // Input mapping for controller in port
+        char *config_name = g_strdup_printf(
+            "joystick_port_%d_controller", port_index);
+        map_custom_gamepad_actions(i, config_name, &device);
+        free(config_name);
 
         fs_ml_input_device *devices = fs_ml_get_input_devices(NULL);
         devices[i].usage = usage;
@@ -1466,6 +1511,14 @@ static void read_input_configs_from_dir(const char *dir_name)
                                     g_strdup(dir2_name));
                 //fs_log("[*] %s\n", name3);
                 g_free(name3);
+            } else if (g_str_has_suffix(name, ".fs-uae-controller")) {
+                // remove .fs-uae-controller suffix
+                char* name3 = g_strdup(name);
+                name3[strlen(name3) - 18] = '\0';
+                g_hash_table_insert(g_input_config_paths, g_strdup(name3),
+                                    g_strdup(dir2_name));
+                //fs_log("[*] %s\n", name3);
+                g_free(name3);
             }
             g_free(dir2_name);
             continue;
@@ -1515,6 +1568,13 @@ static void init_input_configs()
         read_input_configs_from_dir(dir_name);
         free(dir_name);
     }
+
+    dir_name = fs_get_program_data_file("input/" OS_NAME);
+    if (dir_name != NULL) {
+        read_input_configs_from_dir(dir_name);
+        free(dir_name);
+    }
+
     // read override configurations
     if (g_controllers_dir) {
         read_input_configs_from_dir(g_controllers_dir);
@@ -1800,7 +1860,7 @@ static void initialize_devices_for_menu(void)
             }
         }
         if (config == NULL) {
-            char *config_name = joystick_long_config_name(&device);
+            char *config_name = joystick_config_name_long(&device);
             config = get_config_for_device(config_name, "menu");
             if (config == NULL) {
                 fs_log("[INPUT] Did not find menu config for device "
