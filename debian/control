@@ -2,7 +2,7 @@ Source: fs-uae
 Section: otherosfs
 Priority: optional
 Maintainer: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Build-Depends: debhelper-compat (= 12),
+Build-Depends: debhelper-compat (= 13),
                dh-autoreconf,
                gettext,
                libfreetype6-dev,
