@@ -8,7 +8,7 @@ Copyright: 1995-2002 Bernd Schmidt <bernds@btinternet.com>
            2003-2007 Richard Drummond <uae@rcdrummond.net>
            2006-2011 Mustafa 'GnoStiC' Tufan <mustafa.tufan@gmail.com>
            2011-2015 Frode Solheim <fs-uae@fengestad.no>
-	   and contributors
+           and contributors
 License: GPL-2+
 
 Files: libfsemu/*
@@ -587,7 +587,7 @@ License: APL
  		 to use, reproduce, modify, display, perform, sublicense
  		 and distribute the Original Code (or portions thereof)
  		 with or without Modifications, and/or as part of a Larger
-		  Work; and
+ 	  Work; and
  .
  	     (b) under Patents Claims infringed by the making, using
  	         or selling of Original Code, to make, have made, use,
@@ -771,10 +771,10 @@ License: APL
  .
         (a) comply with the terms of this License to the maximum extent possible; and
         (b) describe the limitations and the code they affect. Such description must be
-	    included in the LEGAL file described in Section 3.4 and must be included with
-	    all distributions of the Source Code. Except to the extent prohibited by statute
-	    or regulation, such description must be sufficiently detailed for a recipient of
-	    ordinary skill to be able to understand it.
+ 	    included in the LEGAL file described in Section 3.4 and must be included with
+ 	    all distributions of the Source Code. Except to the extent prohibited by statute
+ 	    or regulation, such description must be sufficiently detailed for a recipient of
+ 	    ordinary skill to be able to understand it.
  .
  5. Application of this License.
  .
