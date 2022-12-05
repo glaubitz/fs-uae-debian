@@ -1,3 +1,16 @@
+fs-uae (3.1.66-2) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Use secure copyright file specification URI
+  * debian/copyright: use spaces rather than tabs to start continuation lines
+  * Use secure URI in Homepage field
+  * Bump debhelper from old 12 to 13
+  * Drop unnecessary dependency on dh-autoreconf
+  * Remove unused license definitions for GPL-3+, CC-BY-SA-3.0
+  * Update standards version to 4.6.1, no changes needed
+
+ -- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>  Mon, 05 Dec 2022 13:48:30 +0100
+
 fs-uae (3.1.66-1) unstable; urgency=medium
 
   * New upstream release
