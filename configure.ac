@@ -3,10 +3,10 @@
 
 AC_PREREQ([2.67])
 
-m4_define([fsbuild_version], [3.1.66])
+m4_define([fsbuild_version], [3.2.35])
 m4_define([fsbuild_version_major], [3])
-m4_define([fsbuild_version_minor], [1])
-m4_define([fsbuild_version_revision], [66])
+m4_define([fsbuild_version_minor], [2])
+m4_define([fsbuild_version_revision], [35])
 m4_define([fsbuild_commit], [])
 
 AC_INIT([FS-UAE], [fsbuild_version],
@@ -134,6 +134,12 @@ AX_CHECK_COMPILE_FLAG(-Wmissing-format-attribute,
 AM_CONDITIONAL([W_MISSING_FORMAT_ATTRIBUTE],
 [test x$w_missing_format_attribute = xyes])
 
+AX_CHECK_COMPILE_FLAG(-Wno-c++11-narrowing,
+[w_no_cpp11_narrowing=yes],
+[w_no_cpp11_narrowing=no])
+AM_CONDITIONAL([W_NO_CPP11_NARROWING],
+[test x$w_no_cpp11_narrowing = xyes])
+
 AX_CHECK_COMPILE_FLAG(-fno-pie,
 [fno_pie=yes],
 [fno_pie=no])
@@ -183,8 +189,8 @@ AC_CHECK_LIB([dl], [dlopen])
 # not using freetype right now
 # AC_DEFINE([USE_FREETYPE], [1], [Define to 1 to use FreeType])
 # PKG_CHECK_MODULES([FREETYPE], [freetype2])
-AC_SUBST([FREETYPE_CFLAGS])
-AC_SUBST([FREETYPE_LIBS])
+# AC_SUBST([FREETYPE_CFLAGS])
+# AC_SUBST([FREETYPE_LIBS])
 
 AC_CHECK_LIB([gdi32], [main])
 
@@ -333,6 +339,7 @@ AC_SUBST([OS_NAME])
 AC_SUBST([OS_NAME_2])
 AC_SUBST([OS_NAME_3])
 AC_SUBST([PACKAGE_ARCH])
+AC_SUBST([SLIRP_LIBS])
 AS_CASE([$host_os],
 [mingw*], [
     OS_NAME="windows"
@@ -368,6 +375,7 @@ AS_CASE([$host_os],
     ], [
         OS_LDFLAGS="-headerpad_max_install_names -rpath @executable_path/../Frameworks"
     ])
+    SLIRP_LIBS="-lresolv"
 ],
 [freebsd*], [
     OS_NAME="freebsd"
@@ -657,7 +665,7 @@ REQ_FEATURE([AUTOCONFIG], [autoconfig], [autoconfig],
             [autoconfig support, fast ram, harddrives etc...])
 OPT_FEATURE([BSDSOCKET], [bsdsocket], [bsdsocket],
             [built-in bsdsocket.library])
-DIS_FEATURE([WITH_BUILTIN_SLIRP], [builtin_slirp], [builtin-slirp],
+OPT_FEATURE([WITH_BUILTIN_SLIRP], [builtin_slirp], [builtin-slirp],
             [built-in SLIRP implementation (unsupported)])
 OPT_FEATURE([CAPS], [caps], [caps],
             [IPF support via libcapsimage])
