@@ -6,13 +6,77 @@
 #include "events.h"
 #include "uae.h"
 
+// #ifdef _WIN32
+// #define USE_LEGACY_WIN32_TIME_FUNCTIONS 1
+// #else
+#define USE_GLIB_TIME_FUNCTIONS 1
+// #endif
+
+#ifdef USE_GLIB_TIME_FUNCTIONS
+
+#include <glib.h>
+
+static gint64 uae_time_epoch;
+
+uae_time_t uae_time(void)
+{
+	int64_t t = g_get_monotonic_time() - uae_time_epoch;
+	// Will overflow in 49.71 days. Whether that is a problem depends on usage.
+	// Should go through all old uses of read_processor_time / uae_time and
+	// make sure to use overflow-safe code or move to 64-bit timestamps.
+	return (uae_time_t) t;
+}
+
+// Since GLib 2.53.3, g_get_monotonic times uses QueryPerformanceCounter on
+// Windows. So we can now use this on all platforms.
+// I don't think the value can be negative, but resolution is high enough that
+// we don't need to care about signed/unsigned, so we just use int64_t.
+
+int64_t uae_time_us(void)
+{
+	// We subtrach epoch here so that this function uses the same epoch as
+	// the 32-bit uae_time legacy function. Maybe not necessary.
+	return g_get_monotonic_time() - uae_time_epoch;
+}
+
+#if 0
+// Don't think we need this kind of precision in slirp_uae
+int64_t uae_time_ns(void)
+{
 #ifdef _WIN32
+
+else
+	// FIXME: Should probably copy time functions from Glib if neccessary to
+	// get nanosecond precision, so that we can use the macOS nanosecond
+	// implementation, and then use the same code for the usec one (except
+	// dividing by 1000) so that the timers are compatible (same epoch).
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+#endif
+}
+#endif
+
+void uae_time_calibrate(void)
+{
+
+}
+
+void uae_time_init(void)
+{
+	if (uae_time_epoch == 0) {
+		uae_time_epoch = g_get_monotonic_time();
+	}
+}
+
+#endif // USE_GLIB_TIME_FUNCTIONS
+
+#ifdef USE_LEGACY_WIN32_TIME_FUNCTIONS
 
 #include <process.h>
 
 static int userdtsc = 0;
 static int qpcdivisor = 0;
-static SYSTEM_INFO si;
 
 static frame_time_t read_processor_time_qpf(void)
 {
@@ -148,9 +212,6 @@ static void figure_processor_speed_qpf(void)
 
 void uae_time_calibrate(void)
 {
-	if (si.dwNumberOfProcessors > 1) {
-		userdtsc = 0;
-	}
 	if (userdtsc) {
 		figure_processor_speed_rdtsc();
 	}
@@ -164,23 +225,22 @@ void uae_time_use_rdtsc(bool enable)
 	userdtsc = enable;
 }
 
-#elif defined(USE_GLIB)
-
-#include <glib.h>
-
-static gint64 epoch;
-
-uae_time_t uae_time(void)
+void uae_time_init(void)
 {
-	return (uae_time_t) g_get_monotonic_time();
+	static bool initialized = false;
+	if (initialized) {
+		return;
+	}
+	static SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	if (si.dwNumberOfProcessors > 1) {
+		userdtsc = 0;
+	}
+	uae_time_calibrate();
+	initialized = true;
 }
 
-void uae_time_calibrate(void)
-{
-
-}
-
-#endif
+#endif // USE_WIN32_TIME_FUNCTIONS
 
 #ifdef FSUAE
 
@@ -207,16 +267,3 @@ void uae_deterministic_amiga_time(int *days, int *mins, int *ticks)
 }
 
 #endif
-
-void uae_time_init(void)
-{
-	static bool initialized = false;
-	if (initialized) {
-		return;
-	}
-#ifdef _WIN32
-	GetSystemInfo(&si);
-#endif
-	uae_time_calibrate();
-	initialized = true;
-}

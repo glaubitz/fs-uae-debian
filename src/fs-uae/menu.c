@@ -109,7 +109,7 @@ static char *get_floppy_label(const char* path) {
 #endif
 }
 
-static char g_input_desc[4][MAX_DEVICE_NAME_LEN + 1] = {};
+static char g_input_desc[FS_UAE_NUM_INPUT_PORTS][MAX_DEVICE_NAME_LEN + 1] = {};
 
 static void update_input_item(fs_emu_menu_item *item, int port)
 {

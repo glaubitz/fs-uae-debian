@@ -18,7 +18,7 @@ progdir:
 
 	make -C ../..
 
-        # For qemu-uae on Windows
+	# For qemu-uae on Windows
 	# python3 clib.py libpixman-1-0.dll $(fs_uae_dir)
 
 	cp -a ../../fs-uae.exe $(fs_uae_dir)/
@@ -39,7 +39,20 @@ progdir:
 	# strip $(fs_uae_dir)/*.exe
 	# strip $(fs_uae_dir)/*.dll
 
-	cd ../.. && python3 fsbuild/standalone.py dist/windows/$(fs_uae_dir)
+	# cd ../.. && python3 fsbuild/standalone.py dist/windows/$(fs_uae_dir)
+	cp $$MINGW_PREFIX/bin/libgcc_s_seh-1.dll $(fs_uae_dir)
+	cp $$MINGW_PREFIX/bin/libstdc++-6.dll $(fs_uae_dir)
+	cp $$MINGW_PREFIX/bin/libwinpthread-1.dll $(fs_uae_dir)
+
+	cp ../../build/env/_prefix/bin/libglib-2.0-0.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/libiconv-2.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/libintl-8.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/libmpeg2-0.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/libmpeg2convert-0.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/libpng16-16.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/OpenAL32.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/SDL2.dll $(fs_uae_dir)
+	cp ../../build/env/_prefix/bin/zlib1.dll $(fs_uae_dir)
 
 	python3 sign.py $(fs_uae_dir)/*.exe
 
