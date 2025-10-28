@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Build-Depends: debhelper-compat (= 13),
                gettext,
-               libfreetype6-dev,
+               libfreetype-dev,
                libglew-dev,
                libglib2.0-dev,
                libmpeg2-4-dev,
